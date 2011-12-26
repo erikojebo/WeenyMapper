@@ -1,34 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Dynamic;
 using System.Text.RegularExpressions;
+using WeenyMapper.Conventions;
 
 namespace WeenyMapper
 {
     public class DynamicSelectExecutor : DynamicObject
     {
-        private readonly string _connectionString;
+        private readonly IConvention _convention;
 
-        public DynamicSelectExecutor(string connectionString)
+        public DynamicSelectExecutor(IConvention convention)
         {
-            _connectionString = connectionString;
+            _convention = convention;
         }
+
+        public string ConnectionString { get; set; }
 
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
         {
             var regex = new Regex("(?<className>.*)By(?<propertyName>.*)");
             var match = regex.Match(binder.Name);
 
-            var tableName = "[" + match.Groups["className"].Value + "]"; // Duplication with insert executor, and convention logic goes here later
-
-            var columnName = match.Groups["propertyName"]; // convention logic goes here later
+            var tableName = _convention.GetTableName(match.Groups["className"].Value);
+            
+            var columnName = _convention.GetColumnName(match.Groups["propertyName"].Value);
             var columnValue = args[0];
 
             var whereClause = string.Format("{0} = '{1}'", columnName, columnValue);
             var commandString = string.Format("select * from {0} where {1}", tableName, whereClause);
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
 
@@ -37,7 +39,7 @@ namespace WeenyMapper
                     var reader = command.ExecuteReader();
 
                     var values = new Dictionary<string, object>();
-                    
+
                     reader.Read();
 
                     for (int i = 0; i < reader.FieldCount; i++)
@@ -54,7 +56,5 @@ namespace WeenyMapper
 
             return true;
         }
-
-
     }
 }

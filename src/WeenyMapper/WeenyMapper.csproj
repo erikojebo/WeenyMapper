@@ -40,6 +40,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Conventions\DefaultConvention.cs" />
+    <Compile Include="Conventions\IConvention.cs" />
     <Compile Include="DynamicInsertExecutor.cs" />
     <Compile Include="DynamicQueryResult.cs" />
     <Compile Include="DynamicSelectExecutor.cs" />

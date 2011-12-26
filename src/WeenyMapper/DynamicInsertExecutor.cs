@@ -2,22 +2,27 @@
 using System.Data.SqlClient;
 using System.Dynamic;
 using System.Linq;
+using WeenyMapper.Conventions;
 
 namespace WeenyMapper
 {
     public class DynamicInsertExecutor : DynamicObject
     {
-        private readonly string _connectionString;
+        private readonly IConvention _convention;
 
-        public DynamicInsertExecutor(string connectionString)
+        public DynamicInsertExecutor() : this(new DefaultConvention()) {}
+
+        public DynamicInsertExecutor(IConvention convention)
         {
-            _connectionString = connectionString;
+            _convention = convention;
         }
+
+        public string ConnectionString { get; set; }
 
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
         {
             var className = binder.Name;
-            var tableName = "[" + className + "]"; // Convention logic will be used here at a later point
+            var tableName = _convention.GetTableName(className);
 
             var objectToInsert = args[0];
 
@@ -45,7 +50,7 @@ namespace WeenyMapper
 
         private void ExecuteCommand(string commandString)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
 

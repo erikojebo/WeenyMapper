@@ -8,12 +8,12 @@ namespace WeenyMapper
 
         public dynamic Insert
         {
-            get { return new DynamicInsertExecutor(ConnectionString); }
+            get { return new DynamicInsertExecutor { ConnectionString = ConnectionString }; }
         }
 
         public dynamic Find
         {
-            get { return new DynamicSelectExecutor(ConnectionString); }
+            get { return new DynamicSelectExecutor { ConnectionString = ConnectionString }; }
         }
     }
 }
