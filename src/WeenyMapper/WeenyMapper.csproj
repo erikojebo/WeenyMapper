@@ -45,7 +45,10 @@
     <Compile Include="DynamicInsertExecutor.cs" />
     <Compile Include="DynamicQueryResult.cs" />
     <Compile Include="DynamicSelectExecutor.cs" />
+    <Compile Include="QueryParsing\IQueryParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QueryParsing\SelectQuery.cs" />
+    <Compile Include="QueryParsing\QueryParser.cs" />
     <Compile Include="Repository.cs" />
     <Compile Include="SqlGeneration\ISqlGenerator.cs" />
     <Compile Include="SqlGeneration\TSqlGenerator.cs" />

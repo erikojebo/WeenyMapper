@@ -52,6 +52,7 @@
     <Compile Include="Conventions\DefaultConventionSpecs.cs" />
     <Compile Include="Entities\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QueryParsing\QueryParserSpecs.cs" />
     <Compile Include="RepositoryAcceptanceSpecs.cs" />
     <Compile Include="SqlGeneration\TSqlGeneratorSpecs.cs" />
   </ItemGroup>

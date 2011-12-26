@@ -3,6 +3,7 @@ using System.Data.SqlClient;
 using System.Dynamic;
 using System.Text.RegularExpressions;
 using WeenyMapper.Conventions;
+using WeenyMapper.QueryParsing;
 using WeenyMapper.SqlGeneration;
 
 namespace WeenyMapper
@@ -11,25 +12,25 @@ namespace WeenyMapper
     {
         private readonly IConvention _convention;
         private readonly ISqlGenerator _sqlGenerator;
+        private readonly IQueryParser _queryParser;
 
-        public DynamicSelectExecutor() : this(new DefaultConvention(), new TSqlGenerator()) {}
+        public DynamicSelectExecutor() : this(new DefaultConvention(), new TSqlGenerator(), new QueryParser()) {}
 
-        public DynamicSelectExecutor(IConvention convention, ISqlGenerator sqlGenerator)
+        public DynamicSelectExecutor(IConvention convention, ISqlGenerator sqlGenerator, IQueryParser queryParser)
         {
             _convention = convention;
             _sqlGenerator = sqlGenerator;
+            _queryParser = queryParser;
         }
 
         public string ConnectionString { get; set; }
 
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
         {
-            var regex = new Regex("(?<className>.*)By(?<propertyName>.*)");
-            var match = regex.Match(binder.Name);
-
-            var tableName = _convention.GetTableName(match.Groups["className"].Value);
-
-            var columnName = _convention.GetColumnName(match.Groups["propertyName"].Value);
+            var query = _queryParser.ParseSelectQuery(binder.Name);
+            
+            var tableName = _convention.GetTableName(query.ClassName);
+            var columnName = _convention.GetColumnName(query.ConstraintProperties[0]);
             var columnValue = args[0];
 
             var constraints = new Dictionary<string, object>();
