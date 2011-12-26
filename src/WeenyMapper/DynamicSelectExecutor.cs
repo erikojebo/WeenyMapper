@@ -37,6 +37,15 @@ namespace WeenyMapper
 
             var command = _sqlGenerator.GenerateSelectQuery(tableName, constraints);
 
+            result = CreateResult(command);
+
+            return true;
+        }
+
+        private DynamicQueryResult CreateResult(SqlCommand command)
+        {
+            DynamicQueryResult result;
+
             using (var connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
@@ -53,7 +62,7 @@ namespace WeenyMapper
                 command.Dispose();
             }
 
-            return true;
+            return result;
         }
 
         private Dictionary<string, object> GetValues(SqlDataReader reader)
