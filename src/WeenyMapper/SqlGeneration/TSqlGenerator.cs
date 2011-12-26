@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 
@@ -28,9 +27,21 @@ namespace WeenyMapper.SqlGeneration
 
         private string CreateWhereClause(IDictionary<string, object> constraints)
         {
-            var columnName = constraints.First().Key;
-            
-            var whereClause = string.Format("where {0} = @{1}", Escape(columnName), columnName);
+            var whereClause = "where ";
+
+            for (int i = 0; i < constraints.Count; i++)
+            {
+                var columnName = constraints.ElementAt(i).Key;
+
+                whereClause += string.Format("{0} = @{1}", Escape(columnName), columnName);
+
+                var isLastConstraint = i == constraints.Count - 1;
+
+                if (!isLastConstraint)
+                {
+                    whereClause += " and ";
+                }
+            }
 
             return whereClause;
         }

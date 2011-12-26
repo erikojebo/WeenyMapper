@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text.RegularExpressions;
 
 namespace WeenyMapper.QueryParsing
 {
@@ -7,16 +6,21 @@ namespace WeenyMapper.QueryParsing
     {
         public SelectQuery ParseSelectQuery(string methodName)
         {
-            var regex = new Regex("(?<className>.*)By(?<propertyName>.*)");
-            var match = regex.Match(methodName);
+            var parts = methodName.Split(new[] { "By" }, StringSplitOptions.None);
 
-            var className = match.Groups["className"].Value;
-            var propertyName = match.Groups["propertyName"].Value;
+            var className = parts[0];
+            var propertyNameString = parts[1];
+
+            var propertyNames = propertyNameString.Split(new[] { "And" }, StringSplitOptions.None);
 
             var selectQuery = new SelectQuery();
 
             selectQuery.ClassName = className;
-            selectQuery.ConstraintProperties.Add(propertyName);
+
+            foreach (var propertyName in propertyNames)
+            {
+                selectQuery.ConstraintProperties.Add(propertyName);                
+            }
 
             return selectQuery;
         }
