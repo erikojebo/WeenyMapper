@@ -53,6 +53,7 @@
     <Compile Include="Entities\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RepositoryAcceptanceSpecs.cs" />
+    <Compile Include="SqlGeneration\TSqlGeneratorSpecs.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

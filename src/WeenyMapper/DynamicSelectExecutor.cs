@@ -3,16 +3,21 @@ using System.Data.SqlClient;
 using System.Dynamic;
 using System.Text.RegularExpressions;
 using WeenyMapper.Conventions;
+using WeenyMapper.SqlGeneration;
 
 namespace WeenyMapper
 {
     public class DynamicSelectExecutor : DynamicObject
     {
         private readonly IConvention _convention;
+        private readonly ISqlGenerator _sqlGenerator;
 
-        public DynamicSelectExecutor(IConvention convention)
+        public DynamicSelectExecutor() : this(new DefaultConvention(), new TSqlGenerator()) {}
+
+        public DynamicSelectExecutor(IConvention convention, ISqlGenerator sqlGenerator)
         {
             _convention = convention;
+            _sqlGenerator = sqlGenerator;
         }
 
         public string ConnectionString { get; set; }
@@ -23,38 +28,46 @@ namespace WeenyMapper
             var match = regex.Match(binder.Name);
 
             var tableName = _convention.GetTableName(match.Groups["className"].Value);
-            
+
             var columnName = _convention.GetColumnName(match.Groups["propertyName"].Value);
             var columnValue = args[0];
 
-            var whereClause = string.Format("{0} = '{1}'", columnName, columnValue);
-            var commandString = string.Format("select * from {0} where {1}", tableName, whereClause);
+            var constraints = new Dictionary<string, object>();
+            constraints[columnName] = columnValue;
+
+            var command = _sqlGenerator.GenerateSelectQuery(tableName, constraints);
 
             using (var connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
+                command.Connection = connection;
 
-                using (var command = new SqlCommand(commandString, connection))
-                {
-                    var reader = command.ExecuteReader();
+                var reader = command.ExecuteReader();
 
-                    var values = new Dictionary<string, object>();
+                reader.Read();
 
-                    reader.Read();
+                var values = GetValues(reader);
 
-                    for (int i = 0; i < reader.FieldCount; i++)
-                    {
-                        var name = reader.GetName(i);
-                        var value = reader.GetValue(i);
+                result = new DynamicQueryResult(values);
 
-                        values[name] = value;
-                    }
-
-                    result = new DynamicQueryResult(values);
-                }
+                command.Dispose();
             }
 
             return true;
+        }
+
+        private Dictionary<string, object> GetValues(SqlDataReader reader)
+        {
+            var values = new Dictionary<string, object>();
+
+            for (int i = 0; i < reader.FieldCount; i++)
+            {
+                var name = reader.GetName(i);
+                var value = reader.GetValue(i);
+
+                values[name] = value;
+            }
+            return values;
         }
     }
 }
