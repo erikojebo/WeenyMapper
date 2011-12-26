@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.SqlClient;
-using WeenyMapper.Conventions;
 using System.Linq;
 
 namespace WeenyMapper.SqlGeneration
@@ -16,7 +14,7 @@ namespace WeenyMapper.SqlGeneration
             {
                 commandString += " " + CreateWhereClause(constraints);
             }
-            
+
             return new SqlCommand(commandString);
         }
 
