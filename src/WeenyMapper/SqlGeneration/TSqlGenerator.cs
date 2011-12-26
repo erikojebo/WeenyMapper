@@ -16,33 +16,45 @@ namespace WeenyMapper.SqlGeneration
                 commandString += " " + CreateWhereClause(constraints);
             }
 
-            return new SqlCommand(commandString);
+            var sqlCommand = new SqlCommand(commandString);
+
+            foreach (var constraint in constraints)
+            {
+                sqlCommand.Parameters.Add(new SqlParameter(constraint.Key, constraint.Value));
+            }
+
+            return sqlCommand;
         }
 
         private string CreateWhereClause(IDictionary<string, object> constraints)
         {
-            var columnName = Escape(constraints.First().Key);
-            var value = constraints.First().Value;
-
-            var whereClause = string.Format("where {0} = '{1}'", columnName, value);
+            var columnName = constraints.First().Key;
+            
+            var whereClause = string.Format("where {0} = @{1}", Escape(columnName), columnName);
 
             return whereClause;
         }
 
         public SqlCommand CreateInsertCommand(string tableName, IDictionary<string, object> propertyValues)
         {
-            // SQL injection alert here, but simplest possible to get the first acceptance test passing
-
             var escapedColumnNames = propertyValues.Keys.Select(Escape);
             var columnNamesString = string.Join(", ", escapedColumnNames);
-            var quotedValues = propertyValues.Values.Select(x => "'" + x + "'");
-            var columnValues = string.Join(", ", quotedValues);
+
+            var parameterNames = propertyValues.Select(x => "@" + x.Key);
+            var parameterNamesString = string.Join(", ", parameterNames);
 
             var escapedTableName = Escape(tableName);
 
-            var insertCommand = string.Format("insert into {0} ({1}) values ({2})", escapedTableName, columnNamesString, columnValues);
+            var insertCommand = string.Format("insert into {0} ({1}) values ({2})", escapedTableName, columnNamesString, parameterNamesString);
 
-            return new SqlCommand(insertCommand);
+            var sqlCommand = new SqlCommand(insertCommand);
+
+            foreach (var propertyValue in propertyValues)
+            {
+                sqlCommand.Parameters.Add(new SqlParameter(propertyValue.Key, propertyValue.Value));
+            }
+
+            return sqlCommand;
         }
 
         private string Escape(string propertyName)

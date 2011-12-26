@@ -25,18 +25,22 @@ namespace WeenyMapper.Specs.SqlGeneration
         }
 
         [Test]
-        public void Generating_select_with_single_constraints_generates_select_star_with_where_clause()
+        public void Generating_select_with_single_constraints_generates_select_star_with_parameterized_where_clause()
         {
             var constraints = new Dictionary<string, object>();
             constraints["ColumnName"] = "value";
 
-            var query = _generator.GenerateSelectQuery("TableName", constraints);
+            var sqlCommand = _generator.GenerateSelectQuery("TableName", constraints);
 
-            Assert.AreEqual("select * from [TableName] where [ColumnName] = 'value'", query.CommandText);
+            Assert.AreEqual("select * from [TableName] where [ColumnName] = @ColumnName", sqlCommand.CommandText);
+
+            Assert.AreEqual(1, sqlCommand.Parameters.Count);
+            Assert.AreEqual("ColumnName", sqlCommand.Parameters[0].ParameterName);
+            Assert.AreEqual("value", sqlCommand.Parameters[0].Value);
         }
 
         [Test]
-        public void Generating_insert_statement_for_an_object_creates_insert_command_with_column_name_and_value_for_each_property()
+        public void Insert_command_for_object_has_column_name_and_parameterized_value_for_each_property()
         {
             var propertyValues = new Dictionary<string, object>();
 
@@ -45,7 +49,15 @@ namespace WeenyMapper.Specs.SqlGeneration
 
             var sqlCommand = _generator.CreateInsertCommand("TableName", propertyValues);
 
-            Assert.AreEqual("insert into [TableName] ([ColumnName1], [ColumnName2]) values ('value 1', 'value 2')", sqlCommand.CommandText);
+            Assert.AreEqual("insert into [TableName] ([ColumnName1], [ColumnName2]) values (@ColumnName1, @ColumnName2)", sqlCommand.CommandText);
+            
+            Assert.AreEqual(2, sqlCommand.Parameters.Count);
+            
+            Assert.AreEqual("ColumnName1", sqlCommand.Parameters[0].ParameterName);
+            Assert.AreEqual("value 1", sqlCommand.Parameters[0].Value);
+
+            Assert.AreEqual("ColumnName2", sqlCommand.Parameters[1].ParameterName);
+            Assert.AreEqual("value 2", sqlCommand.Parameters[1].Value);
         }
     }
 }
