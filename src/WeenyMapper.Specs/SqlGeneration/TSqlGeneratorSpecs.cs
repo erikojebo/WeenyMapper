@@ -35,6 +35,19 @@ namespace WeenyMapper.Specs.SqlGeneration
             var query = _generator.GenerateSelectQuery("TableName", constraints);
 
             Assert.AreEqual("select * from TableName where ColumnName = 'value'", query.CommandText);
-        }        
+        }
+
+        [Test]
+        public void Generating_insert_statement_for_an_object_creates_insert_command_with_column_name_and_value_for_each_property()
+        {
+            var propertyValues = new Dictionary<string, object>();
+
+            propertyValues["ColumnName1"] = "value 1";
+            propertyValues["ColumnName2"] = "value 2";
+
+            var sqlCommand = _generator.CreateInsertCommand("TableName", propertyValues);
+
+            Assert.AreEqual("insert into TableName (ColumnName1, ColumnName2) values ('value 1', 'value 2')", sqlCommand.CommandText);
+        }
     }
 }
