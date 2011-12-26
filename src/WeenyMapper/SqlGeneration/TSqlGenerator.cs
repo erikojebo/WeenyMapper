@@ -9,7 +9,7 @@ namespace WeenyMapper.SqlGeneration
     {
         public SqlCommand GenerateSelectQuery(string tableName, IDictionary<string, object> constraints)
         {
-            var commandString = "select * from " + tableName;
+            var commandString = "select * from " + Escape(tableName);
 
             if (constraints.Any())
             {
@@ -21,7 +21,10 @@ namespace WeenyMapper.SqlGeneration
 
         private string CreateWhereClause(IDictionary<string, object> constraints)
         {
-            var whereClause = string.Format("where {0} = '{1}'", constraints.First().Key, constraints.First().Value);
+            var columnName = Escape(constraints.First().Key);
+            var value = constraints.First().Value;
+
+            var whereClause = string.Format("where {0} = '{1}'", columnName, value);
 
             return whereClause;
         }
@@ -30,13 +33,21 @@ namespace WeenyMapper.SqlGeneration
         {
             // SQL injection alert here, but simplest possible to get the first acceptance test passing
 
-            var columnNames = string.Join(", ", propertyValues.Keys);
+            var escapedColumnNames = propertyValues.Keys.Select(Escape);
+            var columnNamesString = string.Join(", ", escapedColumnNames);
             var quotedValues = propertyValues.Values.Select(x => "'" + x + "'");
             var columnValues = string.Join(", ", quotedValues);
 
-            var insertCommand = string.Format("insert into {0} ({1}) values ({2})", tableName, columnNames, columnValues);
+            var escapedTableName = Escape(tableName);
+
+            var insertCommand = string.Format("insert into {0} ({1}) values ({2})", escapedTableName, columnNamesString, columnValues);
 
             return new SqlCommand(insertCommand);
+        }
+
+        private string Escape(string propertyName)
+        {
+            return string.Format("[{0}]", propertyName);
         }
     }
 }

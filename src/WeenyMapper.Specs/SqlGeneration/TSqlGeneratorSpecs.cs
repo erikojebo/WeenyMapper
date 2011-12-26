@@ -21,7 +21,7 @@ namespace WeenyMapper.Specs.SqlGeneration
             var constraints = new Dictionary<string, object>();
             var query = _generator.GenerateSelectQuery("TableName", constraints);
 
-            Assert.AreEqual("select * from TableName", query.CommandText);
+            Assert.AreEqual("select * from [TableName]", query.CommandText);
         }
 
         [Test]
@@ -32,7 +32,7 @@ namespace WeenyMapper.Specs.SqlGeneration
 
             var query = _generator.GenerateSelectQuery("TableName", constraints);
 
-            Assert.AreEqual("select * from TableName where ColumnName = 'value'", query.CommandText);
+            Assert.AreEqual("select * from [TableName] where [ColumnName] = 'value'", query.CommandText);
         }
 
         [Test]
@@ -45,7 +45,7 @@ namespace WeenyMapper.Specs.SqlGeneration
 
             var sqlCommand = _generator.CreateInsertCommand("TableName", propertyValues);
 
-            Assert.AreEqual("insert into TableName (ColumnName1, ColumnName2) values ('value 1', 'value 2')", sqlCommand.CommandText);
+            Assert.AreEqual("insert into [TableName] ([ColumnName1], [ColumnName2]) values ('value 1', 'value 2')", sqlCommand.CommandText);
         }
     }
 }
