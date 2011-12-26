@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework;
 using WeenyMapper.SqlGeneration;
 
@@ -14,7 +12,7 @@ namespace WeenyMapper.Specs.SqlGeneration
         [SetUp]
         public void SetUp()
         {
-            _generator = new TSqlGenerator();    
+            _generator = new TSqlGenerator();
         }
 
         [Test]
@@ -24,7 +22,7 @@ namespace WeenyMapper.Specs.SqlGeneration
             var query = _generator.GenerateSelectQuery("TableName", constraints);
 
             Assert.AreEqual("select * from TableName", query.CommandText);
-        }        
+        }
 
         [Test]
         public void Generating_select_with_single_constraints_generates_select_star_with_where_clause()
