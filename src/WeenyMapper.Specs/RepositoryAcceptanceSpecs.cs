@@ -133,6 +133,36 @@ namespace WeenyMapper.Specs
             Assert.AreEqual("a username", actualUser.Username);
         }
 
+        [Test]
+        public void Object_with_table_and_columns_using_non_default_conventions_can_be_written_updated_and_read()
+        {
+            var book = new Book
+                {
+                    Isbn = "123-456",
+                    Title = "Book title",
+                    AuthorName = "The Author Name",
+                    PageCount = 123
+                };
+
+            _repository.Insert.Book(book);
+
+            Book readBook = _repository.Find.BookByIsbn(book.Isbn).Execute<Book>();
+            
+            readBook.Title = "Updated book title";
+            readBook.AuthorName = "Updated author name";
+
+            _repository.Update.Book(readBook);
+
+            Book readUpdatedBook = _repository.Find
+                .BookByTitleAndAuthorName("Updated book title", "Updated author name")
+                .Execute<Book>();
+
+            Assert.AreEqual("123-456", readUpdatedBook.Isbn);
+            Assert.AreEqual("Updated book title", readUpdatedBook.Title);
+            Assert.AreEqual("Updated author name", readUpdatedBook.AuthorName);
+            Assert.AreEqual(123, readUpdatedBook.PageCount);
+        }
+
         private void DeleteAllExistingUsers()
         {
             using (var connection = new SqlConnection(TestConnectionString))

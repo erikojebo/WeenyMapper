@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Conventions\DefaultConventionSpecs.cs" />
+    <Compile Include="Entities\Book.cs" />
     <Compile Include="Entities\PartialUser.cs" />
     <Compile Include="Entities\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
