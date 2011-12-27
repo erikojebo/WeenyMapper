@@ -14,91 +14,46 @@ namespace WeenyMapper
         private readonly IConvention _convention;
         private readonly ISqlGenerator _sqlGenerator;
         private readonly IQueryParser _queryParser;
+        private readonly IObjectQueryExecutor _objectQueryExecutor;
         private string _className;
-        private Dictionary<string, object> _constraints;
+        private SelectQuery _query;
+        private List<object> _constraintValues;
 
-        public DynamicSelectExecutor() : this(new DefaultConvention(), new TSqlGenerator(), new QueryParser()) {}
+        public DynamicSelectExecutor() : this(new DefaultConvention(), new TSqlGenerator(), new QueryParser(), new ObjectQueryExecutor()) {}
 
-        public DynamicSelectExecutor(IConvention convention, ISqlGenerator sqlGenerator, IQueryParser queryParser)
+        public DynamicSelectExecutor(IConvention convention, ISqlGenerator sqlGenerator, IQueryParser queryParser, IObjectQueryExecutor objectQueryExecutor)
         {
             _convention = convention;
             _sqlGenerator = sqlGenerator;
             _queryParser = queryParser;
+            _objectQueryExecutor = objectQueryExecutor;
         }
 
-        public string ConnectionString { get; set; }
+        public string ConnectionString
+        {
+            get { return _objectQueryExecutor.ConnectionString; }
+            set { _objectQueryExecutor.ConnectionString = value; }
+        }
 
         public T Execute<T>() where T : new()
         {
-            var propertiesInTargetType = typeof(T).GetProperties();
-            var columnNamesToSelect = propertiesInTargetType.Select(x => _convention.GetColumnName(x.Name));
-            var tableName = _convention.GetTableName(_className);
-            var command = _sqlGenerator.GenerateSelectQuery(tableName, columnNamesToSelect, _constraints);
+            var constraints = new Dictionary<string, object>();
+            var columnName = _query.ConstraintProperties[0];
+            constraints[columnName] = _constraintValues[0];
 
-            var values = CreateResult(command);
-
-            var instance = new T();
-            var instanceType = typeof(T);
-
-            foreach (var value in values)
-            {
-                var property = instanceType.GetProperty(value.Key);
-                property.SetValue(instance, value.Value, null);
-            }
-
-            return instance;
+            return _objectQueryExecutor.Find<T>(_className, constraints);
         }
 
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
         {
-            var query = _queryParser.ParseSelectQuery(binder.Name);
-
-            _className = query.ClassName;
+            _query = _queryParser.ParseSelectQuery(binder.Name);
+            _constraintValues = new List<object> { args[0] };
+            _className = _query.ClassName;
             
-            var columnName = _convention.GetColumnName(query.ConstraintProperties[0]);
-            var columnValue = args[0];
-
-            _constraints = new Dictionary<string, object>();
-            _constraints[columnName] = columnValue;
-
             result = this;
 
             return true;
         }
 
-        private IDictionary<string, object> CreateResult(DbCommand command)
-        {
-            IDictionary<string, object> values;
-
-            using (var connection = new SqlConnection(ConnectionString))
-            {
-                connection.Open();
-                command.Connection = connection;
-
-                var reader = command.ExecuteReader();
-
-                reader.Read();
-
-                values = GetValues(reader);
-
-                command.Dispose();
-            }
-
-            return values;
-        }
-
-        private Dictionary<string, object> GetValues(DbDataReader reader)
-        {
-            var values = new Dictionary<string, object>();
-
-            for (int i = 0; i < reader.FieldCount; i++)
-            {
-                var name = reader.GetName(i);
-                var value = reader.GetValue(i);
-
-                values[name] = value;
-            }
-            return values;
-        }
     }
 }
