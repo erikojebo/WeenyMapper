@@ -18,23 +18,25 @@ namespace WeenyMapper.Specs.SqlGeneration
         }
 
         [Test]
-        public void Generating_select_without_constraints_generates_select_star_without_where_clause()
+        public void Generating_select_without_constraints_generates_select_of_escaped_column_names_without_where_clause()
         {
+            var columnsToSelect = new[] { "ColumnName1", "ColumnName2" };
             var constraints = new Dictionary<string, object>();
-            var query = _generator.GenerateSelectQuery("TableName", constraints);
+            var query = _generator.GenerateSelectQuery("TableName", columnsToSelect, constraints);
 
-            Assert.AreEqual("select * from [TableName]", query.CommandText);
+            Assert.AreEqual("select [ColumnName1], [ColumnName2] from [TableName]", query.CommandText);
         }
 
         [Test]
-        public void Generating_select_with_single_constraints_generates_select_star_with_parameterized_where_clause()
+        public void Generating_select_with_single_constraints_generates_select_with_parameterized_where_clause()
         {
+            var columnsToSelect = new[] { "ColumnName" };
             var constraints = new Dictionary<string, object>();
             constraints["ColumnName"] = "value";
 
-            var sqlCommand = _generator.GenerateSelectQuery("TableName", constraints);
+            var sqlCommand = _generator.GenerateSelectQuery("TableName", columnsToSelect, constraints);
 
-            Assert.AreEqual("select * from [TableName] where [ColumnName] = @ColumnName", sqlCommand.CommandText);
+            Assert.AreEqual("select [ColumnName] from [TableName] where [ColumnName] = @ColumnName", sqlCommand.CommandText);
 
             Assert.AreEqual(1, sqlCommand.Parameters.Count);
             Assert.AreEqual("ColumnName", sqlCommand.Parameters[0].ParameterName);
@@ -42,15 +44,16 @@ namespace WeenyMapper.Specs.SqlGeneration
         }
 
         [Test]
-        public void Generating_select_with_multiple_constraints_generates_select_star_with_where_clause_containing_both_constraints()
+        public void Generating_select_with_multiple_constraints_generates_select_with_where_clause_containing_both_constraints()
         {
+            var columnsToSelect = new[] { "ColumnName1" };
             var constraints = new Dictionary<string, object>();
             constraints["ColumnName1"] = "value";
             constraints["ColumnName2"] = 123;
 
-            var sqlCommand = _generator.GenerateSelectQuery("TableName", constraints);
+            var sqlCommand = _generator.GenerateSelectQuery("TableName", columnsToSelect, constraints);
 
-            var expectedQuery = "select * from [TableName] " +
+            var expectedQuery = "select [ColumnName1] from [TableName] " +
                                 "where [ColumnName1] = @ColumnName1 and [ColumnName2] = @ColumnName2";
 
             Assert.AreEqual(expectedQuery, sqlCommand.CommandText);

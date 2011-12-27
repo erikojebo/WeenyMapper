@@ -8,9 +8,11 @@ namespace WeenyMapper.SqlGeneration
 {
     public class TSqlGenerator : ISqlGenerator
     {
-        public DbCommand GenerateSelectQuery(string tableName, IDictionary<string, object> constraints)
+        public DbCommand GenerateSelectQuery(string tableName, IEnumerable<string> columnNamesToSelect, IDictionary<string, object> constraints)
         {
-            var commandString = "select * from " + Escape(tableName);
+            var escapedColumnNamesToSelect = columnNamesToSelect.Select(Escape);
+            var selectedColumnString = string.Join(", ", escapedColumnNamesToSelect);
+            var commandString = string.Format("select {0} from {1}", selectedColumnString, Escape(tableName));
 
             if (constraints.Any())
             {

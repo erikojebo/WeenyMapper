@@ -5,6 +5,7 @@ using System.Dynamic;
 using WeenyMapper.Conventions;
 using WeenyMapper.QueryParsing;
 using WeenyMapper.SqlGeneration;
+using System.Linq;
 
 namespace WeenyMapper
 {
@@ -29,7 +30,9 @@ namespace WeenyMapper
 
         public T Execute<T>() where T : new()
         {
-            var command = _sqlGenerator.GenerateSelectQuery(_tableName, _constraints);
+            var propertiesInTargetType = typeof(T).GetProperties();
+            var columnNamesToSelect = propertiesInTargetType.Select(x => _convention.GetColumnName(x.Name));
+            var command = _sqlGenerator.GenerateSelectQuery(_tableName, columnNamesToSelect, _constraints);
 
             var values = CreateResult(command);
 
