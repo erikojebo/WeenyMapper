@@ -4,17 +4,17 @@ namespace WeenyMapper.Conventions
 {
     public class DefaultConvention : IConvention
     {
-        public string GetColumnName(string propertyName)
+        public virtual string GetColumnName(string propertyName)
         {
             return propertyName;
         }
 
-        public string GetTableName(string className)
+        public virtual string GetTableName(string className)
         {
             return className;
         }
 
-        public bool IsIdProperty(string propertyName)
+        public virtual bool IsIdProperty(string propertyName)
         {
             return propertyName == "Id";
         }
