@@ -1,30 +1,22 @@
 ﻿using System.Collections.Generic;
-using System.Data.Common;
-using System.Data.SqlClient;
 using System.Dynamic;
-using WeenyMapper.Conventions;
 using WeenyMapper.QueryParsing;
 using WeenyMapper.SqlGeneration;
-using System.Linq;
 
 namespace WeenyMapper
 {
     public class DynamicSelectExecutor : DynamicObject
     {
-        private readonly IConvention _convention;
-        private readonly ISqlGenerator _sqlGenerator;
         private readonly IQueryParser _queryParser;
         private readonly IObjectQueryExecutor _objectQueryExecutor;
         private string _className;
         private SelectQuery _query;
         private List<object> _constraintValues;
 
-        public DynamicSelectExecutor() : this(new DefaultConvention(), new TSqlGenerator(), new QueryParser(), new ObjectQueryExecutor()) {}
+        public DynamicSelectExecutor() : this(new QueryParser(), new ObjectQueryExecutor()) {}
 
-        public DynamicSelectExecutor(IConvention convention, ISqlGenerator sqlGenerator, IQueryParser queryParser, IObjectQueryExecutor objectQueryExecutor)
+        public DynamicSelectExecutor(IQueryParser queryParser, IObjectQueryExecutor objectQueryExecutor)
         {
-            _convention = convention;
-            _sqlGenerator = sqlGenerator;
             _queryParser = queryParser;
             _objectQueryExecutor = objectQueryExecutor;
         }
@@ -49,11 +41,10 @@ namespace WeenyMapper
             _query = _queryParser.ParseSelectQuery(binder.Name);
             _constraintValues = new List<object> { args[0] };
             _className = _query.ClassName;
-            
+
             result = this;
 
             return true;
         }
-
     }
 }
