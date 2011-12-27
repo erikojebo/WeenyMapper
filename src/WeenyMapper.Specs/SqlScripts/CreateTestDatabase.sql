@@ -7,3 +7,9 @@ CREATE TABLE [dbo].[User](
 	[Username] [nvarchar](255) NOT NULL,
 	[Password] [nvarchar](255) NOT NULL)
 GO
+CREATE TABLE [dbo].[t_Books](
+	[c_ISBN] [uniqueidentifier] NOT NULL PRIMARY KEY,
+	[c_TITLE] [nvarchar](255) NOT NULL,
+	[c_AUTHORNAME] [nvarchar](255) NOT NULL,
+	[c_PAGECOUNT] [int] NOT NULL)
+GO
