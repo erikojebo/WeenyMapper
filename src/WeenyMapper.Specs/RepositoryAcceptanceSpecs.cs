@@ -107,6 +107,23 @@ namespace WeenyMapper.Specs
             Assert.AreEqual("updated password", actualUser.Password);
         }
 
+        [Test]
+        public void Subset_of_the_columns_of_a_table_can_be_read_by_specifying_a_target_type_which_contains_properties_matching_the_subset()
+        {
+            var user = new User
+            {
+                Id = Guid.NewGuid(),
+                Username = "a username",
+                Password = "a password"
+            };
+
+            _repository.Insert.User(user);
+            var actualUser = _repository.Find.UserById(user.Id).Execute<PartialUser>();
+
+            Assert.AreEqual(user.Id, actualUser.Id);
+            Assert.AreEqual("a username", actualUser.Username);
+        }
+
         private void DeleteAllExistingUsers()
         {
             using (var connection = new SqlConnection(TestConnectionString))
