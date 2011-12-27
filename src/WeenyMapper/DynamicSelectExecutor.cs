@@ -2,7 +2,6 @@
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Dynamic;
-using System.Text.RegularExpressions;
 using WeenyMapper.Conventions;
 using WeenyMapper.QueryParsing;
 using WeenyMapper.SqlGeneration;
@@ -33,7 +32,7 @@ namespace WeenyMapper
             var command = _sqlGenerator.GenerateSelectQuery(_tableName, _constraints);
 
             var values = CreateResult(command);
-            
+
             var instance = new T();
             var instanceType = typeof(T);
 
@@ -44,13 +43,12 @@ namespace WeenyMapper
             }
 
             return instance;
-
         }
 
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
         {
             var query = _queryParser.ParseSelectQuery(binder.Name);
-            
+
             _tableName = _convention.GetTableName(query.ClassName);
             var columnName = _convention.GetColumnName(query.ConstraintProperties[0]);
             var columnValue = args[0];
