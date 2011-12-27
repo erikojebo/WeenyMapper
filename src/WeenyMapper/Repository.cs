@@ -1,5 +1,8 @@
-using System;
+using WeenyMapper.Conventions;
 using WeenyMapper.QueryBuilding;
+using WeenyMapper.QueryExecution;
+using WeenyMapper.QueryParsing;
+using WeenyMapper.SqlGeneration;
 
 namespace WeenyMapper
 {
@@ -7,19 +10,46 @@ namespace WeenyMapper
     {
         public string ConnectionString { get; set; }
 
+        static Repository()
+        {
+            Convention = new DefaultConvention();
+        }
+
+        public static IConvention Convention { get; set; }
+
         public dynamic Insert
         {
-            get { return new DynamicInsertBuilder { ConnectionString = ConnectionString }; }
+            get
+            {
+                return new DynamicInsertBuilder(Convention, new TSqlGenerator())
+                    {
+                        ConnectionString = ConnectionString
+                    };
+            }
         }
 
         public dynamic Update
         {
-            get { return new DynamicUpdateBuilder { ConnectionString = ConnectionString }; }
+            get
+            {
+                return new DynamicUpdateBuilder(Convention, new TSqlGenerator())
+                    {
+                        ConnectionString = ConnectionString
+                    };
+            }
         }
 
         public dynamic Find
         {
-            get { return new DynamicSelectBuilder { ConnectionString = ConnectionString }; }
+            get
+            {
+                var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator());
+
+                return new DynamicSelectBuilder(new QueryParser(), objectQueryExecutor)
+                    {
+                        ConnectionString = ConnectionString
+                    };
+            }
         }
     }
 }

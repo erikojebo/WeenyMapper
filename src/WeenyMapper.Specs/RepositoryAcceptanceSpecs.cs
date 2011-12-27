@@ -1,7 +1,9 @@
 using System;
 using System.Data.SqlClient;
 using NUnit.Framework;
+using WeenyMapper.Conventions;
 using WeenyMapper.Specs.Entities;
+using WeenyMapper.Specs.TestClasses.Conventions;
 
 namespace WeenyMapper.Specs
 {
@@ -23,7 +25,9 @@ namespace WeenyMapper.Specs
         [SetUp]
         public void SetUp()
         {
-            DeleteAllExistingUsers();
+            Repository.Convention = new DefaultConvention();
+
+            DeleteAllExistingTestData();
 
             _repository = new Repository { ConnectionString = TestConnectionString };
         }
@@ -136,6 +140,8 @@ namespace WeenyMapper.Specs
         [Test]
         public void Object_with_table_and_columns_using_non_default_conventions_can_be_written_updated_and_read()
         {
+            Repository.Convention = new BookConvention();
+
             var book = new Book
                 {
                     Isbn = "123-456",
@@ -163,13 +169,17 @@ namespace WeenyMapper.Specs
             Assert.AreEqual(123, readUpdatedBook.PageCount);
         }
 
-        private void DeleteAllExistingUsers()
+        private void DeleteAllExistingTestData()
         {
             using (var connection = new SqlConnection(TestConnectionString))
             {
                 connection.Open();
 
                 using (var command = new SqlCommand("delete from [User]", connection))
+                {
+                    command.ExecuteNonQuery();
+                }
+                using (var command = new SqlCommand("delete from [t_Books]", connection))
                 {
                     command.ExecuteNonQuery();
                 }

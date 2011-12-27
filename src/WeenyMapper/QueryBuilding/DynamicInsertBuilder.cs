@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Dynamic;
@@ -30,14 +31,28 @@ namespace WeenyMapper.QueryBuilding
             var objectToInsert = args[0];
 
             var propertyValues = GetPropertyValues(objectToInsert);
+            var columnValues = GetColumnValues(propertyValues);
 
-            var command = _sqlGenerator.CreateInsertCommand(tableName, propertyValues);
+            var command = _sqlGenerator.CreateInsertCommand(tableName, columnValues);
 
             ExecuteCommand(command);
 
             result = null;
 
             return true;
+        }
+
+        private Dictionary<string, object> GetColumnValues(Dictionary<string, object> propertyValues)
+        {
+            var columnValues = new Dictionary<string, object>();
+
+            foreach (var propertyValue in propertyValues)
+            {
+                var columnName = _convention.GetColumnName(propertyValue.Key);
+                columnValues[columnName] = propertyValue.Value;
+            }
+
+            return columnValues;
         }
 
         private void ExecuteCommand(DbCommand command)

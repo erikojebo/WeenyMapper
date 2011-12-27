@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
@@ -28,20 +29,34 @@ namespace WeenyMapper.QueryExecution
             var columnNamesToSelect = propertiesInTargetType.Select(x => _convention.GetColumnName(x.Name));
             var tableName = _convention.GetTableName(className);
 
-            var command = _sqlGenerator.GenerateSelectQuery(tableName, columnNamesToSelect, constraints);
+            var columnConstraints = GetColumnConstraints(constraints);
+
+            var command = _sqlGenerator.GenerateSelectQuery(tableName, columnNamesToSelect, columnConstraints);
 
             var values = CreateResult(command);
 
             var instance = new T();
-            var instanceType = typeof(T);
 
             foreach (var value in values)
             {
-                var property = instanceType.GetProperty(value.Key);
+                var property = propertiesInTargetType.First(x => _convention.GetColumnName(x.Name) == value.Key);
                 property.SetValue(instance, value.Value, null);
             }
 
             return instance;
+        }
+
+        private IDictionary<string, object> GetColumnConstraints(IDictionary<string, object> constraints)
+        {
+            var columnConstraints = new Dictionary<string, object>();
+
+            foreach (var constraint in constraints)
+            {
+                var columnName = _convention.GetColumnName(constraint.Key);
+                columnConstraints[columnName] = constraint.Value;
+            }
+
+            return columnConstraints;
         }
 
         private IDictionary<string, object> CreateResult(DbCommand command)
