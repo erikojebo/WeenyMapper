@@ -9,7 +9,7 @@ using WeenyMapper.SqlGeneration;
 
 namespace WeenyMapper
 {
-    public class DynamicSelectBuilder : DynamicObject
+    public class DynamicSelectExecutor : DynamicObject
     {
         private readonly IConvention _convention;
         private readonly ISqlGenerator _sqlGenerator;
@@ -18,9 +18,9 @@ namespace WeenyMapper
         private IDictionary<string, object> _values;
         private Dictionary<string, object> _constraints;
 
-        public DynamicSelectBuilder() : this(new DefaultConvention(), new TSqlGenerator(), new QueryParser()) {}
+        public DynamicSelectExecutor() : this(new DefaultConvention(), new TSqlGenerator(), new QueryParser()) {}
 
-        public DynamicSelectBuilder(IConvention convention, ISqlGenerator sqlGenerator, IQueryParser queryParser)
+        public DynamicSelectExecutor(IConvention convention, ISqlGenerator sqlGenerator, IQueryParser queryParser)
         {
             _convention = convention;
             _sqlGenerator = sqlGenerator;

@@ -18,7 +18,7 @@ namespace WeenyMapper
 
         public dynamic Find
         {
-            get { return new DynamicSelectBuilder { ConnectionString = ConnectionString }; }
+            get { return new DynamicSelectExecutor { ConnectionString = ConnectionString }; }
         }
     }
 }
