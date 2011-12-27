@@ -14,7 +14,7 @@ namespace WeenyMapper
         private readonly IConvention _convention;
         private readonly ISqlGenerator _sqlGenerator;
         private readonly IQueryParser _queryParser;
-        private string _tableName;
+        private string _className;
         private Dictionary<string, object> _constraints;
 
         public DynamicSelectExecutor() : this(new DefaultConvention(), new TSqlGenerator(), new QueryParser()) {}
@@ -32,7 +32,8 @@ namespace WeenyMapper
         {
             var propertiesInTargetType = typeof(T).GetProperties();
             var columnNamesToSelect = propertiesInTargetType.Select(x => _convention.GetColumnName(x.Name));
-            var command = _sqlGenerator.GenerateSelectQuery(_tableName, columnNamesToSelect, _constraints);
+            var tableName = _convention.GetTableName(_className);
+            var command = _sqlGenerator.GenerateSelectQuery(tableName, columnNamesToSelect, _constraints);
 
             var values = CreateResult(command);
 
@@ -52,7 +53,8 @@ namespace WeenyMapper
         {
             var query = _queryParser.ParseSelectQuery(binder.Name);
 
-            _tableName = _convention.GetTableName(query.ClassName);
+            _className = query.ClassName;
+            
             var columnName = _convention.GetColumnName(query.ConstraintProperties[0]);
             var columnValue = args[0];
 
