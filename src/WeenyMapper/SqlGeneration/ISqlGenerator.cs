@@ -1,11 +1,12 @@
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using System.Data.Common;
 
 namespace WeenyMapper.SqlGeneration
 {
     public interface ISqlGenerator
     {
-        SqlCommand GenerateSelectQuery(string tableName, IDictionary<string, object> constraints);
-        SqlCommand CreateInsertCommand(string tableName, IDictionary<string, object> propertyValues);
+        DbCommand GenerateSelectQuery(string tableName, IDictionary<string, object> constraints);
+        DbCommand CreateInsertCommand(string tableName, IDictionary<string, object> propertyValues);
+        DbCommand CreateUpdateCommand(string tableName, string primaryKeyColumn, Dictionary<string, object> propertyValues);
     }
 }

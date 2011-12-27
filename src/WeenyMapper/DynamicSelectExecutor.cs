@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.Dynamic;
 using System.Text.RegularExpressions;
@@ -43,7 +44,7 @@ namespace WeenyMapper
             return true;
         }
 
-        private DynamicQueryResult CreateResult(SqlCommand command)
+        private DynamicQueryResult CreateResult(DbCommand command)
         {
             DynamicQueryResult result;
 
@@ -66,7 +67,7 @@ namespace WeenyMapper
             return result;
         }
 
-        private Dictionary<string, object> GetValues(SqlDataReader reader)
+        private Dictionary<string, object> GetValues(DbDataReader reader)
         {
             var values = new Dictionary<string, object>();
 

@@ -1,4 +1,6 @@
-﻿namespace WeenyMapper.Conventions
+﻿using System;
+
+namespace WeenyMapper.Conventions
 {
     public class DefaultConvention : IConvention
     {
@@ -10,6 +12,11 @@
         public string GetTableName(string className)
         {
             return className;
+        }
+
+        public bool IsIdProperty(string propertyName)
+        {
+            return propertyName == "Id";
         }
     }
 }

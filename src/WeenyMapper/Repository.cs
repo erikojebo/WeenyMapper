@@ -11,6 +11,11 @@ namespace WeenyMapper
             get { return new DynamicInsertExecutor { ConnectionString = ConnectionString }; }
         }
 
+        public dynamic Update
+        {
+            get { return new DynamicUpdateExecutor { ConnectionString = ConnectionString }; }
+        }
+
         public dynamic Find
         {
             get { return new DynamicSelectExecutor { ConnectionString = ConnectionString }; }

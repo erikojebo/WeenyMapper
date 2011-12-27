@@ -45,6 +45,7 @@
     <Compile Include="DynamicInsertExecutor.cs" />
     <Compile Include="DynamicQueryResult.cs" />
     <Compile Include="DynamicSelectExecutor.cs" />
+    <Compile Include="DynamicUpdateExecutor.cs" />
     <Compile Include="QueryParsing\IQueryParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryParsing\SelectQuery.cs" />

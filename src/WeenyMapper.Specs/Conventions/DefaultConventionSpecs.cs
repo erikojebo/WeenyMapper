@@ -29,5 +29,20 @@ namespace WeenyMapper.Specs.Conventions
 
             Assert.AreEqual("User", columnName);
         }
+
+        [Test]
+        public void Property_called_Id_is_id_property()
+        {
+            var isIdProperty = _defaultConvention.IsIdProperty("Id");
+
+            Assert.IsTrue(isIdProperty);
+        }
+
+        [Test]
+        public void Property_with_name_other_than_Id_is_not_id_property()
+        {
+            Assert.IsFalse(_defaultConvention.IsIdProperty("Username"));
+            Assert.IsFalse(_defaultConvention.IsIdProperty("Password"));
+        }
     }
 }

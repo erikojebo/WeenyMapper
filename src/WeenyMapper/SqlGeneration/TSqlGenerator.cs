@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
 
@@ -6,7 +8,7 @@ namespace WeenyMapper.SqlGeneration
 {
     public class TSqlGenerator : ISqlGenerator
     {
-        public SqlCommand GenerateSelectQuery(string tableName, IDictionary<string, object> constraints)
+        public DbCommand GenerateSelectQuery(string tableName, IDictionary<string, object> constraints)
         {
             var commandString = "select * from " + Escape(tableName);
 
@@ -46,7 +48,7 @@ namespace WeenyMapper.SqlGeneration
             return whereClause;
         }
 
-        public SqlCommand CreateInsertCommand(string tableName, IDictionary<string, object> propertyValues)
+        public DbCommand CreateInsertCommand(string tableName, IDictionary<string, object> propertyValues)
         {
             var escapedColumnNames = propertyValues.Keys.Select(Escape);
             var columnNamesString = string.Join(", ", escapedColumnNames);
@@ -66,6 +68,27 @@ namespace WeenyMapper.SqlGeneration
             }
 
             return sqlCommand;
+        }
+
+        public DbCommand CreateUpdateCommand(string tableName, string primaryKeyColumn, Dictionary<string, object> propertyValues)
+        {
+            var updateStatements = propertyValues.Where(x => x.Key != primaryKeyColumn)
+                .Select(x => string.Format("{0} = @{1}", Escape(x.Key), x.Key));
+
+            var updateString = string.Join(", ", updateStatements);
+
+            var idConstraint = string.Format("{0} = @{1}", Escape(primaryKeyColumn), primaryKeyColumn);
+
+            var sql = string.Format("update {0} set {1} where {2}", Escape(tableName), updateString, idConstraint);
+
+            var updateCommand = new SqlCommand(sql);
+
+            foreach (var propertyValue in propertyValues)
+            {
+                updateCommand.Parameters.Add(new SqlParameter(propertyValue.Key, propertyValue.Value));
+            }
+
+            return updateCommand;
         }
 
         private string Escape(string propertyName)
