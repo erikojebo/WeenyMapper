@@ -2,20 +2,19 @@
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Dynamic;
-using System.Linq;
 using WeenyMapper.Conventions;
 using WeenyMapper.SqlGeneration;
 
-namespace WeenyMapper
+namespace WeenyMapper.QueryBuilding
 {
-    public class DynamicUpdateExecutor : DynamicObject
+    public class DynamicInsertBuilder : DynamicObject
     {
         private readonly IConvention _convention;
         private readonly ISqlGenerator _sqlGenerator;
 
-        public DynamicUpdateExecutor() : this(new DefaultConvention(), new TSqlGenerator()) {}
+        public DynamicInsertBuilder() : this(new DefaultConvention(), new TSqlGenerator()) {}
 
-        public DynamicUpdateExecutor(IConvention convention, ISqlGenerator sqlGenerator)
+        public DynamicInsertBuilder(IConvention convention, ISqlGenerator sqlGenerator)
         {
             _convention = convention;
             _sqlGenerator = sqlGenerator;
@@ -32,9 +31,7 @@ namespace WeenyMapper
 
             var propertyValues = GetPropertyValues(objectToInsert);
 
-            var primaryKeyColumn = propertyValues.Keys.First(_convention.IsIdProperty);
-
-            var command = _sqlGenerator.CreateUpdateCommand(tableName, primaryKeyColumn, propertyValues);
+            var command = _sqlGenerator.CreateInsertCommand(tableName, propertyValues);
 
             ExecuteCommand(command);
 

@@ -42,17 +42,17 @@
   <ItemGroup>
     <Compile Include="Conventions\DefaultConvention.cs" />
     <Compile Include="Conventions\IConvention.cs" />
-    <Compile Include="DynamicInsertExecutor.cs" />
-    <Compile Include="DynamicSelectExecutor.cs" />
-    <Compile Include="DynamicUpdateExecutor.cs" />
+    <Compile Include="QueryBuilding\DynamicInsertBuilder.cs" />
+    <Compile Include="QueryBuilding\DynamicSelectBuilder.cs" />
+    <Compile Include="QueryBuilding\DynamicUpdateBuilder.cs" />
     <Compile Include="QueryParsing\IQueryParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryParsing\SelectQuery.cs" />
     <Compile Include="QueryParsing\QueryParser.cs" />
     <Compile Include="Repository.cs" />
-    <Compile Include="SqlGeneration\IObjectQueryExecutor.cs" />
+    <Compile Include="QueryExecution\IObjectQueryExecutor.cs" />
     <Compile Include="SqlGeneration\ISqlGenerator.cs" />
-    <Compile Include="SqlGeneration\ObjectQueryExecutor.cs" />
+    <Compile Include="QueryExecution\ObjectQueryExecutor.cs" />
     <Compile Include="SqlGeneration\TSqlGenerator.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

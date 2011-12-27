@@ -1,4 +1,5 @@
 using System;
+using WeenyMapper.QueryBuilding;
 
 namespace WeenyMapper
 {
@@ -8,17 +9,17 @@ namespace WeenyMapper
 
         public dynamic Insert
         {
-            get { return new DynamicInsertExecutor { ConnectionString = ConnectionString }; }
+            get { return new DynamicInsertBuilder { ConnectionString = ConnectionString }; }
         }
 
         public dynamic Update
         {
-            get { return new DynamicUpdateExecutor { ConnectionString = ConnectionString }; }
+            get { return new DynamicUpdateBuilder { ConnectionString = ConnectionString }; }
         }
 
         public dynamic Find
         {
-            get { return new DynamicSelectExecutor { ConnectionString = ConnectionString }; }
+            get { return new DynamicSelectBuilder { ConnectionString = ConnectionString }; }
         }
     }
 }

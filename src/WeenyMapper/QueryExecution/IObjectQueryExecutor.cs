@@ -1,7 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 
-namespace WeenyMapper.SqlGeneration
+namespace WeenyMapper.QueryExecution
 {
     public interface IObjectQueryExecutor
     {

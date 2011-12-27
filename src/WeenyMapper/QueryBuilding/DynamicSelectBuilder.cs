@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Dynamic;
-using WeenyMapper.QueryParsing;
-using WeenyMapper.SqlGeneration;
 using System.Linq;
+using WeenyMapper.QueryExecution;
+using WeenyMapper.QueryParsing;
 
-namespace WeenyMapper
+namespace WeenyMapper.QueryBuilding
 {
-    public class DynamicSelectExecutor : DynamicObject
+    public class DynamicSelectBuilder : DynamicObject
     {
         private readonly IQueryParser _queryParser;
         private readonly IObjectQueryExecutor _objectQueryExecutor;
@@ -14,9 +14,9 @@ namespace WeenyMapper
         private SelectQuery _query;
         private List<object> _constraintValues;
 
-        public DynamicSelectExecutor() : this(new QueryParser(), new ObjectQueryExecutor()) {}
+        public DynamicSelectBuilder() : this(new QueryParser(), new ObjectQueryExecutor()) {}
 
-        public DynamicSelectExecutor(IQueryParser queryParser, IObjectQueryExecutor objectQueryExecutor)
+        public DynamicSelectBuilder(IQueryParser queryParser, IObjectQueryExecutor objectQueryExecutor)
         {
             _queryParser = queryParser;
             _objectQueryExecutor = objectQueryExecutor;

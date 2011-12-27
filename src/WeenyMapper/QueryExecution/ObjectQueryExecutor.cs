@@ -3,8 +3,9 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
 using WeenyMapper.Conventions;
+using WeenyMapper.SqlGeneration;
 
-namespace WeenyMapper.SqlGeneration
+namespace WeenyMapper.QueryExecution
 {
     public class ObjectQueryExecutor : IObjectQueryExecutor
     {
