@@ -2,6 +2,7 @@
 using System.Dynamic;
 using WeenyMapper.QueryParsing;
 using WeenyMapper.SqlGeneration;
+using System.Linq;
 
 namespace WeenyMapper
 {
@@ -30,8 +31,11 @@ namespace WeenyMapper
         public T Execute<T>() where T : new()
         {
             var constraints = new Dictionary<string, object>();
-            var columnName = _query.ConstraintProperties[0];
-            constraints[columnName] = _constraintValues[0];
+
+            for (int i = 0; i < _query.ConstraintProperties.Count; i++)
+            {
+                constraints[_query.ConstraintProperties[i]] = _constraintValues[i];
+            }
 
             return _objectQueryExecutor.Find<T>(_className, constraints);
         }
@@ -39,7 +43,7 @@ namespace WeenyMapper
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
         {
             _query = _queryParser.ParseSelectQuery(binder.Name);
-            _constraintValues = new List<object> { args[0] };
+            _constraintValues = args.ToList();
             _className = _query.ClassName;
 
             result = this;

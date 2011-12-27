@@ -50,22 +50,31 @@ namespace WeenyMapper.Specs
         public void Multiple_properties_can_be_used_when_querying_for_objects()
         {
             var user1 = new User
-            {
-                Id = Guid.NewGuid(),
-                Username = "username1",
-                Password = "a password"
-            };
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "username1",
+                    Password = "a password"
+                };
+            
             var user2 = new User
-            {
-                Id = Guid.NewGuid(),
-                Username = "username2",
-                Password = "a password"
-            };
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "username2",
+                    Password = "a password"
+                };
+            
+            var user3 = new User
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "username3",
+                    Password = "a password"
+                };
 
             _repository.Insert.User(user1);
             _repository.Insert.User(user2);
+            _repository.Insert.User(user3);
 
-            var actualUser = _repository.Find.UserByUsernameAndPassword(user2.Username, user2.Password).Execute<User>();
+            var actualUser = _repository.Find.UserByPasswordAndUsername(user2.Password, user2.Username).Execute<User>();
 
             Assert.AreEqual(user2.Id, actualUser.Id);
             Assert.AreEqual("username2", actualUser.Username);
@@ -76,17 +85,17 @@ namespace WeenyMapper.Specs
         public void Updating_an_object_updates_the_database_entry_with_the_corresponding_id()
         {
             var user1 = new User
-            {
-                Id = Guid.NewGuid(),
-                Username = "username1",
-                Password = "a password"
-            };
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "username1",
+                    Password = "a password"
+                };
             var user2 = new User
-            {
-                Id = Guid.NewGuid(),
-                Username = "username2",
-                Password = "a password"
-            };
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "username2",
+                    Password = "a password"
+                };
 
             _repository.Insert.User(user1);
             _repository.Insert.User(user2);
@@ -111,11 +120,11 @@ namespace WeenyMapper.Specs
         public void Subset_of_the_columns_of_a_table_can_be_read_by_specifying_a_target_type_which_contains_properties_matching_the_subset()
         {
             var user = new User
-            {
-                Id = Guid.NewGuid(),
-                Username = "a username",
-                Password = "a password"
-            };
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "a username",
+                    Password = "a password"
+                };
 
             _repository.Insert.User(user);
             var actualUser = _repository.Find.UserById(user.Id).Execute<PartialUser>();
