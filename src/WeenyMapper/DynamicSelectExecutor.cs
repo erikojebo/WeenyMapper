@@ -15,7 +15,6 @@ namespace WeenyMapper
         private readonly ISqlGenerator _sqlGenerator;
         private readonly IQueryParser _queryParser;
         private string _tableName;
-        private IDictionary<string, object> _values;
         private Dictionary<string, object> _constraints;
 
         public DynamicSelectExecutor() : this(new DefaultConvention(), new TSqlGenerator(), new QueryParser()) {}
@@ -33,12 +32,12 @@ namespace WeenyMapper
         {
             var command = _sqlGenerator.GenerateSelectQuery(_tableName, _constraints);
 
-            CreateResult(command);
+            var values = CreateResult(command);
             
             var instance = new T();
             var instanceType = typeof(T);
 
-            foreach (var value in _values)
+            foreach (var value in values)
             {
                 var property = instanceType.GetProperty(value.Key);
                 property.SetValue(instance, value.Value, null);
@@ -64,8 +63,10 @@ namespace WeenyMapper
             return true;
         }
 
-        private void CreateResult(DbCommand command)
+        private IDictionary<string, object> CreateResult(DbCommand command)
         {
+            IDictionary<string, object> values;
+
             using (var connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
@@ -75,10 +76,12 @@ namespace WeenyMapper
 
                 reader.Read();
 
-                _values = GetValues(reader);
+                values = GetValues(reader);
 
                 command.Dispose();
             }
+
+            return values;
         }
 
         private Dictionary<string, object> GetValues(DbDataReader reader)
