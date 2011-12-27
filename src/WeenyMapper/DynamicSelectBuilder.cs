@@ -9,15 +9,18 @@ using WeenyMapper.SqlGeneration;
 
 namespace WeenyMapper
 {
-    public class DynamicSelectExecutor : DynamicObject
+    public class DynamicSelectBuilder : DynamicObject
     {
         private readonly IConvention _convention;
         private readonly ISqlGenerator _sqlGenerator;
         private readonly IQueryParser _queryParser;
+        private string _tableName;
+        private IDictionary<string, object> _values;
+        private Dictionary<string, object> _constraints;
 
-        public DynamicSelectExecutor() : this(new DefaultConvention(), new TSqlGenerator(), new QueryParser()) {}
+        public DynamicSelectBuilder() : this(new DefaultConvention(), new TSqlGenerator(), new QueryParser()) {}
 
-        public DynamicSelectExecutor(IConvention convention, ISqlGenerator sqlGenerator, IQueryParser queryParser)
+        public DynamicSelectBuilder(IConvention convention, ISqlGenerator sqlGenerator, IQueryParser queryParser)
         {
             _convention = convention;
             _sqlGenerator = sqlGenerator;
@@ -26,28 +29,43 @@ namespace WeenyMapper
 
         public string ConnectionString { get; set; }
 
+        public T Execute<T>() where T : new()
+        {
+            var command = _sqlGenerator.GenerateSelectQuery(_tableName, _constraints);
+
+            CreateResult(command);
+            
+            var instance = new T();
+            var instanceType = typeof(T);
+
+            foreach (var value in _values)
+            {
+                var property = instanceType.GetProperty(value.Key);
+                property.SetValue(instance, value.Value, null);
+            }
+
+            return instance;
+
+        }
+
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
         {
             var query = _queryParser.ParseSelectQuery(binder.Name);
             
-            var tableName = _convention.GetTableName(query.ClassName);
+            _tableName = _convention.GetTableName(query.ClassName);
             var columnName = _convention.GetColumnName(query.ConstraintProperties[0]);
             var columnValue = args[0];
 
-            var constraints = new Dictionary<string, object>();
-            constraints[columnName] = columnValue;
+            _constraints = new Dictionary<string, object>();
+            _constraints[columnName] = columnValue;
 
-            var command = _sqlGenerator.GenerateSelectQuery(tableName, constraints);
-
-            result = CreateResult(command);
+            result = this;
 
             return true;
         }
 
-        private DynamicQueryResult CreateResult(DbCommand command)
+        private void CreateResult(DbCommand command)
         {
-            DynamicQueryResult result;
-
             using (var connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
@@ -57,14 +75,10 @@ namespace WeenyMapper
 
                 reader.Read();
 
-                var values = GetValues(reader);
-
-                result = new DynamicQueryResult(values);
+                _values = GetValues(reader);
 
                 command.Dispose();
             }
-
-            return result;
         }
 
         private Dictionary<string, object> GetValues(DbDataReader reader)

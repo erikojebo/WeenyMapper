@@ -39,7 +39,7 @@ namespace WeenyMapper.Specs
                 };
 
             _repository.Insert.User(user);
-            var actualUser = _repository.Find.UserById(user.Id).As<User>();
+            var actualUser = _repository.Find.UserById(user.Id).Execute<User>();
 
             Assert.AreEqual(user.Id, actualUser.Id);
             Assert.AreEqual("a username", actualUser.Username);
@@ -65,7 +65,7 @@ namespace WeenyMapper.Specs
             _repository.Insert.User(user1);
             _repository.Insert.User(user2);
 
-            var actualUser = _repository.Find.UserByUsernameAndPassword(user2.Username, user2.Password).As<User>();
+            var actualUser = _repository.Find.UserByUsernameAndPassword(user2.Username, user2.Password).Execute<User>();
 
             Assert.AreEqual(user2.Id, actualUser.Id);
             Assert.AreEqual("username2", actualUser.Username);
@@ -100,7 +100,7 @@ namespace WeenyMapper.Specs
 
             _repository.Update.User(updatedUser2);
 
-            var actualUser = _repository.Find.UserById(updatedUser2.Id).As<User>();
+            var actualUser = _repository.Find.UserById(updatedUser2.Id).Execute<User>();
 
             Assert.AreEqual(updatedUser2.Id, actualUser.Id);
             Assert.AreEqual("updated username", actualUser.Username);

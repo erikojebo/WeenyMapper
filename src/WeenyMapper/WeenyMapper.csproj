@@ -44,7 +44,7 @@
     <Compile Include="Conventions\IConvention.cs" />
     <Compile Include="DynamicInsertExecutor.cs" />
     <Compile Include="DynamicQueryResult.cs" />
-    <Compile Include="DynamicSelectExecutor.cs" />
+    <Compile Include="DynamicSelectBuilder.cs" />
     <Compile Include="DynamicUpdateExecutor.cs" />
     <Compile Include="QueryParsing\IQueryParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
