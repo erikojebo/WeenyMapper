@@ -4,6 +4,7 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using System.Dynamic;
 using WeenyMapper.Conventions;
+using WeenyMapper.Reflection;
 using WeenyMapper.SqlGeneration;
 
 namespace WeenyMapper.QueryBuilding
@@ -12,13 +13,15 @@ namespace WeenyMapper.QueryBuilding
     {
         private readonly IConvention _convention;
         private readonly ISqlGenerator _sqlGenerator;
+        private readonly IPropertyReader _propertyReader;
 
-        public DynamicInsertBuilder() : this(new DefaultConvention(), new TSqlGenerator()) {}
+        public DynamicInsertBuilder() : this(new DefaultConvention(), new TSqlGenerator(), new PropertyReader(new DefaultConvention())) {}
 
-        public DynamicInsertBuilder(IConvention convention, ISqlGenerator sqlGenerator)
+        public DynamicInsertBuilder(IConvention convention, ISqlGenerator sqlGenerator, IPropertyReader propertyReader)
         {
             _convention = convention;
             _sqlGenerator = sqlGenerator;
+            _propertyReader = propertyReader;
         }
 
         public string ConnectionString { get; set; }
@@ -30,8 +33,7 @@ namespace WeenyMapper.QueryBuilding
 
             var objectToInsert = args[0];
 
-            var propertyValues = GetPropertyValues(objectToInsert);
-            var columnValues = GetColumnValues(propertyValues);
+            var columnValues = _propertyReader.GetColumnValues(objectToInsert);
 
             var command = _sqlGenerator.CreateInsertCommand(tableName, columnValues);
 
@@ -40,19 +42,6 @@ namespace WeenyMapper.QueryBuilding
             result = null;
 
             return true;
-        }
-
-        private Dictionary<string, object> GetColumnValues(Dictionary<string, object> propertyValues)
-        {
-            var columnValues = new Dictionary<string, object>();
-
-            foreach (var propertyValue in propertyValues)
-            {
-                var columnName = _convention.GetColumnName(propertyValue.Key);
-                columnValues[columnName] = propertyValue.Value;
-            }
-
-            return columnValues;
         }
 
         private void ExecuteCommand(DbCommand command)
@@ -66,19 +55,6 @@ namespace WeenyMapper.QueryBuilding
 
                 connection.Dispose();
             }
-        }
-
-        private Dictionary<string, object> GetPropertyValues(object objectToInsert)
-        {
-            var properties = objectToInsert.GetType().GetProperties();
-
-            var propertyValues = new Dictionary<string, object>();
-
-            foreach (var property in properties)
-            {
-                propertyValues[property.Name] = property.GetValue(objectToInsert, null);
-            }
-            return propertyValues;
         }
     }
 }

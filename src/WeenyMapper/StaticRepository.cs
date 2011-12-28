@@ -1,7 +1,7 @@
 using WeenyMapper.Conventions;
 using WeenyMapper.QueryBuilding;
 using WeenyMapper.QueryExecution;
-using WeenyMapper.QueryParsing;
+using WeenyMapper.Reflection;
 using WeenyMapper.SqlGeneration;
 
 namespace WeenyMapper
@@ -17,12 +17,14 @@ namespace WeenyMapper
 
         public static IConvention Convention { get; set; }
 
-        public StaticInsertBuilder<T> Insert<T>(T instance)
+        public void Insert<T>(T instance)
         {
-            return new StaticInsertBuilder<T>(Convention, new TSqlGenerator())
+            var builder = new StaticInsertBuilder<T>(Convention, new TSqlGenerator(),new PropertyReader(Convention))
                 {
                     ConnectionString = ConnectionString
                 };
+
+            builder.Insert(instance);
         }
 
         public StaticUpdateBuilder<T> Update<T>(T instance)
@@ -37,7 +39,7 @@ namespace WeenyMapper
         {
             var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator());
 
-            return new StaticSelectBuilder<T>(new QueryParser(), objectQueryExecutor)
+            return new StaticSelectBuilder<T>(objectQueryExecutor)
                 {
                     ConnectionString = ConnectionString
                 };

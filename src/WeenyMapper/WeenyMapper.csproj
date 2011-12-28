@@ -45,7 +45,9 @@
     <Compile Include="QueryBuilding\StaticInsertBuilder.cs" />
     <Compile Include="QueryBuilding\StaticSelectBuilder.cs" />
     <Compile Include="QueryBuilding\StaticUpdateBuilder.cs" />
-    <Compile Include="Reflection\PropertyExtensions.cs" />
+    <Compile Include="Reflection\IPropertyReader.cs" />
+    <Compile Include="Reflection\PropertyMetadataReader.cs" />
+    <Compile Include="Reflection\PropertyReader.cs" />
     <Compile Include="StaticRepository.cs" />
     <Compile Include="QueryBuilding\DynamicInsertBuilder.cs" />
     <Compile Include="QueryBuilding\DynamicSelectBuilder.cs" />

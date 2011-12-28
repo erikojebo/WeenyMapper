@@ -10,7 +10,7 @@ namespace WeenyMapper.Specs.Reflection
         [Test]
         public void Can_get_name_of_property_from_expression()
         {
-            var propertyName = PropertyReader<User>.GetPropertyName(x => x.Password);
+            var propertyName = PropertyMetadataReader<User>.GetPropertyName(x => x.Password);
 
             Assert.AreEqual("Password", propertyName);
         }

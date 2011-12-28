@@ -2,6 +2,7 @@ using WeenyMapper.Conventions;
 using WeenyMapper.QueryBuilding;
 using WeenyMapper.QueryExecution;
 using WeenyMapper.QueryParsing;
+using WeenyMapper.Reflection;
 using WeenyMapper.SqlGeneration;
 
 namespace WeenyMapper
@@ -21,7 +22,7 @@ namespace WeenyMapper
         {
             get
             {
-                return new DynamicInsertBuilder(Convention, new TSqlGenerator())
+                return new DynamicInsertBuilder(Convention, new TSqlGenerator(), new PropertyReader(Convention))
                     {
                         ConnectionString = ConnectionString
                     };

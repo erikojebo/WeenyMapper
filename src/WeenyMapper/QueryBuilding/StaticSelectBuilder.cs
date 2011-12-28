@@ -1,30 +1,37 @@
 using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 using WeenyMapper.QueryExecution;
-using WeenyMapper.QueryParsing;
+using WeenyMapper.Reflection;
 
 namespace WeenyMapper.QueryBuilding
 {
     public class StaticSelectBuilder<T> where T : new()
     {
-        private readonly IQueryParser _queryParser;
         private readonly IObjectQueryExecutor _objectQueryExecutor;
+        private IDictionary<string, object> _constraints = new Dictionary<string, object>();
 
-        public StaticSelectBuilder(IQueryParser queryParser, IObjectQueryExecutor objectQueryExecutor)
+        public StaticSelectBuilder(IObjectQueryExecutor objectQueryExecutor)
         {
-            _queryParser = queryParser;
             _objectQueryExecutor = objectQueryExecutor;
         }
 
-        public string ConnectionString { get; set; }
-
-        public StaticSelectBuilder<T> By<TReturnValue>(Func<T, TReturnValue> getter, TReturnValue id)
+        public string ConnectionString
         {
-            throw new NotImplementedException();
+            get { return _objectQueryExecutor.ConnectionString; }
+            set { _objectQueryExecutor.ConnectionString = value; }
+        }
+
+        public StaticSelectBuilder<T> By<TReturnValue>(Expression<Func<T, TReturnValue>> getter, TReturnValue value)
+        {
+            var propertyName = PropertyMetadataReader<T>.GetPropertyName(getter);
+            _constraints[propertyName] = value;
+            return this;
         }
 
         public T Execute()
         {
-            throw new NotImplementedException();
+            return _objectQueryExecutor.Find<T>(typeof(T).Name, _constraints);
         }
     }
 }

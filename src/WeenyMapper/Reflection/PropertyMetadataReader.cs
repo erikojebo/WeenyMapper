@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace WeenyMapper.Reflection
 {
-    public static class PropertyReader<TInstance>
+    public static class PropertyMetadataReader<TInstance>
     {
         public static string GetPropertyName<TValue>(Expression<Func<TInstance, TValue>> property)
         {
