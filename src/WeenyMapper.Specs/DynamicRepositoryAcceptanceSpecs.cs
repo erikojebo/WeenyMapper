@@ -42,7 +42,7 @@ namespace WeenyMapper.Specs
                 };
 
             _repository.Insert.User(user);
-            var actualUser = _repository.Find<User>().UserById(user.Id).Execute();
+            var actualUser = _repository.Find<User>().ById(user.Id).Execute();
 
             Assert.AreEqual(user.Id, actualUser.Id);
             Assert.AreEqual("a username", actualUser.Username);
@@ -77,7 +77,7 @@ namespace WeenyMapper.Specs
             _repository.Insert.User(user2);
             _repository.Insert.User(user3);
 
-            var actualUser = _repository.Find<User>().UserByPasswordAndUsername(user2.Password, user2.Username).Execute();
+            var actualUser = _repository.Find<User>().ByPasswordAndUsername(user2.Password, user2.Username).Execute();
 
             Assert.AreEqual(user2.Id, actualUser.Id);
             Assert.AreEqual("username2", actualUser.Username);
@@ -112,7 +112,7 @@ namespace WeenyMapper.Specs
 
             _repository.Update.User(updatedUser2);
 
-            var actualUser = _repository.Find<User>().UserById(updatedUser2.Id).Execute();
+            var actualUser = _repository.Find<User>().ById(updatedUser2.Id).Execute();
 
             Assert.AreEqual(updatedUser2.Id, actualUser.Id);
             Assert.AreEqual("updated username", actualUser.Username);
@@ -132,7 +132,7 @@ namespace WeenyMapper.Specs
                 };
 
             _repository.Insert.User(user);
-            var actualUser = _repository.Find<PartialUser>().UserById(user.Id).Execute();
+            var actualUser = _repository.Find<PartialUser>().ById(user.Id).Execute();
 
             Assert.AreEqual(user.Id, actualUser.Id);
             Assert.AreEqual("a username", actualUser.Username);
@@ -153,7 +153,7 @@ namespace WeenyMapper.Specs
 
             _repository.Insert.Book(book);
 
-            Book readBook = _repository.Find<Book>().BookByIsbn(book.Isbn).Execute();
+            Book readBook = _repository.Find<Book>().ByIsbn(book.Isbn).Execute();
             
             readBook.Title = "Updated book title";
             readBook.AuthorName = "Updated author name";
@@ -161,7 +161,7 @@ namespace WeenyMapper.Specs
             _repository.Update.Book(readBook);
 
             Book readUpdatedBook = _repository.Find<Book>()
-                .BookByTitleAndAuthorName("Updated book title", "Updated author name")
+                .ByTitleAndAuthorName("Updated book title", "Updated author name")
                 .Execute();
 
             Assert.AreEqual("123-456", readUpdatedBook.Isbn);
