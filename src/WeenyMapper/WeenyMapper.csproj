@@ -43,6 +43,7 @@
     <Compile Include="Conventions\DefaultConvention.cs" />
     <Compile Include="Conventions\IConvention.cs" />
     <Compile Include="Extensions\DbCommandExtensions.cs" />
+    <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="QueryBuilding\StaticInsertBuilder.cs" />
     <Compile Include="QueryBuilding\StaticSelectBuilder.cs" />
     <Compile Include="QueryBuilding\StaticUpdateBuilder.cs" />
