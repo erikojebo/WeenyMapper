@@ -100,5 +100,15 @@ namespace WeenyMapper
 
             return new StaticDeleteBuilder<T>(objectDeleteExecutor);
         }
+
+        public dynamic DynamicDelete<T>()
+        {
+            var objectDeleteExecutor = new ObjectDeleteExecutor(Convention, new TSqlGenerator())
+            {
+                ConnectionString = ConnectionString
+            };
+
+            return new DynamicDeleteBuilder<T>(objectDeleteExecutor);
+        }
     }
 }

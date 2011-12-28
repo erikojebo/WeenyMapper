@@ -1,25 +1,27 @@
-using System.Data.SqlClient;
+using WeenyMapper.Conventions;
+using WeenyMapper.Specs.TestClasses.Conventions;
+using WeenyMapper.Specs.TestClasses.Entities;
 
 namespace WeenyMapper.Specs
 {
-    public class AcceptanceSpecsBase {
+    public class AcceptanceSpecsBase
+    {
+        protected Repository Repository;
         public const string TestConnectionString = @"Data source=.\SQLEXPRESS;Initial Catalog=WeenyMapper;Trusted_Connection=true";
 
         protected void DeleteAllExistingTestData()
         {
-            using (var connection = new SqlConnection(TestConnectionString))
-            {
-                connection.Open();
+            Repository = new Repository { ConnectionString = TestConnectionString };
 
-                using (var command = new SqlCommand("delete from [User]", connection))
-                {
-                    command.ExecuteNonQuery();
-                }
-                using (var command = new SqlCommand("delete from [t_Books]", connection))
-                {
-                    command.ExecuteNonQuery();
-                }
-            }
+            Repository.Convention = new UserConvention();
+
+            Repository.Delete<User>().Execute();
+
+            Repository.Convention = new BookConvention();
+
+            Repository.Delete<Book>().Execute();
+
+            Repository.Convention = new DefaultConvention();
         }
     }
 }

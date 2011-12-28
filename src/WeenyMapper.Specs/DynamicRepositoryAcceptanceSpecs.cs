@@ -20,16 +20,12 @@ namespace WeenyMapper.Specs
          
          */
 
-        private Repository _repository;
-
         [SetUp]
         public void SetUp()
         {
-            Repository.Convention = new DefaultConvention();
-
             DeleteAllExistingTestData();
 
-            _repository = new Repository { ConnectionString = TestConnectionString };
+            Repository.Convention = new DefaultConvention();
         }
 
         [Test]
@@ -42,8 +38,8 @@ namespace WeenyMapper.Specs
                     Password = "a password"
                 };
 
-            _repository.Insert(user);
-            var actualUser = _repository.DynamicFind<User>().ById(user.Id).Execute();
+            Repository.Insert(user);
+            var actualUser = Repository.DynamicFind<User>().ById(user.Id).Execute();
 
             Assert.AreEqual(user.Id, actualUser.Id);
             Assert.AreEqual("a username", actualUser.Username);
@@ -79,11 +75,11 @@ namespace WeenyMapper.Specs
                     PageCount = 123
                 };
 
-            _repository.Insert(book1);
-            _repository.Insert(book2);
-            _repository.Insert(book3);
+            Repository.Insert(book1);
+            Repository.Insert(book2);
+            Repository.Insert(book3);
 
-            Book actualBook = _repository.DynamicFind<Book>()
+            Book actualBook = Repository.DynamicFind<Book>()
                 .ByAuthorName("Author Name")
                 .ByTitle("Title 2")
                 .ByPageCount(123)
@@ -121,11 +117,11 @@ namespace WeenyMapper.Specs
                     PageCount = 123
                 };
 
-            _repository.Insert(book1);
-            _repository.Insert(book2);
-            _repository.Insert(book3);
+            Repository.Insert(book1);
+            Repository.Insert(book2);
+            Repository.Insert(book3);
 
-            Book actualBook = _repository.DynamicFind<Book>()
+            Book actualBook = Repository.DynamicFind<Book>()
                 .ByAuthorNameAndTitleAndPageCount("Author Name", "Title 2", 123)
                 .Execute();
 
@@ -148,8 +144,8 @@ namespace WeenyMapper.Specs
                     Password = "a password"
                 };
 
-            _repository.Insert(user1);
-            _repository.Insert(user2);
+            Repository.Insert(user1);
+            Repository.Insert(user2);
 
             var updatedUser2 = new User
                 {
@@ -158,9 +154,9 @@ namespace WeenyMapper.Specs
                     Password = "updated password"
                 };
 
-            _repository.Update(updatedUser2);
+            Repository.Update(updatedUser2);
 
-            var actualUser = _repository.DynamicFind<User>().ById(updatedUser2.Id).Execute();
+            var actualUser = Repository.DynamicFind<User>().ById(updatedUser2.Id).Execute();
 
             Assert.AreEqual(updatedUser2, actualUser);
         }
@@ -177,8 +173,8 @@ namespace WeenyMapper.Specs
                     Password = "a password"
                 };
 
-            _repository.Insert(user);
-            var actualUser = _repository.DynamicFind<PartialUser>().ById(user.Id).Execute();
+            Repository.Insert(user);
+            var actualUser = Repository.DynamicFind<PartialUser>().ById(user.Id).Execute();
 
             Assert.AreEqual(user.Id, actualUser.Id);
             Assert.AreEqual("a username", actualUser.Username);
@@ -197,16 +193,16 @@ namespace WeenyMapper.Specs
                     PageCount = 123
                 };
 
-            _repository.Insert(book);
+            Repository.Insert(book);
 
-            Book readBook = _repository.DynamicFind<Book>().ByIsbn(book.Isbn).Execute();
+            Book readBook = Repository.DynamicFind<Book>().ByIsbn(book.Isbn).Execute();
 
             readBook.Title = "Updated book title";
             readBook.AuthorName = "Updated author name";
 
-            _repository.Update(readBook);
+            Repository.Update(readBook);
 
-            Book readUpdatedBook = _repository.DynamicFind<Book>()
+            Book readUpdatedBook = Repository.DynamicFind<Book>()
                 .ByTitle("Updated book title")
                 .ByAuthorName("Updated author name")
                 .Execute();
@@ -251,12 +247,12 @@ namespace WeenyMapper.Specs
                     PageCount = 321
                 };
 
-            _repository.Insert(book1);
-            _repository.Insert(book2);
-            _repository.Insert(book3);
-            _repository.Insert(book4);
+            Repository.Insert(book1);
+            Repository.Insert(book2);
+            Repository.Insert(book3);
+            Repository.Insert(book4);
 
-            IList<Book> actualBooks = _repository.DynamicFind<Book>()
+            IList<Book> actualBooks = Repository.DynamicFind<Book>()
                 .ByAuthorName("Author Name 2")
                 .ByPageCount(123)
                 .ExecuteList();
@@ -304,19 +300,19 @@ namespace WeenyMapper.Specs
                 PageCount = 321
             };
 
-            _repository.Insert(book1);
-            _repository.Insert(book2);
-            _repository.Insert(book3);
-            _repository.Insert(book4);
+            Repository.Insert(book1);
+            Repository.Insert(book2);
+            Repository.Insert(book3);
+            Repository.Insert(book4);
 
-            _repository.DynamicUpdate<Book>()
+            Repository.DynamicUpdate<Book>()
                 .WhereAuthorName("Author Name 2")
                 .WherePageCount(123)
                 .SetPageCount(456)
                 .SetTitle("new title")
                 .Execute();
 
-            IList<Book> actualBooks = _repository.DynamicFind<Book>()
+            IList<Book> actualBooks = Repository.DynamicFind<Book>()
                 .ByPageCount(456)
                 .ByTitle("new title")
                 .ExecuteList();
@@ -326,5 +322,61 @@ namespace WeenyMapper.Specs
             Assert.AreEqual(1, actualBooks.Count(x => x.Isbn == "2"));
             Assert.AreEqual(1, actualBooks.Count(x => x.Isbn == "3"));
         }
+
+        [Test]
+        public void Delete_commands_can_be_issued_to_update_multiple_entities_at_once()
+        {
+            Repository.Convention = new BookConvention();
+
+            var book1 = new Book
+            {
+                Isbn = "1",
+                AuthorName = "Author Name",
+                Title = "Title 1",
+                PageCount = 123,
+            };
+
+            var book2 = new Book
+            {
+                Isbn = "2",
+                AuthorName = "Author Name 2",
+                Title = "Title 2",
+                PageCount = 123
+            };
+
+            var book3 = new Book
+            {
+                Isbn = "3",
+                AuthorName = "Author Name 2",
+                Title = "Title 3",
+                PageCount = 123
+            };
+
+            var book4 = new Book
+            {
+                Isbn = "4",
+                AuthorName = "Author Name 2",
+                Title = "Title 4",
+                PageCount = 321
+            };
+
+            Repository.Insert(book1);
+            Repository.Insert(book2);
+            Repository.Insert(book3);
+            Repository.Insert(book4);
+
+            Repository.DynamicDelete<Book>()
+                .WhereAuthorName("Author Name 2")
+                .WherePageCount(123)
+                .Execute();
+
+            var allBooks = Repository.Find<Book>().ExecuteList();
+
+            // Only the books NOT matching the query shold remain
+            Assert.AreEqual(2, allBooks.Count);
+            CollectionAssert.Contains(allBooks, book1);
+            CollectionAssert.Contains(allBooks, book4);
+        }
+
     }
 }

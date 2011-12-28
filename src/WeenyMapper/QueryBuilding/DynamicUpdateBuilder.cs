@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
 using WeenyMapper.QueryExecution;
@@ -34,6 +35,10 @@ namespace WeenyMapper.QueryBuilding
             {
                 var propertyName = calledMethodName.Substring("Set".Length);
                 _setters[propertyName] = args[0];                
+            }
+            else
+            {
+                throw new InvalidOperationException("Unknown prefix");    
             }
 
             result = this;

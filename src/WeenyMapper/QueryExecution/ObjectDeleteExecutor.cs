@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -8,7 +7,7 @@ using WeenyMapper.Sql;
 
 namespace WeenyMapper.QueryExecution
 {
-    public class ObjectDeleteExecutor
+    public class ObjectDeleteExecutor : IObjectDeleteExecutor
     {
         private readonly IConvention _convention;
         private readonly ISqlGenerator _sqlGenerator;
