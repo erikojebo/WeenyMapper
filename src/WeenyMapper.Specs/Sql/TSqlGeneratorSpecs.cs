@@ -98,7 +98,7 @@ namespace WeenyMapper.Specs.Sql
             var sqlCommand = _generator.CreateUpdateCommand("TableName", "IdColumnName", propertyValues);
 
             var expectedSql = "update [TableName] set [ColumnName1] = @ColumnName1, [ColumnName2] = @ColumnName2 " +
-                              "where [IdColumnName] = @IdColumnName";
+                              "where [IdColumnName] = @IdColumnNameConstraint";
 
             Assert.AreEqual(expectedSql, sqlCommand.CommandText);
 
@@ -112,7 +112,7 @@ namespace WeenyMapper.Specs.Sql
             Assert.AreEqual("ColumnName2", actualParameters[1].ParameterName);
             Assert.AreEqual("value 2", actualParameters[1].Value);
 
-            Assert.AreEqual("IdColumnName", actualParameters[2].ParameterName);
+            Assert.AreEqual("IdColumnNameConstraint", actualParameters[2].ParameterName);
             Assert.AreEqual("id value", actualParameters[2].Value);
         }
 

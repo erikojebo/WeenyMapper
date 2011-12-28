@@ -73,23 +73,22 @@ namespace WeenyMapper.Sql
 
         public DbCommand CreateUpdateCommand(string tableName, string primaryKeyColumn, IDictionary<string, object> propertyValues)
         {
-            var updateStatements = propertyValues.Where(x => x.Key != primaryKeyColumn)
-                .Select(x => string.Format("{0} = @{1}", Escape(x.Key), x.Key));
-
-            var updateString = string.Join(", ", updateStatements);
-
-            var idConstraint = string.Format("{0} = @{1}", Escape(primaryKeyColumn), primaryKeyColumn);
-
-            var sql = string.Format("update {0} set {1} where {2}", Escape(tableName), updateString, idConstraint);
-
-            var updateCommand = new SqlCommand(sql);
+            var setters = new Dictionary<string, object>();
+            var constraints = new Dictionary<string, object>();
 
             foreach (var propertyValue in propertyValues)
             {
-                updateCommand.Parameters.Add(new SqlParameter(propertyValue.Key, propertyValue.Value));
+                if (propertyValue.Key == primaryKeyColumn)
+                {
+                    constraints.Add(propertyValue.Key, propertyValue.Value);                    
+                }
+                else
+                {
+                    setters.Add(propertyValue.Key, propertyValue.Value);
+                }
             }
 
-            return updateCommand;
+            return CreateUpdateCommand(tableName, primaryKeyColumn, constraints, setters);
         }
 
         public DbCommand CreateUpdateCommand(string tableName, string primaryKeyColumn, IDictionary<string, object> columnConstraints, IDictionary<string, object> columnSetters)
