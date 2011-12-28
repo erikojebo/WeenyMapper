@@ -28,15 +28,16 @@ namespace WeenyMapper
             objectInsertExecutor.Insert(instance);
         }
 
-        public dynamic Update
+        public void Update<T>(T instance)
         {
-            get
+            var objectUpdateExecutor = new ObjectUpdateExecutor(Convention, new TSqlGenerator(), new PropertyReader(Convention))
             {
-                return new DynamicUpdateBuilder(Convention, new TSqlGenerator(), new PropertyReader(Convention))
-                    {
-                        ConnectionString = ConnectionString
-                    };
-            }
+                ConnectionString = ConnectionString
+            };
+
+            var builder = new DynamicUpdateBuilder<T>(objectUpdateExecutor);
+
+            builder.Update(instance);
         }
 
         public dynamic Find<T>() where T : new()

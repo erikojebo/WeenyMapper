@@ -164,7 +164,7 @@ namespace WeenyMapper.Specs
                     Password = "updated password"
                 };
 
-            _repository.Update.User(updatedUser2);
+            _repository.Update(updatedUser2);
 
             var actualUser = _repository.Find<User>().ById(updatedUser2.Id).Execute();
 
@@ -212,7 +212,7 @@ namespace WeenyMapper.Specs
             readBook.Title = "Updated book title";
             readBook.AuthorName = "Updated author name";
 
-            _repository.Update.Book(readBook);
+            _repository.Update(readBook);
 
             Book readUpdatedBook = _repository.Find<Book>()
                 .ByTitle("Updated book title")

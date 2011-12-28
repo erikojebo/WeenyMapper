@@ -44,15 +44,15 @@
     <Compile Include="Conventions\IConvention.cs" />
     <Compile Include="Extensions\DbCommandExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
-    <Compile Include="QueryBuilding\StaticInsertBuilder.cs" />
     <Compile Include="QueryBuilding\StaticSelectBuilder.cs" />
     <Compile Include="QueryBuilding\StaticUpdateBuilder.cs" />
+    <Compile Include="QueryExecution\IObjectUpdateExecutor.cs" />
     <Compile Include="QueryExecution\ObjectInsertExecutor.cs" />
+    <Compile Include="QueryExecution\ObjectUpdateExecutor.cs" />
     <Compile Include="Reflection\IPropertyReader.cs" />
     <Compile Include="Reflection\PropertyMetadataReader.cs" />
     <Compile Include="Reflection\PropertyReader.cs" />
     <Compile Include="StaticRepository.cs" />
-    <Compile Include="QueryBuilding\DynamicInsertBuilder.cs" />
     <Compile Include="QueryBuilding\DynamicSelectBuilder.cs" />
     <Compile Include="QueryBuilding\DynamicUpdateBuilder.cs" />
     <Compile Include="QueryParsing\IQueryParser.cs" />

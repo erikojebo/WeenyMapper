@@ -19,7 +19,7 @@ namespace WeenyMapper
 
         public void Insert<T>(T instance)
         {
-            var objectInsertExecutor = new ObjectInsertExecutor(Convention, new TSqlGenerator(),new PropertyReader(Convention))
+            var objectInsertExecutor = new ObjectInsertExecutor(Convention, new TSqlGenerator(), new PropertyReader(Convention))
                 {
                     ConnectionString = ConnectionString
                 };
@@ -29,10 +29,12 @@ namespace WeenyMapper
 
         public void Update<T>(T instance)
         {
-            var builder = new StaticUpdateBuilder<T>(Convention, new TSqlGenerator(), new PropertyReader(Convention))
+            var objectUpdateExecutor = new ObjectUpdateExecutor(Convention, new TSqlGenerator(), new PropertyReader(Convention))
                 {
                     ConnectionString = ConnectionString
                 };
+
+            var builder = new StaticUpdateBuilder<T>(objectUpdateExecutor);
 
             builder.Update(instance);
         }

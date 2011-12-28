@@ -1,52 +1,27 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using WeenyMapper.Conventions;
 using WeenyMapper.Extensions;
+using WeenyMapper.QueryExecution;
 using WeenyMapper.Reflection;
 using WeenyMapper.Sql;
 
 namespace WeenyMapper.QueryBuilding
 {
-    public class DynamicUpdateBuilder : DynamicObject
+    public class DynamicUpdateBuilder<T> : DynamicObject
     {
-        private readonly IConvention _convention;
-        private readonly ISqlGenerator _sqlGenerator;
-        private readonly IPropertyReader _propertyReader;
+        private readonly IObjectUpdateExecutor _objectUpdateExecutor;
 
-        public DynamicUpdateBuilder() : this(new DefaultConvention(), new TSqlGenerator(), new PropertyReader(new DefaultConvention())) {}
-
-        public DynamicUpdateBuilder(IConvention convention, ISqlGenerator sqlGenerator, IPropertyReader propertyReader)
+        public DynamicUpdateBuilder(IObjectUpdateExecutor objectUpdateExecutor)
         {
-            _convention = convention;
-            _sqlGenerator = sqlGenerator;
-            _propertyReader = propertyReader;
+            _objectUpdateExecutor = objectUpdateExecutor;
         }
 
-        public string ConnectionString { get; set; }
-
-        public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
+        public void Update(T instance)
         {
-            var className = binder.Name;
-            var tableName = _convention.GetTableName(className);
-
-            var objectToInsert = args[0];
-
-            var columnValues = _propertyReader.GetColumnValues(objectToInsert);
-            
-            var idProperty = objectToInsert.GetType().GetProperties()
-                .Select(x => x.Name)
-                .First(_convention.IsIdProperty); 
-
-            var primaryKeyColumn = _convention.GetColumnName(idProperty);
-
-            var command = _sqlGenerator.CreateUpdateCommand(tableName, primaryKeyColumn, columnValues);
-
-            command.ExecuteNonQuery(ConnectionString);
-
-            result = null;
-
-            return true;
+            _objectUpdateExecutor.Update(instance);
         }
     }
 }
