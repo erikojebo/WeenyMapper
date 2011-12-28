@@ -51,39 +51,46 @@ namespace WeenyMapper.Specs
         [Test]
         public void Multiple_properties_can_be_used_when_querying_for_objects()
         {
-            var user1 = new User
-                {
-                    Id = Guid.NewGuid(),
-                    Username = "username1",
-                    Password = "a password"
-                };
+            StaticRepository.Convention = new BookConvention();
 
-            var user2 = new User
-                {
-                    Id = Guid.NewGuid(),
-                    Username = "username2",
-                    Password = "a password"
-                };
+            var book1 = new Book
+            {
+                Isbn = "1",
+                AuthorName = "Author Name",
+                Title = "Title 1",
+                PageCount = 123,
+            };
 
-            var user3 = new User
-                {
-                    Id = Guid.NewGuid(),
-                    Username = "username3",
-                    Password = "a password"
-                };
+            var book2 = new Book
+            {
+                Isbn = "2",
+                AuthorName = "Author Name",
+                Title = "Title 2",
+                PageCount = 123
+            };
 
-            _repository.Insert(user1);
-            _repository.Insert(user2);
-            _repository.Insert(user3);
+            var book3 = new Book
+            {
+                Isbn = "3",
+                AuthorName = "Author Name",
+                Title = "Title 3",
+                PageCount = 123
+            };
 
-            var actualUser = _repository.Find<User>()
-                .By(x => x.Password, "a password")
-                .By(x => x.Username, "username2")
+            _repository.Insert(book1);
+            _repository.Insert(book2);
+            _repository.Insert(book3);
+
+            Book actualBook = _repository.Find<Book>()
+                .By(x => x.AuthorName, "Author Name")
+                .By(x => x.Title, "Title 2")
+                .By(x => x.PageCount, 123)
                 .Execute();
 
-            Assert.AreEqual(user2.Id, actualUser.Id);
-            Assert.AreEqual("username2", actualUser.Username);
-            Assert.AreEqual("a password", actualUser.Password);
+            Assert.AreEqual(book2.Isbn, actualBook.Isbn);
+            Assert.AreEqual("Author Name", actualBook.AuthorName);
+            Assert.AreEqual("Title 2", actualBook.Title);
+            Assert.AreEqual(123, actualBook.PageCount);
         }
 
         [Test]

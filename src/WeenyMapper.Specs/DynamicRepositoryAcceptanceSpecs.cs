@@ -49,7 +49,7 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
-        public void Multiple_properties_can_be_used_when_querying_for_objects()
+        public void Multiple_properties_can_be_used_when_querying_for_objects_by_chaining_constraint_calls()
         {
             Repository.Convention = new BookConvention();
 
@@ -85,6 +85,49 @@ namespace WeenyMapper.Specs
                 .ByAuthorName("Author Name")
                 .ByTitle("Title 2")
                 .ByPageCount(123)
+                .Execute();
+
+            Assert.AreEqual(book2.Isbn, actualBook.Isbn);
+            Assert.AreEqual("Author Name", actualBook.AuthorName);
+            Assert.AreEqual("Title 2", actualBook.Title);
+            Assert.AreEqual(123, actualBook.PageCount);
+        }
+
+        [Test]
+        public void Multiple_properties_can_be_used_when_querying_for_objects_by_specifying_constraints_on_the_format_ByUsernameAndPassword()
+        {
+            Repository.Convention = new BookConvention();
+
+            var book1 = new Book
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 123,
+                };
+
+            var book2 = new Book
+                {
+                    Isbn = "2",
+                    AuthorName = "Author Name",
+                    Title = "Title 2",
+                    PageCount = 123
+                };
+
+            var book3 = new Book
+                {
+                    Isbn = "3",
+                    AuthorName = "Author Name",
+                    Title = "Title 3",
+                    PageCount = 123
+                };
+
+            _repository.Insert.Book(book1);
+            _repository.Insert.Book(book2);
+            _repository.Insert.Book(book3);
+
+            Book actualBook = _repository.Find<Book>()
+                .ByAuthorNameAndTitleAndPageCount("Author Name", "Title 2", 123)
                 .Execute();
 
             Assert.AreEqual(book2.Isbn, actualBook.Isbn);
