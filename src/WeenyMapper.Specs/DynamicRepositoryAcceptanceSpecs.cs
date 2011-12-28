@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
 using WeenyMapper.Conventions;
@@ -185,17 +186,46 @@ namespace WeenyMapper.Specs
         {
             Repository.Convention = new BookConvention();
 
-            var book = new Book
+            var book1 = new Book
                 {
-                    Isbn = "123-456",
-                    Title = "Book title",
-                    AuthorName = "The Author Name",
+                    Isbn = "1",
+                    Title = "Book title 1",
+                    AuthorName = "Author Name",
                     PageCount = 123
                 };
 
-            Repository.Insert(book);
+            var book2 = new Book
+                {
+                    Isbn = "2",
+                    Title = "Book title 2",
+                    AuthorName = "Author Name 2",
+                    PageCount = 123
+                };
 
-            Book readBook = Repository.DynamicFind<Book>().ByIsbn(book.Isbn).Execute();
+            var book3 = new Book
+                {
+                    Isbn = "3",
+                    Title = "Book title 3",
+                    AuthorName = "Author Name 2",
+                    PageCount = 123
+                };
+
+            var book4 = new Book
+                {
+                    Isbn = "4",
+                    Title = "Book title 4",
+                    AuthorName = "Author Name",
+                    PageCount = 123
+                };
+
+
+
+            Repository.Insert(book1);
+            Repository.Insert(book2);
+            Repository.Insert(book3);
+            Repository.Insert(book4);
+
+            Book readBook = Repository.DynamicFind<Book>().ByIsbn(book1.Isbn).Execute();
 
             readBook.Title = "Updated book title";
             readBook.AuthorName = "Updated author name";
@@ -207,6 +237,24 @@ namespace WeenyMapper.Specs
                 .ByAuthorName("Updated author name")
                 .Execute();
 
+            Repository.DynamicUpdate<Book>().WhereAuthorName("Author Name 2")
+                .SetPageCount(456)
+                .Execute();
+
+            IList<Book> updatedBooks = Repository.DynamicFind<Book>()
+                .ByPageCount(456)
+                .ExecuteList();
+
+            Repository.DynamicDelete<Book>()
+                .WherePageCount(456)
+                .Execute();
+
+            Repository.Delete(book1);
+
+            var booksAfterDelete = Repository.DynamicFind<Book>().ExecuteList();
+
+            Assert.AreEqual(2, updatedBooks.Count);
+            Assert.AreEqual(1, booksAfterDelete.Count);
             Assert.AreEqual(readBook, readUpdatedBook);
         }
 
