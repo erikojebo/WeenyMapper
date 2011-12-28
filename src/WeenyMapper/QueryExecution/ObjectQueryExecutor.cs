@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
@@ -23,7 +22,7 @@ namespace WeenyMapper.QueryExecution
 
         public string ConnectionString { get; set; }
 
-        public T Find<T>(string className, IDictionary<string, object> constraints) where T : new()
+        public IList<T> Find<T>(string className, IDictionary<string, object> constraints) where T : new()
         {
             var propertiesInTargetType = typeof(T).GetProperties();
             var columnNamesToSelect = propertiesInTargetType.Select(x => _convention.GetColumnName(x.Name));
@@ -33,17 +32,24 @@ namespace WeenyMapper.QueryExecution
 
             var command = _sqlGenerator.GenerateSelectQuery(tableName, columnNamesToSelect, columnConstraints);
 
-            var values = CreateResult(command);
+            var result = CreateResult(command);
 
-            var instance = new T();
+            var list = new List<T>();
 
-            foreach (var value in values)
+            foreach (var dictionary in result)
             {
-                var property = propertiesInTargetType.First(x => _convention.GetColumnName(x.Name) == value.Key);
-                property.SetValue(instance, value.Value, null);
+                var instance = new T();
+
+                foreach (var value in dictionary)
+                {
+                    var property = propertiesInTargetType.First(x => _convention.GetColumnName(x.Name) == value.Key);
+                    property.SetValue(instance, value.Value, null);
+                }
+
+                list.Add(instance);
             }
 
-            return instance;
+            return list;
         }
 
         private IDictionary<string, object> GetColumnConstraints(IDictionary<string, object> constraints)
@@ -59,25 +65,30 @@ namespace WeenyMapper.QueryExecution
             return columnConstraints;
         }
 
-        private IDictionary<string, object> CreateResult(DbCommand command)
+        private IList<IDictionary<string, object>> CreateResult(DbCommand command)
         {
-            IDictionary<string, object> values;
+            IList<IDictionary<string, object>> result = new List<IDictionary<string, object>>();
 
             using (var connection = new SqlConnection(ConnectionString))
             {
+                IDictionary<string, object> values;
+
                 connection.Open();
                 command.Connection = connection;
 
                 var reader = command.ExecuteReader();
 
-                reader.Read();
+                while (reader.Read())
+                {
+                    values = GetValues(reader);
 
-                values = GetValues(reader);
+                    result.Add(values);
+                }
 
                 command.Dispose();
             }
 
-            return values;
+            return result;
         }
 
         private Dictionary<string, object> GetValues(DbDataReader reader)

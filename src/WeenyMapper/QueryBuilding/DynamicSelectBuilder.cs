@@ -29,6 +29,11 @@ namespace WeenyMapper.QueryBuilding
 
         public T Execute()
         {
+            return ExecuteList().First();
+        }
+
+        public IList<T> ExecuteList()
+        {
             var constraints = new Dictionary<string, object>();
 
             for (int i = 0; i < _constraintProperties.Count; i++)

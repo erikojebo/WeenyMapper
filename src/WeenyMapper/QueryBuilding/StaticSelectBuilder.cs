@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using WeenyMapper.QueryExecution;
 using WeenyMapper.Reflection;
@@ -31,7 +32,7 @@ namespace WeenyMapper.QueryBuilding
 
         public T Execute()
         {
-            return _objectQueryExecutor.Find<T>(typeof(T).Name, _constraints);
+            return _objectQueryExecutor.Find<T>(typeof(T).Name, _constraints).First();
         }
     }
 }
