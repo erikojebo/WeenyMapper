@@ -284,5 +284,33 @@ namespace WeenyMapper.Specs
             Assert.AreEqual(1, actualBooks.Count(x => x.Isbn == "2"));
             Assert.AreEqual(1, actualBooks.Count(x => x.Isbn == "3"));
         }
+
+        [Test]
+        public void Deleting_an_entity_deletes_the_corresponding_row_and_no_other_row()
+        {
+            var user1 = new User
+            {
+                Id = Guid.NewGuid(),
+                Username = "username1",
+                Password = "a password"
+            };
+            var user2 = new User
+            {
+                Id = Guid.NewGuid(),
+                Username = "username2",
+                Password = "a password"
+            };
+
+            _repository.Insert(user1);
+            _repository.Insert(user2);
+
+            _repository.Delete(user2);
+
+            var actualUsers = _repository.Find<User>().ExecuteList();
+
+            Assert.AreEqual(1, actualUsers.Count);
+            Assert.AreEqual(user1, actualUsers[0]);
+        }
+
     }
 }

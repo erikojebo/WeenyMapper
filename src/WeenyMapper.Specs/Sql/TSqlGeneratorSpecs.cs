@@ -166,5 +166,56 @@ namespace WeenyMapper.Specs.Sql
             Assert.AreEqual("ColumnName4Constraint", actualParameters[3].ParameterName);
             Assert.AreEqual("value 4", actualParameters[3].Value);
         }
+
+        [Test]
+        public void Delete_command_without_constraints_creates_delete_without_where_clause()
+        {
+            var columnConstraints = new Dictionary<string, object>();
+
+            var sqlCommand = _generator.CreateDeleteCommand("TableName", columnConstraints);
+
+            Assert.AreEqual("delete from [TableName]", sqlCommand.CommandText);
+        }
+
+        [Test]
+        public void Delete_command_with_single_constraint_creates_parameterized_delete_with_corresponding_where_clause()
+        {
+            var columnConstraints = new Dictionary<string, object>();
+            columnConstraints["ColumnName1"] = "value 1";
+
+            var sqlCommand = _generator.CreateDeleteCommand("TableName", columnConstraints);
+            var actualParameters = sqlCommand.Parameters.OfType<SqlParameter>().OrderBy(x => x.ParameterName).ToList();
+
+            var expectedSql = "delete from [TableName] where [ColumnName1] = @ColumnName1Constraint";
+
+            Assert.AreEqual(expectedSql, sqlCommand.CommandText);
+
+            Assert.AreEqual(1, sqlCommand.Parameters.Count);
+            Assert.AreEqual("ColumnName1Constraint", actualParameters[0].ParameterName);
+            Assert.AreEqual("value 1", actualParameters[0].Value);
+        }
+
+        [Test]
+        public void Delete_command_with_multiple_constraints_creates_parameterized_delete_with_corresponding_where_clause()
+        {
+            var columnConstraints = new Dictionary<string, object>();
+            columnConstraints["ColumnName1"] = "value 1";
+            columnConstraints["ColumnName2"] = "value 2";
+
+            var sqlCommand = _generator.CreateDeleteCommand("TableName", columnConstraints);
+            var actualParameters = sqlCommand.Parameters.OfType<SqlParameter>().OrderBy(x => x.ParameterName).ToList();
+
+            var expectedSql = "delete from [TableName] " +
+                              "where [ColumnName1] = @ColumnName1Constraint and [ColumnName2] = @ColumnName2Constraint";
+
+            Assert.AreEqual(expectedSql, sqlCommand.CommandText);
+
+            Assert.AreEqual(2, sqlCommand.Parameters.Count);
+
+            Assert.AreEqual("ColumnName1Constraint", actualParameters[0].ParameterName);
+            Assert.AreEqual("value 1", actualParameters[0].Value);
+            Assert.AreEqual("ColumnName2Constraint", actualParameters[1].ParameterName);
+            Assert.AreEqual("value 2", actualParameters[1].Value);
+        }
     }
 }

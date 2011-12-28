@@ -80,7 +80,7 @@ namespace WeenyMapper.Sql
             {
                 if (propertyValue.Key == primaryKeyColumn)
                 {
-                    constraints.Add(propertyValue.Key, propertyValue.Value);                    
+                    constraints.Add(propertyValue.Key, propertyValue.Value);
                 }
                 else
                 {
@@ -122,6 +122,27 @@ namespace WeenyMapper.Sql
             }
 
             return updateCommand;
+        }
+
+        public DbCommand CreateDeleteCommand(string tableName, IDictionary<string, object> constraints)
+        {
+            var deleteCommand = string.Format("delete from {0}", Escape(tableName));
+
+            if (constraints.Any())
+            {
+                var constraintStatements = constraints.Keys.Select(x => string.Format("{0} = @{1}Constraint", Escape(x), x));
+                var constraintString = string.Join(" and ", constraintStatements);
+                deleteCommand += " where " + constraintString;
+            }
+
+            var sqlCommand = new SqlCommand(deleteCommand);
+
+            foreach (var constraint in constraints)
+            {
+                sqlCommand.Parameters.Add(new SqlParameter(constraint.Key + "Constraint", constraint.Value));
+            }
+
+            return sqlCommand;
         }
 
         private string Escape(string propertyName)

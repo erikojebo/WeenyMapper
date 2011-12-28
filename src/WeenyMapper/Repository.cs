@@ -1,3 +1,4 @@
+using System;
 using WeenyMapper.Conventions;
 using WeenyMapper.QueryBuilding;
 using WeenyMapper.QueryExecution;
@@ -78,6 +79,16 @@ namespace WeenyMapper
             {
                 ConnectionString = ConnectionString
             };
+        }
+
+        public void Delete<T>(T instance)
+        {
+            var objectDeleteExecutor = new ObjectDeleteExecutor(Convention, new TSqlGenerator())
+                {
+                    ConnectionString = ConnectionString
+                };
+
+            objectDeleteExecutor.Delete(instance);
         }
     }
 }
