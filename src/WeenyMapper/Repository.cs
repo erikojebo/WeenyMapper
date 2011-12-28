@@ -21,7 +21,7 @@ namespace WeenyMapper
 
         public void Insert<T>(T instance)
         {
-            var objectInsertExecutor = new ObjectInsertExecutor(new TSqlGenerator(), new ConventionalEntityDataReader(Convention))
+            var objectInsertExecutor = new ObjectInsertExecutor(new TSqlGenerator(), new ConventionDataReader(Convention))
                 {
                     ConnectionString = ConnectionString
                 };
@@ -31,7 +31,7 @@ namespace WeenyMapper
 
         public void Update<T>(T instance)
         {
-            var objectUpdateExecutor = new ObjectUpdateExecutor(new TSqlGenerator(), new ConventionalEntityDataReader(Convention))
+            var objectUpdateExecutor = new ObjectUpdateExecutor(new TSqlGenerator(), new ConventionDataReader(Convention))
             {
                 ConnectionString = ConnectionString
             };
@@ -43,7 +43,7 @@ namespace WeenyMapper
 
         public StaticUpdateBuilder<T> Update<T>()
         {
-            var objectUpdateExecutor = new ObjectUpdateExecutor(new TSqlGenerator(), new ConventionalEntityDataReader(Convention))
+            var objectUpdateExecutor = new ObjectUpdateExecutor(new TSqlGenerator(), new ConventionDataReader(Convention))
             {
                 ConnectionString = ConnectionString
             };
@@ -53,7 +53,7 @@ namespace WeenyMapper
 
         public dynamic DynamicUpdate<T>()
         {
-            var objectUpdateExecutor = new ObjectUpdateExecutor(new TSqlGenerator(), new ConventionalEntityDataReader(Convention))
+            var objectUpdateExecutor = new ObjectUpdateExecutor(new TSqlGenerator(), new ConventionDataReader(Convention))
             {
                 ConnectionString = ConnectionString
             };
@@ -83,7 +83,7 @@ namespace WeenyMapper
 
         public void Delete<T>(T instance)
         {
-            var objectDeleteExecutor = new ObjectDeleteExecutor(Convention, new TSqlGenerator(), new ConventionalEntityDataReader(Convention))
+            var objectDeleteExecutor = new ObjectDeleteExecutor(new TSqlGenerator(), new ConventionDataReader(Convention))
                 {
                     ConnectionString = ConnectionString
                 };
@@ -93,7 +93,7 @@ namespace WeenyMapper
 
         public StaticDeleteBuilder<T> Delete<T>()
         {
-            var objectDeleteExecutor = new ObjectDeleteExecutor(Convention, new TSqlGenerator(), new ConventionalEntityDataReader(Convention))
+            var objectDeleteExecutor = new ObjectDeleteExecutor(new TSqlGenerator(), new ConventionDataReader(Convention))
             {
                 ConnectionString = ConnectionString
             };
@@ -103,7 +103,7 @@ namespace WeenyMapper
 
         public dynamic DynamicDelete<T>()
         {
-            var objectDeleteExecutor = new ObjectDeleteExecutor(Convention, new TSqlGenerator(), new ConventionalEntityDataReader(Convention))
+            var objectDeleteExecutor = new ObjectDeleteExecutor(new TSqlGenerator(), new ConventionDataReader(Convention))
             {
                 ConnectionString = ConnectionString
             };

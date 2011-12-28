@@ -1,7 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using WeenyMapper.Conventions;
 using WeenyMapper.Extensions;
 using WeenyMapper.Reflection;
 using WeenyMapper.Sql;
@@ -10,26 +7,25 @@ namespace WeenyMapper.QueryExecution
 {
     public class ObjectDeleteExecutor : IObjectDeleteExecutor
     {
-        private readonly IConvention _convention;
         private readonly ISqlGenerator _sqlGenerator;
+        private readonly IConventionDataReader _conventionDataReader;
 
-        public ObjectDeleteExecutor(IConvention convention, ISqlGenerator sqlGenerator, IConventionalEntityDataReader conventionalEntityDataReader)
+        public ObjectDeleteExecutor(ISqlGenerator sqlGenerator, IConventionDataReader conventionDataReader)
         {
-            _convention = convention;
             _sqlGenerator = sqlGenerator;
+            _conventionDataReader = conventionDataReader;
         }
 
         public string ConnectionString { get; set; }
 
         public void Delete<T>(T instance)
         {
-            var className = typeof(T).Name;
-            var tableName = _convention.GetTableName(className);
+            var tableName = _conventionDataReader.GetTableName<T>();
 
             var constraints = new Dictionary<string, object>();
 
-            var primaryKeyColumnName = GetPrimaryKeyColumn<T>();
-            var primaryKeyValue = GetPrimaryKeyValue(instance);
+            var primaryKeyColumnName = _conventionDataReader.GetPrimaryKeyColumnName<T>();
+            var primaryKeyValue = _conventionDataReader.GetPrimaryKeyValue(instance);
 
             constraints[primaryKeyColumnName] = primaryKeyValue;
 
@@ -40,31 +36,11 @@ namespace WeenyMapper.QueryExecution
 
         public void Delete<T>(IDictionary<string, object> constraints)
         {
-            var className = typeof(T).Name;
-            var tableName = _convention.GetTableName(className);
-
-            var columnConstraints = constraints.TransformKeys(_convention.GetColumnName);
+            var tableName = _conventionDataReader.GetTableName<T>();
+            var columnConstraints = _conventionDataReader.GetColumnValues(constraints);
             var command = _sqlGenerator.CreateDeleteCommand(tableName, columnConstraints);
 
             command.ExecuteNonQuery(ConnectionString);
-        }
-
-        private string GetPrimaryKeyColumn<T>()
-        {
-            var propertyName = GetIdProperty<T>().Name;
-            return _convention.GetColumnName(propertyName);
-        }
-
-        private PropertyInfo GetIdProperty<T>()
-        {
-            return typeof(T).GetProperties()
-                .First(x => _convention.IsIdProperty(x.Name));
-        }
-
-        private object GetPrimaryKeyValue<T>(T instance)
-        {
-            var property = GetIdProperty<T>();
-            return property.GetValue(instance, null);
         }
     }
 }
