@@ -27,12 +27,14 @@ namespace WeenyMapper
             builder.Insert(instance);
         }
 
-        public StaticUpdateBuilder<T> Update<T>(T instance)
+        public void Update<T>(T instance)
         {
-            return new StaticUpdateBuilder<T>(Convention, new TSqlGenerator())
+            var builder = new StaticUpdateBuilder<T>(Convention, new TSqlGenerator(), new PropertyReader(Convention))
                 {
                     ConnectionString = ConnectionString
                 };
+
+            builder.Update(instance);
         }
 
         public StaticSelectBuilder<T> Find<T>() where T : new()

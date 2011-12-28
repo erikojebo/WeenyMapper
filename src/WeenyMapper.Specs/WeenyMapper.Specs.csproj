@@ -54,6 +54,7 @@
     <Compile Include="Reflection\PropertyReaderSpecs.cs" />
     <Compile Include="StaticRepositoryAcceptanceSpecs.cs" />
     <Compile Include="TestClasses\Conventions\BookConvention.cs" />
+    <Compile Include="TestClasses\Conventions\UserConvention.cs" />
     <Compile Include="TestClasses\Entities\Book.cs" />
     <Compile Include="TestClasses\Entities\PartialUser.cs" />
     <Compile Include="TestClasses\Entities\User.cs" />
