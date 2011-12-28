@@ -44,6 +44,7 @@
     <Compile Include="Conventions\IConvention.cs" />
     <Compile Include="Extensions\DbCommandExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
+    <Compile Include="QueryBuilding\StaticDeleteBuilder.cs" />
     <Compile Include="QueryBuilding\StaticSelectBuilder.cs" />
     <Compile Include="QueryBuilding\StaticUpdateBuilder.cs" />
     <Compile Include="QueryExecution\IObjectUpdateExecutor.cs" />

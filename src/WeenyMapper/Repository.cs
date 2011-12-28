@@ -90,5 +90,15 @@ namespace WeenyMapper
 
             objectDeleteExecutor.Delete(instance);
         }
+
+        public StaticDeleteBuilder<T> Delete<T>()
+        {
+            var objectDeleteExecutor = new ObjectDeleteExecutor(Convention, new TSqlGenerator())
+            {
+                ConnectionString = ConnectionString
+            };
+
+            return new StaticDeleteBuilder<T>(objectDeleteExecutor);
+        }
     }
 }

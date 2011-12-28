@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -33,6 +34,17 @@ namespace WeenyMapper.QueryExecution
             constraints[primaryKeyColumnName] = primaryKeyValue;
 
             var command = _sqlGenerator.CreateDeleteCommand(tableName, constraints);
+
+            command.ExecuteNonQuery(ConnectionString);
+        }
+
+        public void Delete<T>(IDictionary<string, object> constraints)
+        {
+            var className = typeof(T).Name;
+            var tableName = _convention.GetTableName(className);
+
+            var columnConstraints = constraints.TransformKeys(_convention.GetColumnName);
+            var command = _sqlGenerator.CreateDeleteCommand(tableName, columnConstraints);
 
             command.ExecuteNonQuery(ConnectionString);
         }

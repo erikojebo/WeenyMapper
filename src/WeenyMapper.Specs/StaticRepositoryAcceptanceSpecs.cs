@@ -312,5 +312,60 @@ namespace WeenyMapper.Specs
             Assert.AreEqual(user1, actualUsers[0]);
         }
 
+        [Test]
+        public void Delete_commands_can_be_issued_to_update_multiple_entities_at_once()
+        {
+            Repository.Convention = new BookConvention();
+
+            var book1 = new Book
+            {
+                Isbn = "1",
+                AuthorName = "Author Name",
+                Title = "Title 1",
+                PageCount = 123,
+            };
+
+            var book2 = new Book
+            {
+                Isbn = "2",
+                AuthorName = "Author Name 2",
+                Title = "Title 2",
+                PageCount = 123
+            };
+
+            var book3 = new Book
+            {
+                Isbn = "3",
+                AuthorName = "Author Name 2",
+                Title = "Title 3",
+                PageCount = 123
+            };
+
+            var book4 = new Book
+            {
+                Isbn = "4",
+                AuthorName = "Author Name 2",
+                Title = "Title 4",
+                PageCount = 321
+            };
+
+            _repository.Insert(book1);
+            _repository.Insert(book2);
+            _repository.Insert(book3);
+            _repository.Insert(book4);
+
+            _repository.Delete<Book>()
+                .Where(x => x.AuthorName, "Author Name 2")
+                .Where(x => x.PageCount, 123)
+                .Execute();
+
+            var allBooks = _repository.Find<Book>().ExecuteList();
+
+            // Only the books NOT matching the query shold remain
+            Assert.AreEqual(2, allBooks.Count);
+            CollectionAssert.Contains(allBooks, book1);
+            CollectionAssert.Contains(allBooks, book4);
+        }
+
     }
 }
