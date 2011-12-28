@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Data.SqlClient;
+﻿using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using WeenyMapper.Conventions;
-using WeenyMapper.SqlGeneration;
+using WeenyMapper.Extensions;
+using WeenyMapper.Reflection;
+using WeenyMapper.Sql;
 
 namespace WeenyMapper.QueryBuilding
 {
@@ -13,13 +12,15 @@ namespace WeenyMapper.QueryBuilding
     {
         private readonly IConvention _convention;
         private readonly ISqlGenerator _sqlGenerator;
+        private readonly IPropertyReader _propertyReader;
 
-        public DynamicUpdateBuilder() : this(new DefaultConvention(), new TSqlGenerator()) {}
+        public DynamicUpdateBuilder() : this(new DefaultConvention(), new TSqlGenerator(), new PropertyReader(new DefaultConvention())) {}
 
-        public DynamicUpdateBuilder(IConvention convention, ISqlGenerator sqlGenerator)
+        public DynamicUpdateBuilder(IConvention convention, ISqlGenerator sqlGenerator, IPropertyReader propertyReader)
         {
             _convention = convention;
             _sqlGenerator = sqlGenerator;
+            _propertyReader = propertyReader;
         }
 
         public string ConnectionString { get; set; }
@@ -31,58 +32,21 @@ namespace WeenyMapper.QueryBuilding
 
             var objectToInsert = args[0];
 
-            var propertyValues = GetPropertyValues(objectToInsert);
-            var columnValues = GetColumnValues(propertyValues);
-            var idProperty = propertyValues.Keys.First(_convention.IsIdProperty);
-            var primaryKeyColumn = _convention.GetColumnName(idProperty);
+            var columnValues = _propertyReader.GetColumnValues(objectToInsert);
             
+            var idProperty = objectToInsert.GetType().GetProperties()
+                .Select(x => x.Name)
+                .First(_convention.IsIdProperty); 
+
+            var primaryKeyColumn = _convention.GetColumnName(idProperty);
+
             var command = _sqlGenerator.CreateUpdateCommand(tableName, primaryKeyColumn, columnValues);
 
-            ExecuteCommand(command);
+            command.ExecuteNonQuery(ConnectionString);
 
             result = null;
 
             return true;
-        }
-
-        private Dictionary<string, object > GetColumnValues(Dictionary<string, object> propertyValues)
-        {
-            var columnConstraints = new Dictionary<string, object>();
-
-            foreach (var propertyValue in propertyValues)
-            {
-                var columnName = _convention.GetColumnName(propertyValue.Key);
-                columnConstraints[columnName] = propertyValue.Value;
-            }
-
-            return columnConstraints;
-
-        }
-
-        private void ExecuteCommand(DbCommand command)
-        {
-            using (var connection = new SqlConnection(ConnectionString))
-            {
-                connection.Open();
-                command.Connection = connection;
-
-                command.ExecuteNonQuery();
-
-                connection.Dispose();
-            }
-        }
-
-        private Dictionary<string, object> GetPropertyValues(object objectToInsert)
-        {
-            var properties = objectToInsert.GetType().GetProperties();
-
-            var propertyValues = new Dictionary<string, object>();
-
-            foreach (var property in properties)
-            {
-                propertyValues[property.Name] = property.GetValue(objectToInsert, null);
-            }
-            return propertyValues;
         }
     }
 }

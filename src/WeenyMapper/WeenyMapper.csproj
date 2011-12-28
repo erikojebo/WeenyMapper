@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="Conventions\DefaultConvention.cs" />
     <Compile Include="Conventions\IConvention.cs" />
+    <Compile Include="Extensions\DbCommandExtensions.cs" />
     <Compile Include="QueryBuilding\StaticInsertBuilder.cs" />
     <Compile Include="QueryBuilding\StaticSelectBuilder.cs" />
     <Compile Include="QueryBuilding\StaticUpdateBuilder.cs" />
@@ -58,9 +59,9 @@
     <Compile Include="QueryParsing\QueryParser.cs" />
     <Compile Include="Repository.cs" />
     <Compile Include="QueryExecution\IObjectQueryExecutor.cs" />
-    <Compile Include="SqlGeneration\ISqlGenerator.cs" />
+    <Compile Include="Sql\ISqlGenerator.cs" />
     <Compile Include="QueryExecution\ObjectQueryExecutor.cs" />
-    <Compile Include="SqlGeneration\TSqlGenerator.cs" />
+    <Compile Include="Sql\TSqlGenerator.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

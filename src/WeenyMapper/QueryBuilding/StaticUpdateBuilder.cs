@@ -1,6 +1,6 @@
 using System;
 using WeenyMapper.Conventions;
-using WeenyMapper.SqlGeneration;
+using WeenyMapper.Sql;
 
 namespace WeenyMapper.QueryBuilding
 {

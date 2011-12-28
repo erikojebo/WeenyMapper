@@ -2,7 +2,7 @@ using WeenyMapper.Conventions;
 using WeenyMapper.QueryBuilding;
 using WeenyMapper.QueryExecution;
 using WeenyMapper.Reflection;
-using WeenyMapper.SqlGeneration;
+using WeenyMapper.Sql;
 
 namespace WeenyMapper
 {

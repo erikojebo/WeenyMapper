@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
 
-namespace WeenyMapper.SqlGeneration
+namespace WeenyMapper.Sql
 {
     public class TSqlGenerator : ISqlGenerator
     {
@@ -72,7 +71,7 @@ namespace WeenyMapper.SqlGeneration
             return sqlCommand;
         }
 
-        public DbCommand CreateUpdateCommand(string tableName, string primaryKeyColumn, Dictionary<string, object> propertyValues)
+        public DbCommand CreateUpdateCommand(string tableName, string primaryKeyColumn, IDictionary<string, object> propertyValues)
         {
             var updateStatements = propertyValues.Where(x => x.Key != primaryKeyColumn)
                 .Select(x => string.Format("{0} = @{1}", Escape(x.Key), x.Key));

@@ -4,7 +4,7 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
 using WeenyMapper.Conventions;
-using WeenyMapper.SqlGeneration;
+using WeenyMapper.Sql;
 
 namespace WeenyMapper.QueryExecution
 {

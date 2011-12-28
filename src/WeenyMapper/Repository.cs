@@ -3,7 +3,7 @@ using WeenyMapper.QueryBuilding;
 using WeenyMapper.QueryExecution;
 using WeenyMapper.QueryParsing;
 using WeenyMapper.Reflection;
-using WeenyMapper.SqlGeneration;
+using WeenyMapper.Sql;
 
 namespace WeenyMapper
 {
@@ -33,7 +33,7 @@ namespace WeenyMapper
         {
             get
             {
-                return new DynamicUpdateBuilder(Convention, new TSqlGenerator())
+                return new DynamicUpdateBuilder(Convention, new TSqlGenerator(), new PropertyReader(Convention))
                     {
                         ConnectionString = ConnectionString
                     };

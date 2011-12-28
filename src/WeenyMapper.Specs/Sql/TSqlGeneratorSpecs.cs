@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using NUnit.Framework;
-using WeenyMapper.SqlGeneration;
 using System.Linq;
+using WeenyMapper.Sql;
 
-namespace WeenyMapper.Specs.SqlGeneration
+namespace WeenyMapper.Specs.Sql
 {
     [TestFixture]
     public class TSqlGeneratorSpecs

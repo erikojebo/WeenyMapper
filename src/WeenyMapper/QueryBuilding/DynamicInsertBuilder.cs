@@ -4,8 +4,9 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using System.Dynamic;
 using WeenyMapper.Conventions;
+using WeenyMapper.Extensions;
 using WeenyMapper.Reflection;
-using WeenyMapper.SqlGeneration;
+using WeenyMapper.Sql;
 
 namespace WeenyMapper.QueryBuilding
 {
@@ -37,24 +38,11 @@ namespace WeenyMapper.QueryBuilding
 
             var command = _sqlGenerator.CreateInsertCommand(tableName, columnValues);
 
-            ExecuteCommand(command);
+            command.ExecuteNonQuery(ConnectionString);
 
             result = null;
 
             return true;
-        }
-
-        private void ExecuteCommand(DbCommand command)
-        {
-            using (var connection = new SqlConnection(ConnectionString))
-            {
-                connection.Open();
-                command.Connection = connection;
-
-                command.ExecuteNonQuery();
-
-                connection.Dispose();
-            }
         }
     }
 }
