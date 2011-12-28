@@ -40,7 +40,7 @@ namespace WeenyMapper
             builder.Update(instance);
         }
 
-        public dynamic Find<T>() where T : new()
+        public dynamic DynamicFind<T>() where T : new()
         {
             var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator());
 
@@ -48,6 +48,16 @@ namespace WeenyMapper
                 {
                     ConnectionString = ConnectionString
                 };
+        }
+
+        public StaticSelectBuilder<T> Find<T>() where T : new()
+        {
+            var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator());
+
+            return new StaticSelectBuilder<T>(objectQueryExecutor)
+            {
+                ConnectionString = ConnectionString
+            };
         }
     }
 }

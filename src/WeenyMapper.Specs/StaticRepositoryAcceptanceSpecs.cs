@@ -9,7 +9,7 @@ using WeenyMapper.Specs.TestClasses.Conventions;
 namespace WeenyMapper.Specs
 {
     [TestFixture]
-    public class StaticRepositoryAcceptanceSpecs : AcceptanceSpecsBase
+    public class RepositoryAcceptanceSpecs : AcceptanceSpecsBase
     {
         /*
          
@@ -20,7 +20,7 @@ namespace WeenyMapper.Specs
          
                  */
 
-        private StaticRepository _repository;
+        private Repository _repository;
 
         [SetUp]
         public void SetUp()
@@ -29,7 +29,7 @@ namespace WeenyMapper.Specs
 
             DeleteAllExistingTestData();
 
-            _repository = new StaticRepository { ConnectionString = TestConnectionString };
+            _repository = new Repository { ConnectionString = TestConnectionString };
         }
 
         [Test]
@@ -53,7 +53,7 @@ namespace WeenyMapper.Specs
         [Test]
         public void Multiple_properties_can_be_used_when_querying_for_objects()
         {
-            StaticRepository.Convention = new BookConvention();
+            Repository.Convention = new BookConvention();
 
             var book1 = new Book
             {
@@ -133,7 +133,7 @@ namespace WeenyMapper.Specs
         [Test]
         public void Subset_of_the_columns_of_a_table_can_be_read_by_specifying_a_target_type_which_contains_properties_matching_the_subset()
         {
-            StaticRepository.Convention = new UserConvention();
+            Repository.Convention = new UserConvention();
 
             var user = new User
                 {
@@ -152,7 +152,7 @@ namespace WeenyMapper.Specs
         [Test]
         public void Object_with_table_and_columns_using_non_default_conventions_can_be_written_updated_and_read()
         {
-            StaticRepository.Convention = new BookConvention();
+            Repository.Convention = new BookConvention();
 
             var book = new Book
                 {
@@ -185,7 +185,7 @@ namespace WeenyMapper.Specs
         [Test]
         public void Multiple_matching_objects_can_be_read_with_a_single_query()
         {
-            StaticRepository.Convention = new BookConvention();
+            Repository.Convention = new BookConvention();
 
             var book1 = new Book
             {

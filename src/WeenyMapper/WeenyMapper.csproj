@@ -52,7 +52,6 @@
     <Compile Include="Reflection\IPropertyReader.cs" />
     <Compile Include="Reflection\PropertyMetadataReader.cs" />
     <Compile Include="Reflection\PropertyReader.cs" />
-    <Compile Include="StaticRepository.cs" />
     <Compile Include="QueryBuilding\DynamicSelectBuilder.cs" />
     <Compile Include="QueryBuilding\DynamicUpdateBuilder.cs" />
     <Compile Include="QueryParsing\IQueryParser.cs" />

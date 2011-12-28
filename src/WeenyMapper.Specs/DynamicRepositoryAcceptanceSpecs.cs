@@ -43,7 +43,7 @@ namespace WeenyMapper.Specs
                 };
 
             _repository.Insert(user);
-            var actualUser = _repository.Find<User>().ById(user.Id).Execute();
+            var actualUser = _repository.DynamicFind<User>().ById(user.Id).Execute();
 
             Assert.AreEqual(user.Id, actualUser.Id);
             Assert.AreEqual("a username", actualUser.Username);
@@ -83,7 +83,7 @@ namespace WeenyMapper.Specs
             _repository.Insert(book2);
             _repository.Insert(book3);
 
-            Book actualBook = _repository.Find<Book>()
+            Book actualBook = _repository.DynamicFind<Book>()
                 .ByAuthorName("Author Name")
                 .ByTitle("Title 2")
                 .ByPageCount(123)
@@ -128,7 +128,7 @@ namespace WeenyMapper.Specs
             _repository.Insert(book2);
             _repository.Insert(book3);
 
-            Book actualBook = _repository.Find<Book>()
+            Book actualBook = _repository.DynamicFind<Book>()
                 .ByAuthorNameAndTitleAndPageCount("Author Name", "Title 2", 123)
                 .Execute();
 
@@ -166,7 +166,7 @@ namespace WeenyMapper.Specs
 
             _repository.Update(updatedUser2);
 
-            var actualUser = _repository.Find<User>().ById(updatedUser2.Id).Execute();
+            var actualUser = _repository.DynamicFind<User>().ById(updatedUser2.Id).Execute();
 
             Assert.AreEqual(updatedUser2.Id, actualUser.Id);
             Assert.AreEqual("updated username", actualUser.Username);
@@ -186,7 +186,7 @@ namespace WeenyMapper.Specs
                 };
 
             _repository.Insert(user);
-            var actualUser = _repository.Find<PartialUser>().ById(user.Id).Execute();
+            var actualUser = _repository.DynamicFind<PartialUser>().ById(user.Id).Execute();
 
             Assert.AreEqual(user.Id, actualUser.Id);
             Assert.AreEqual("a username", actualUser.Username);
@@ -207,14 +207,14 @@ namespace WeenyMapper.Specs
 
             _repository.Insert(book);
 
-            Book readBook = _repository.Find<Book>().ByIsbn(book.Isbn).Execute();
+            Book readBook = _repository.DynamicFind<Book>().ByIsbn(book.Isbn).Execute();
 
             readBook.Title = "Updated book title";
             readBook.AuthorName = "Updated author name";
 
             _repository.Update(readBook);
 
-            Book readUpdatedBook = _repository.Find<Book>()
+            Book readUpdatedBook = _repository.DynamicFind<Book>()
                 .ByTitle("Updated book title")
                 .ByAuthorName("Updated author name")
                 .Execute();
@@ -267,7 +267,7 @@ namespace WeenyMapper.Specs
             _repository.Insert(book3);
             _repository.Insert(book4);
 
-            IList<Book> actualBooks = _repository.Find<Book>()
+            IList<Book> actualBooks = _repository.DynamicFind<Book>()
                 .ByAuthorName("Author Name 2")
                 .ByPageCount(123)
                 .ExecuteList();
