@@ -42,6 +42,11 @@
   <ItemGroup>
     <Compile Include="Conventions\DefaultConvention.cs" />
     <Compile Include="Conventions\IConvention.cs" />
+    <Compile Include="QueryBuilding\StaticInsertBuilder.cs" />
+    <Compile Include="QueryBuilding\StaticSelectBuilder.cs" />
+    <Compile Include="QueryBuilding\StaticUpdateBuilder.cs" />
+    <Compile Include="Reflection\PropertyExtensions.cs" />
+    <Compile Include="StaticRepository.cs" />
     <Compile Include="QueryBuilding\DynamicInsertBuilder.cs" />
     <Compile Include="QueryBuilding\DynamicSelectBuilder.cs" />
     <Compile Include="QueryBuilding\DynamicUpdateBuilder.cs" />

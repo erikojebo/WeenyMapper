@@ -49,14 +49,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AcceptanceSpecsBase.cs" />
     <Compile Include="Conventions\DefaultConventionSpecs.cs" />
+    <Compile Include="Reflection\PropertyReaderSpecs.cs" />
+    <Compile Include="StaticRepositoryAcceptanceSpecs.cs" />
     <Compile Include="TestClasses\Conventions\BookConvention.cs" />
     <Compile Include="TestClasses\Entities\Book.cs" />
     <Compile Include="TestClasses\Entities\PartialUser.cs" />
     <Compile Include="TestClasses\Entities\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryParsing\QueryParserSpecs.cs" />
-    <Compile Include="RepositoryAcceptanceSpecs.cs" />
+    <Compile Include="DynamicRepositoryAcceptanceSpecs.cs" />
     <Compile Include="SqlGeneration\TSqlGeneratorSpecs.cs" />
   </ItemGroup>
   <ItemGroup>

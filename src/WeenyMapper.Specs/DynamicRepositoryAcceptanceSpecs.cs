@@ -8,9 +8,8 @@ using WeenyMapper.Specs.TestClasses.Conventions;
 namespace WeenyMapper.Specs
 {
     [TestFixture]
-    public class RepositoryAcceptanceSpecs
+    public class DynamicRepositoryAcceptanceSpecs : AcceptanceSpecsBase
     {
-        private Repository _repository;
         /*
          
          Requirements for running these tests:
@@ -20,7 +19,7 @@ namespace WeenyMapper.Specs
          
          */
 
-        public const string TestConnectionString = @"Data source=.\SQLEXPRESS;Initial Catalog=WeenyMapper;Trusted_Connection=true";
+        private Repository _repository;
 
         [SetUp]
         public void SetUp()
@@ -167,23 +166,6 @@ namespace WeenyMapper.Specs
             Assert.AreEqual("Updated book title", readUpdatedBook.Title);
             Assert.AreEqual("Updated author name", readUpdatedBook.AuthorName);
             Assert.AreEqual(123, readUpdatedBook.PageCount);
-        }
-
-        private void DeleteAllExistingTestData()
-        {
-            using (var connection = new SqlConnection(TestConnectionString))
-            {
-                connection.Open();
-
-                using (var command = new SqlCommand("delete from [User]", connection))
-                {
-                    command.ExecuteNonQuery();
-                }
-                using (var command = new SqlCommand("delete from [t_Books]", connection))
-                {
-                    command.ExecuteNonQuery();
-                }
-            }
         }
     }
 }
