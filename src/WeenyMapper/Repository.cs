@@ -40,6 +40,16 @@ namespace WeenyMapper
             builder.Update(instance);
         }
 
+        public StaticUpdateBuilder<T> Update<T>()
+        {
+            var objectUpdateExecutor = new ObjectUpdateExecutor(Convention, new TSqlGenerator(), new PropertyReader(Convention))
+            {
+                ConnectionString = ConnectionString
+            };
+
+            return new StaticUpdateBuilder<T>(objectUpdateExecutor);
+        }
+
         public dynamic DynamicFind<T>() where T : new()
         {
             var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator());

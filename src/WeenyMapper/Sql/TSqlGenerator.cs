@@ -92,6 +92,39 @@ namespace WeenyMapper.Sql
             return updateCommand;
         }
 
+        public DbCommand CreateUpdateCommand(string tableName, string primaryKeyColumn, IDictionary<string, object> columnConstraints, IDictionary<string, object> columnSetters)
+        {
+            var updateStatements = columnSetters.Where(x => x.Key != primaryKeyColumn)
+                .Select(x => string.Format("{0} = @{1}", Escape(x.Key), x.Key));
+
+            var updateString = string.Join(", ", updateStatements);
+
+            var constraintStatements = columnConstraints.Select(x => string.Format("{0} = @{1}Constraint", Escape(x.Key), x.Key));
+            var constraintString = string.Join(" and ", constraintStatements);
+
+            var sql = string.Format("update {0} set {1}", Escape(tableName), updateString);
+
+            if (columnConstraints.Any())
+            {
+                var whereClause = string.Format(" where {0}", constraintString);
+                sql += whereClause;
+            }
+
+            var updateCommand = new SqlCommand(sql);
+
+            foreach (var propertyValue in columnSetters)
+            {
+                updateCommand.Parameters.Add(new SqlParameter(propertyValue.Key, propertyValue.Value));
+            }
+
+            foreach (var propertyValue in columnConstraints)
+            {
+                updateCommand.Parameters.Add(new SqlParameter(propertyValue.Key + "Constraint", propertyValue.Value));
+            }
+
+            return updateCommand;
+        }
+
         private string Escape(string propertyName)
         {
             return string.Format("[{0}]", propertyName);

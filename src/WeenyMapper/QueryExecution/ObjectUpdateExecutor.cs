@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using WeenyMapper.Conventions;
 using WeenyMapper.Extensions;
@@ -28,15 +29,35 @@ namespace WeenyMapper.QueryExecution
 
             var columnValues = _propertyReader.GetColumnValues(instance);
 
-            var idProperty = instance.GetType().GetProperties()
-                .Select(x => x.Name)
-                .First(_convention.IsIdProperty);
-
-            var primaryKeyColumn = _convention.GetColumnName(idProperty);
+            var primaryKeyColumn = GetPrimaryKeyColumn<T>();
 
             var command = _sqlGenerator.CreateUpdateCommand(tableName, primaryKeyColumn, columnValues);
 
             command.ExecuteNonQuery(ConnectionString);
+        }
+
+        public void Update<T>(IDictionary<string, object> constraints, IDictionary<string, object> setters)
+        {
+            var className = typeof(T).Name;
+            var tableName = _convention.GetTableName(className);
+
+            var columnConstraints = constraints.TransformKeys(_convention.GetColumnName);
+            var columnSetters = setters.TransformKeys(_convention.GetColumnName);
+
+            var primaryKeyColumn = GetPrimaryKeyColumn<T>();
+
+            var command = _sqlGenerator.CreateUpdateCommand(tableName, primaryKeyColumn, columnConstraints, columnSetters);
+
+            command.ExecuteNonQuery(ConnectionString);
+        }
+
+        private string GetPrimaryKeyColumn<T>()
+        {
+            var idProperty = typeof(T).GetProperties()
+                .Select(x => x.Name)
+                .First(_convention.IsIdProperty);
+
+            return _convention.GetColumnName(idProperty);
         }
     }
 }

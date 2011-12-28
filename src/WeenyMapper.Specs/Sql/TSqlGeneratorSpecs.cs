@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using NUnit.Framework;
 using System.Linq;
+using NUnit.Framework;
 using WeenyMapper.Sql;
 
 namespace WeenyMapper.Specs.Sql
@@ -114,6 +114,57 @@ namespace WeenyMapper.Specs.Sql
 
             Assert.AreEqual("IdColumnName", actualParameters[2].ParameterName);
             Assert.AreEqual("id value", actualParameters[2].Value);
+        }
+
+        [Test]
+        public void Update_command_for_mass_update_without_constraints_and_single_setter_creates_parameterized_sql_with_matching_set_clause()
+        {
+            var columnConstraints = new Dictionary<string, object>();
+            var columnSetters = new Dictionary<string, object>();
+
+            columnSetters["ColumnName1"] = "value 1";
+
+            var sqlCommand = _generator.CreateUpdateCommand("TableName", "IdColumnName", columnConstraints, columnSetters);
+
+            var expectedSql = "update [TableName] set [ColumnName1] = @ColumnName1";
+
+            Assert.AreEqual(expectedSql, sqlCommand.CommandText);
+            Assert.AreEqual(1, sqlCommand.Parameters.Count);
+            Assert.AreEqual("ColumnName1", sqlCommand.Parameters[0].ParameterName);
+            Assert.AreEqual("value 1", sqlCommand.Parameters[0].Value);
+        }
+
+        [Test]
+        public void Update_command_for_mass_update_with_multiple_constraints_and_setters_creates_parameterized_sql_with_matching_where_and_set_clauses()
+        {
+            var columnConstraints = new Dictionary<string, object>();
+            var columnSetters = new Dictionary<string, object>();
+
+            columnSetters["ColumnName1"] = "value 1";
+            columnSetters["ColumnName2"] = "value 2";
+
+            columnConstraints["ColumnName3"] = "value 3";
+            columnConstraints["ColumnName4"] = "value 4";
+
+            var sqlCommand = _generator.CreateUpdateCommand("TableName", "IdColumnName", columnConstraints, columnSetters);
+
+            var expectedSql = "update [TableName] set [ColumnName1] = @ColumnName1, [ColumnName2] = @ColumnName2 " +
+                              "where [ColumnName3] = @ColumnName3Constraint and [ColumnName4] = @ColumnName4Constraint";
+
+            Assert.AreEqual(expectedSql, sqlCommand.CommandText);
+
+            Assert.AreEqual(4, sqlCommand.Parameters.Count);
+
+            var actualParameters = sqlCommand.Parameters.OfType<SqlParameter>().OrderBy(x => x.ParameterName).ToList();
+
+            Assert.AreEqual("ColumnName1", actualParameters[0].ParameterName);
+            Assert.AreEqual("value 1", actualParameters[0].Value);
+            Assert.AreEqual("ColumnName2", actualParameters[1].ParameterName);
+            Assert.AreEqual("value 2", actualParameters[1].Value);
+            Assert.AreEqual("ColumnName3Constraint", actualParameters[2].ParameterName);
+            Assert.AreEqual("value 3", actualParameters[2].Value);
+            Assert.AreEqual("ColumnName4Constraint", actualParameters[3].ParameterName);
+            Assert.AreEqual("value 4", actualParameters[3].Value);
         }
     }
 }
