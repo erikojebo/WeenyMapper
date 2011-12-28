@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using WeenyMapper.Conventions;
 using WeenyMapper.Specs.Entities;
@@ -179,5 +181,68 @@ namespace WeenyMapper.Specs
             Assert.AreEqual("Updated author name", readUpdatedBook.AuthorName);
             Assert.AreEqual(123, readUpdatedBook.PageCount);
         }
+
+        [Test]
+        public void Multiple_matching_objects_can_be_read_with_a_single_query()
+        {
+            StaticRepository.Convention = new BookConvention();
+
+            var book1 = new Book
+            {
+                Isbn = "1",
+                AuthorName = "Author Name",
+                Title = "Title 1",
+                PageCount = 123,
+            };
+
+            var book2 = new Book
+            {
+                Isbn = "2",
+                AuthorName = "Author Name 2",
+                Title = "Title 2",
+                PageCount = 123
+            };
+
+            var book3 = new Book
+            {
+                Isbn = "3",
+                AuthorName = "Author Name 2",
+                Title = "Title 3",
+                PageCount = 123
+            };
+
+            var book4 = new Book
+            {
+                Isbn = "4",
+                AuthorName = "Author Name 2",
+                Title = "Title 4",
+                PageCount = 321
+            };
+
+            _repository.Insert(book1);
+            _repository.Insert(book2);
+            _repository.Insert(book3);
+            _repository.Insert(book4);
+
+            var actualBooks = _repository.Find<Book>()
+                .By(x => x.AuthorName, "Author Name 2")
+                .By(x => x.PageCount, 123)
+                .ExecuteList();
+
+            actualBooks = actualBooks.OrderBy(x => x.Title).ToList();
+
+            Assert.AreEqual(2, actualBooks.Count);
+
+            Assert.AreEqual(book2.Isbn, actualBooks[0].Isbn);
+            Assert.AreEqual("Author Name 2", actualBooks[0].AuthorName);
+            Assert.AreEqual("Title 2", actualBooks[0].Title);
+            Assert.AreEqual(123, actualBooks[0].PageCount);
+
+            Assert.AreEqual(book3.Isbn, actualBooks[1].Isbn);
+            Assert.AreEqual("Author Name 2", actualBooks[1].AuthorName);
+            Assert.AreEqual("Title 3", actualBooks[1].Title);
+            Assert.AreEqual(123, actualBooks[1].PageCount);
+        }
+
     }
 }

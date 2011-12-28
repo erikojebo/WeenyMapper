@@ -32,7 +32,12 @@ namespace WeenyMapper.QueryBuilding
 
         public T Execute()
         {
-            return _objectQueryExecutor.Find<T>(typeof(T).Name, _constraints).First();
+            return ExecuteList().First();
+        }
+
+        public IList<T> ExecuteList()
+        {
+            return _objectQueryExecutor.Find<T>(typeof(T).Name, _constraints);
         }
     }
 }
