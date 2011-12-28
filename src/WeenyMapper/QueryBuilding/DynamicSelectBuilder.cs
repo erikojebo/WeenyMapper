@@ -6,11 +6,10 @@ using WeenyMapper.QueryParsing;
 
 namespace WeenyMapper.QueryBuilding
 {
-    public class DynamicSelectBuilder : DynamicObject
+    public class DynamicSelectBuilder<T> : DynamicObject where T : new()
     {
         private readonly IQueryParser _queryParser;
         private readonly IObjectQueryExecutor _objectQueryExecutor;
-        private string _className;
         private SelectQuery _query;
         private List<object> _constraintValues;
 
@@ -28,7 +27,7 @@ namespace WeenyMapper.QueryBuilding
             set { _objectQueryExecutor.ConnectionString = value; }
         }
 
-        public T Execute<T>() where T : new()
+        public T Execute()
         {
             var constraints = new Dictionary<string, object>();
 
@@ -37,14 +36,13 @@ namespace WeenyMapper.QueryBuilding
                 constraints[_query.ConstraintProperties[i]] = _constraintValues[i];
             }
 
-            return _objectQueryExecutor.Find<T>(_className, constraints);
+            return _objectQueryExecutor.Find<T>(typeof(T).Name, constraints);
         }
 
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
         {
             _query = _queryParser.ParseSelectQuery(binder.Name);
             _constraintValues = args.ToList();
-            _className = _query.ClassName;
 
             result = this;
 

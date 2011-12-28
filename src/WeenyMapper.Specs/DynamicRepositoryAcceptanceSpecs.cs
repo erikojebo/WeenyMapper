@@ -42,7 +42,7 @@ namespace WeenyMapper.Specs
                 };
 
             _repository.Insert.User(user);
-            var actualUser = _repository.Find.UserById(user.Id).Execute<User>();
+            var actualUser = _repository.Find<User>().UserById(user.Id).Execute();
 
             Assert.AreEqual(user.Id, actualUser.Id);
             Assert.AreEqual("a username", actualUser.Username);
@@ -77,7 +77,7 @@ namespace WeenyMapper.Specs
             _repository.Insert.User(user2);
             _repository.Insert.User(user3);
 
-            var actualUser = _repository.Find.UserByPasswordAndUsername(user2.Password, user2.Username).Execute<User>();
+            var actualUser = _repository.Find<User>().UserByPasswordAndUsername(user2.Password, user2.Username).Execute();
 
             Assert.AreEqual(user2.Id, actualUser.Id);
             Assert.AreEqual("username2", actualUser.Username);
@@ -112,7 +112,7 @@ namespace WeenyMapper.Specs
 
             _repository.Update.User(updatedUser2);
 
-            var actualUser = _repository.Find.UserById(updatedUser2.Id).Execute<User>();
+            var actualUser = _repository.Find<User>().UserById(updatedUser2.Id).Execute();
 
             Assert.AreEqual(updatedUser2.Id, actualUser.Id);
             Assert.AreEqual("updated username", actualUser.Username);
@@ -122,6 +122,8 @@ namespace WeenyMapper.Specs
         [Test]
         public void Subset_of_the_columns_of_a_table_can_be_read_by_specifying_a_target_type_which_contains_properties_matching_the_subset()
         {
+            Repository.Convention = new UserConvention();
+
             var user = new User
                 {
                     Id = Guid.NewGuid(),
@@ -130,7 +132,7 @@ namespace WeenyMapper.Specs
                 };
 
             _repository.Insert.User(user);
-            var actualUser = _repository.Find.UserById(user.Id).Execute<PartialUser>();
+            var actualUser = _repository.Find<PartialUser>().UserById(user.Id).Execute();
 
             Assert.AreEqual(user.Id, actualUser.Id);
             Assert.AreEqual("a username", actualUser.Username);
@@ -151,16 +153,16 @@ namespace WeenyMapper.Specs
 
             _repository.Insert.Book(book);
 
-            Book readBook = _repository.Find.BookByIsbn(book.Isbn).Execute<Book>();
+            Book readBook = _repository.Find<Book>().BookByIsbn(book.Isbn).Execute();
             
             readBook.Title = "Updated book title";
             readBook.AuthorName = "Updated author name";
 
             _repository.Update.Book(readBook);
 
-            Book readUpdatedBook = _repository.Find
+            Book readUpdatedBook = _repository.Find<Book>()
                 .BookByTitleAndAuthorName("Updated book title", "Updated author name")
-                .Execute<Book>();
+                .Execute();
 
             Assert.AreEqual("123-456", readUpdatedBook.Isbn);
             Assert.AreEqual("Updated book title", readUpdatedBook.Title);

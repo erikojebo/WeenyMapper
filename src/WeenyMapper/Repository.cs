@@ -40,17 +40,14 @@ namespace WeenyMapper
             }
         }
 
-        public dynamic Find
+        public dynamic Find<T>() where T : new()
         {
-            get
-            {
-                var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator());
+            var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator());
 
-                return new DynamicSelectBuilder(new QueryParser(), objectQueryExecutor)
-                    {
-                        ConnectionString = ConnectionString
-                    };
-            }
+            return new DynamicSelectBuilder<T>(new QueryParser(), objectQueryExecutor)
+                {
+                    ConnectionString = ConnectionString
+                };
         }
     }
 }
