@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using WeenyMapper.Conventions;
-using WeenyMapper.Specs.Entities;
 using WeenyMapper.Specs.TestClasses.Conventions;
+using WeenyMapper.Specs.TestClasses.Entities;
 
 namespace WeenyMapper.Specs
 {
@@ -45,9 +45,7 @@ namespace WeenyMapper.Specs
             _repository.Insert(user);
             var actualUser = _repository.Find<User>().By(x => x.Id, user.Id).Execute();
 
-            Assert.AreEqual(user.Id, actualUser.Id);
-            Assert.AreEqual("a username", actualUser.Username);
-            Assert.AreEqual("a password", actualUser.Password);
+            Assert.AreEqual(user, actualUser);
         }
 
         [Test]
@@ -89,10 +87,7 @@ namespace WeenyMapper.Specs
                 .By(x => x.PageCount, 123)
                 .Execute();
 
-            Assert.AreEqual(book2.Isbn, actualBook.Isbn);
-            Assert.AreEqual("Author Name", actualBook.AuthorName);
-            Assert.AreEqual("Title 2", actualBook.Title);
-            Assert.AreEqual(123, actualBook.PageCount);
+            Assert.AreEqual(book2, actualBook);
         }
 
         [Test]
@@ -125,9 +120,7 @@ namespace WeenyMapper.Specs
 
             var actualUser = _repository.Find<User>().By(x => x.Id, updatedUser2.Id).Execute();
 
-            Assert.AreEqual(updatedUser2.Id, actualUser.Id);
-            Assert.AreEqual("updated username", actualUser.Username);
-            Assert.AreEqual("updated password", actualUser.Password);
+            Assert.AreEqual(updatedUser2, actualUser);
         }
 
         [Test]
@@ -143,7 +136,7 @@ namespace WeenyMapper.Specs
                 };
 
             _repository.Insert(user);
-            var actualUser = _repository.Find<User>().By(x => x.Id, user.Id).Execute();
+            var actualUser = _repository.Find<PartialUser>().By(x => x.Id, user.Id).Execute();
 
             Assert.AreEqual(user.Id, actualUser.Id);
             Assert.AreEqual("a username", actualUser.Username);
@@ -176,10 +169,7 @@ namespace WeenyMapper.Specs
                 .By(x => x.AuthorName, "Updated author name")
                 .Execute();
 
-            Assert.AreEqual("123-456", readUpdatedBook.Isbn);
-            Assert.AreEqual("Updated book title", readUpdatedBook.Title);
-            Assert.AreEqual("Updated author name", readUpdatedBook.AuthorName);
-            Assert.AreEqual(123, readUpdatedBook.PageCount);
+            Assert.AreEqual(readBook, readUpdatedBook);
         }
 
         [Test]
@@ -233,16 +223,8 @@ namespace WeenyMapper.Specs
 
             Assert.AreEqual(2, actualBooks.Count);
 
-            Assert.AreEqual(book2.Isbn, actualBooks[0].Isbn);
-            Assert.AreEqual("Author Name 2", actualBooks[0].AuthorName);
-            Assert.AreEqual("Title 2", actualBooks[0].Title);
-            Assert.AreEqual(123, actualBooks[0].PageCount);
-
-            Assert.AreEqual(book3.Isbn, actualBooks[1].Isbn);
-            Assert.AreEqual("Author Name 2", actualBooks[1].AuthorName);
-            Assert.AreEqual("Title 3", actualBooks[1].Title);
-            Assert.AreEqual(123, actualBooks[1].PageCount);
+            CollectionAssert.Contains(actualBooks, book2);
+            CollectionAssert.Contains(actualBooks, book3);
         }
-
     }
 }

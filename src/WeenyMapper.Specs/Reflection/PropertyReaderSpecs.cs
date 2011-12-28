@@ -1,6 +1,6 @@
 using NUnit.Framework;
 using WeenyMapper.Reflection;
-using WeenyMapper.Specs.Entities;
+using WeenyMapper.Specs.TestClasses.Entities;
 
 namespace WeenyMapper.Specs.Reflection
 {

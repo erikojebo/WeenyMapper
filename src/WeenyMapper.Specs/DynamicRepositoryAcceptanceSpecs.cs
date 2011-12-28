@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using WeenyMapper.Conventions;
-using WeenyMapper.Specs.Entities;
 using WeenyMapper.Specs.TestClasses.Conventions;
 using System.Linq;
+using WeenyMapper.Specs.TestClasses.Entities;
 
 namespace WeenyMapper.Specs
 {
@@ -89,10 +89,7 @@ namespace WeenyMapper.Specs
                 .ByPageCount(123)
                 .Execute();
 
-            Assert.AreEqual(book2.Isbn, actualBook.Isbn);
-            Assert.AreEqual("Author Name", actualBook.AuthorName);
-            Assert.AreEqual("Title 2", actualBook.Title);
-            Assert.AreEqual(123, actualBook.PageCount);
+            Assert.AreEqual(book2, actualBook);
         }
 
         [Test]
@@ -132,10 +129,7 @@ namespace WeenyMapper.Specs
                 .ByAuthorNameAndTitleAndPageCount("Author Name", "Title 2", 123)
                 .Execute();
 
-            Assert.AreEqual(book2.Isbn, actualBook.Isbn);
-            Assert.AreEqual("Author Name", actualBook.AuthorName);
-            Assert.AreEqual("Title 2", actualBook.Title);
-            Assert.AreEqual(123, actualBook.PageCount);
+            Assert.AreEqual(book2, actualBook);
         }
 
         [Test]
@@ -168,9 +162,7 @@ namespace WeenyMapper.Specs
 
             var actualUser = _repository.DynamicFind<User>().ById(updatedUser2.Id).Execute();
 
-            Assert.AreEqual(updatedUser2.Id, actualUser.Id);
-            Assert.AreEqual("updated username", actualUser.Username);
-            Assert.AreEqual("updated password", actualUser.Password);
+            Assert.AreEqual(updatedUser2, actualUser);
         }
 
         [Test]
@@ -219,10 +211,7 @@ namespace WeenyMapper.Specs
                 .ByAuthorName("Updated author name")
                 .Execute();
 
-            Assert.AreEqual("123-456", readUpdatedBook.Isbn);
-            Assert.AreEqual("Updated book title", readUpdatedBook.Title);
-            Assert.AreEqual("Updated author name", readUpdatedBook.AuthorName);
-            Assert.AreEqual(123, readUpdatedBook.PageCount);
+            Assert.AreEqual(readBook, readUpdatedBook);
         }
 
         [Test]
@@ -272,19 +261,10 @@ namespace WeenyMapper.Specs
                 .ByPageCount(123)
                 .ExecuteList();
 
-            actualBooks = actualBooks.OrderBy(x => x.Title).ToList();
-
             Assert.AreEqual(2, actualBooks.Count);
 
-            Assert.AreEqual(book2.Isbn, actualBooks[0].Isbn);
-            Assert.AreEqual("Author Name 2", actualBooks[0].AuthorName);
-            Assert.AreEqual("Title 2", actualBooks[0].Title);
-            Assert.AreEqual(123, actualBooks[0].PageCount);
-
-            Assert.AreEqual(book3.Isbn, actualBooks[1].Isbn);
-            Assert.AreEqual("Author Name 2", actualBooks[1].AuthorName);
-            Assert.AreEqual("Title 3", actualBooks[1].Title);
-            Assert.AreEqual(123, actualBooks[1].PageCount);
+            CollectionAssert.Contains(actualBooks, book2);
+            CollectionAssert.Contains(actualBooks, book3);
         }
     }
 }
