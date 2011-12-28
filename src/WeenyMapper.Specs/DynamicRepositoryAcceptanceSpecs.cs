@@ -1,5 +1,4 @@
 using System;
-using System.Data.SqlClient;
 using NUnit.Framework;
 using WeenyMapper.Conventions;
 using WeenyMapper.Specs.Entities;
@@ -52,36 +51,46 @@ namespace WeenyMapper.Specs
         [Test]
         public void Multiple_properties_can_be_used_when_querying_for_objects()
         {
-            var user1 = new User
+            Repository.Convention = new BookConvention();
+
+            var book1 = new Book
                 {
-                    Id = Guid.NewGuid(),
-                    Username = "username1",
-                    Password = "a password"
-                };
-            
-            var user2 = new User
-                {
-                    Id = Guid.NewGuid(),
-                    Username = "username2",
-                    Password = "a password"
-                };
-            
-            var user3 = new User
-                {
-                    Id = Guid.NewGuid(),
-                    Username = "username3",
-                    Password = "a password"
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 123,
                 };
 
-            _repository.Insert.User(user1);
-            _repository.Insert.User(user2);
-            _repository.Insert.User(user3);
+            var book2 = new Book
+                {
+                    Isbn = "2",
+                    AuthorName = "Author Name",
+                    Title = "Title 2",
+                    PageCount = 123
+                };
 
-            var actualUser = _repository.Find<User>().ByPasswordAndUsername(user2.Password, user2.Username).Execute();
+            var book3 = new Book
+                {
+                    Isbn = "3",
+                    AuthorName = "Author Name",
+                    Title = "Title 3",
+                    PageCount = 123
+                };
 
-            Assert.AreEqual(user2.Id, actualUser.Id);
-            Assert.AreEqual("username2", actualUser.Username);
-            Assert.AreEqual("a password", actualUser.Password);
+            _repository.Insert.Book(book1);
+            _repository.Insert.Book(book2);
+            _repository.Insert.Book(book3);
+
+            Book actualBook = _repository.Find<Book>()
+                .ByAuthorName("Author Name")
+                .ByTitle("Title 2")
+                .ByPageCount(123)
+                .Execute();
+
+            Assert.AreEqual(book2.Isbn, actualBook.Isbn);
+            Assert.AreEqual("Author Name", actualBook.AuthorName);
+            Assert.AreEqual("Title 2", actualBook.Title);
+            Assert.AreEqual(123, actualBook.PageCount);
         }
 
         [Test]
@@ -154,14 +163,15 @@ namespace WeenyMapper.Specs
             _repository.Insert.Book(book);
 
             Book readBook = _repository.Find<Book>().ByIsbn(book.Isbn).Execute();
-            
+
             readBook.Title = "Updated book title";
             readBook.AuthorName = "Updated author name";
 
             _repository.Update.Book(readBook);
 
             Book readUpdatedBook = _repository.Find<Book>()
-                .ByTitleAndAuthorName("Updated book title", "Updated author name")
+                .ByTitle("Updated book title")
+                .ByAuthorName("Updated author name")
                 .Execute();
 
             Assert.AreEqual("123-456", readUpdatedBook.Isbn);

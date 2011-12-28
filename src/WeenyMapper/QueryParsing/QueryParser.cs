@@ -1,28 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace WeenyMapper.QueryParsing
 {
     public class QueryParser : IQueryParser
     {
-        public SelectQuery ParseSelectQuery(string methodName)
+        public IList<string> GetConstraintProperties(string methodName)
         {
-            var parts = methodName.Split(new[] { "By" }, StringSplitOptions.None);
-
-            var className = parts[0];
-            var propertyNameString = parts[1];
+            var propertyNameString = methodName.Substring("By".Length);
 
             var propertyNames = propertyNameString.Split(new[] { "And" }, StringSplitOptions.None);
 
-            var selectQuery = new SelectQuery();
-
-            selectQuery.ClassName = className;
+            var constraintProperties = new List<string>();
 
             foreach (var propertyName in propertyNames)
             {
-                selectQuery.ConstraintProperties.Add(propertyName);                
+                constraintProperties.Add(propertyName);                
             }
 
-            return selectQuery;
+            return constraintProperties;
         }
     }
 }

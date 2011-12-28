@@ -1,7 +1,9 @@
-﻿namespace WeenyMapper.QueryParsing
+﻿using System.Collections.Generic;
+
+namespace WeenyMapper.QueryParsing
 {
     public interface IQueryParser
     {
-        SelectQuery ParseSelectQuery(string methodName);
+        IList<string> GetConstraintProperties(string methodName);
     }
 }
