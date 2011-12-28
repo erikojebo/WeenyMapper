@@ -18,15 +18,14 @@ namespace WeenyMapper
 
         public static IConvention Convention { get; set; }
 
-        public dynamic Insert
+        public void Insert<T>(T instance)
         {
-            get
-            {
-                return new DynamicInsertBuilder(Convention, new TSqlGenerator(), new PropertyReader(Convention))
-                    {
-                        ConnectionString = ConnectionString
-                    };
-            }
+            var objectInsertExecutor = new ObjectInsertExecutor(Convention, new TSqlGenerator(), new PropertyReader(Convention))
+                {
+                    ConnectionString = ConnectionString
+                };
+
+            objectInsertExecutor.Insert(instance);
         }
 
         public dynamic Update

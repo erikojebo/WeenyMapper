@@ -47,6 +47,7 @@
     <Compile Include="QueryBuilding\StaticInsertBuilder.cs" />
     <Compile Include="QueryBuilding\StaticSelectBuilder.cs" />
     <Compile Include="QueryBuilding\StaticUpdateBuilder.cs" />
+    <Compile Include="QueryExecution\ObjectInsertExecutor.cs" />
     <Compile Include="Reflection\IPropertyReader.cs" />
     <Compile Include="Reflection\PropertyMetadataReader.cs" />
     <Compile Include="Reflection\PropertyReader.cs" />

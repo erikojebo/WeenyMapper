@@ -42,7 +42,7 @@ namespace WeenyMapper.Specs
                     Password = "a password"
                 };
 
-            _repository.Insert.User(user);
+            _repository.Insert(user);
             var actualUser = _repository.Find<User>().ById(user.Id).Execute();
 
             Assert.AreEqual(user.Id, actualUser.Id);
@@ -79,9 +79,9 @@ namespace WeenyMapper.Specs
                     PageCount = 123
                 };
 
-            _repository.Insert.Book(book1);
-            _repository.Insert.Book(book2);
-            _repository.Insert.Book(book3);
+            _repository.Insert(book1);
+            _repository.Insert(book2);
+            _repository.Insert(book3);
 
             Book actualBook = _repository.Find<Book>()
                 .ByAuthorName("Author Name")
@@ -124,9 +124,9 @@ namespace WeenyMapper.Specs
                     PageCount = 123
                 };
 
-            _repository.Insert.Book(book1);
-            _repository.Insert.Book(book2);
-            _repository.Insert.Book(book3);
+            _repository.Insert(book1);
+            _repository.Insert(book2);
+            _repository.Insert(book3);
 
             Book actualBook = _repository.Find<Book>()
                 .ByAuthorNameAndTitleAndPageCount("Author Name", "Title 2", 123)
@@ -154,8 +154,8 @@ namespace WeenyMapper.Specs
                     Password = "a password"
                 };
 
-            _repository.Insert.User(user1);
-            _repository.Insert.User(user2);
+            _repository.Insert(user1);
+            _repository.Insert(user2);
 
             var updatedUser2 = new User
                 {
@@ -185,7 +185,7 @@ namespace WeenyMapper.Specs
                     Password = "a password"
                 };
 
-            _repository.Insert.User(user);
+            _repository.Insert(user);
             var actualUser = _repository.Find<PartialUser>().ById(user.Id).Execute();
 
             Assert.AreEqual(user.Id, actualUser.Id);
@@ -205,7 +205,7 @@ namespace WeenyMapper.Specs
                     PageCount = 123
                 };
 
-            _repository.Insert.Book(book);
+            _repository.Insert(book);
 
             Book readBook = _repository.Find<Book>().ByIsbn(book.Isbn).Execute();
 
@@ -262,10 +262,10 @@ namespace WeenyMapper.Specs
                     PageCount = 321
                 };
 
-            _repository.Insert.Book(book1);
-            _repository.Insert.Book(book2);
-            _repository.Insert.Book(book3);
-            _repository.Insert.Book(book4);
+            _repository.Insert(book1);
+            _repository.Insert(book2);
+            _repository.Insert(book3);
+            _repository.Insert(book4);
 
             IList<Book> actualBooks = _repository.Find<Book>()
                 .ByAuthorName("Author Name 2")
