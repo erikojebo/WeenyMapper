@@ -53,9 +53,9 @@
     <Compile Include="QueryExecution\ObjectDeleteExecutor.cs" />
     <Compile Include="QueryExecution\ObjectInsertExecutor.cs" />
     <Compile Include="QueryExecution\ObjectUpdateExecutor.cs" />
-    <Compile Include="Reflection\IPropertyReader.cs" />
+    <Compile Include="Reflection\IConventionalEntityDataReader.cs" />
     <Compile Include="Reflection\PropertyMetadataReader.cs" />
-    <Compile Include="Reflection\PropertyReader.cs" />
+    <Compile Include="Reflection\ConventionalEntityDataReader.cs" />
     <Compile Include="QueryBuilding\DynamicSelectBuilder.cs" />
     <Compile Include="QueryBuilding\DynamicUpdateBuilder.cs" />
     <Compile Include="QueryParsing\IQueryParser.cs" />

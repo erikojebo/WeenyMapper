@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using WeenyMapper.Conventions;
 using WeenyMapper.Extensions;
+using WeenyMapper.Reflection;
 using WeenyMapper.Sql;
 
 namespace WeenyMapper.QueryExecution
@@ -12,7 +13,7 @@ namespace WeenyMapper.QueryExecution
         private readonly IConvention _convention;
         private readonly ISqlGenerator _sqlGenerator;
 
-        public ObjectDeleteExecutor(IConvention convention, ISqlGenerator sqlGenerator)
+        public ObjectDeleteExecutor(IConvention convention, ISqlGenerator sqlGenerator, IConventionalEntityDataReader conventionalEntityDataReader)
         {
             _convention = convention;
             _sqlGenerator = sqlGenerator;
