@@ -1,7 +1,8 @@
-using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using WeenyMapper.Conventions;
 using WeenyMapper.Logging;
+using WeenyMapper.Mapping;
 using WeenyMapper.QueryBuilding;
 using WeenyMapper.QueryExecution;
 using WeenyMapper.Reflection;
@@ -29,9 +30,9 @@ namespace WeenyMapper
         public void InsertMany<T>(IEnumerable<T> entities)
         {
             var objectInsertExecutor = new ObjectInsertExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
-            {
-                ConnectionString = ConnectionString
-            };
+                {
+                    ConnectionString = ConnectionString
+                };
 
             objectInsertExecutor.Insert(entities);
         }
@@ -82,7 +83,7 @@ namespace WeenyMapper
 
         public dynamic DynamicFind<T>() where T : new()
         {
-            var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator(), new SqlCommandExecutor(SqlLogger))
+            var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator(), new SqlCommandExecutor(SqlLogger), new EntityMapper(Convention))
                 {
                     ConnectionString = ConnectionString
                 };
@@ -92,10 +93,10 @@ namespace WeenyMapper
 
         public StaticSelectBuilder<T> Find<T>() where T : new()
         {
-            var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator(), new SqlCommandExecutor(SqlLogger))
-            {
-                ConnectionString = ConnectionString
-            };
+            var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator(), new SqlCommandExecutor(SqlLogger), new EntityMapper(Convention))
+                {
+                    ConnectionString = ConnectionString
+                };
 
             return new StaticSelectBuilder<T>(objectQueryExecutor);
         }
@@ -143,12 +144,11 @@ namespace WeenyMapper
         public dynamic DynamicCount<T>()
         {
             var objectCountExecutor = new ObjectCountExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
-            {
-                ConnectionString = ConnectionString
-            };
+                {
+                    ConnectionString = ConnectionString
+                };
 
             return new DynamicCountBuilder<T>(objectCountExecutor);
-
         }
 
         public void EnableSqlConsoleLogging()
@@ -159,6 +159,15 @@ namespace WeenyMapper
         public void DisableSqlConsoleLogging()
         {
             SqlLogger = new NullSqlCommandLogger();
+        }
+
+        public CustomSqlQueryExecutor<T> FindBySql<T>(DbCommand dbCommand) where T : new()
+        {
+            return new CustomSqlQueryExecutor<T>(new SqlCommandExecutor(SqlLogger), new EntityMapper(Convention))
+                {
+                    ConnectionString = ConnectionString,
+                    Command = dbCommand
+                };
         }
     }
 }

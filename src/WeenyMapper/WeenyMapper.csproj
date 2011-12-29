@@ -47,6 +47,8 @@
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Logging\ISqlCommandLogger.cs" />
     <Compile Include="Logging\NullSqlCommandLogger.cs" />
+    <Compile Include="Mapping\EntityMapper.cs" />
+    <Compile Include="Mapping\IEntityMapper.cs" />
     <Compile Include="QueryBuilding\DynamicCommandBuilderBase.cs" />
     <Compile Include="QueryBuilding\DynamicCountBuilder.cs" />
     <Compile Include="QueryBuilding\DynamicDeleteBuilder.cs" />
@@ -55,6 +57,7 @@
     <Compile Include="QueryBuilding\StaticDeleteBuilder.cs" />
     <Compile Include="QueryBuilding\StaticSelectBuilder.cs" />
     <Compile Include="QueryBuilding\StaticUpdateBuilder.cs" />
+    <Compile Include="QueryExecution\CustomSqlQueryExecutor.cs" />
     <Compile Include="QueryExecution\IObjectCountExecutor.cs" />
     <Compile Include="QueryExecution\ObjectCountExecutor.cs" />
     <Compile Include="QueryExecution\IObjectDeleteExecutor.cs" />

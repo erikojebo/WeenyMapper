@@ -11,14 +11,10 @@ namespace WeenyMapper.Specs
     [TestFixture]
     public class DynamicRepositoryAcceptanceSpecs : AcceptanceSpecsBase
     {
-        /*
-         
-         Requirements for running these tests:
-         SQL Server Express instance with a database called WeenyMapper
+        /* Requirements for running these tests:
+           SQL Server Express instance with a database called WeenyMapper
           
-         The database should be created from the script file at SqlScripts/CreateTestDatabase.sql
-         
-         */
+           The database should be created from the script file at SqlScripts/CreateTestDatabase.sql */
 
         [SetUp]
         public void SetUp()

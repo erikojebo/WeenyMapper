@@ -53,6 +53,7 @@
     <Compile Include="Conventions\DefaultConventionSpecs.cs" />
     <Compile Include="Extensions\DictionaryExtensionsSpecs.cs" />
     <Compile Include="Reflection\PropertyReaderSpecs.cs" />
+    <Compile Include="SqlRepositoryAcceptanceTests.cs" />
     <Compile Include="StaticRepositoryAcceptanceSpecs.cs" />
     <Compile Include="TestClasses\Conventions\BookConvention.cs" />
     <Compile Include="TestClasses\Conventions\UserConvention.cs" />

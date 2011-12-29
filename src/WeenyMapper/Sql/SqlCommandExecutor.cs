@@ -45,7 +45,7 @@ namespace WeenyMapper.Sql
             return rowCounts;
         }
 
-        public IList<T> ExecuteQuery<T>(DbCommand command, Func<DbDataReader, T> resultReader, string connectionString)
+        public IList<T> ExecuteQuery<T>(DbCommand command, Func<IDictionary<string, object>, T> resultReader, string connectionString)
         {
             var results = new List<T>();
 
@@ -60,7 +60,8 @@ namespace WeenyMapper.Sql
 
                 while (dataReader.Read())
                 {
-                    var result = resultReader(dataReader);
+                    var propertyValues = GetValues(dataReader);
+                    var result = resultReader(propertyValues);
                     results.Add(result);
                 }
 
@@ -86,5 +87,46 @@ namespace WeenyMapper.Sql
                 return result;
             }
         }
+
+        public IList<T> ExecuteScalarList<T>(DbCommand command, string connectionString)
+        {
+            using (var connection = new SqlConnection(connectionString))
+            {
+                var result = new List<T>();
+
+                connection.Open();
+
+                command.Connection = connection;
+
+                _sqlCommandLogger.Log(command);
+
+                var reader = command.ExecuteReader();
+
+                while(reader.Read())
+                {
+                    var value = reader.GetValue(0);
+                    result.Add((T)value);
+                }
+
+                command.Dispose();
+
+                return result;
+            }
+        }
+
+        private Dictionary<string, object> GetValues(DbDataReader reader)
+        {
+            var values = new Dictionary<string, object>();
+
+            for (int i = 0; i < reader.FieldCount; i++)
+            {
+                var name = reader.GetName(i);
+                var value = reader.GetValue(i);
+
+                values[name] = value;
+            }
+            return values;
+        }
+
     }
 }
