@@ -26,5 +26,28 @@ namespace WeenyMapper.Sql
                 }
             }
         }
+
+        public IList<T> ExecuteQuery<T>(DbCommand command, Func<DbDataReader, T> resultReader,  string connectionString)
+        {
+            var results = new List<T>();
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                command.Connection = connection;
+
+                var dataReader = command.ExecuteReader();
+
+                while (dataReader.Read())
+                {
+                    var result = resultReader(dataReader);
+                    results.Add(result);
+                }
+
+                command.Dispose();
+            }
+
+            return results;
+        }
     }
 }

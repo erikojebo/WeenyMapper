@@ -13,14 +13,14 @@ namespace WeenyMapper.QueryExecution
     {
         private readonly IConvention _convention;
         private readonly ISqlGenerator _sqlGenerator;
+        private readonly IDbCommandExecutor _dbCommandExecutor;
         private PropertyInfo[] _propertiesInTargetType;
 
-        public ObjectQueryExecutor() : this(new DefaultConvention(), new TSqlGenerator()) {}
-
-        public ObjectQueryExecutor(IConvention convention, ISqlGenerator sqlGenerator)
+        public ObjectQueryExecutor(IConvention convention, ISqlGenerator sqlGenerator, IDbCommandExecutor dbCommandExecutor)
         {
             _convention = convention;
             _sqlGenerator = sqlGenerator;
+            _dbCommandExecutor = dbCommandExecutor;
         }
 
         public string ConnectionString { get; set; }
@@ -39,30 +39,16 @@ namespace WeenyMapper.QueryExecution
             return ReadEntities<T>(command);
         }
 
+        private T CreateInstance<T>(DbDataReader dataReader) where T : new()
+        {
+            var values = GetValues(dataReader);
+
+            return CreateInstance<T>(values);
+        }
+
         private IList<T> ReadEntities<T>(DbCommand command) where T : new()
         {
-            var entities = new List<T>();
-
-            using (var connection = new SqlConnection(ConnectionString))
-            {
-                connection.Open();
-                command.Connection = connection;
-
-                var reader = command.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    var values = GetValues(reader);
-
-                    var instance = CreateInstance<T>(values);
-
-                    entities.Add(instance);
-                }
-
-                command.Dispose();
-            }
-
-            return entities;
+            return _dbCommandExecutor.ExecuteQuery(command, CreateInstance<T>, ConnectionString);
         }
 
         private T CreateInstance<T>(IDictionary<string, object> dictionary) where T : new()

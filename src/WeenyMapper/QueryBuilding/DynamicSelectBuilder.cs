@@ -13,8 +13,6 @@ namespace WeenyMapper.QueryBuilding
         private List<string> _constraintProperties = new List<string>();
         private List<object> _constraintValues = new List<object>();
 
-        public DynamicSelectBuilder() : this(new QueryParser(), new ObjectQueryExecutor()) {}
-
         public DynamicSelectBuilder(IQueryParser queryParser, IObjectQueryExecutor objectQueryExecutor)
         {
             _queryParser = queryParser;

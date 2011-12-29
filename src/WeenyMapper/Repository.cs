@@ -73,7 +73,7 @@ namespace WeenyMapper
 
         public dynamic DynamicFind<T>() where T : new()
         {
-            var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator());
+            var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator(), new SqlCommandExecutor());
 
             return new DynamicSelectBuilder<T>(new QueryParser(), objectQueryExecutor)
                 {
@@ -83,7 +83,7 @@ namespace WeenyMapper
 
         public StaticSelectBuilder<T> Find<T>() where T : new()
         {
-            var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator());
+            var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator(), new SqlCommandExecutor());
 
             return new StaticSelectBuilder<T>(objectQueryExecutor)
                 {
