@@ -136,5 +136,16 @@ namespace WeenyMapper
 
             return new StaticCountBuilder<T>(objectCountExecutor);
         }
+
+        public dynamic DynamicCount<T>()
+        {
+            var objectCountExecutor = new ObjectCountExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor())
+            {
+                ConnectionString = ConnectionString
+            };
+
+            return new DynamicCountBuilder<T>(objectCountExecutor);
+
+        }
     }
 }
