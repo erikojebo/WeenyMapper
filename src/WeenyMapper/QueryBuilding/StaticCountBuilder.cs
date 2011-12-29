@@ -2,11 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using WeenyMapper.QueryExecution;
-using WeenyMapper.Reflection;
 
 namespace WeenyMapper.QueryBuilding
 {
-    public class StaticCountBuilder<T>
+    public class StaticCountBuilder<T> : StaticCommandBuilderBase<T>
     {
         private readonly ObjectCountExecutor _objectCountExecutor;
         private readonly IDictionary<string, object> _constraints = new Dictionary<string, object>();
@@ -18,8 +17,7 @@ namespace WeenyMapper.QueryBuilding
 
         public StaticCountBuilder<T> Where<TValue>(Expression<Func<T, TValue>> getter, TValue value)
         {
-            var propertyName = PropertyMetadataReader<T>.GetPropertyName(getter);
-            _constraints[propertyName] = value;
+            StorePropertyValue(getter, value, _constraints);
             return this;
         }
 

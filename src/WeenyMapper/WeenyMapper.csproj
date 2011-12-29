@@ -48,6 +48,7 @@
     <Compile Include="QueryBuilding\DynamicCommandBuilderBase.cs" />
     <Compile Include="QueryBuilding\DynamicCountBuilder.cs" />
     <Compile Include="QueryBuilding\DynamicDeleteBuilder.cs" />
+    <Compile Include="QueryBuilding\StaticCommandBuilderBase.cs" />
     <Compile Include="QueryBuilding\StaticCountBuilder.cs" />
     <Compile Include="QueryBuilding\StaticDeleteBuilder.cs" />
     <Compile Include="QueryBuilding\StaticSelectBuilder.cs" />

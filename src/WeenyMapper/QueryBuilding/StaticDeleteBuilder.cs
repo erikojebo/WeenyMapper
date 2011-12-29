@@ -6,7 +6,7 @@ using WeenyMapper.Reflection;
 
 namespace WeenyMapper.QueryBuilding
 {
-    public class StaticDeleteBuilder<T>
+    public class StaticDeleteBuilder<T> : StaticCommandBuilderBase<T>
     {
         private readonly ObjectDeleteExecutor _objectDeleteExecutor;
         private readonly IDictionary<string, object> _constraints = new Dictionary<string, object>();
@@ -18,8 +18,7 @@ namespace WeenyMapper.QueryBuilding
 
         public StaticDeleteBuilder<T> Where<TValue>(Expression<Func<T, TValue>> getter, TValue value)
         {
-            var propertyName = PropertyMetadataReader<T>.GetPropertyName(getter);
-            _constraints[propertyName] = value;
+            StorePropertyValue(getter, value, _constraints);
             return this;
         }
 

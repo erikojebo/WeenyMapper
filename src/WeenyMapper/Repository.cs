@@ -88,12 +88,12 @@ namespace WeenyMapper
 
         public StaticSelectBuilder<T> Find<T>() where T : new()
         {
-            var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator(), new SqlCommandExecutor());
+            var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator(), new SqlCommandExecutor())
+            {
+                ConnectionString = ConnectionString
+            };
 
-            return new StaticSelectBuilder<T>(objectQueryExecutor)
-                {
-                    ConnectionString = ConnectionString
-                };
+            return new StaticSelectBuilder<T>(objectQueryExecutor);
         }
 
         public void Delete<T>(T entity)

@@ -7,7 +7,7 @@ using WeenyMapper.Reflection;
 
 namespace WeenyMapper.QueryBuilding
 {
-    public class StaticSelectBuilder<T> where T : new()
+    public class StaticSelectBuilder<T> : StaticCommandBuilderBase<T> where T : new()
     {
         private readonly IObjectQueryExecutor _objectQueryExecutor;
         private IDictionary<string, object> _constraints = new Dictionary<string, object>();
@@ -17,16 +17,9 @@ namespace WeenyMapper.QueryBuilding
             _objectQueryExecutor = objectQueryExecutor;
         }
 
-        public string ConnectionString
-        {
-            get { return _objectQueryExecutor.ConnectionString; }
-            set { _objectQueryExecutor.ConnectionString = value; }
-        }
-
         public StaticSelectBuilder<T> By<TReturnValue>(Expression<Func<T, TReturnValue>> getter, TReturnValue value)
         {
-            var propertyName = PropertyMetadataReader<T>.GetPropertyName(getter);
-            _constraints[propertyName] = value;
+            StorePropertyValue(getter, value, _constraints);
             return this;
         }
 
