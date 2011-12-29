@@ -9,7 +9,7 @@ namespace WeenyMapper.Sql
     {
         public void ExecuteNonQuery(DbCommand command, string connectionString)
         {
-            ExecuteNonQuery(new [] { command }, connectionString);
+            ExecuteNonQuery(new[] { command }, connectionString);
         }
 
         public void ExecuteNonQuery(IEnumerable<DbCommand> command, string connectionString)
@@ -27,7 +27,7 @@ namespace WeenyMapper.Sql
             }
         }
 
-        public IList<T> ExecuteQuery<T>(DbCommand command, Func<DbDataReader, T> resultReader,  string connectionString)
+        public IList<T> ExecuteQuery<T>(DbCommand command, Func<DbDataReader, T> resultReader, string connectionString)
         {
             var results = new List<T>();
 
@@ -48,6 +48,20 @@ namespace WeenyMapper.Sql
             }
 
             return results;
+        }
+
+        public T ExecuteScalar<T>(DbCommand command, string connectionString)
+        {
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                command.Connection = connection;
+                T result = (T)command.ExecuteScalar();
+                command.Dispose();
+
+                return result;
+            }
         }
     }
 }

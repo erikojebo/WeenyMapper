@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Data.Common;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
 using WeenyMapper.Conventions;
-using WeenyMapper.Sql;
 using WeenyMapper.Extensions;
+using WeenyMapper.Sql;
 
 namespace WeenyMapper.QueryExecution
 {

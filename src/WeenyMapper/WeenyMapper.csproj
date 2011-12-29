@@ -45,9 +45,12 @@
     <Compile Include="Extensions\SqlCommandExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="QueryBuilding\DynamicDeleteBuilder.cs" />
+    <Compile Include="QueryBuilding\StaticCountBuilder.cs" />
     <Compile Include="QueryBuilding\StaticDeleteBuilder.cs" />
     <Compile Include="QueryBuilding\StaticSelectBuilder.cs" />
     <Compile Include="QueryBuilding\StaticUpdateBuilder.cs" />
+    <Compile Include="QueryExecution\IObjectCountExecutor.cs" />
+    <Compile Include="QueryExecution\ObjectCountExecutor.cs" />
     <Compile Include="QueryExecution\IObjectDeleteExecutor.cs" />
     <Compile Include="QueryExecution\IObjectUpdateExecutor.cs" />
     <Compile Include="QueryExecution\ObjectDeleteExecutor.cs" />

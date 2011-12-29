@@ -217,5 +217,58 @@ namespace WeenyMapper.Specs.Sql
             Assert.AreEqual("ColumnName2Constraint", actualParameters[1].ParameterName);
             Assert.AreEqual("value 2", actualParameters[1].Value);
         }
+
+        [Test]
+        public void Count_query_without_constraints_creates_sql_count_query_without_where_clause()
+        {
+            var columnConstraints = new Dictionary<string, object>();
+
+            var sqlCommand = _generator.CreateCountCommand("TableName", columnConstraints);
+
+            Assert.AreEqual("select count(*) from [TableName]", sqlCommand.CommandText);
+        }
+
+        [Test]
+        public void Count_query_with_single_constraint_creates_parameterized_sql_query_with_corresponding_where_clause()
+        {
+            var columnConstraints = new Dictionary<string, object>();
+
+            columnConstraints["ColumnName1"] = 1;
+
+            var sqlCommand = _generator.CreateCountCommand("TableName", columnConstraints);
+
+            Assert.AreEqual("select count(*) from [TableName] where [ColumnName1] = @ColumnName1Constraint", sqlCommand.CommandText);
+
+            Assert.AreEqual(1, sqlCommand.Parameters.Count);
+
+            Assert.AreEqual("ColumnName1Constraint", sqlCommand.Parameters[0].ParameterName);
+            Assert.AreEqual(1, sqlCommand.Parameters[0].Value);
+        }
+
+        [Test]
+        public void Count_query_with_multiple_constraints_creates_parameterized_sql_query_with_corresponding_where_clause()
+        {
+            var columnConstraints = new Dictionary<string, object>();
+
+            columnConstraints["ColumnName1"] = 1;
+            columnConstraints["ColumnName2"] = "2";
+
+            var sqlCommand = _generator.CreateCountCommand("TableName", columnConstraints);
+
+            var actualParameters = sqlCommand.Parameters.OfType<SqlParameter>().OrderBy(x => x.ParameterName).ToList();
+
+            var expectedSql = "select count(*) from [TableName] " +
+                              "where [ColumnName1] = @ColumnName1Constraint and [ColumnName2] = @ColumnName2Constraint";
+
+            Assert.AreEqual(expectedSql, sqlCommand.CommandText);
+
+            Assert.AreEqual(2, actualParameters.Count);
+
+            Assert.AreEqual("ColumnName1Constraint", actualParameters[0].ParameterName);
+            Assert.AreEqual(1, actualParameters[0].Value);
+
+            Assert.AreEqual("ColumnName2Constraint", actualParameters[1].ParameterName);
+            Assert.AreEqual("2", actualParameters[1].Value);
+        }
     }
 }

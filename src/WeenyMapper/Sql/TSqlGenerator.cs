@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
@@ -141,6 +142,36 @@ namespace WeenyMapper.Sql
             {
                 sqlCommand.Parameters.Add(new SqlParameter(constraint.Key + "Constraint", constraint.Value));
             }
+
+            return sqlCommand;
+        }
+
+        public DbCommand CreateCountCommand(string tableName, IDictionary<string, object> columnConstraints)
+        {
+            var countQuery = string.Format("select count(*) from {0}", Escape(tableName));
+
+            var sqlCommand = new SqlCommand();
+
+            if (columnConstraints.Any())
+            {
+                countQuery += " where ";
+
+                var constraintStrings = columnConstraints
+                    .Select(x => x.Key)
+                    .Select(columnName => string.Format("{0} = @{1}Constraint", Escape(columnName), columnName));
+
+                var constraintClause = string.Join(" and ", constraintStrings);
+                countQuery += constraintClause;
+
+                foreach (var columnConstraint in columnConstraints)
+                {
+                    var columnName = columnConstraint.Key;
+                    var parameterName = columnName + "Constraint";
+                    sqlCommand.Parameters.Add(new SqlParameter(parameterName, columnConstraint.Value));    
+                }
+            }
+
+            sqlCommand.CommandText = countQuery;
 
             return sqlCommand;
         }

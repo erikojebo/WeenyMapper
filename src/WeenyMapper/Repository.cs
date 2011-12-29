@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using WeenyMapper.Conventions;
 using WeenyMapper.QueryBuilding;
@@ -18,6 +19,11 @@ namespace WeenyMapper
         }
 
         public static IConvention Convention { get; set; }
+
+        public void InsertMany<T>(params T[] entities)
+        {
+            InsertMany((IEnumerable<T>)entities);
+        }
 
         public void InsertMany<T>(IEnumerable<T> entities)
         {
@@ -119,6 +125,16 @@ namespace WeenyMapper
                 };
 
             return new DynamicDeleteBuilder<T>(objectDeleteExecutor);
+        }
+
+        public StaticCountBuilder<T> Count<T>()
+        {
+            var objectCountExecutor = new ObjectCountExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor())
+                {
+                    ConnectionString = ConnectionString
+                };
+
+            return new StaticCountBuilder<T>(objectCountExecutor);
         }
     }
 }

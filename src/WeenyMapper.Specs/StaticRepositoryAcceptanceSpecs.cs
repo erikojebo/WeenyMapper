@@ -437,5 +437,52 @@ namespace WeenyMapper.Specs
             CollectionAssert.Contains(actualBooks, book1);
             CollectionAssert.Contains(actualBooks, book2);
         }
+
+        [Test]
+        public void The_number_of_items_satisfying_a_series_of_constraints_can_be_read_with_a_count_query()
+        {
+            Repository.Convention = new BookConvention();
+
+            var book1 = new Book
+            {
+                Isbn = "1",
+                AuthorName = "Author Name",
+                Title = "Title 1",
+                PageCount = 123,
+            };
+
+            var book2 = new Book
+            {
+                Isbn = "2",
+                AuthorName = "Author Name 2",
+                Title = "Title 2",
+                PageCount = 123
+            };
+
+            var book3 = new Book
+            {
+                Isbn = "3",
+                AuthorName = "Author Name 2",
+                Title = "Title 3",
+                PageCount = 123
+            };
+
+            var book4 = new Book
+            {
+                Isbn = "4",
+                AuthorName = "Author Name 2",
+                Title = "Title 4",
+                PageCount = 321
+            };
+
+            Repository.InsertMany(book1, book2, book3, book4);
+
+            int count = Repository.Count<Book>()
+                .Where(x => x.AuthorName, "Author Name 2")
+                .Where(x => x.PageCount, 123)
+                .Execute();
+
+            Assert.AreEqual(2, count);
+        }
     }
 }
