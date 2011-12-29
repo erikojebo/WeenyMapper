@@ -10,11 +10,13 @@ namespace WeenyMapper.QueryExecution
     {
         private readonly ISqlGenerator _sqlGenerator;
         private readonly IConventionDataReader _conventionDataReader;
+        private readonly IDbCommandExecutor _dbCommandExecutor;
 
-        public ObjectUpdateExecutor(ISqlGenerator sqlGenerator, IConventionDataReader conventionDataReader)
+        public ObjectUpdateExecutor(ISqlGenerator sqlGenerator, IConventionDataReader conventionDataReader, IDbCommandExecutor dbCommandExecutor)
         {
             _sqlGenerator = sqlGenerator;
             _conventionDataReader = conventionDataReader;
+            _dbCommandExecutor = dbCommandExecutor;
         }
 
         public string ConnectionString { get; set; }
@@ -28,7 +30,7 @@ namespace WeenyMapper.QueryExecution
 
             var command = _sqlGenerator.CreateUpdateCommand(tableName, primaryKeyColumn, columnValues);
 
-            command.ExecuteNonQuery(ConnectionString);
+            _dbCommandExecutor.ExecuteNonQuery(command, ConnectionString);
         }
 
         public void Update<T>(IDictionary<string, object> constraints, IDictionary<string, object> setters)
@@ -41,7 +43,7 @@ namespace WeenyMapper.QueryExecution
 
             var command = _sqlGenerator.CreateUpdateCommand(tableName, primaryKeyColumn, columnConstraints, columnSetters);
 
-            command.ExecuteNonQuery(ConnectionString);
+            _dbCommandExecutor.ExecuteNonQuery(command, ConnectionString);
         }
     }
 }

@@ -22,8 +22,8 @@ namespace WeenyMapper.Sql
                 {
                     dbCommand.Connection = connection;
                     dbCommand.ExecuteNonQuery();
+                    dbCommand.Dispose();
                 }
-
             }
         }
     }

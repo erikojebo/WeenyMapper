@@ -9,11 +9,13 @@ namespace WeenyMapper.QueryExecution
     {
         private readonly ISqlGenerator _sqlGenerator;
         private readonly IConventionDataReader _conventionDataReader;
+        private readonly IDbCommandExecutor _dbCommandExecutor;
 
-        public ObjectDeleteExecutor(ISqlGenerator sqlGenerator, IConventionDataReader conventionDataReader)
+        public ObjectDeleteExecutor(ISqlGenerator sqlGenerator, IConventionDataReader conventionDataReader, IDbCommandExecutor dbCommandExecutor)
         {
             _sqlGenerator = sqlGenerator;
             _conventionDataReader = conventionDataReader;
+            _dbCommandExecutor = dbCommandExecutor;
         }
 
         public string ConnectionString { get; set; }
@@ -31,7 +33,7 @@ namespace WeenyMapper.QueryExecution
 
             var command = _sqlGenerator.CreateDeleteCommand(tableName, constraints);
 
-            command.ExecuteNonQuery(ConnectionString);
+            _dbCommandExecutor.ExecuteNonQuery(command, ConnectionString);
         }
 
         public void Delete<T>(IDictionary<string, object> constraints)
@@ -40,7 +42,7 @@ namespace WeenyMapper.QueryExecution
             var columnConstraints = _conventionDataReader.GetColumnValues(constraints);
             var command = _sqlGenerator.CreateDeleteCommand(tableName, columnConstraints);
 
-            command.ExecuteNonQuery(ConnectionString);
+            _dbCommandExecutor.ExecuteNonQuery(command, ConnectionString);
         }
     }
 }

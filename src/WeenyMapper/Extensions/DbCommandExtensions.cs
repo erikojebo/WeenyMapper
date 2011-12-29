@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
 
@@ -18,5 +19,12 @@ namespace WeenyMapper.Extensions
             }
         }
 
+        public static void DisposeAll(this IEnumerable<SqlCommand> commands)
+        {
+            foreach (var sqlCommand in commands)
+            {
+                sqlCommand.Dispose();
+            }
+        }
     }
 }
