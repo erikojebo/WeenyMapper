@@ -2,11 +2,19 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
+using WeenyMapper.Logging;
 
 namespace WeenyMapper.Sql
 {
     public class SqlCommandExecutor : IDbCommandExecutor
     {
+        private readonly ISqlCommandLogger _sqlCommandLogger;
+
+        public SqlCommandExecutor(ISqlCommandLogger sqlCommandLogger)
+        {
+            _sqlCommandLogger = sqlCommandLogger;
+        }
+
         public void ExecuteNonQuery(DbCommand command, string connectionString)
         {
             ExecuteNonQuery(new[] { command }, connectionString);
@@ -20,6 +28,8 @@ namespace WeenyMapper.Sql
 
                 foreach (var dbCommand in command)
                 {
+                    _sqlCommandLogger.Log(dbCommand);
+
                     dbCommand.Connection = connection;
                     dbCommand.ExecuteNonQuery();
                     dbCommand.Dispose();
@@ -35,6 +45,8 @@ namespace WeenyMapper.Sql
             {
                 connection.Open();
                 command.Connection = connection;
+
+                _sqlCommandLogger.Log(command);
 
                 var dataReader = command.ExecuteReader();
 
@@ -57,6 +69,9 @@ namespace WeenyMapper.Sql
                 connection.Open();
 
                 command.Connection = connection;
+
+                _sqlCommandLogger.Log(command);
+
                 T result = (T)command.ExecuteScalar();
                 command.Dispose();
 

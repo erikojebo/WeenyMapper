@@ -45,6 +45,8 @@
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\SqlCommandExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
+    <Compile Include="Logging\ISqlCommandLogger.cs" />
+    <Compile Include="Logging\NullSqlCommandLogger.cs" />
     <Compile Include="QueryBuilding\DynamicCommandBuilderBase.cs" />
     <Compile Include="QueryBuilding\DynamicCountBuilder.cs" />
     <Compile Include="QueryBuilding\DynamicDeleteBuilder.cs" />

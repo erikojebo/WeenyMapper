@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using WeenyMapper.Conventions;
+using WeenyMapper.Logging;
 using WeenyMapper.QueryBuilding;
 using WeenyMapper.QueryExecution;
 using WeenyMapper.Reflection;
@@ -15,6 +16,7 @@ namespace WeenyMapper
         static Repository()
         {
             Convention = new DefaultConvention();
+            SqlLogger = new NullSqlCommandLogger();
         }
 
         public static IConvention Convention { get; set; }
@@ -26,7 +28,7 @@ namespace WeenyMapper
 
         public void InsertMany<T>(IEnumerable<T> entities)
         {
-            var objectInsertExecutor = new ObjectInsertExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor())
+            var objectInsertExecutor = new ObjectInsertExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
             {
                 ConnectionString = ConnectionString
             };
@@ -34,9 +36,11 @@ namespace WeenyMapper
             objectInsertExecutor.Insert(entities);
         }
 
+        public static ISqlCommandLogger SqlLogger { get; set; }
+
         public void Insert<T>(T entity)
         {
-            var objectInsertExecutor = new ObjectInsertExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor())
+            var objectInsertExecutor = new ObjectInsertExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
                 {
                     ConnectionString = ConnectionString
                 };
@@ -46,7 +50,7 @@ namespace WeenyMapper
 
         public void Update<T>(T entity)
         {
-            var objectUpdateExecutor = new ObjectUpdateExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor())
+            var objectUpdateExecutor = new ObjectUpdateExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
                 {
                     ConnectionString = ConnectionString
                 };
@@ -58,7 +62,7 @@ namespace WeenyMapper
 
         public StaticUpdateBuilder<T> Update<T>()
         {
-            var objectUpdateExecutor = new ObjectUpdateExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor())
+            var objectUpdateExecutor = new ObjectUpdateExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
                 {
                     ConnectionString = ConnectionString
                 };
@@ -68,7 +72,7 @@ namespace WeenyMapper
 
         public dynamic DynamicUpdate<T>()
         {
-            var objectUpdateExecutor = new ObjectUpdateExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor())
+            var objectUpdateExecutor = new ObjectUpdateExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
                 {
                     ConnectionString = ConnectionString
                 };
@@ -78,7 +82,7 @@ namespace WeenyMapper
 
         public dynamic DynamicFind<T>() where T : new()
         {
-            var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator(), new SqlCommandExecutor())
+            var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator(), new SqlCommandExecutor(SqlLogger))
                 {
                     ConnectionString = ConnectionString
                 };
@@ -88,7 +92,7 @@ namespace WeenyMapper
 
         public StaticSelectBuilder<T> Find<T>() where T : new()
         {
-            var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator(), new SqlCommandExecutor())
+            var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator(), new SqlCommandExecutor(SqlLogger))
             {
                 ConnectionString = ConnectionString
             };
@@ -98,7 +102,7 @@ namespace WeenyMapper
 
         public void Delete<T>(T entity)
         {
-            var objectDeleteExecutor = new ObjectDeleteExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor())
+            var objectDeleteExecutor = new ObjectDeleteExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
                 {
                     ConnectionString = ConnectionString
                 };
@@ -108,7 +112,7 @@ namespace WeenyMapper
 
         public StaticDeleteBuilder<T> Delete<T>()
         {
-            var objectDeleteExecutor = new ObjectDeleteExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor())
+            var objectDeleteExecutor = new ObjectDeleteExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
                 {
                     ConnectionString = ConnectionString
                 };
@@ -118,7 +122,7 @@ namespace WeenyMapper
 
         public dynamic DynamicDelete<T>()
         {
-            var objectDeleteExecutor = new ObjectDeleteExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor())
+            var objectDeleteExecutor = new ObjectDeleteExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
                 {
                     ConnectionString = ConnectionString
                 };
@@ -128,7 +132,7 @@ namespace WeenyMapper
 
         public StaticCountBuilder<T> Count<T>()
         {
-            var objectCountExecutor = new ObjectCountExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor())
+            var objectCountExecutor = new ObjectCountExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
                 {
                     ConnectionString = ConnectionString
                 };
@@ -138,13 +142,23 @@ namespace WeenyMapper
 
         public dynamic DynamicCount<T>()
         {
-            var objectCountExecutor = new ObjectCountExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor())
+            var objectCountExecutor = new ObjectCountExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
             {
                 ConnectionString = ConnectionString
             };
 
             return new DynamicCountBuilder<T>(objectCountExecutor);
 
+        }
+
+        public void EnableSqlConsoleLogging()
+        {
+            SqlLogger = new ConsoleSqlCommandLogger();
+        }
+
+        public void DisableSqlConsoleLogging()
+        {
+            SqlLogger = new NullSqlCommandLogger();
         }
     }
 }
