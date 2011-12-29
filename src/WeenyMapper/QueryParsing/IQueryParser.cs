@@ -4,6 +4,6 @@ namespace WeenyMapper.QueryParsing
 {
     public interface IQueryParser
     {
-        IList<string> GetConstraintProperties(string methodName);
+        IList<string> GetConstraintProperties(string methodName, string methodPrefix);
     }
 }

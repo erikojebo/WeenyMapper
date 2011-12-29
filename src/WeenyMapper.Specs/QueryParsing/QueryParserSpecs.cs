@@ -20,7 +20,7 @@ namespace WeenyMapper.Specs.QueryParsing
         [Test]
         public void Select_query_with_class_name_and_single_constraint_property_is_parsed_correctly()
         {
-            var constraintProperties = _parser.GetConstraintProperties("ByUsername");
+            var constraintProperties = _parser.GetConstraintProperties("ByUsername", "By");
 
             Assert.AreEqual(1, constraintProperties.Count);
             Assert.AreEqual("Username", constraintProperties[0]);
@@ -29,7 +29,7 @@ namespace WeenyMapper.Specs.QueryParsing
         [Test]
         public void Select_query_can_specify_multiple_constraint_properties_on_the_format_Constraint1AndConstraint2()
         {
-            var constraintProperties = _parser.GetConstraintProperties("ByUsernameAndPassword");
+            var constraintProperties = _parser.GetConstraintProperties("ByUsernameAndPassword", "By");
 
             Assert.AreEqual(2, constraintProperties.Count);
             Assert.AreEqual("Username", constraintProperties[0]);

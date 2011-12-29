@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using WeenyMapper.Conventions;
 using WeenyMapper.QueryBuilding;
 using WeenyMapper.QueryExecution;
-using WeenyMapper.QueryParsing;
 using WeenyMapper.Reflection;
 using WeenyMapper.Sql;
 
@@ -79,12 +78,12 @@ namespace WeenyMapper
 
         public dynamic DynamicFind<T>() where T : new()
         {
-            var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator(), new SqlCommandExecutor());
-
-            return new DynamicSelectBuilder<T>(new QueryParser(), objectQueryExecutor)
+            var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator(), new SqlCommandExecutor())
                 {
                     ConnectionString = ConnectionString
                 };
+
+            return new DynamicSelectBuilder<T>(objectQueryExecutor);
         }
 
         public StaticSelectBuilder<T> Find<T>() where T : new()

@@ -5,9 +5,9 @@ namespace WeenyMapper.QueryParsing
 {
     public class QueryParser : IQueryParser
     {
-        public IList<string> GetConstraintProperties(string methodName)
+        public IList<string> GetConstraintProperties(string methodName, string methodPrefix)
         {
-            var propertyNameString = methodName.Substring("By".Length);
+            var propertyNameString = methodName.Substring(methodPrefix.Length);
 
             var propertyNames = propertyNameString.Split(new[] { "And" }, StringSplitOptions.None);
 
