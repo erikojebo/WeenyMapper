@@ -10,8 +10,7 @@ namespace WeenyMapper.QueryBuilding
     {
         private readonly IQueryParser _queryParser;
         private readonly IObjectQueryExecutor _objectQueryExecutor;
-        private List<string> _constraintProperties = new List<string>();
-        private List<object> _constraintValues = new List<object>();
+        private readonly IDictionary<string, object> _constraints = new Dictionary<string, object>();
 
         public DynamicSelectBuilder(IQueryParser queryParser, IObjectQueryExecutor objectQueryExecutor)
         {
@@ -32,22 +31,20 @@ namespace WeenyMapper.QueryBuilding
 
         public IList<T> ExecuteList()
         {
-            var constraints = new Dictionary<string, object>();
-
-            for (int i = 0; i < _constraintProperties.Count; i++)
-            {
-                constraints[_constraintProperties[i]] = _constraintValues[i];
-            }
-
-            return _objectQueryExecutor.Find<T>(typeof(T).Name, constraints);
+            return _objectQueryExecutor.Find<T>(typeof(T).Name, _constraints);
         }
 
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
         {
             var constraintProperties = _queryParser.GetConstraintProperties(binder.Name);
 
-            _constraintProperties.AddRange(constraintProperties);
-            _constraintValues.AddRange(args.ToList());
+            for (int i = 0; i < constraintProperties.Count; i++)
+            {
+                var propertyName = constraintProperties[i];
+                var propertyValue = args[i];
+
+                _constraints[propertyName] = propertyValue;
+            }
 
             result = this;
 

@@ -5,7 +5,9 @@ using WeenyMapper.QueryExecution;
 
 namespace WeenyMapper.QueryBuilding
 {
-    public class DynamicDeleteBuilder<T> : DynamicObject
+    public abstract class DynamicCommandBuilderBase : DynamicObject {}
+
+    public class DynamicDeleteBuilder<T> : DynamicCommandBuilderBase
     {
         private readonly IDictionary<string, object> _constraints = new Dictionary<string, object>();
         private readonly IObjectDeleteExecutor _objectDeleteExecutor;
