@@ -1,4 +1,4 @@
-using System;
+using System.Collections.Generic;
 using WeenyMapper.Conventions;
 using WeenyMapper.QueryBuilding;
 using WeenyMapper.QueryExecution;
@@ -19,34 +19,44 @@ namespace WeenyMapper
 
         public static IConvention Convention { get; set; }
 
-        public void Insert<T>(T instance)
+        public void InsertMany<T>(IEnumerable<T> entities)
+        {
+            var objectInsertExecutor = new ObjectInsertExecutor(new TSqlGenerator(), new ConventionDataReader(Convention))
+            {
+                ConnectionString = ConnectionString
+            };
+
+            objectInsertExecutor.Insert(entities);
+        }
+
+        public void Insert<T>(T entity)
         {
             var objectInsertExecutor = new ObjectInsertExecutor(new TSqlGenerator(), new ConventionDataReader(Convention))
                 {
                     ConnectionString = ConnectionString
                 };
 
-            objectInsertExecutor.Insert(instance);
+            objectInsertExecutor.Insert(new[] { entity });
         }
 
-        public void Update<T>(T instance)
+        public void Update<T>(T entity)
         {
             var objectUpdateExecutor = new ObjectUpdateExecutor(new TSqlGenerator(), new ConventionDataReader(Convention))
-            {
-                ConnectionString = ConnectionString
-            };
+                {
+                    ConnectionString = ConnectionString
+                };
 
             var builder = new DynamicUpdateBuilder<T>(objectUpdateExecutor);
 
-            builder.Update(instance);
+            builder.Update(entity);
         }
 
         public StaticUpdateBuilder<T> Update<T>()
         {
             var objectUpdateExecutor = new ObjectUpdateExecutor(new TSqlGenerator(), new ConventionDataReader(Convention))
-            {
-                ConnectionString = ConnectionString
-            };
+                {
+                    ConnectionString = ConnectionString
+                };
 
             return new StaticUpdateBuilder<T>(objectUpdateExecutor);
         }
@@ -54,9 +64,9 @@ namespace WeenyMapper
         public dynamic DynamicUpdate<T>()
         {
             var objectUpdateExecutor = new ObjectUpdateExecutor(new TSqlGenerator(), new ConventionDataReader(Convention))
-            {
-                ConnectionString = ConnectionString
-            };
+                {
+                    ConnectionString = ConnectionString
+                };
 
             return new DynamicUpdateBuilder<T>(objectUpdateExecutor);
         }
@@ -76,27 +86,27 @@ namespace WeenyMapper
             var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator());
 
             return new StaticSelectBuilder<T>(objectQueryExecutor)
-            {
-                ConnectionString = ConnectionString
-            };
+                {
+                    ConnectionString = ConnectionString
+                };
         }
 
-        public void Delete<T>(T instance)
+        public void Delete<T>(T entity)
         {
             var objectDeleteExecutor = new ObjectDeleteExecutor(new TSqlGenerator(), new ConventionDataReader(Convention))
                 {
                     ConnectionString = ConnectionString
                 };
 
-            objectDeleteExecutor.Delete(instance);
+            objectDeleteExecutor.Delete(entity);
         }
 
         public StaticDeleteBuilder<T> Delete<T>()
         {
             var objectDeleteExecutor = new ObjectDeleteExecutor(new TSqlGenerator(), new ConventionDataReader(Convention))
-            {
-                ConnectionString = ConnectionString
-            };
+                {
+                    ConnectionString = ConnectionString
+                };
 
             return new StaticDeleteBuilder<T>(objectDeleteExecutor);
         }
@@ -104,9 +114,9 @@ namespace WeenyMapper
         public dynamic DynamicDelete<T>()
         {
             var objectDeleteExecutor = new ObjectDeleteExecutor(new TSqlGenerator(), new ConventionDataReader(Convention))
-            {
-                ConnectionString = ConnectionString
-            };
+                {
+                    ConnectionString = ConnectionString
+                };
 
             return new DynamicDeleteBuilder<T>(objectDeleteExecutor);
         }

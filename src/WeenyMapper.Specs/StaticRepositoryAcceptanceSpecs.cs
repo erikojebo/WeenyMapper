@@ -407,5 +407,35 @@ namespace WeenyMapper.Specs
             CollectionAssert.Contains(allBooks, book1);
             CollectionAssert.Contains(allBooks, book4);
         }
+
+        [Test]
+        public void Multiple_entities_can_be_inserted_with_one_operation()
+        {
+            Repository.Convention = new BookConvention();
+
+            var book1 = new Book
+            {
+                Isbn = "1",
+                AuthorName = "Author Name",
+                Title = "Title 1",
+                PageCount = 123,
+            };
+
+            var book2 = new Book
+            {
+                Isbn = "2",
+                AuthorName = "Author Name",
+                Title = "Title 2",
+                PageCount = 123
+            };
+
+            Repository.InsertMany( new [] { book1, book2 });
+
+            var actualBooks = Repository.Find<Book>().ExecuteList();
+
+            Assert.AreEqual(2, actualBooks.Count);
+            CollectionAssert.Contains(actualBooks, book1);
+            CollectionAssert.Contains(actualBooks, book2);
+        }
     }
 }

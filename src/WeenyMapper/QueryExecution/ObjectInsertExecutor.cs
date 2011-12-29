@@ -1,6 +1,10 @@
+using System.Collections.Generic;
+using System.Data.Common;
+using System.Data.SqlClient;
 using WeenyMapper.Extensions;
 using WeenyMapper.Reflection;
 using WeenyMapper.Sql;
+using System.Linq;
 
 namespace WeenyMapper.QueryExecution
 {
@@ -17,13 +21,29 @@ namespace WeenyMapper.QueryExecution
 
         public string ConnectionString { get; set; }
 
-        public void Insert<T>(T instance)
+        public void Insert<T>(IEnumerable<T> entities)
         {
-            var columnValues = _conventionDataReader.GetColumnValuesFromEntity(instance);
-            var tableName = _conventionDataReader.GetTableName<T>();
-            var command = _sqlGenerator.CreateInsertCommand(tableName, columnValues);
+            var commands = new List<DbCommand>();
 
-            command.ExecuteNonQuery(ConnectionString);
+            foreach (var entity in entities)
+            {
+                var columnValues = _conventionDataReader.GetColumnValuesFromEntity(entity);
+                var tableName = _conventionDataReader.GetTableName<T>();
+                var command = _sqlGenerator.CreateInsertCommand(tableName, columnValues);
+
+                commands.Add(command);
+            }
+
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+
+                foreach (var dbCommand in commands)
+                {
+                    dbCommand.Connection = connection;
+                    dbCommand.ExecuteNonQuery();
+                }
+            }
         }
     }
 }
