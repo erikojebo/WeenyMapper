@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
@@ -16,38 +15,10 @@ namespace WeenyMapper.Sql
 
             if (constraints.Any())
             {
-                commandString += " " + CreateWhereClause(constraints);
+                commandString += " where " + CreateConstraintClause(constraints);
             }
 
-            var sqlCommand = new SqlCommand(commandString);
-
-            foreach (var constraint in constraints)
-            {
-                sqlCommand.Parameters.Add(new SqlParameter(constraint.Key, constraint.Value));
-            }
-
-            return sqlCommand;
-        }
-
-        private string CreateWhereClause(IDictionary<string, object> constraints)
-        {
-            var whereClause = "where ";
-
-            for (int i = 0; i < constraints.Count; i++)
-            {
-                var columnName = constraints.ElementAt(i).Key;
-
-                whereClause += string.Format("{0} = @{1}", Escape(columnName), columnName);
-
-                var isLastConstraint = i == constraints.Count - 1;
-
-                if (!isLastConstraint)
-                {
-                    whereClause += " and ";
-                }
-            }
-
-            return whereClause;
+            return CreateSqlCommandWithConstraintParameters(commandString, constraints);
         }
 
         public DbCommand CreateInsertCommand(string tableName, IDictionary<string, object> propertyValues)
@@ -99,44 +70,52 @@ namespace WeenyMapper.Sql
 
             var updateString = string.Join(", ", updateStatements);
 
-            var constraintStatements = columnConstraints.Select(x => string.Format("{0} = @{1}Constraint", Escape(x.Key), x.Key));
-            var constraintString = string.Join(" and ", constraintStatements);
-
             var sql = string.Format("update {0} set {1}", Escape(tableName), updateString);
 
-            if (columnConstraints.Any())
-            {
-                var whereClause = string.Format(" where {0}", constraintString);
-                sql += whereClause;
-            }
-
-            var updateCommand = new SqlCommand(sql);
+            var command = CreateSqlCommandWithWhereClause(sql, columnConstraints);
 
             foreach (var propertyValue in columnSetters)
             {
-                updateCommand.Parameters.Add(new SqlParameter(propertyValue.Key, propertyValue.Value));
+                command.Parameters.Add(new SqlParameter(propertyValue.Key, propertyValue.Value));
             }
 
-            foreach (var propertyValue in columnConstraints)
-            {
-                updateCommand.Parameters.Add(new SqlParameter(propertyValue.Key + "Constraint", propertyValue.Value));
-            }
-
-            return updateCommand;
+            return command;
         }
 
         public DbCommand CreateDeleteCommand(string tableName, IDictionary<string, object> constraints)
         {
             var deleteCommand = string.Format("delete from {0}", Escape(tableName));
 
-            if (constraints.Any())
+            return CreateSqlCommandWithWhereClause(deleteCommand, constraints);
+        }
+
+        public DbCommand CreateCountCommand(string tableName, IDictionary<string, object> columnConstraints)
+        {
+            var countQuery = string.Format("select count(*) from {0}", Escape(tableName));
+
+            return CreateSqlCommandWithWhereClause(countQuery, columnConstraints);
+        }
+
+        private DbCommand CreateSqlCommandWithWhereClause(string sql, IDictionary<string, object> columnConstraints)
+        {
+            sql = AppendWhereClause(sql, columnConstraints);
+
+            return CreateSqlCommandWithConstraintParameters(sql, columnConstraints);
+        }
+
+        private string AppendWhereClause(string countQuery, IDictionary<string, object> columnConstraints)
+        {
+            if (columnConstraints.Any())
             {
-                var constraintStatements = constraints.Keys.Select(x => string.Format("{0} = @{1}Constraint", Escape(x), x));
-                var constraintString = string.Join(" and ", constraintStatements);
-                deleteCommand += " where " + constraintString;
+                countQuery += " where " + CreateConstraintClause(columnConstraints);
             }
 
-            var sqlCommand = new SqlCommand(deleteCommand);
+            return countQuery;
+        }
+
+        private SqlCommand CreateSqlCommandWithConstraintParameters(string commandString, IDictionary<string, object> constraints)
+        {
+            var sqlCommand = new SqlCommand(commandString);
 
             foreach (var constraint in constraints)
             {
@@ -146,34 +125,13 @@ namespace WeenyMapper.Sql
             return sqlCommand;
         }
 
-        public DbCommand CreateCountCommand(string tableName, IDictionary<string, object> columnConstraints)
+        private string CreateConstraintClause(IDictionary<string, object> columnConstraints)
         {
-            var countQuery = string.Format("select count(*) from {0}", Escape(tableName));
+            var constraintStrings = columnConstraints
+                .Select(x => x.Key)
+                .Select(columnName => string.Format("{0} = @{1}Constraint", Escape(columnName), columnName));
 
-            var sqlCommand = new SqlCommand();
-
-            if (columnConstraints.Any())
-            {
-                countQuery += " where ";
-
-                var constraintStrings = columnConstraints
-                    .Select(x => x.Key)
-                    .Select(columnName => string.Format("{0} = @{1}Constraint", Escape(columnName), columnName));
-
-                var constraintClause = string.Join(" and ", constraintStrings);
-                countQuery += constraintClause;
-
-                foreach (var columnConstraint in columnConstraints)
-                {
-                    var columnName = columnConstraint.Key;
-                    var parameterName = columnName + "Constraint";
-                    sqlCommand.Parameters.Add(new SqlParameter(parameterName, columnConstraint.Value));    
-                }
-            }
-
-            sqlCommand.CommandText = countQuery;
-
-            return sqlCommand;
+            return string.Join(" and ", constraintStrings);
         }
 
         private string Escape(string propertyName)
