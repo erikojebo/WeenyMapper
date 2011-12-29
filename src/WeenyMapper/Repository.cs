@@ -21,7 +21,7 @@ namespace WeenyMapper
 
         public void InsertMany<T>(IEnumerable<T> entities)
         {
-            var objectInsertExecutor = new ObjectInsertExecutor(new TSqlGenerator(), new ConventionDataReader(Convention))
+            var objectInsertExecutor = new ObjectInsertExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor())
             {
                 ConnectionString = ConnectionString
             };
@@ -31,7 +31,7 @@ namespace WeenyMapper
 
         public void Insert<T>(T entity)
         {
-            var objectInsertExecutor = new ObjectInsertExecutor(new TSqlGenerator(), new ConventionDataReader(Convention))
+            var objectInsertExecutor = new ObjectInsertExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor())
                 {
                     ConnectionString = ConnectionString
                 };

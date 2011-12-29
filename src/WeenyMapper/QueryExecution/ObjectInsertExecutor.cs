@@ -12,11 +12,13 @@ namespace WeenyMapper.QueryExecution
     {
         private readonly ISqlGenerator _sqlGenerator;
         private readonly IConventionDataReader _conventionDataReader;
+        private readonly IDbCommandExecutor _dbCommandExecutor;
 
-        public ObjectInsertExecutor(ISqlGenerator sqlGenerator, IConventionDataReader conventionDataReader)
+        public ObjectInsertExecutor(ISqlGenerator sqlGenerator, IConventionDataReader conventionDataReader, IDbCommandExecutor dbCommandExecutor)
         {
             _sqlGenerator = sqlGenerator;
             _conventionDataReader = conventionDataReader;
+            _dbCommandExecutor = dbCommandExecutor;
         }
 
         public string ConnectionString { get; set; }
@@ -34,16 +36,7 @@ namespace WeenyMapper.QueryExecution
                 commands.Add(command);
             }
 
-            using (var connection = new SqlConnection(ConnectionString))
-            {
-                connection.Open();
-
-                foreach (var dbCommand in commands)
-                {
-                    dbCommand.Connection = connection;
-                    dbCommand.ExecuteNonQuery();
-                }
-            }
+            _dbCommandExecutor.ExecuteNonQuery(commands, ConnectionString);
         }
     }
 }

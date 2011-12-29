@@ -64,8 +64,10 @@
     <Compile Include="QueryParsing\QueryParser.cs" />
     <Compile Include="Repository.cs" />
     <Compile Include="QueryExecution\IObjectQueryExecutor.cs" />
+    <Compile Include="Sql\IDbCommandExecutor.cs" />
     <Compile Include="Sql\ISqlGenerator.cs" />
     <Compile Include="QueryExecution\ObjectQueryExecutor.cs" />
+    <Compile Include="Sql\SqlCommandExecutor.cs" />
     <Compile Include="Sql\TSqlGenerator.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
