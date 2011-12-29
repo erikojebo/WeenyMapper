@@ -17,9 +17,9 @@ namespace WeenyMapper.QueryBuilding
             _objectUpdateExecutor = objectUpdateExecutor;
         }
 
-        public void Update(T instance)
+        public int Update(T instance)
         {
-            _objectUpdateExecutor.Update(instance);
+            return _objectUpdateExecutor.Update(instance);
         }
 
         public StaticUpdateBuilder<T> Where<TValue>(Expression<Func<T, TValue>> getter, TValue value)
@@ -34,9 +34,9 @@ namespace WeenyMapper.QueryBuilding
             return this;
         }
 
-        public void Execute()
+        public int Execute()
         {
-            _objectUpdateExecutor.Update<T>(_constraints, _setters);
+            return _objectUpdateExecutor.Update<T>(_constraints, _setters);
         }
     }
 }

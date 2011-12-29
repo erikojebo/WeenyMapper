@@ -20,7 +20,7 @@ namespace WeenyMapper.QueryExecution
 
         public string ConnectionString { get; set; }
 
-        public void Delete<T>(T instance)
+        public int Delete<T>(T instance)
         {
             var tableName = _conventionDataReader.GetTableName<T>();
 
@@ -33,16 +33,16 @@ namespace WeenyMapper.QueryExecution
 
             var command = _sqlGenerator.CreateDeleteCommand(tableName, constraints);
 
-            _dbCommandExecutor.ExecuteNonQuery(command, ConnectionString);
+            return _dbCommandExecutor.ExecuteNonQuery(command, ConnectionString);
         }
 
-        public void Delete<T>(IDictionary<string, object> constraints)
+        public int Delete<T>(IDictionary<string, object> constraints)
         {
             var tableName = _conventionDataReader.GetTableName<T>();
             var columnConstraints = _conventionDataReader.GetColumnValues(constraints);
             var command = _sqlGenerator.CreateDeleteCommand(tableName, columnConstraints);
 
-            _dbCommandExecutor.ExecuteNonQuery(command, ConnectionString);
+            return _dbCommandExecutor.ExecuteNonQuery(command, ConnectionString);
         }
     }
 }

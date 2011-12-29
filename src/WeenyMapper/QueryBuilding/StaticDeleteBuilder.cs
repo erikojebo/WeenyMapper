@@ -22,9 +22,9 @@ namespace WeenyMapper.QueryBuilding
             return this;
         }
 
-        public void Execute()
+        public int Execute()
         {
-            _objectDeleteExecutor.Delete<T>(_constraints);
+            return _objectDeleteExecutor.Delete<T>(_constraints);
         }
     }
 }

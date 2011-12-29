@@ -13,10 +13,10 @@ namespace WeenyMapper.QueryBuilding
             _objectDeleteExecutor = objectDeleteExecutor;
         }
 
-        public void Execute()
+        public int Execute()
         {
             var constraints = GetPropertyValues("Where");
-            _objectDeleteExecutor.Delete<T>(constraints);
+            return _objectDeleteExecutor.Delete<T>(constraints);
         }
 
         protected override IEnumerable<string> ValidPrefixes

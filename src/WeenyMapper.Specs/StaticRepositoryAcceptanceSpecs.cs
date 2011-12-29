@@ -181,27 +181,27 @@ namespace WeenyMapper.Specs
             Repository.Insert(book3);
             Repository.Insert(book4);
 
-            Book readBook = Repository.Find<Book>().By(x => x.Isbn, book1.Isbn).Execute();
+            var readBook = Repository.Find<Book>().By(x => x.Isbn, book1.Isbn).Execute();
 
             readBook.Title = "Updated book title";
             readBook.AuthorName = "Updated author name";
 
             Repository.Update(readBook);
 
-            Book readUpdatedBook = Repository.Find<Book>()
+            var readUpdatedBook = Repository.Find<Book>()
                 .By(x => x.Title, "Updated book title")
                 .By(x => x.AuthorName, "Updated author name")
                 .Execute();
 
-            Repository.Update<Book>().Where(x => x.AuthorName, "Author Name 2")
+            var updatedRowCount = Repository.Update<Book>().Where(x => x.AuthorName, "Author Name 2")
                 .Set(x => x.PageCount, 456)
                 .Execute();
 
-            IList<Book> updatedBooks = Repository.Find<Book>()
+            var updatedBooks = Repository.Find<Book>()
                 .By(x => x.PageCount, 456)
                 .ExecuteList();
 
-            Repository.Delete<Book>()
+            var deletedRowCount = Repository.Delete<Book>()
                 .Where(x => x.PageCount, 456)
                 .Execute();
 
@@ -209,7 +209,9 @@ namespace WeenyMapper.Specs
 
             var booksAfterDelete = Repository.Find<Book>().ExecuteList();
 
+            Assert.AreEqual(2, updatedRowCount);
             Assert.AreEqual(2, updatedBooks.Count);
+            Assert.AreEqual(2, deletedRowCount);
             Assert.AreEqual(1, booksAfterDelete.Count);
             Assert.AreEqual(readBook, readUpdatedBook);
         }

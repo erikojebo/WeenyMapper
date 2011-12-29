@@ -5,7 +5,7 @@ namespace WeenyMapper.QueryExecution
     public interface IObjectDeleteExecutor
     {
         string ConnectionString { get; set; }
-        void Delete<T>(T instance);
-        void Delete<T>(IDictionary<string, object> constraints);
+        int Delete<T>(T instance);
+        int Delete<T>(IDictionary<string, object> constraints);
     }
 }

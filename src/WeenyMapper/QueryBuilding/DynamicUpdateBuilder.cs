@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Dynamic;
+﻿using System.Collections.Generic;
 using WeenyMapper.QueryExecution;
 
 namespace WeenyMapper.QueryBuilding
@@ -15,9 +12,9 @@ namespace WeenyMapper.QueryBuilding
             _objectUpdateExecutor = objectUpdateExecutor;
         }
 
-        public void Update(T instance)
+        public int Update(T instance)
         {
-            _objectUpdateExecutor.Update(instance);
+            return _objectUpdateExecutor.Update(instance);
         }
 
         protected override IEnumerable<string> ValidPrefixes
@@ -25,12 +22,12 @@ namespace WeenyMapper.QueryBuilding
             get { return new[] { "Where", "Set" }; }
         }
 
-        public void Execute()
+        public int Execute()
         {
             var constraints = GetPropertyValues("Where");
             var setters = GetPropertyValues("Set");
 
-            _objectUpdateExecutor.Update<T>(constraints, setters);
+            return _objectUpdateExecutor.Update<T>(constraints, setters);
         }
     }
 }

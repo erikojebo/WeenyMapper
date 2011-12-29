@@ -21,7 +21,7 @@ namespace WeenyMapper.QueryExecution
 
         public string ConnectionString { get; set; }
 
-        public void Update<T>(T instance)
+        public int Update<T>(T instance)
         {
             var tableName = _conventionDataReader.GetTableName<T>();
             var columnValues = _conventionDataReader.GetColumnValuesFromEntity(instance);
@@ -30,10 +30,10 @@ namespace WeenyMapper.QueryExecution
 
             var command = _sqlGenerator.CreateUpdateCommand(tableName, primaryKeyColumn, columnValues);
 
-            _dbCommandExecutor.ExecuteNonQuery(command, ConnectionString);
+            return _dbCommandExecutor.ExecuteNonQuery(command, ConnectionString);
         }
 
-        public void Update<T>(IDictionary<string, object> constraints, IDictionary<string, object> setters)
+        public int Update<T>(IDictionary<string, object> constraints, IDictionary<string, object> setters)
         {
             var tableName = _conventionDataReader.GetTableName<T>();
             var columnConstraints = _conventionDataReader.GetColumnValues(constraints);
@@ -43,7 +43,7 @@ namespace WeenyMapper.QueryExecution
 
             var command = _sqlGenerator.CreateUpdateCommand(tableName, primaryKeyColumn, columnConstraints, columnSetters);
 
-            _dbCommandExecutor.ExecuteNonQuery(command, ConnectionString);
+            return _dbCommandExecutor.ExecuteNonQuery(command, ConnectionString);
         }
     }
 }

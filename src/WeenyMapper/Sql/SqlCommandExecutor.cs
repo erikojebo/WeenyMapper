@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
 using WeenyMapper.Logging;
+using System.Linq;
 
 namespace WeenyMapper.Sql
 {
@@ -15,13 +16,16 @@ namespace WeenyMapper.Sql
             _sqlCommandLogger = sqlCommandLogger;
         }
 
-        public void ExecuteNonQuery(DbCommand command, string connectionString)
+        public int ExecuteNonQuery(DbCommand command, string connectionString)
         {
-            ExecuteNonQuery(new[] { command }, connectionString);
+            var rowCounts = ExecuteNonQuery(new[] { command }, connectionString);
+            return rowCounts.First();
         }
 
-        public void ExecuteNonQuery(IEnumerable<DbCommand> command, string connectionString)
+        public IList<int> ExecuteNonQuery(IEnumerable<DbCommand> command, string connectionString)
         {
+            var rowCounts = new List<int>();
+
             using (var connection = new SqlConnection(connectionString))
             {
                 connection.Open();
@@ -31,10 +35,14 @@ namespace WeenyMapper.Sql
                     _sqlCommandLogger.Log(dbCommand);
 
                     dbCommand.Connection = connection;
-                    dbCommand.ExecuteNonQuery();
+                    var rowCount = dbCommand.ExecuteNonQuery();
                     dbCommand.Dispose();
+
+                    rowCounts.Add(rowCount);
                 }
             }
+
+            return rowCounts;
         }
 
         public IList<T> ExecuteQuery<T>(DbCommand command, Func<DbDataReader, T> resultReader, string connectionString)

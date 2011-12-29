@@ -48,7 +48,7 @@ namespace WeenyMapper
             objectInsertExecutor.Insert(new[] { entity });
         }
 
-        public void Update<T>(T entity)
+        public int Update<T>(T entity)
         {
             var objectUpdateExecutor = new ObjectUpdateExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
                 {
@@ -57,7 +57,7 @@ namespace WeenyMapper
 
             var builder = new DynamicUpdateBuilder<T>(objectUpdateExecutor);
 
-            builder.Update(entity);
+            return builder.Update(entity);
         }
 
         public StaticUpdateBuilder<T> Update<T>()
@@ -100,14 +100,14 @@ namespace WeenyMapper
             return new StaticSelectBuilder<T>(objectQueryExecutor);
         }
 
-        public void Delete<T>(T entity)
+        public int Delete<T>(T entity)
         {
             var objectDeleteExecutor = new ObjectDeleteExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
                 {
                     ConnectionString = ConnectionString
                 };
 
-            objectDeleteExecutor.Delete(entity);
+            return objectDeleteExecutor.Delete(entity);
         }
 
         public StaticDeleteBuilder<T> Delete<T>()

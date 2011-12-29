@@ -155,10 +155,11 @@ namespace WeenyMapper.Specs
                     Password = "updated password"
                 };
 
-            Repository.Update(updatedUser2);
+            var affectedRowCount = Repository.Update(updatedUser2);
 
             var actualUser = Repository.DynamicFind<User>().ById(updatedUser2.Id).Execute();
 
+            Assert.AreEqual(1, affectedRowCount);
             Assert.AreEqual(updatedUser2, actualUser);
         }
 
@@ -235,7 +236,7 @@ namespace WeenyMapper.Specs
                 .ByAuthorName("Updated author name")
                 .Execute();
 
-            Repository.DynamicUpdate<Book>().WhereAuthorName("Author Name 2")
+            var updatedRowCount = Repository.DynamicUpdate<Book>().WhereAuthorName("Author Name 2")
                 .SetPageCount(456)
                 .Execute();
 
@@ -243,7 +244,7 @@ namespace WeenyMapper.Specs
                 .ByPageCount(456)
                 .ExecuteList();
 
-            Repository.DynamicDelete<Book>()
+            var deletedRowCount = Repository.DynamicDelete<Book>()
                 .WherePageCount(456)
                 .Execute();
 
@@ -251,6 +252,8 @@ namespace WeenyMapper.Specs
 
             var booksAfterDelete = Repository.DynamicFind<Book>().ExecuteList();
 
+            Assert.AreEqual(2, updatedRowCount);
+            Assert.AreEqual(2, deletedRowCount);
             Assert.AreEqual(2, updatedBooks.Count);
             Assert.AreEqual(1, booksAfterDelete.Count);
             Assert.AreEqual(readBook, readUpdatedBook);
