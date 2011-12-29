@@ -10,8 +10,7 @@ namespace WeenyMapper.Sql
     {
         public DbCommand GenerateSelectQuery(string tableName, IEnumerable<string> columnNamesToSelect, IDictionary<string, object> constraints)
         {
-            var escapedColumnNamesToSelect = columnNamesToSelect.Select(Escape);
-            var selectedColumnString = string.Join(", ", escapedColumnNamesToSelect);
+            var selectedColumnString = CreateColumnNameList(columnNamesToSelect, Escape);
             var commandString = string.Format("select {0} from {1}", selectedColumnString, Escape(tableName));
 
             return CreateSqlCommandWithWhereClause(commandString, constraints);
@@ -22,9 +21,7 @@ namespace WeenyMapper.Sql
             var columnNamesString = CreateColumnNameList(propertyValues, Escape);
             var parameterNamesString = CreateColumnNameList(propertyValues, x => "@" + x);
 
-            var escapedTableName = Escape(tableName);
-
-            var insertCommand = string.Format("insert into {0} ({1}) values ({2})", escapedTableName, columnNamesString, parameterNamesString);
+            var insertCommand = string.Format("insert into {0} ({1}) values ({2})", Escape(tableName), columnNamesString, parameterNamesString);
 
             var sqlCommand = new SqlCommand(insertCommand);
 
@@ -56,7 +53,7 @@ namespace WeenyMapper.Sql
         public DbCommand CreateUpdateCommand(string tableName, string primaryKeyColumn, IDictionary<string, object> columnConstraints, IDictionary<string, object> columnSetters)
         {
             var nonPrimaryKeyColumns = columnSetters.Where(x => x.Key != primaryKeyColumn);
-            var updateString = CreateColumnNameList(nonPrimaryKeyColumns, x => string.Format("{0} = @{1}", Escape(x), x));
+            var updateString = CreateColumnNameList(nonPrimaryKeyColumns, x => CreateParameterEqualsStatement(x));
 
             var sql = string.Format("update {0} set {1}", Escape(tableName), updateString);
 
@@ -81,28 +78,30 @@ namespace WeenyMapper.Sql
             return CreateSqlCommandWithWhereClause(countQuery, columnConstraints);
         }
 
-        private string CreateColumnNameList(IEnumerable<KeyValuePair<string, object>> propertyValues, Func<string, string> transformation) 
+        private string CreateColumnNameList(IEnumerable<KeyValuePair<string, object>> propertyValues, Func<string, string> transformation)
         {
-            var escapedColumnNames = propertyValues.Select(x => x.Key).Select(transformation);
+            var columnNames = propertyValues.Select(x => x.Key);
+            return CreateColumnNameList(columnNames, transformation);
+        }
+
+        private string CreateColumnNameList(IEnumerable<string> columnNames, Func<string, string> transformation)
+        {
+            var escapedColumnNames = columnNames.Select(transformation);
             return string.Join(", ", escapedColumnNames);
         }
 
-        private void AddParameters(DbCommand command, IEnumerable<KeyValuePair<string, object>> columnSetters)
-        {
-            foreach (var propertyValue in columnSetters)
-            {
-                command.Parameters.Add(new SqlParameter(propertyValue.Key, propertyValue.Value));
-            }
-        }
-
-        private DbCommand CreateSqlCommandWithWhereClause(string sql, IDictionary<string, object> columnConstraints)
+        private DbCommand CreateSqlCommandWithWhereClause(string sql, IEnumerable<KeyValuePair<string, object>> columnConstraints)
         {
             sql = AppendWhereClause(sql, columnConstraints);
 
-            return CreateSqlCommandWithConstraintParameters(sql, columnConstraints);
+            var sqlCommand = new SqlCommand(sql);
+
+            AddParameters(sqlCommand, columnConstraints, "Constraint");
+
+            return sqlCommand;
         }
 
-        private string AppendWhereClause(string countQuery, IDictionary<string, object> columnConstraints)
+        private string AppendWhereClause(string countQuery, IEnumerable<KeyValuePair<string, object>> columnConstraints)
         {
             if (columnConstraints.Any())
             {
@@ -112,25 +111,26 @@ namespace WeenyMapper.Sql
             return countQuery;
         }
 
-        private SqlCommand CreateSqlCommandWithConstraintParameters(string commandString, IDictionary<string, object> constraints)
+        private void AddParameters(DbCommand command, IEnumerable<KeyValuePair<string, object>> columnSetters, string parameterNameSuffix = "")
         {
-            var sqlCommand = new SqlCommand(commandString);
-
-            foreach (var constraint in constraints)
+            foreach (var propertyValue in columnSetters)
             {
-                sqlCommand.Parameters.Add(new SqlParameter(constraint.Key + "Constraint", constraint.Value));
+                command.Parameters.Add(new SqlParameter(propertyValue.Key + parameterNameSuffix, propertyValue.Value));
             }
-
-            return sqlCommand;
         }
 
-        private string CreateConstraintClause(IDictionary<string, object> columnConstraints)
+        private string CreateConstraintClause(IEnumerable<KeyValuePair<string, object>> columnConstraints)
         {
             var constraintStrings = columnConstraints
                 .Select(x => x.Key)
-                .Select(columnName => string.Format("{0} = @{1}Constraint", Escape(columnName), columnName));
+                .Select(columnName => CreateParameterEqualsStatement(columnName, "Constraint"));
 
             return string.Join(" and ", constraintStrings);
+        }
+
+        private string CreateParameterEqualsStatement(string columnName, string parameterNameSuffix = "")
+        {
+            return string.Format("{0} = @{1}" + parameterNameSuffix, Escape(columnName), columnName);
         }
 
         private string Escape(string propertyName)
