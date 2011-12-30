@@ -9,7 +9,7 @@ using WeenyMapper.Specs.TestClasses.Entities;
 namespace WeenyMapper.Specs
 {
     [TestFixture]
-    public class RepositoryAcceptanceSpecs : AcceptanceSpecsBase
+    public class StaticRepositoryAcceptanceSpecs : AcceptanceSpecsBase
     {
         /*
          
@@ -486,6 +486,33 @@ namespace WeenyMapper.Specs
                 .Execute();
 
             Assert.AreEqual(2, count);
+        }
+
+        [Test]
+        public void Partial_object_can_be_read_by_explicitly_specifying_which_columns_to_fetch()
+        {
+            Repository.Convention = new BookConvention();
+
+            var book1 = new Book
+            {
+                Isbn = "1",
+                AuthorName = "Author Name",
+                Title = "Title 1",
+                PageCount = 123,
+            };
+
+            Repository.Insert(book1);
+
+            var partialBook = Repository.Find<Book>()
+                .By(x => x.Isbn, "1")
+                .Select(x => x.Isbn)
+                .Select(x => x.Title)
+                .Execute();
+
+            Assert.AreEqual("1", partialBook.Isbn);
+            Assert.AreEqual("Title 1", partialBook.Title);
+            Assert.AreEqual(0, partialBook.PageCount);
+            Assert.IsNull(partialBook.AuthorName);
         }
     }
 }

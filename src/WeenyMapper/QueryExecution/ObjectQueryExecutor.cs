@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Reflection;
@@ -15,7 +16,6 @@ namespace WeenyMapper.QueryExecution
         private readonly ISqlGenerator _sqlGenerator;
         private readonly IDbCommandExecutor _dbCommandExecutor;
         private readonly IEntityMapper _entityMapper;
-        private PropertyInfo[] _propertiesInTargetType;
 
         public ObjectQueryExecutor(IConvention convention, ISqlGenerator sqlGenerator, IDbCommandExecutor dbCommandExecutor, IEntityMapper entityMapper)
         {
@@ -29,9 +29,14 @@ namespace WeenyMapper.QueryExecution
 
         public IList<T> Find<T>(string className, IDictionary<string, object> constraints) where T : new()
         {
-            _propertiesInTargetType = typeof(T).GetProperties();
+            var propertiesInTargetType = typeof(T).GetProperties().Select(x => x.Name);
 
-            var columnNamesToSelect = _propertiesInTargetType.Select(x => _convention.GetColumnName(x.Name));
+            return Find<T>(className, constraints, propertiesInTargetType);
+        }
+
+        public IList<T> Find<T>(string className, IDictionary<string, object> constraints, IEnumerable<string> propertiesToSelect) where T : new()
+        {
+            var columnNamesToSelect = propertiesToSelect.Select(_convention.GetColumnName);
             var tableName = _convention.GetTableName(className);
 
             var columnConstraints = constraints.TransformKeys(_convention.GetColumnName);
