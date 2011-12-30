@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using WeenyMapper.Conventions;
@@ -21,6 +22,7 @@ namespace WeenyMapper
         }
 
         public static IConvention Convention { get; set; }
+        public static ISqlCommandLogger SqlLogger { get; set; }
 
         public void InsertMany<T>(params T[] entities)
         {
@@ -37,8 +39,6 @@ namespace WeenyMapper
             objectInsertExecutor.Insert(entities);
         }
 
-        public static ISqlCommandLogger SqlLogger { get; set; }
-
         public void Insert<T>(T entity)
         {
             var objectInsertExecutor = new ObjectInsertExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
@@ -47,6 +47,26 @@ namespace WeenyMapper
                 };
 
             objectInsertExecutor.Insert(new[] { entity });
+        }
+
+        public void InsertAsync<T>(T entity, Action callback)
+        {
+            var objectInsertExecutor = new ObjectInsertExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
+            {
+                ConnectionString = ConnectionString
+            };
+
+            objectInsertExecutor.InsertAsync(new[] { entity }, callback);
+        }
+
+        public void InsertManyAsync<T>(IEnumerable<T> entities, Action callback)
+        {
+            var objectInsertExecutor = new ObjectInsertExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
+            {
+                ConnectionString = ConnectionString
+            };
+
+            objectInsertExecutor.InsertAsync(entities, callback);
         }
 
         public int Update<T>(T entity)

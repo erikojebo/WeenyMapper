@@ -1,6 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using NUnit.Framework;
 using WeenyMapper.Conventions;
 using WeenyMapper.Specs.TestClasses.Conventions;
@@ -494,12 +494,12 @@ namespace WeenyMapper.Specs
             Repository.Convention = new BookConvention();
 
             var book1 = new Book
-            {
-                Isbn = "1",
-                AuthorName = "Author Name",
-                Title = "Title 1",
-                PageCount = 123,
-            };
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 123,
+                };
 
             Repository.Insert(book1);
 
@@ -521,28 +521,28 @@ namespace WeenyMapper.Specs
             Repository.Convention = new BookConvention();
 
             var book1 = new Book
-            {
-                Isbn = "1",
-                AuthorName = "Author Name",
-                Title = "Title 1",
-                PageCount = 123,
-            };
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 123,
+                };
 
             var book2 = new Book
-            {
-                Isbn = "2",
-                AuthorName = "Author Name 2",
-                Title = "Title 2",
-                PageCount = 123
-            };
+                {
+                    Isbn = "2",
+                    AuthorName = "Author Name 2",
+                    Title = "Title 2",
+                    PageCount = 123
+                };
 
             var book3 = new Book
-            {
-                Isbn = "3",
-                AuthorName = "Author Name 2",
-                Title = "Title 3",
-                PageCount = 123
-            };
+                {
+                    Isbn = "3",
+                    AuthorName = "Author Name 2",
+                    Title = "Title 3",
+                    PageCount = 123
+                };
 
             Repository.InsertMany(book1, book2, book3);
 
@@ -566,5 +566,58 @@ namespace WeenyMapper.Specs
             Assert.IsNull(partialBooks[1].AuthorName);
         }
 
+        [Timeout(5000)]
+        [Test]
+        public void Insert_for_single_entity_can_be_run_asynchronously()
+        {
+            var wasCallbackCalledSemaphore = new Semaphore(0, 1);
+
+            var user = new User
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "a username",
+                    Password = "a password"
+                };
+
+            Repository.InsertAsync(user, () => wasCallbackCalledSemaphore.Release(1));
+
+            // Wait until callback is called. The test will fail if the timeout is reached)
+            wasCallbackCalledSemaphore.WaitOne();
+
+            var actualUser = Repository.Find<User>().Where(x => x.Id, user.Id).Execute();
+            Assert.AreEqual(user, actualUser);
+        }
+
+        [Timeout(5000)]
+        [Test]
+        public void Insert_for_multiple_entities_can_be_run_asynchronously()
+        {
+            var wasCallbackCalledSemaphore = new Semaphore(0, 1);
+
+            var user1 = new User
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "username1",
+                    Password = "a password"
+                };
+
+            var user2 = new User
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "username2",
+                    Password = "a password"
+                };
+
+            Repository.InsertManyAsync(new[] { user1, user2 }, () => wasCallbackCalledSemaphore.Release(1));
+
+            // Wait until callback is called. The test will fail if the timeout is reached)
+            wasCallbackCalledSemaphore.WaitOne();
+
+            var actualUsers = Repository.Find<User>().ExecuteList();
+
+            Assert.AreEqual(2, actualUsers.Count);
+            CollectionAssert.Contains(actualUsers, user1);
+            CollectionAssert.Contains(actualUsers, user2);
+        }
     }
 }

@@ -1,10 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Data.SqlClient;
-using WeenyMapper.Extensions;
 using WeenyMapper.Reflection;
 using WeenyMapper.Sql;
-using System.Linq;
 
 namespace WeenyMapper.QueryExecution
 {
@@ -25,6 +23,20 @@ namespace WeenyMapper.QueryExecution
 
         public void Insert<T>(IEnumerable<T> entities)
         {
+            var commands = CreateInsertCommands(entities);
+
+            _dbCommandExecutor.ExecuteNonQuery(commands, ConnectionString);
+        }
+
+        public void InsertAsync<T>(IEnumerable<T> entities, Action callback)
+        {
+            var commands = CreateInsertCommands(entities);
+
+            _dbCommandExecutor.ExecuteNonQueryAsync(commands, ConnectionString, callback);
+        }
+
+        private IEnumerable<DbCommand> CreateInsertCommands<T>(IEnumerable<T> entities)
+        {
             var commands = new List<DbCommand>();
 
             foreach (var entity in entities)
@@ -35,8 +47,7 @@ namespace WeenyMapper.QueryExecution
 
                 commands.Add(command);
             }
-
-            _dbCommandExecutor.ExecuteNonQuery(commands, ConnectionString);
+            return commands;
         }
     }
 }

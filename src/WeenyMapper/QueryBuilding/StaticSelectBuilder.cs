@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using WeenyMapper.Exceptions;
 using WeenyMapper.QueryExecution;
-using WeenyMapper.Reflection;
 
 namespace WeenyMapper.QueryBuilding
 {
@@ -26,7 +26,14 @@ namespace WeenyMapper.QueryBuilding
 
         public T Execute()
         {
-            return ExecuteList().First();
+            var result = ExecuteList();
+
+            if (!result.Any())
+            {
+                throw new WeenyMapperException("No rows matched the given query");
+            }
+
+            return result.First();
         }
 
         public IList<T> ExecuteList()

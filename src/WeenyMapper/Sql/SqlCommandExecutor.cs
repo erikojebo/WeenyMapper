@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
+using System.Threading.Tasks;
 using WeenyMapper.Logging;
 using System.Linq;
 
@@ -22,7 +23,7 @@ namespace WeenyMapper.Sql
             return rowCounts.First();
         }
 
-        public IList<int> ExecuteNonQuery(IEnumerable<DbCommand> command, string connectionString)
+        public IList<int> ExecuteNonQuery(IEnumerable<DbCommand> commands, string connectionString)
         {
             var rowCounts = new List<int>();
 
@@ -30,7 +31,7 @@ namespace WeenyMapper.Sql
             {
                 connection.Open();
 
-                foreach (var dbCommand in command)
+                foreach (var dbCommand in commands)
                 {
                     _sqlCommandLogger.Log(dbCommand);
 
@@ -43,6 +44,13 @@ namespace WeenyMapper.Sql
             }
 
             return rowCounts;
+        }
+
+        public void ExecuteNonQueryAsync(IEnumerable<DbCommand> commands, string connectionString, Action callback)
+        {
+            var task = new Task(() => ExecuteNonQuery(commands, connectionString));
+            task.ContinueWith(t => callback());
+            task.Start();
         }
 
         public IList<T> ExecuteQuery<T>(DbCommand command, Func<IDictionary<string, object>, T> resultReader, string connectionString)
