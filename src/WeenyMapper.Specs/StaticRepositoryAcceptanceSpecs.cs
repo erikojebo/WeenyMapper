@@ -514,5 +514,57 @@ namespace WeenyMapper.Specs
             Assert.AreEqual(0, partialBook.PageCount);
             Assert.IsNull(partialBook.AuthorName);
         }
+
+        [Test]
+        public void Multiple_partial_objects_can_be_read_by_explicitly_specifying_which_columns_to_fetch()
+        {
+            Repository.Convention = new BookConvention();
+
+            var book1 = new Book
+            {
+                Isbn = "1",
+                AuthorName = "Author Name",
+                Title = "Title 1",
+                PageCount = 123,
+            };
+
+            var book2 = new Book
+            {
+                Isbn = "2",
+                AuthorName = "Author Name 2",
+                Title = "Title 2",
+                PageCount = 123
+            };
+
+            var book3 = new Book
+            {
+                Isbn = "3",
+                AuthorName = "Author Name 2",
+                Title = "Title 3",
+                PageCount = 123
+            };
+
+            Repository.InsertMany(book1, book2, book3);
+
+            var partialBooks = Repository.Find<Book>()
+                .By(x => x.AuthorName, "Author Name 2")
+                .Select(x => x.Isbn)
+                .Select(x => x.Title)
+                .ExecuteList()
+                .OrderBy(x => x.Isbn).ToList();
+
+            Assert.AreEqual(2, partialBooks.Count);
+
+            Assert.AreEqual("2", partialBooks[0].Isbn);
+            Assert.AreEqual("Title 2", partialBooks[0].Title);
+            Assert.AreEqual(0, partialBooks[0].PageCount);
+            Assert.IsNull(partialBooks[0].AuthorName);
+
+            Assert.AreEqual("3", partialBooks[1].Isbn);
+            Assert.AreEqual("Title 3", partialBooks[1].Title);
+            Assert.AreEqual(0, partialBooks[1].PageCount);
+            Assert.IsNull(partialBooks[1].AuthorName);
+        }
+
     }
 }
