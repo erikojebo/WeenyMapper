@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using WeenyMapper.Extensions;
 using WeenyMapper.QueryExecution;
 
 namespace WeenyMapper.QueryBuilding
@@ -22,12 +21,32 @@ namespace WeenyMapper.QueryBuilding
         public IList<T> ExecuteList()
         {
             var constraints = GetPropertyValues("By");
+            var propertiesToSelect = GetPropertyNames("Select");
+
+            if (propertiesToSelect.Any())
+            {
+                return _objectQueryExecutor.Find<T>(typeof(T).Name, constraints, propertiesToSelect);
+            }
+
             return _objectQueryExecutor.Find<T>(typeof(T).Name, constraints);
         }
 
-        protected override IEnumerable<string> ValidPrefixes
+        protected override IEnumerable<MethodPatternDescription> MethodPatternDescriptions
         {
-            get { return "By".AsList(); }
+            get
+            {
+                return new[]
+                    {
+                        new MethodPatternDescription { HasParameter = true, MethodNamePrefix = "By" },
+                        new MethodPatternDescription { HasParameter = false, MethodNamePrefix = "Select" },
+                    };
+            }
         }
+    }
+
+    public class MethodPatternDescription
+    {
+        public bool HasParameter { get; set; }
+        public string MethodNamePrefix { get; set; }
     }
 }

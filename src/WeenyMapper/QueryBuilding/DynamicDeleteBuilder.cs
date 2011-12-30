@@ -19,9 +19,16 @@ namespace WeenyMapper.QueryBuilding
             return _objectDeleteExecutor.Delete<T>(constraints);
         }
 
-        protected override IEnumerable<string> ValidPrefixes
+        protected override IEnumerable<MethodPatternDescription> MethodPatternDescriptions
         {
-            get { return "Where".AsList(); }
+            get
+            {
+                return new[]
+                    {
+                        new MethodPatternDescription { HasParameter = true, MethodNamePrefix = "Where" },
+                    };
+
+            }
         }
     }
 }

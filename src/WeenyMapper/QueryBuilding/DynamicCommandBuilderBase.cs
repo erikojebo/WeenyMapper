@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
-using System.Reflection;
 using WeenyMapper.QueryParsing;
 
 namespace WeenyMapper.QueryBuilding
@@ -19,28 +18,35 @@ namespace WeenyMapper.QueryBuilding
             NormalizePrefixToPropertyValuesMap();
         }
 
-        protected abstract IEnumerable<string> ValidPrefixes { get; }
+        protected abstract IEnumerable<MethodPatternDescription> MethodPatternDescriptions { get; }
 
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
         {
             var calledMethodName = binder.Name;
 
-            var methodPrefix = ValidPrefixes.FirstOrDefault(calledMethodName.StartsWith);
+            var methodPatternDescription = MethodPatternDescriptions
+                .FirstOrDefault(x => calledMethodName.StartsWith(x.MethodNamePrefix));
 
-            if (methodPrefix == null)
+            if (methodPatternDescription == null)
             {
                 throw new InvalidOperationException("Failed to parse method name due to unknown method prefix: " + calledMethodName);
             }
 
             var queryParser = new QueryParser();
-            var constraintProperties = queryParser.GetConstraintProperties(binder.Name, methodPrefix);
+            var constraintProperties = queryParser.GetConstraintProperties(binder.Name, methodPatternDescription.MethodNamePrefix);
 
             for (int i = 0; i < constraintProperties.Count; i++)
             {
                 var propertyName = constraintProperties[i];
-                var propertyValue = args[i];
 
-                _prefixToPropertyValuesMap[methodPrefix][propertyName] = propertyValue;
+                object propertyValue = null;
+
+                if (methodPatternDescription.HasParameter)
+                {
+                    propertyValue = args[i];
+                }
+
+                _prefixToPropertyValuesMap[methodPatternDescription.MethodNamePrefix][propertyName] = propertyValue;
             }
 
             result = this;
@@ -49,13 +55,18 @@ namespace WeenyMapper.QueryBuilding
 
         private void NormalizePrefixToPropertyValuesMap()
         {
-            foreach (var validPrefix in ValidPrefixes)
+            foreach (var validPrefix in MethodPatternDescriptions)
             {
-                if (!_prefixToPropertyValuesMap.ContainsKey(validPrefix))
+                if (!_prefixToPropertyValuesMap.ContainsKey(validPrefix.MethodNamePrefix))
                 {
-                    _prefixToPropertyValuesMap[validPrefix] = new Dictionary<string, object>();
+                    _prefixToPropertyValuesMap[validPrefix.MethodNamePrefix] = new Dictionary<string, object>();
                 }
             }
+        }
+
+        protected IList<string> GetPropertyNames(string prefix)
+        {
+            return GetPropertyValues(prefix).Keys.ToList();
         }
 
         protected IDictionary<string, object> GetPropertyValues(string prefix)

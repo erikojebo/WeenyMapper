@@ -17,9 +17,16 @@ namespace WeenyMapper.QueryBuilding
             return _objectUpdateExecutor.Update(instance);
         }
 
-        protected override IEnumerable<string> ValidPrefixes
+        protected override IEnumerable<MethodPatternDescription> MethodPatternDescriptions
         {
-            get { return new[] { "Where", "Set" }; }
+            get
+            {
+                return new[]
+                    {
+                        new MethodPatternDescription { HasParameter = true, MethodNamePrefix = "Where" },
+                        new MethodPatternDescription { HasParameter = true, MethodNamePrefix = "Set" },
+                    };
+            }
         }
 
         public int Execute()
