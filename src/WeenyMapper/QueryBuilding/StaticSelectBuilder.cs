@@ -18,7 +18,7 @@ namespace WeenyMapper.QueryBuilding
             _objectQueryExecutor = objectQueryExecutor;
         }
 
-        public StaticSelectBuilder<T> By<TReturnValue>(Expression<Func<T, TReturnValue>> getter, TReturnValue value)
+        public StaticSelectBuilder<T> Where<TReturnValue>(Expression<Func<T, TReturnValue>> getter, TReturnValue value)
         {
             StorePropertyValue(getter, value, _constraints);
             return this;

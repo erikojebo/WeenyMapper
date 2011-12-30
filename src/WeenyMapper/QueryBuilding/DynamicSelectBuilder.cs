@@ -20,7 +20,7 @@ namespace WeenyMapper.QueryBuilding
 
         public IList<T> ExecuteList()
         {
-            var constraints = GetPropertyValues("By");
+            var constraints = GetPropertyValues("Where");
             var propertiesToSelect = GetPropertyNames("Select");
 
             if (propertiesToSelect.Any())
@@ -37,7 +37,7 @@ namespace WeenyMapper.QueryBuilding
             {
                 return new[]
                     {
-                        new MethodPatternDescription { HasParameter = true, MethodNamePrefix = "By" },
+                        new MethodPatternDescription { HasParameter = true, MethodNamePrefix = "Where" },
                         new MethodPatternDescription { HasParameter = false, MethodNamePrefix = "Select" },
                     };
             }

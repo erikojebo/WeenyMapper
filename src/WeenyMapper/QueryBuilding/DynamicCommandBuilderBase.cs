@@ -9,7 +9,7 @@ namespace WeenyMapper.QueryBuilding
     public abstract class DynamicCommandBuilderBase : DynamicObject
     {
         // Subject for refactoring... The dictionary from the abyss.
-        // Stores (Property name, value) pairs for different method prefixes such as By, Where or Set.
+        // Stores (Property name, value) pairs for different method prefixes such as Where or Set.
         private readonly IDictionary<string, IDictionary<string, object>> _prefixToPropertyValuesMap =
             new Dictionary<string, IDictionary<string, object>>();
 

@@ -36,7 +36,7 @@ namespace WeenyMapper.Specs
                 };
 
             Repository.Insert(user);
-            var actualUser = Repository.DynamicFind<User>().ById(user.Id).Execute();
+            var actualUser = Repository.DynamicFind<User>().WhereId(user.Id).Execute();
 
             Assert.AreEqual(user.Id, actualUser.Id);
             Assert.AreEqual("a username", actualUser.Username);
@@ -77,9 +77,9 @@ namespace WeenyMapper.Specs
             Repository.Insert(book3);
 
             Book actualBook = Repository.DynamicFind<Book>()
-                .ByAuthorName("Author Name")
-                .ByTitle("Title 2")
-                .ByPageCount(123)
+                .WhereAuthorName("Author Name")
+                .WhereTitle("Title 2")
+                .WherePageCount(123)
                 .Execute();
 
             Assert.AreEqual(book2, actualBook);
@@ -119,7 +119,7 @@ namespace WeenyMapper.Specs
             Repository.Insert(book3);
 
             Book actualBook = Repository.DynamicFind<Book>()
-                .ByAuthorNameAndTitleAndPageCount("Author Name", "Title 2", 123)
+                .WhereAuthorNameAndTitleAndPageCount("Author Name", "Title 2", 123)
                 .Execute();
 
             Assert.AreEqual(book2, actualBook);
@@ -153,7 +153,7 @@ namespace WeenyMapper.Specs
 
             var affectedRowCount = Repository.Update(updatedUser2);
 
-            var actualUser = Repository.DynamicFind<User>().ById(updatedUser2.Id).Execute();
+            var actualUser = Repository.DynamicFind<User>().WhereId(updatedUser2.Id).Execute();
 
             Assert.AreEqual(1, affectedRowCount);
             Assert.AreEqual(updatedUser2, actualUser);
@@ -172,7 +172,7 @@ namespace WeenyMapper.Specs
                 };
 
             Repository.Insert(user);
-            var actualUser = Repository.DynamicFind<PartialUser>().ById(user.Id).Execute();
+            var actualUser = Repository.DynamicFind<PartialUser>().WhereId(user.Id).Execute();
 
             Assert.AreEqual(user.Id, actualUser.Id);
             Assert.AreEqual("a username", actualUser.Username);
@@ -220,7 +220,7 @@ namespace WeenyMapper.Specs
             Repository.Insert(book3);
             Repository.Insert(book4);
 
-            Book readBook = Repository.DynamicFind<Book>().ByIsbn(book1.Isbn).Execute();
+            Book readBook = Repository.DynamicFind<Book>().WhereIsbn(book1.Isbn).Execute();
 
             readBook.Title = "Updated book title";
             readBook.AuthorName = "Updated author name";
@@ -228,8 +228,8 @@ namespace WeenyMapper.Specs
             Repository.Update(readBook);
 
             Book readUpdatedBook = Repository.DynamicFind<Book>()
-                .ByTitle("Updated book title")
-                .ByAuthorName("Updated author name")
+                .WhereTitle("Updated book title")
+                .WhereAuthorName("Updated author name")
                 .Execute();
 
             var updatedRowCount = Repository.DynamicUpdate<Book>().WhereAuthorName("Author Name 2")
@@ -237,7 +237,7 @@ namespace WeenyMapper.Specs
                 .Execute();
 
             IList<Book> updatedBooks = Repository.DynamicFind<Book>()
-                .ByPageCount(456)
+                .WherePageCount(456)
                 .ExecuteList();
 
             var deletedRowCount = Repository.DynamicDelete<Book>()
@@ -298,8 +298,8 @@ namespace WeenyMapper.Specs
             Repository.Insert(book4);
 
             IList<Book> actualBooks = Repository.DynamicFind<Book>()
-                .ByAuthorName("Author Name 2")
-                .ByPageCount(123)
+                .WhereAuthorName("Author Name 2")
+                .WherePageCount(123)
                 .ExecuteList();
 
             Assert.AreEqual(2, actualBooks.Count);
@@ -358,8 +358,8 @@ namespace WeenyMapper.Specs
                 .Execute();
 
             IList<Book> actualBooks = Repository.DynamicFind<Book>()
-                .ByPageCount(456)
-                .ByTitle("new title")
+                .WherePageCount(456)
+                .WhereTitle("new title")
                 .ExecuteList();
 
             Assert.AreEqual(2, actualBooks.Count);
@@ -486,7 +486,7 @@ namespace WeenyMapper.Specs
             Repository.Insert(book1);
 
             var partialBook = Repository.DynamicFind<Book>()
-                .ByIsbn("1")
+                .WhereIsbn("1")
                 .SelectIsbn()
                 .SelectTitle()
                 .Execute();
@@ -529,7 +529,7 @@ namespace WeenyMapper.Specs
             Repository.InsertMany(book1, book2, book3);
 
             IList<Book> partialBooks = Repository.DynamicFind<Book>()
-                .ByAuthorName("Author Name 2")
+                .WhereAuthorName("Author Name 2")
                 .SelectIsbn()
                 .SelectTitle()
                 .ExecuteList();
