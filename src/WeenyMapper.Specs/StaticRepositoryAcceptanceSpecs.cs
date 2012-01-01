@@ -646,5 +646,56 @@ namespace WeenyMapper.Specs
 
             Assert.AreEqual(user1, actualUser);
         }
+
+        [Timeout(5000)]
+        [Test]
+        public void Update_for_multiple_entities_can_be_run_asynchronously()
+        {
+            var wasCallbackCalledSemaphore = new Semaphore(0, 1);
+            var actualRowCount = 0;
+
+            var user1 = new User
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "username1",
+                    Password = "a password"
+                };
+
+            var user2 = new User
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "username2",
+                    Password = "another password"
+                };
+
+            var user3 = new User
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "username3",
+                    Password = "a password"
+                };
+
+            Repository.InsertMany(user1, user2, user3);
+
+            Repository.Update<User>().Where(x => x.Password, "a password")
+                .Set(x => x.Password, "updated password")
+                .ExecuteAsync(rowCount =>
+                    {
+                        actualRowCount = rowCount;
+                        wasCallbackCalledSemaphore.Release();
+                    });
+
+            // Wait until callback is called. The test will fail if the timeout is reached)
+            wasCallbackCalledSemaphore.WaitOne();
+
+            var actualUsers = Repository.Find<User>()
+                .Where(x => x.Password, "updated password")
+                .ExecuteList();
+
+            Assert.AreEqual(2, actualRowCount);
+            Assert.AreEqual(2, actualUsers.Count);
+            Assert.AreEqual("updated password", actualUsers[0].Password);
+            Assert.AreEqual("updated password", actualUsers[1].Password);
+        }
     }
 }

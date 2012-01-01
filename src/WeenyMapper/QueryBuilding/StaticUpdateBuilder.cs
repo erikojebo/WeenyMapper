@@ -44,5 +44,10 @@ namespace WeenyMapper.QueryBuilding
         {
             TaskRunner.Run(() => Update(entity), callback);
         }
+
+        public void ExecuteAsync(Action<int> callback)
+        {
+            TaskRunner.Run(Execute, callback);
+        }
     }
 }
