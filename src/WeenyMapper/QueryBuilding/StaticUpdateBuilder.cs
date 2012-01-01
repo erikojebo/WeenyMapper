@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using WeenyMapper.Async;
 using WeenyMapper.QueryExecution;
 using WeenyMapper.Reflection;
 
@@ -37,6 +38,11 @@ namespace WeenyMapper.QueryBuilding
         public int Execute()
         {
             return _objectUpdateExecutor.Update<T>(_constraints, _setters);
+        }
+
+        public void UpdateAsync(T entity, Action callback)
+        {
+            TaskRunner.Run(() => Update(entity), callback);
         }
     }
 }

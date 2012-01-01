@@ -608,7 +608,7 @@ namespace WeenyMapper.Specs
                     Password = "a password"
                 };
 
-            Repository.InsertManyAsync(new[] { user1, user2 }, () => wasCallbackCalledSemaphore.Release(1));
+            Repository.InsertManyAsync(new[] { user1, user2 }, () => wasCallbackCalledSemaphore.Release());
 
             // Wait until callback is called. The test will fail if the timeout is reached)
             wasCallbackCalledSemaphore.WaitOne();
@@ -618,6 +618,33 @@ namespace WeenyMapper.Specs
             Assert.AreEqual(2, actualUsers.Count);
             CollectionAssert.Contains(actualUsers, user1);
             CollectionAssert.Contains(actualUsers, user2);
+        }
+
+        [Timeout(5000)]
+        [Test]
+        public void Update_of_single_entity_can_be_run_asynchronously()
+        {
+            var wasCallbackCalledSemaphore = new Semaphore(0, 1);
+
+            var user1 = new User
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "username1",
+                    Password = "a password"
+                };
+
+            Repository.Insert(user1);
+
+            user1.Username = "Updated username";
+
+            Repository.UpdateAsync(user1, () => wasCallbackCalledSemaphore.Release());
+
+            // Wait until callback is called. The test will fail if the timeout is reached)
+            wasCallbackCalledSemaphore.WaitOne();
+
+            var actualUser = Repository.Find<User>().Where(x => x.Id, user1.Id).Execute();
+
+            Assert.AreEqual(user1, actualUser);
         }
     }
 }

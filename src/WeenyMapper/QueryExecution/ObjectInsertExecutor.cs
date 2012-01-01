@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using WeenyMapper.Async;
 using WeenyMapper.Reflection;
 using WeenyMapper.Sql;
 
@@ -32,7 +33,7 @@ namespace WeenyMapper.QueryExecution
         {
             var commands = CreateInsertCommands(entities);
 
-            _dbCommandExecutor.ExecuteNonQueryAsync(commands, ConnectionString, callback);
+            TaskRunner.Run(() => _dbCommandExecutor.ExecuteNonQuery(commands, ConnectionString), callback);
         }
 
         private IEnumerable<DbCommand> CreateInsertCommands<T>(IEnumerable<T> entities)

@@ -13,6 +13,5 @@ namespace WeenyMapper.Sql
         IList<T> ExecuteQuery<T>(DbCommand command, Func<IDictionary<string, object >, T> resultReader,  string connectionString);
 
         IList<int> ExecuteNonQuery(IEnumerable<DbCommand> commands, string connectionString);
-        void ExecuteNonQueryAsync(IEnumerable<DbCommand> commands, string connectionString, Action callback);
     }
 }

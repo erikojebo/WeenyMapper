@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using WeenyMapper.Async;
 using WeenyMapper.Conventions;
 using WeenyMapper.Logging;
 using WeenyMapper.Mapping;
@@ -76,9 +77,21 @@ namespace WeenyMapper
                     ConnectionString = ConnectionString
                 };
 
-            var builder = new DynamicUpdateBuilder<T>(objectUpdateExecutor);
+            var builder = new StaticUpdateBuilder<T>(objectUpdateExecutor);
 
             return builder.Update(entity);
+        }
+
+        public void UpdateAsync<T>(T entity, Action callback)
+        {
+            var objectUpdateExecutor = new ObjectUpdateExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
+            {
+                ConnectionString = ConnectionString
+            };
+
+            var builder = new StaticUpdateBuilder<T>(objectUpdateExecutor);
+
+            builder.UpdateAsync(entity, callback);
         }
 
         public StaticUpdateBuilder<T> Update<T>()

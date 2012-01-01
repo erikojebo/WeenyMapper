@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
-using System.Threading.Tasks;
 using WeenyMapper.Logging;
 using System.Linq;
 
@@ -44,13 +43,6 @@ namespace WeenyMapper.Sql
             }
 
             return rowCounts;
-        }
-
-        public void ExecuteNonQueryAsync(IEnumerable<DbCommand> commands, string connectionString, Action callback)
-        {
-            var task = new Task(() => ExecuteNonQuery(commands, connectionString));
-            task.ContinueWith(t => callback());
-            task.Start();
         }
 
         public IList<T> ExecuteQuery<T>(DbCommand command, Func<IDictionary<string, object>, T> resultReader, string connectionString)
