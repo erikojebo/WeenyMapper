@@ -95,11 +95,8 @@ namespace WeenyMapper.Specs
 
         [Timeout(5000)]
         [Test]
-        public void Update_for_multiple_entities_can_be_run_asynchronously()
+        public void Statically_typed_update_for_multiple_entities_can_be_run_asynchronously()
         {
-            var wasCallbackCalledSemaphore = new Semaphore(0, 1);
-            var actualRowCount = 0;
-
             var user1 = new User
                 {
                     Id = Guid.NewGuid(),
@@ -163,11 +160,8 @@ namespace WeenyMapper.Specs
 
         [Timeout(5000)]
         [Test]
-        public void Delete_for_multiple_entities_can_be_run_asynchronously()
+        public void Statically_typed_delete_for_multiple_entities_can_be_run_asynchronously()
         {
-            var wasCallbackCalledSemaphore = new Semaphore(0, 1);
-            var actualRowCount = 0;
-
             var user1 = new User
                 {
                     Id = Guid.NewGuid(),
