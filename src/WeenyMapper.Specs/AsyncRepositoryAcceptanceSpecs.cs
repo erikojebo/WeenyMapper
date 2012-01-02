@@ -451,6 +451,74 @@ namespace WeenyMapper.Specs
                                 .ExecuteScalarAsync(callback));
         }
 
+        [Timeout(5000)]
+        [Test]
+        public void Dynamically_typed_find_scalar_for_multiple_entities_can_be_run_asynchronously()
+        {
+            var user1 = new User
+            {
+                Id = Guid.NewGuid(),
+                Username = "username1",
+                Password = "a password"
+            };
+
+            var user2 = new User
+            {
+                Id = Guid.NewGuid(),
+                Username = "username2",
+                Password = "another password"
+            };
+
+            var user3 = new User
+            {
+                Id = Guid.NewGuid(),
+                Username = "username3",
+                Password = "a password"
+            };
+
+            Repository.InsertMany(user1, user2, user3);
+
+            AssertListCallbackIsInvoked(new [] { "username1", "username3" },
+                callback => Repository.DynamicFind<User>()
+                                .WherePassword("a password")
+                                .SelectUsername()
+                                .ExecuteScalarListAsync(callback));
+        }
+
+        [Timeout(5000)]
+        [Test]
+        public void Statically_typed_find_scalar_for_multiple_entities_can_be_run_asynchronously()
+        {
+            var user1 = new User
+            {
+                Id = Guid.NewGuid(),
+                Username = "username1",
+                Password = "a password"
+            };
+
+            var user2 = new User
+            {
+                Id = Guid.NewGuid(),
+                Username = "username2",
+                Password = "another password"
+            };
+
+            var user3 = new User
+            {
+                Id = Guid.NewGuid(),
+                Username = "username3",
+                Password = "a password"
+            };
+
+            Repository.InsertMany(user1, user2, user3);
+
+            AssertListCallbackIsInvoked(new [] { "username1", "username3" },
+                callback => Repository.Find<User>()
+                                .Where(x => x.Password, "a password")
+                                .Select(x => x.Username)
+                                .ExecuteScalarListAsync(callback));
+        }
+
 
         private void AssertCallbackIsInvoked(Action<Action> operation)
         {

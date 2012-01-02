@@ -576,5 +576,41 @@ namespace WeenyMapper.Specs
             Assert.AreEqual("username2", actualUsername);
         }
 
+        [Test]
+        public void Scalar_values_can_be_returned_for_find_query_matching_multiple_entities()
+        {
+            var user1 = new User
+            {
+                Id = Guid.NewGuid(),
+                Username = "username1",
+                Password = "a password"
+            };
+
+            var user2 = new User
+            {
+                Id = Guid.NewGuid(),
+                Username = "username2",
+                Password = "another password"
+            };
+
+            var user3 = new User
+            {
+                Id = Guid.NewGuid(),
+                Username = "username3",
+                Password = "a password"
+            };
+
+            Repository.InsertMany(user1, user2, user3);
+
+            var usernames = Repository.DynamicFind<User>()
+                .WherePassword("a password")
+                .SelectUsername()
+                .ExecuteScalarList<string>();
+
+            Assert.AreEqual(2, usernames.Count);
+            CollectionAssert.Contains(usernames, "username1");
+            CollectionAssert.Contains(usernames, "username3");
+        }
+
     }
 }

@@ -78,5 +78,20 @@ namespace WeenyMapper.QueryBuilding
 
             return _objectQueryExecutor.FindScalar<T, TScalar>(typeof(T).Name, _constraints);
         }
+
+        public void ExecuteScalarListAsync<TScalar>(Action<IList<TScalar>> callback)
+        {
+            TaskRunner.Run(ExecuteScalarList<TScalar>, callback);
+        }
+
+        public IList<TScalar> ExecuteScalarList<TScalar>()
+        {
+            if (_propertiesToSelect.Any())
+            {
+                return _objectQueryExecutor.FindScalarList<T, TScalar>(typeof(T).Name, _constraints, _propertiesToSelect);
+            }
+
+            return _objectQueryExecutor.FindScalarList<T, TScalar>(typeof(T).Name, _constraints);
+        }
     }
 }

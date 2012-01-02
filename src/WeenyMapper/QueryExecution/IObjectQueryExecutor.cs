@@ -11,5 +11,8 @@ namespace WeenyMapper.QueryExecution
 
         TScalar FindScalar<T, TScalar>(string className, IDictionary<string, object> constraints);
         TScalar FindScalar<T, TScalar>(string className, IDictionary<string, object> constraints, IEnumerable<string> propertiesToSelect);
+
+        IList<TScalar> FindScalarList<T, TScalar>(string className, IDictionary<string, object> constraints);
+        IList<TScalar> FindScalarList<T, TScalar>(string className, IDictionary<string, object> constraints, IEnumerable<string> propertiesToSelect);
     }
 }

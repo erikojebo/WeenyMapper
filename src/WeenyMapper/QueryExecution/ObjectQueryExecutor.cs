@@ -38,6 +38,20 @@ namespace WeenyMapper.QueryExecution
 
             return _dbCommandExecutor.ExecuteScalar<TScalar>(command, ConnectionString);
         }
+        
+        public IList<TScalar> FindScalarList<T, TScalar>(string className, IDictionary<string, object> constraints)
+        {
+            var propertiesInTargetType = GetPropertiesInTargetType<T>();
+
+            return FindScalarList<T, TScalar>(className, constraints, propertiesInTargetType);
+        }
+
+        public IList<TScalar> FindScalarList<T, TScalar>(string className, IDictionary<string, object> constraints, IEnumerable<string> propertiesToSelect)
+        {
+            var command = CreateCommand(className, constraints, propertiesToSelect);
+
+            return _dbCommandExecutor.ExecuteScalarList<TScalar>(command, ConnectionString);
+        }
 
         public IList<T> Find<T>(string className, IDictionary<string, object> constraints) where T : new()
         {
