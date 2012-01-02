@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AcceptanceSpecsBase.cs" />
+    <Compile Include="AsyncRepositoryAcceptanceSpecs.cs" />
     <Compile Include="Conventions\DefaultConventionSpecs.cs" />
     <Compile Include="Extensions\DictionaryExtensionsSpecs.cs" />
     <Compile Include="Reflection\PropertyReaderSpecs.cs" />

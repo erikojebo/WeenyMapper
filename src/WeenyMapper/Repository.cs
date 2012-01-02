@@ -144,6 +144,16 @@ namespace WeenyMapper
             return objectDeleteExecutor.Delete(entity);
         }
 
+        public void DeleteAsync<T>(T entity, Action callback)
+        {
+            var objectDeleteExecutor = new ObjectDeleteExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
+            {
+                ConnectionString = ConnectionString
+            };
+
+            objectDeleteExecutor.DeleteAsync(entity, callback);
+        }
+
         public StaticDeleteBuilder<T> Delete<T>()
         {
             var objectDeleteExecutor = new ObjectDeleteExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
