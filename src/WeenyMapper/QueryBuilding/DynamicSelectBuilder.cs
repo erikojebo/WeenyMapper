@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using WeenyMapper.Async;
 using WeenyMapper.Exceptions;
 using WeenyMapper.QueryExecution;
 
@@ -26,6 +28,11 @@ namespace WeenyMapper.QueryBuilding
             return result.First();
         }
 
+        public void ExecuteAsync(Action<T> callback)
+        {
+            TaskRunner.Run(Execute, callback);
+        }
+
         public IList<T> ExecuteList()
         {
             var constraints = GetPropertyValues("Where");
@@ -37,6 +44,11 @@ namespace WeenyMapper.QueryBuilding
             }
 
             return _objectQueryExecutor.Find<T>(typeof(T).Name, constraints);
+        }
+
+        public void ExecuteListAsync(Action<IList<T>> callback)
+        {
+            TaskRunner.Run(ExecuteList, callback);
         }
 
         protected override IEnumerable<MethodPatternDescription> MethodPatternDescriptions

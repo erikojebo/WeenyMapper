@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using WeenyMapper.Async;
 using WeenyMapper.QueryExecution;
 
 namespace WeenyMapper.QueryBuilding
@@ -35,6 +37,11 @@ namespace WeenyMapper.QueryBuilding
             var setters = GetPropertyValues("Set");
 
             return _objectUpdateExecutor.Update<T>(constraints, setters);
+        }
+
+        public void ExecuteAsync(Action<int> callback)
+        {
+            TaskRunner.Run(Execute, callback);
         }
     }
 }

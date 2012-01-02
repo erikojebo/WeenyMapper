@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Threading;
 using NUnit.Framework;
 using WeenyMapper.Conventions;
 using WeenyMapper.Specs.TestClasses.Conventions;
@@ -564,6 +563,34 @@ namespace WeenyMapper.Specs
             Assert.AreEqual("Title 3", partialBooks[1].Title);
             Assert.AreEqual(0, partialBooks[1].PageCount);
             Assert.IsNull(partialBooks[1].AuthorName);
+        }
+
+        [Timeout(5000)]
+        [Test]
+        public void Find_query_can_be_evaluated_to_a_single_scalar_value()
+        {
+            var user1 = new User
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "username1",
+                    Password = "a password"
+                };
+
+            var user2 = new User
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "username2",
+                    Password = "another password"
+                };
+
+            Repository.InsertMany(user1, user2);
+
+            var actualUsername = Repository.Find<User>()
+                .Where(x => x.Id, user2.Id)
+                .Select(x => x.Username)
+                .ExecuteScalar<string>();
+
+            Assert.AreEqual("username2", actualUsername);
         }
     }
 }

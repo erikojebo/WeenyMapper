@@ -4,8 +4,12 @@ namespace WeenyMapper.QueryExecution
 {
     public interface IObjectQueryExecutor
     {
+        string ConnectionString { get; set; }
+        
         IList<T> Find<T>(string className, IDictionary<string, object> constraints) where T : new();
         IList<T> Find<T>(string className, IDictionary<string, object> constraints, IEnumerable<string> propertiesToSelect) where T : new();
-        string ConnectionString { get; set; }
+
+        TScalar FindScalar<T, TScalar>(string className, IDictionary<string, object> constraints);
+        TScalar FindScalar<T, TScalar>(string className, IDictionary<string, object> constraints, IEnumerable<string> propertiesToSelect);
     }
 }

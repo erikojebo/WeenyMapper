@@ -27,9 +27,28 @@ namespace WeenyMapper.QueryExecution
 
         public string ConnectionString { get; set; }
 
+        public TScalar FindScalar<T, TScalar>(string className, IDictionary<string, object> constraints)
+        {
+            var propertiesInTargetType = GetPropertiesInTargetType<T>();
+
+            return FindScalar<T, TScalar>(className, constraints, propertiesInTargetType);
+        }
+
+        public TScalar FindScalar<T, TScalar>(string className, IDictionary<string, object> constraints, IEnumerable<string> propertiesToSelect)
+        {
+            var columnNamesToSelect = propertiesToSelect.Select(_convention.GetColumnName);
+            var tableName = _convention.GetTableName(className);
+
+            var columnConstraints = constraints.TransformKeys(_convention.GetColumnName);
+
+            var command = _sqlGenerator.GenerateSelectQuery(tableName, columnNamesToSelect, columnConstraints);
+
+            return _dbCommandExecutor.ExecuteScalar<TScalar>(command, ConnectionString);
+        }
+
         public IList<T> Find<T>(string className, IDictionary<string, object> constraints) where T : new()
         {
-            var propertiesInTargetType = typeof(T).GetProperties().Select(x => x.Name);
+            var propertiesInTargetType = GetPropertiesInTargetType<T>();
 
             return Find<T>(className, constraints, propertiesInTargetType);
         }
@@ -46,11 +65,14 @@ namespace WeenyMapper.QueryExecution
             return ReadEntities<T>(command);
         }
 
+        private IEnumerable<string> GetPropertiesInTargetType<T>()
+        {
+            return typeof(T).GetProperties().Select(x => x.Name);
+        }
+
         private IList<T> ReadEntities<T>(DbCommand command) where T : new()
         {
             return _dbCommandExecutor.ExecuteQuery(command, _entityMapper.CreateInstance<T>, ConnectionString);
         }
-
-        
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using WeenyMapper.Async;
 using WeenyMapper.Exceptions;
 using WeenyMapper.QueryExecution;
 
@@ -50,6 +51,31 @@ namespace WeenyMapper.QueryBuilding
             string propertyName = GetPropertyName(propertySelector);
             _propertiesToSelect.Add(propertyName);
             return this;
+        }
+
+        public void ExecuteAsync(Action<T> callback)
+        {
+            TaskRunner.Run(Execute, callback);
+        }
+
+        public void ExecuteListAsync(Action<IList<T>> callback)
+        {
+            TaskRunner.Run(ExecuteList, callback);
+        }
+
+        public void ExecuteScalarAsync<TScalar>(Action<TScalar> callback)
+        {
+            TaskRunner.Run(ExecuteScalar<TScalar>, callback);
+        }
+
+        public TScalar ExecuteScalar<TScalar>()
+        {
+            if (_propertiesToSelect.Any())
+            {
+                return _objectQueryExecutor.FindScalar<T, TScalar>(typeof(T).Name, _constraints, _propertiesToSelect);
+            }
+
+            return _objectQueryExecutor.FindScalar<T, TScalar>(typeof(T).Name, _constraints);
         }
     }
 }
