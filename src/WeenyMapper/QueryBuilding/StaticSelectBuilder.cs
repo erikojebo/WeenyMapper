@@ -43,6 +43,7 @@ namespace WeenyMapper.QueryBuilding
             {
                 return _objectQueryExecutor.Find<T>(typeof(T).Name, _constraints, _propertiesToSelect);
             }
+
             return _objectQueryExecutor.Find<T>(typeof(T).Name, _constraints);
         }
 

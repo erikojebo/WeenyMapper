@@ -548,5 +548,33 @@ namespace WeenyMapper.Specs
             Assert.AreEqual(0, partialBooks[1].PageCount);
             Assert.IsNull(partialBooks[1].AuthorName);
         }
+
+        [Test]
+        public void Find_query_can_be_evaluated_to_a_single_scalar_value()
+        {
+            var user1 = new User
+            {
+                Id = Guid.NewGuid(),
+                Username = "username1",
+                Password = "a password"
+            };
+
+            var user2 = new User
+            {
+                Id = Guid.NewGuid(),
+                Username = "username2",
+                Password = "another password"
+            };
+
+            Repository.InsertMany(user1, user2);
+
+            var actualUsername = Repository.DynamicFind<User>()
+                .WhereId(user2.Id)
+                .SelectUsername()
+                .ExecuteScalar<string>();
+
+            Assert.AreEqual("username2", actualUsername);
+        }
+
     }
 }

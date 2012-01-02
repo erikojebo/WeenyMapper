@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
-using System.Reflection;
 using WeenyMapper.Conventions;
 using WeenyMapper.Extensions;
 using WeenyMapper.Mapping;
@@ -36,12 +34,7 @@ namespace WeenyMapper.QueryExecution
 
         public TScalar FindScalar<T, TScalar>(string className, IDictionary<string, object> constraints, IEnumerable<string> propertiesToSelect)
         {
-            var columnNamesToSelect = propertiesToSelect.Select(_convention.GetColumnName);
-            var tableName = _convention.GetTableName(className);
-
-            var columnConstraints = constraints.TransformKeys(_convention.GetColumnName);
-
-            var command = _sqlGenerator.GenerateSelectQuery(tableName, columnNamesToSelect, columnConstraints);
+            var command = CreateCommand(className, constraints, propertiesToSelect);
 
             return _dbCommandExecutor.ExecuteScalar<TScalar>(command, ConnectionString);
         }
@@ -55,14 +48,19 @@ namespace WeenyMapper.QueryExecution
 
         public IList<T> Find<T>(string className, IDictionary<string, object> constraints, IEnumerable<string> propertiesToSelect) where T : new()
         {
+            var command = CreateCommand(className, constraints, propertiesToSelect);
+
+            return ReadEntities<T>(command);
+        }
+
+        private DbCommand CreateCommand(string className, IDictionary<string, object> constraints, IEnumerable<string> propertiesToSelect)
+        {
             var columnNamesToSelect = propertiesToSelect.Select(_convention.GetColumnName);
             var tableName = _convention.GetTableName(className);
 
             var columnConstraints = constraints.TransformKeys(_convention.GetColumnName);
 
-            var command = _sqlGenerator.GenerateSelectQuery(tableName, columnNamesToSelect, columnConstraints);
-
-            return ReadEntities<T>(command);
+            return _sqlGenerator.GenerateSelectQuery(tableName, columnNamesToSelect, columnConstraints);
         }
 
         private IEnumerable<string> GetPropertiesInTargetType<T>()

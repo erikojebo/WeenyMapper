@@ -424,6 +424,33 @@ namespace WeenyMapper.Specs
                                 .ExecuteScalarAsync(callback));
         }
 
+        [Timeout(5000)]
+        [Test]
+        public void Dynamically_typed_find_scalar_can_be_run_asynchronously()
+        {
+            var user1 = new User
+            {
+                Id = Guid.NewGuid(),
+                Username = "username1",
+                Password = "a password"
+            };
+
+            var user2 = new User
+            {
+                Id = Guid.NewGuid(),
+                Username = "username2",
+                Password = "another password"
+            };
+
+            Repository.InsertMany(user1, user2);
+
+            AssertParameterizedCallbackIsInvoked("username2",
+                callback => Repository.DynamicFind<User>()
+                                .WhereId(user2.Id)
+                                .SelectUsername()
+                                .ExecuteScalarAsync(callback));
+        }
+
 
         private void AssertCallbackIsInvoked(Action<Action> operation)
         {

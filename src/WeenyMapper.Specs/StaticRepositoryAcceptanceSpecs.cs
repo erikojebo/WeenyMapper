@@ -565,7 +565,6 @@ namespace WeenyMapper.Specs
             Assert.IsNull(partialBooks[1].AuthorName);
         }
 
-        [Timeout(5000)]
         [Test]
         public void Find_query_can_be_evaluated_to_a_single_scalar_value()
         {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using WeenyMapper.Exceptions;
 using WeenyMapper.QueryParsing;
 
 namespace WeenyMapper.QueryBuilding
@@ -29,7 +30,7 @@ namespace WeenyMapper.QueryBuilding
 
             if (methodPatternDescription == null)
             {
-                throw new InvalidOperationException("Failed to parse method name due to unknown method prefix: " + calledMethodName);
+                throw new WeenyMapperException("Failed to parse method name due to unknown method prefix: " + calledMethodName);
             }
 
             var queryParser = new QueryParser();
