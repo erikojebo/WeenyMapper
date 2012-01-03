@@ -67,6 +67,11 @@
     <Compile Include="QueryExecution\ObjectDeleteExecutor.cs" />
     <Compile Include="QueryExecution\ObjectInsertExecutor.cs" />
     <Compile Include="QueryExecution\ObjectUpdateExecutor.cs" />
+    <Compile Include="QueryParsing\AndExpression.cs" />
+    <Compile Include="QueryParsing\ExpressionParser.cs" />
+    <Compile Include="QueryParsing\PropertyExpression.cs" />
+    <Compile Include="QueryParsing\QueryExpression.cs" />
+    <Compile Include="QueryParsing\ValueExpression.cs" />
     <Compile Include="Reflection\IConventionDataReader.cs" />
     <Compile Include="Reflection\PropertyMetadataReader.cs" />
     <Compile Include="Reflection\ConventionDataReader.cs" />
