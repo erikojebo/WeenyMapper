@@ -1,36 +1,66 @@
-﻿namespace WeenyMapper.QueryParsing
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace WeenyMapper.QueryParsing
 {
     public class AndExpression : QueryExpression
     {
-        public AndExpression(QueryExpression left, QueryExpression right)
+        public AndExpression(params QueryExpression[] expressions)
         {
-            Left = left;
-            Right = right;
+            Expressions = expressions;
         }
 
-        public QueryExpression Left { get; private set; }
-        public QueryExpression Right { get; private set; }
+        public IList<QueryExpression> Expressions { get; private set; }
 
         public override int GetHashCode()
         {
-            return Left.GetHashCode() + Right.GetHashCode();
+            return Expressions.Sum(x => x.GetHashCode());
         }
 
         public override bool Equals(object obj)
         {
             var other = obj as AndExpression;
 
-            if (other == null)
+            if (other == null || Expressions.Count != other.Expressions.Count)
             {
                 return false;
             }
 
-            return Left.Equals(other.Left) && Right.Equals(other.Right);
+            for (int i = 0; i < Expressions.Count; i++)
+            {
+                if (!Expressions[i].Equals(other.Expressions[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public override string ToString()
         {
-            return "(" + Left + " && " + Right + ")";
+            var conjunction = string.Join(" && ", Expressions);
+            return string.Format("({0})", conjunction);
+        }
+
+        public AndExpression Flatten()
+        {
+            var expressions = new List<QueryExpression>();
+
+            foreach (var queryExpression in Expressions)
+            {
+                if (queryExpression is AndExpression)
+                {
+                    var andExpression = ((AndExpression)queryExpression).Flatten();
+                    expressions.AddRange(andExpression.Expressions);
+                }
+                else
+                {
+                    expressions.Add(queryExpression);
+                }
+            }
+
+            return new AndExpression(expressions.ToArray());
         }
     }
 }

@@ -23,7 +23,7 @@
                 return false;
             }
 
-            return Value == other.Value;
+            return Value.Equals(other.Value);
         }
 
         public override string ToString()

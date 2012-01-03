@@ -68,6 +68,7 @@
     <Compile Include="QueryExecution\ObjectInsertExecutor.cs" />
     <Compile Include="QueryExecution\ObjectUpdateExecutor.cs" />
     <Compile Include="QueryParsing\AndExpression.cs" />
+    <Compile Include="QueryParsing\EqualsExpression.cs" />
     <Compile Include="QueryParsing\ExpressionParser.cs" />
     <Compile Include="QueryParsing\PropertyExpression.cs" />
     <Compile Include="QueryParsing\QueryExpression.cs" />
