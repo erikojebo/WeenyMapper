@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using WeenyMapper.Exceptions;
@@ -14,13 +15,9 @@ namespace WeenyMapper.QueryParsing
 
         private QueryExpression Parse(Expression expression)
         {
-            if (expression is BinaryExpression && expression.NodeType == ExpressionType.Equal)
+            if (expression is BinaryExpression)
             {
-                return ParseEqualsExpression((BinaryExpression)expression);
-            }
-            if (expression is BinaryExpression && expression.NodeType == ExpressionType.AndAlso)
-            {
-                return ParseAndExpression((BinaryExpression)expression);
+                return ParseBinaryExpression((BinaryExpression)expression);
             }
             if (expression is MemberExpression)
             {
@@ -38,14 +35,29 @@ namespace WeenyMapper.QueryParsing
             throw new WeenyMapperException("Invalid query expression");
         }
 
-        private QueryExpression ParseEqualsExpression(BinaryExpression expression)
+        private QueryExpression ParseBinaryExpression(BinaryExpression expression)
         {
-            return new EqualsExpression(Parse(expression.Left), Parse(expression.Right));
-        }
+            var left = Parse(expression.Left);
+            var right = Parse(expression.Right);
 
-        private QueryExpression ParseAndExpression(BinaryExpression expression)
-        {
-            return new AndExpression(Parse(expression.Left), Parse(expression.Right)).Flatten();
+            if (expression.NodeType == ExpressionType.Equal)
+            {
+                return new EqualsExpression(left, right);
+            }
+            if (expression.NodeType == ExpressionType.LessThan)
+            {
+                return new LessExpression(left, right);
+            }
+            if (expression.NodeType == ExpressionType.AndAlso)
+            {
+                return new AndExpression(left, right).Flatten();
+            }
+            if (expression.NodeType == ExpressionType.OrElse)
+            {
+                return new OrExpression(left, right).Flatten();
+            }
+
+            throw new WeenyMapperException("Unrecognized binary expression");
         }
 
         private QueryExpression ParseMemberExpression(MemberExpression expression)

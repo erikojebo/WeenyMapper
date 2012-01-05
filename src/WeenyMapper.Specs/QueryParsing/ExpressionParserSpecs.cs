@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework;
 using WeenyMapper.QueryParsing;
 using WeenyMapper.Specs.TestClasses.Entities;
@@ -15,7 +12,7 @@ namespace WeenyMapper.Specs.QueryParsing
         [SetUp]
         public void SetUp()
         {
-            _parser = new ExpressionParser();            
+            _parser = new ExpressionParser();
         }
 
         [Test]
@@ -53,12 +50,87 @@ namespace WeenyMapper.Specs.QueryParsing
         public void Conjunction_of_multiple_equality_comparisons_is_parsed_into_AndExpression_with_corresponding_property_names_and_values()
         {
             var pageCount = 123;
-            var expression = _parser.Parse<Book>(x => x.AuthorName == "An author name" && x.Title == GetTitle() && x.PageCount == pageCount);
+            var expression = _parser.Parse<Book>(
+                x => x.AuthorName == "An author name" &&
+                     x.Title == GetTitle() &&
+                     x.PageCount == pageCount &&
+                     x.Isbn == "123-456-789");
 
             var expectedExpression = new AndExpression(
                 new EqualsExpression(new PropertyExpression("AuthorName"), new ValueExpression("An author name")),
                 new EqualsExpression(new PropertyExpression("Title"), new ValueExpression("a title")),
-                new EqualsExpression(new PropertyExpression("PageCount"), new ValueExpression(123)));
+                new EqualsExpression(new PropertyExpression("PageCount"), new ValueExpression(123)),
+                new EqualsExpression(new PropertyExpression("Isbn"), new ValueExpression("123-456-789")));
+
+            Assert.AreEqual(expectedExpression, expression);
+        }
+
+        [Test]
+        public void Disjunction_of_multiple_equality_comparisons_is_parsed_into_OrExpression_with_corresponding_property_names_and_values()
+        {
+            var pageCount = 123;
+            var expression = _parser.Parse<Book>(
+                x => x.AuthorName == "An author name" ||
+                     x.Title == GetTitle() ||
+                     x.PageCount == pageCount ||
+                     x.Isbn == "123-456-789");
+
+            var expectedExpression = new OrExpression(
+                new EqualsExpression(new PropertyExpression("AuthorName"), new ValueExpression("An author name")),
+                new EqualsExpression(new PropertyExpression("Title"), new ValueExpression("a title")),
+                new EqualsExpression(new PropertyExpression("PageCount"), new ValueExpression(123)),
+                new EqualsExpression(new PropertyExpression("Isbn"), new ValueExpression("123-456-789")));
+
+            Assert.AreEqual(expectedExpression, expression);
+        }
+
+        [Test]
+        public void Mixed_conjunction_and_disjunction_of_multiple_equality_comparisons_is_parsed_into_AndExpression_and_OrExpression_with_corresponding_property_names_and_values()
+        {
+            var pageCount = 123;
+            var expression = _parser.Parse<Book>(
+                x => x.AuthorName == "An author name" ||
+                     x.Title == GetTitle() &&
+                     x.PageCount == pageCount &&
+                     x.Isbn == "123-456-789");
+
+            var expectedExpression = new OrExpression(
+                new EqualsExpression(new PropertyExpression("AuthorName"), new ValueExpression("An author name")),
+                new AndExpression(
+                    new EqualsExpression(new PropertyExpression("Title"), new ValueExpression("a title")),
+                    new EqualsExpression(new PropertyExpression("PageCount"), new ValueExpression(123)),
+                    new EqualsExpression(new PropertyExpression("Isbn"), new ValueExpression("123-456-789"))));
+
+            Assert.AreEqual(expectedExpression, expression);
+        }
+
+        [Test]
+        public void Parenthesized_mixed_conjunction_and_disjunction_of_multiple_equality_comparisons_is_parsed_into_AndExpression_and_OrExpression_with_corresponding_property_names_and_values()
+        {
+            var pageCount = 123;
+            var expression = _parser.Parse<Book>(
+                x => (x.AuthorName == "An author name" ||
+                      x.Title == GetTitle()) &&
+                     (x.PageCount == pageCount ||
+                      x.Isbn == "123-456-789"));
+
+            var expectedExpression = new AndExpression(
+                new OrExpression(
+                    new EqualsExpression(new PropertyExpression("AuthorName"), new ValueExpression("An author name")),
+                    new EqualsExpression(new PropertyExpression("Title"), new ValueExpression("a title"))),
+                new OrExpression(
+                    new EqualsExpression(new PropertyExpression("PageCount"), new ValueExpression(123)),
+                    new EqualsExpression(new PropertyExpression("Isbn"), new ValueExpression("123-456-789"))));
+
+            Assert.AreEqual(expectedExpression, expression);
+        }
+
+        [Test]
+        public void Single_less_comparison_with_constant_is_parsed_into_LessExpression_with_property_name_and_value()
+        {
+            var expression = _parser.Parse<Book>(x => x.PageCount < 500);
+
+            var expectedExpression = new LessExpression(new PropertyExpression("PageCount"), new ValueExpression(500));
 
             Assert.AreEqual(expectedExpression, expression);
         }
