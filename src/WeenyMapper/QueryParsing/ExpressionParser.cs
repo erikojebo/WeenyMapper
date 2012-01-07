@@ -48,6 +48,18 @@ namespace WeenyMapper.QueryParsing
             {
                 return new LessExpression(left, right);
             }
+            if (expression.NodeType == ExpressionType.GreaterThan)
+            {
+                return new GreaterExpression(left, right);
+            }
+            if (expression.NodeType == ExpressionType.GreaterThanOrEqual)
+            {
+                return new GreaterOrEqualExpression(left, right);
+            }
+            if (expression.NodeType == ExpressionType.LessThanOrEqual)
+            {
+                return new LessOrEqualExpression(left, right);
+            }
             if (expression.NodeType == ExpressionType.AndAlso)
             {
                 return new AndExpression(left, right).Flatten();
@@ -77,7 +89,20 @@ namespace WeenyMapper.QueryParsing
 
         private QueryExpression ParseMethodCallExpression(MethodCallExpression expression)
         {
+            if (expression.Method.Name == "Contains")
+            {
+                return ParseContainsExpression(expression);
+            }
+
             return CreateValueExpression(expression);
+        }
+
+        private QueryExpression ParseContainsExpression(MethodCallExpression expression)
+        {
+            var values = (IEnumerable<object>)Evaluate(expression.Arguments[0]);
+            var propertyName = ((MemberExpression)expression.Arguments[1]).Member.Name;
+
+            return new InExpression(new PropertyExpression(propertyName), new ArrayValueExpression(values));
         }
 
         private QueryExpression CreateValueExpression(Expression expression)
@@ -89,34 +114,5 @@ namespace WeenyMapper.QueryParsing
         {
             return Expression.Lambda(expression).Compile().DynamicInvoke();
         }
-
-        //public class SyntaxTreeParser
-        //{
-        //    public static MethodCallInformation GetMethodCallInformation<T>(Expression<Action<T>> expression)
-        //    {
-        //        // Should never happen since the argument is an Expression<Action<T>>
-        //        // which means that it is considered to have a void return type
-        //        // and the expression "x => x.PropertyName" does not compile as an Action<T>
-        //        // since a call to a property cannot be the only thing that is done in a
-        //        // statement.
-        //        if (!(expression.Body is MethodCallExpression))
-        //        {
-        //            throw new ArgumentException("Expression must be a method call");
-        //        }
-
-        //        var methodExpression = (MethodCallExpression)expression.Body;
-
-        //        var argumentValues = methodExpression.Arguments
-        //            .Select(x => Expression.Lambda(x).Compile().DynamicInvoke())
-        //            .ToArray();
-
-        //        return new MethodCallInformation
-        //        {
-        //            MethodName = methodExpression.Method.Name,
-        //            Arguments = argumentValues
-        //        };
-        //    }
-        //}
-
     }
 }

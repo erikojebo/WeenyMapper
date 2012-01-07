@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using NUnit.Framework;
 using WeenyMapper.QueryParsing;
 using WeenyMapper.Specs.TestClasses.Entities;
+using System.Linq;
 
 namespace WeenyMapper.Specs.QueryParsing
 {
@@ -131,6 +133,50 @@ namespace WeenyMapper.Specs.QueryParsing
             var expression = _parser.Parse<Book>(x => x.PageCount < 500);
 
             var expectedExpression = new LessExpression(new PropertyExpression("PageCount"), new ValueExpression(500));
+
+            Assert.AreEqual(expectedExpression, expression);
+        }
+
+        [Test]
+        public void Single_greater_comparison_with_constant_is_parsed_into_LessExpression_with_property_name_and_value()
+        {
+            var expression = _parser.Parse<Book>(x => x.PageCount > 500);
+
+            var expectedExpression = new GreaterExpression(new PropertyExpression("PageCount"), new ValueExpression(500));
+
+            Assert.AreEqual(expectedExpression, expression);
+        }
+
+        [Test]
+        public void Single_greater_or_equal_comparison_with_constant_is_parsed_into_LessExpression_with_property_name_and_value()
+        {
+            var expression = _parser.Parse<Book>(x => x.PageCount >= 500);
+
+            var expectedExpression = new GreaterOrEqualExpression(new PropertyExpression("PageCount"), new ValueExpression(500));
+
+            Assert.AreEqual(expectedExpression, expression);
+        }
+
+        [Test]
+        public void Single_less_or_equal_comparison_with_constant_is_parsed_into_LessExpression_with_property_name_and_value()
+        {
+            var expression = _parser.Parse<Book>(x => x.PageCount <= 500);
+
+            var expectedExpression = new LessOrEqualExpression(new PropertyExpression("PageCount"), new ValueExpression(500));
+
+            Assert.AreEqual(expectedExpression, expression);
+        }
+
+        [Test]
+        public void Linq_contains_call_with_ienumerable_is_parsed_into_InExpression_with_property_name_and_values()
+        {
+            IEnumerable<string> titles = new List<string> { "Title 1", "Title 2" };
+                
+            var expression = _parser.Parse<Book>(x => titles.Contains(x.Title));
+
+            var expectedExpression = new InExpression(
+                new PropertyExpression("Title"), 
+                new ArrayValueExpression(titles));
 
             Assert.AreEqual(expectedExpression, expression);
         }

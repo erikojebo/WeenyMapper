@@ -68,11 +68,17 @@
     <Compile Include="QueryExecution\ObjectInsertExecutor.cs" />
     <Compile Include="QueryExecution\ObjectUpdateExecutor.cs" />
     <Compile Include="QueryParsing\AndExpression.cs" />
+    <Compile Include="QueryParsing\ArrayValueExpression.cs" />
     <Compile Include="QueryParsing\BinaryComparisonExpression.cs" />
+    <Compile Include="QueryParsing\GreaterExpression.cs" />
+    <Compile Include="QueryParsing\GreaterOrEqualExpression.cs" />
+    <Compile Include="QueryParsing\InExpression.cs" />
     <Compile Include="QueryParsing\LessExpression.cs" />
+    <Compile Include="QueryParsing\LessOrEqualExpression.cs" />
     <Compile Include="QueryParsing\OrExpression.cs" />
     <Compile Include="QueryParsing\EqualsExpression.cs" />
     <Compile Include="QueryParsing\ExpressionParser.cs" />
+    <Compile Include="QueryParsing\PolyadicOperatorExpression.cs" />
     <Compile Include="QueryParsing\PropertyExpression.cs" />
     <Compile Include="QueryParsing\QueryExpression.cs" />
     <Compile Include="QueryParsing\ValueExpression.cs" />
