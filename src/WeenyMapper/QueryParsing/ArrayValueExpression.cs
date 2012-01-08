@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using WeenyMapper.Extensions;
 
 namespace WeenyMapper.QueryParsing
 {
-    public class ArrayValueExpression : QueryExpression
+    public class ArrayValueExpression : EquatableQueryExpression<ArrayValueExpression>
     {
         public ArrayValueExpression(IEnumerable<object> values)
         {
@@ -17,24 +19,9 @@ namespace WeenyMapper.QueryParsing
             return Values.GetHashCode();
         }
 
-        public override bool Equals(object obj)
+        protected override bool NullSafeEquals(ArrayValueExpression other)
         {
-            var other = obj as ArrayValueExpression;
-
-            if (other == null || Values.Length != other.Values.Length)
-            {
-                return false;
-            }
-
-            for (int i = 0; i < Values.Length; i++)
-            {
-                if (!Equals(Values[i], other.Values[i]))
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return Values.ElementEquals(other.Values);
         }
 
         public override string ToString()
