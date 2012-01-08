@@ -1,6 +1,6 @@
 ﻿namespace WeenyMapper.QueryParsing
 {
-    public class InExpression : QueryExpression
+    public class InExpression : EquatableQueryExpression<InExpression>
     {
         public InExpression(PropertyExpression propertyExpression, ArrayValueExpression arrayValueExpression)
         {
@@ -16,15 +16,8 @@
             return PropertyExpression.GetHashCode() + ArrayValueExpression.GetHashCode();
         }
 
-        public override bool Equals(object obj)
+        protected override bool NullSafeEquals(InExpression other)
         {
-            var other = obj as InExpression;
-
-            if (other == null)
-            {
-                return false;
-            }
-
             return Equals(PropertyExpression, other.PropertyExpression) &&
                    Equals(ArrayValueExpression, other.ArrayValueExpression);
         }

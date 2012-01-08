@@ -1,6 +1,8 @@
-﻿namespace WeenyMapper.QueryParsing
+﻿using System;
+
+namespace WeenyMapper.QueryParsing
 {
-    public class ValueExpression : QueryExpression
+    public class ValueExpression : EquatableQueryExpression<ValueExpression>
     {
         public ValueExpression(object value)
         {
@@ -14,15 +16,8 @@
             return Value.GetHashCode();
         }
 
-        public override bool Equals(object obj)
+        protected override bool NullSafeEquals(ValueExpression other)
         {
-            var other = obj as ValueExpression;
-
-            if (other == null)
-            {
-                return false;
-            }
-
             return Value.Equals(other.Value);
         }
 

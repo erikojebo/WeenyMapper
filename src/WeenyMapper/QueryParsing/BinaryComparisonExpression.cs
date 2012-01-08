@@ -1,6 +1,6 @@
 ﻿namespace WeenyMapper.QueryParsing
 {
-    public abstract class BinaryComparisonExpression<T> : QueryExpression where T : BinaryComparisonExpression<T>
+    public abstract class BinaryComparisonExpression<T> : EquatableQueryExpression<BinaryComparisonExpression<T>> where T : BinaryComparisonExpression<T>
     {
         protected BinaryComparisonExpression(QueryExpression left, QueryExpression right)
         {
@@ -18,15 +18,8 @@
             return Left.GetHashCode() + Right.GetHashCode();
         }
 
-        public override bool Equals(object obj)
+        protected override bool NullSafeEquals(BinaryComparisonExpression<T> other)
         {
-            var other = obj as T;
-
-            if (other == null)
-            {
-                return false;
-            }
-
             return Left.Equals(other.Left) && Right.Equals(other.Right);
         }
 

@@ -1,6 +1,8 @@
-﻿namespace WeenyMapper.QueryParsing
+﻿using System;
+
+namespace WeenyMapper.QueryParsing
 {
-    public class PropertyExpression : QueryExpression
+    public class PropertyExpression : EquatableQueryExpression<PropertyExpression>
     {
         public PropertyExpression(string propertyName)
         {
@@ -14,16 +16,9 @@
             return PropertyName.GetHashCode();
         }
 
-        public override bool Equals(object obj)
+        protected override bool NullSafeEquals(PropertyExpression other)
         {
-            var other = obj as PropertyExpression;
-
-            if (other == null)
-            {
-                return false;
-            }
-
-            return PropertyName == other.PropertyName;
+             return PropertyName == other.PropertyName;
         }
 
         public override string ToString()
