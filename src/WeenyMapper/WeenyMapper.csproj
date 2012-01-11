@@ -73,6 +73,7 @@
     <Compile Include="QueryParsing\EquatableQueryExpression.cs" />
     <Compile Include="QueryParsing\GreaterExpression.cs" />
     <Compile Include="QueryParsing\GreaterOrEqualExpression.cs" />
+    <Compile Include="QueryParsing\IExpressionParser.cs" />
     <Compile Include="QueryParsing\InExpression.cs" />
     <Compile Include="QueryParsing\LessExpression.cs" />
     <Compile Include="QueryParsing\LessOrEqualExpression.cs" />
@@ -95,6 +96,7 @@
     <Compile Include="Repository.cs" />
     <Compile Include="QueryExecution\IObjectQueryExecutor.cs" />
     <Compile Include="Sql\IDbCommandExecutor.cs" />
+    <Compile Include="QueryParsing\IExpressionVisitor.cs" />
     <Compile Include="Sql\ISqlGenerator.cs" />
     <Compile Include="QueryExecution\ObjectQueryExecutor.cs" />
     <Compile Include="Sql\SqlCommandExecutor.cs" />

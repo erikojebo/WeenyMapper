@@ -5,23 +5,33 @@ using System.Linq.Expressions;
 using WeenyMapper.Async;
 using WeenyMapper.Exceptions;
 using WeenyMapper.QueryExecution;
+using WeenyMapper.QueryParsing;
 
 namespace WeenyMapper.QueryBuilding
 {
     public class StaticSelectBuilder<T> : StaticCommandBuilderBase<T> where T : new()
     {
         private readonly IObjectQueryExecutor _objectQueryExecutor;
+        private readonly IExpressionParser _expressionParser;
         private readonly IDictionary<string, object> _constraints = new Dictionary<string, object>();
         private readonly IList<string> _propertiesToSelect = new List<string>();
+        private QueryExpression _parsedExpression;
 
-        public StaticSelectBuilder(IObjectQueryExecutor objectQueryExecutor)
+        public StaticSelectBuilder(IObjectQueryExecutor objectQueryExecutor, IExpressionParser expressionParser)
         {
             _objectQueryExecutor = objectQueryExecutor;
+            _expressionParser = expressionParser;
         }
 
         public StaticSelectBuilder<T> Where<TReturnValue>(Expression<Func<T, TReturnValue>> getter, TReturnValue value)
         {
             StorePropertyValue(getter, value, _constraints);
+            return this;
+        }
+
+        public StaticSelectBuilder<T> Where(Expression<Func<T, bool>> queryExpression)
+        {
+            _parsedExpression = _expressionParser.Parse(queryExpression);
             return this;
         }
 
@@ -39,6 +49,10 @@ namespace WeenyMapper.QueryBuilding
 
         public IList<T> ExecuteList()
         {
+            if (_parsedExpression != null)
+            {
+                return _objectQueryExecutor.Find<T>(typeof(T).Name, _parsedExpression);
+            }
             if (_propertiesToSelect.Any())
             {
                 return _objectQueryExecutor.Find<T>(typeof(T).Name, _constraints, _propertiesToSelect);

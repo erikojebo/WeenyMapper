@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using WeenyMapper.Conventions;
 using WeenyMapper.Extensions;
 using WeenyMapper.Mapping;
+using WeenyMapper.QueryParsing;
 using WeenyMapper.Sql;
 
 namespace WeenyMapper.QueryExecution
@@ -38,7 +40,7 @@ namespace WeenyMapper.QueryExecution
 
             return _dbCommandExecutor.ExecuteScalar<TScalar>(command, ConnectionString);
         }
-        
+
         public IList<TScalar> FindScalarList<T, TScalar>(string className, IDictionary<string, object> constraints)
         {
             var propertiesInTargetType = GetPropertiesInTargetType<T>();
@@ -63,6 +65,17 @@ namespace WeenyMapper.QueryExecution
         public IList<T> Find<T>(string className, IDictionary<string, object> constraints, IEnumerable<string> propertiesToSelect) where T : new()
         {
             var command = CreateCommand(className, constraints, propertiesToSelect);
+
+            return ReadEntities<T>(command);
+        }
+
+        public IList<T> Find<T>(string className, QueryExpression queryExpression) where T : new()
+        {
+            var propertiesInTargetType = GetPropertiesInTargetType<T>();
+            var translatedExpression = queryExpression.Translate(_convention);
+            var tableName = _convention.GetTableName(className);
+
+            var command = _sqlGenerator.GenerateSelectQuery(tableName, propertiesInTargetType, translatedExpression);
 
             return ReadEntities<T>(command);
         }

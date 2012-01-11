@@ -2,7 +2,7 @@
 {
     public class GreaterOrEqualExpression : BinaryComparisonExpression<GreaterOrEqualExpression>
     {
-        public GreaterOrEqualExpression(QueryExpression left, QueryExpression right) : base(left, right) {}
+        public GreaterOrEqualExpression(PropertyExpression propertyExpression, ValueExpression valueExpression) : base(propertyExpression, valueExpression) { }
 
         protected override string OperatorString
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using WeenyMapper.Conventions;
 
 namespace WeenyMapper.QueryParsing
 {
@@ -16,9 +17,15 @@ namespace WeenyMapper.QueryParsing
             return PropertyName.GetHashCode();
         }
 
+        public override QueryExpression Translate(IConvention convention)
+        {
+            var columnName = convention.GetColumnName(PropertyName);
+            return new PropertyExpression(columnName);
+        }
+
         protected override bool NullSafeEquals(PropertyExpression other)
         {
-             return PropertyName == other.PropertyName;
+            return PropertyName == other.PropertyName;
         }
 
         public override string ToString()

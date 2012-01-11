@@ -68,5 +68,10 @@ namespace WeenyMapper.QueryParsing
 
             return Create(expressions.ToArray());
         }
+
+        public override void Visit(IExpressionVisitor expressionVisitor)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

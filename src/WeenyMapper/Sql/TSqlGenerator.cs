@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
+using WeenyMapper.QueryParsing;
 
 namespace WeenyMapper.Sql
 {
@@ -14,6 +15,18 @@ namespace WeenyMapper.Sql
             var commandString = string.Format("select {0} from {1}", selectedColumnString, Escape(tableName));
 
             return CreateSqlCommandWithWhereClause(commandString, constraints);
+        }
+
+        public DbCommand GenerateSelectQuery(string tableName, IEnumerable<string> columnsToSelect, QueryExpression queryExpression)
+        {
+            var selectedColumnString = CreateColumnNameList(columnsToSelect, Escape);
+            var whereClause = TSqlExpression.Create(queryExpression);
+            var commandString = string.Format("select {0} from {1} where {2}", selectedColumnString, Escape(tableName), whereClause.ConstraintCommandText);
+
+            var command = new SqlCommand(commandString);
+            command.Parameters.AddRange(whereClause.Parameters.ToArray());
+
+            return command;
         }
 
         public DbCommand CreateInsertCommand(string tableName, IDictionary<string, object> propertyValues)
@@ -128,14 +141,42 @@ namespace WeenyMapper.Sql
             return string.Join(" and ", constraintStrings);
         }
 
-        private string CreateParameterEqualsStatement(string columnName, string parameterNameSuffix = "")
+        private static string CreateParameterEqualsStatement(string columnName, string parameterNameSuffix = "")
         {
             return string.Format("{0} = @{1}" + parameterNameSuffix, Escape(columnName), columnName);
         }
 
-        private string Escape(string propertyName)
+        private static string Escape(string propertyName)
         {
             return string.Format("[{0}]", propertyName);
+        }
+
+        public class TSqlExpression : IExpressionVisitor
+        {
+            private TSqlExpression(QueryExpression expression)
+            {
+                Parameters = new List<SqlParameter>();
+
+                expression.Visit(this);
+            }
+
+            public string ConstraintCommandText { get; private set; }
+            public IList<SqlParameter> Parameters { get; private set; }
+
+            public static TSqlExpression Create(QueryExpression queryExpression)
+            {
+                return new TSqlExpression(queryExpression);
+            }
+
+            public void Accept(EqualsExpression equalsExpression)
+            {
+                var columnName = equalsExpression.PropertyExpression.PropertyName;
+                var equalsText = CreateParameterEqualsStatement(columnName, "Constraint");
+
+                Parameters.Add(new SqlParameter(columnName + "Constraint", equalsExpression.ValueExpression.Value));
+
+                ConstraintCommandText = equalsText;
+            }
         }
     }
 }

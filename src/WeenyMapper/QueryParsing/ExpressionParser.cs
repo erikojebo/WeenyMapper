@@ -6,7 +6,7 @@ using WeenyMapper.Exceptions;
 
 namespace WeenyMapper.QueryParsing
 {
-    public class ExpressionParser
+    public class ExpressionParser : IExpressionParser
     {
         public QueryExpression Parse<T>(Expression<Func<T, bool>> expression)
         {
@@ -40,26 +40,6 @@ namespace WeenyMapper.QueryParsing
             var left = Parse(expression.Left);
             var right = Parse(expression.Right);
 
-            if (expression.NodeType == ExpressionType.Equal)
-            {
-                return new EqualsExpression(left, right);
-            }
-            if (expression.NodeType == ExpressionType.LessThan)
-            {
-                return new LessExpression(left, right);
-            }
-            if (expression.NodeType == ExpressionType.GreaterThan)
-            {
-                return new GreaterExpression(left, right);
-            }
-            if (expression.NodeType == ExpressionType.GreaterThanOrEqual)
-            {
-                return new GreaterOrEqualExpression(left, right);
-            }
-            if (expression.NodeType == ExpressionType.LessThanOrEqual)
-            {
-                return new LessOrEqualExpression(left, right);
-            }
             if (expression.NodeType == ExpressionType.AndAlso)
             {
                 return new AndExpression(left, right).Flatten();
@@ -67,6 +47,45 @@ namespace WeenyMapper.QueryParsing
             if (expression.NodeType == ExpressionType.OrElse)
             {
                 return new OrExpression(left, right).Flatten();
+            }
+
+            PropertyExpression propertyExpression;
+            ValueExpression valueExpression;
+
+            if (left is PropertyExpression && right is ValueExpression)
+            {
+                propertyExpression = (PropertyExpression)left;
+                valueExpression = (ValueExpression)right;
+            }
+            else if (left is ValueExpression && right is PropertyExpression)
+            {
+                propertyExpression = (PropertyExpression)right;
+                valueExpression = (ValueExpression)left;
+            }
+            else
+            {
+                throw new WeenyMapperException("Invalid expression: An equals expression must have one property operand and one value operand");
+            }
+            
+            if (expression.NodeType == ExpressionType.Equal)
+            {
+                return new EqualsExpression(propertyExpression, valueExpression);
+            }
+            if (expression.NodeType == ExpressionType.LessThan)
+            {
+                return new LessExpression(propertyExpression, valueExpression);
+            }
+            if (expression.NodeType == ExpressionType.GreaterThan)
+            {
+                return new GreaterExpression(propertyExpression, valueExpression);
+            }
+            if (expression.NodeType == ExpressionType.GreaterThanOrEqual)
+            {
+                return new GreaterOrEqualExpression(propertyExpression, valueExpression);
+            }
+            if (expression.NodeType == ExpressionType.LessThanOrEqual)
+            {
+                return new LessOrEqualExpression(propertyExpression, valueExpression);
             }
 
             throw new WeenyMapperException("Unrecognized binary expression");

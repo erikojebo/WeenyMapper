@@ -627,5 +627,69 @@ namespace WeenyMapper.Specs
             CollectionAssert.Contains(usernames, "username1");
             CollectionAssert.Contains(usernames, "username3");
         }
+
+        [Test]
+        public void Expressions_can_be_used_to_run_queries()
+        {
+            Repository.Convention = new BookConvention();
+
+            var book1 = new Book
+            {
+                Isbn = "1",
+                AuthorName = "Author Name",
+                Title = "Title 1",
+                PageCount = 100,
+            };
+
+            var book2 = new Book
+            {
+                Isbn = "2",
+                AuthorName = "Another Author Name",
+                Title = "Title 2",
+                PageCount = 200
+            };
+
+            var book3 = new Book
+            {
+                Isbn = "3",
+                AuthorName = "Another Author Name",
+                Title = "Title 3",
+                PageCount = 150
+            };
+            
+            var book4 = new Book
+            {
+                Isbn = "4",
+                AuthorName = "Another Author Name",
+                Title = "Title 4",
+                PageCount = 75
+            };
+
+            var book5 = new Book
+            {
+                Isbn = "5",
+                AuthorName = "Author Name",
+                Title = "Title 5",
+                PageCount = 75
+            };
+            
+            var book6 = new Book
+            {
+                Isbn = "6",
+                AuthorName = "Author Name",
+                Title = "Title 6",
+                PageCount = 50
+            };
+
+            Repository.InsertMany(book1, book2, book3, book4, book5, book6);
+
+            var actualBooks = Repository.Find<Book>()
+                .Where(x => x.Isbn == "6" || (x.PageCount == 75 && x.Title == "Another Author Name"))
+                .ExecuteList();
+
+            Assert.AreEqual(2, actualBooks.Count);
+            CollectionAssert.Contains(actualBooks, book4);
+            CollectionAssert.Contains(actualBooks, book6);
+        }
     }
 }

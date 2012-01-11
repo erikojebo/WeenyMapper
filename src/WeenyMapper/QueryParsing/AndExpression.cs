@@ -1,4 +1,6 @@
-﻿namespace WeenyMapper.QueryParsing
+﻿using System;
+
+namespace WeenyMapper.QueryParsing
 {
     public class AndExpression : PolyadicOperatorExpression<AndExpression>
     {
@@ -12,6 +14,10 @@
         protected override string OperatorString
         {
             get { return "&&"; }
+        }
+        public override void Visit(IExpressionVisitor expressionVisitor)
+        {
+            throw new NotImplementedException();
         }
     }
 }

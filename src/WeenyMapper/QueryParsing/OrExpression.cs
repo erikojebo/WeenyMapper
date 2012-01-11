@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace WeenyMapper.QueryParsing
@@ -61,6 +62,11 @@ namespace WeenyMapper.QueryParsing
             }
 
             return new OrExpression(expressions.ToArray());
+        }
+
+        public override void Visit(IExpressionVisitor expressionVisitor)
+        {
+            throw new NotImplementedException();
         }
     }
 }

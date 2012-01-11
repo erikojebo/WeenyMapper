@@ -1,31 +1,38 @@
-﻿namespace WeenyMapper.QueryParsing
+﻿using System;
+
+namespace WeenyMapper.QueryParsing
 {
     public abstract class BinaryComparisonExpression<T> : EquatableQueryExpression<BinaryComparisonExpression<T>> where T : BinaryComparisonExpression<T>
     {
-        protected BinaryComparisonExpression(QueryExpression left, QueryExpression right)
+        protected BinaryComparisonExpression(PropertyExpression propertyExpression, ValueExpression valueExpression)
         {
-            Left = left;
-            Right = right;
+            PropertyExpression = propertyExpression;
+            ValueExpression = valueExpression;
         }
 
-        public QueryExpression Left { get; private set; }
-        public QueryExpression Right { get; private set; }
+        public PropertyExpression PropertyExpression { get; private set; }
+        public ValueExpression ValueExpression { get; private set; }
         
         protected abstract string OperatorString { get; }
 
         public override int GetHashCode()
         {
-            return Left.GetHashCode() + Right.GetHashCode();
+            return PropertyExpression.GetHashCode() + ValueExpression.GetHashCode();
         }
 
         protected override bool NullSafeEquals(BinaryComparisonExpression<T> other)
         {
-            return Left.Equals(other.Left) && Right.Equals(other.Right);
+            return PropertyExpression.Equals(other.PropertyExpression) && ValueExpression.Equals(other.ValueExpression);
         }
 
         public override string ToString()
         {
-            return string.Format("({0} {2} {1})", Left, Right, OperatorString);
+            return string.Format("({0} {2} {1})", PropertyExpression, ValueExpression, OperatorString);
+        }
+
+        public override void Visit(IExpressionVisitor expressionVisitor)
+        {
+            throw new NotImplementedException();
         }
     }
 }

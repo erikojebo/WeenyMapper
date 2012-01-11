@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using NUnit.Framework;
+using WeenyMapper.QueryParsing;
 using WeenyMapper.Sql;
 
 namespace WeenyMapper.Specs.Sql
@@ -269,6 +270,24 @@ namespace WeenyMapper.Specs.Sql
 
             Assert.AreEqual("ColumnName2Constraint", actualParameters[1].ParameterName);
             Assert.AreEqual("2", actualParameters[1].Value);
+        }
+
+        [Test]
+        public void Expression_with_single_equals_comparison_creates_parameterized_sql_query_with_corresponding_where_clause()
+        {
+            var columnsToSelect = new[] { "ColumnName1", "ColumnName2" };
+
+            var expression = new EqualsExpression(new PropertyExpression("ColumnName"), new ValueExpression("Value"));
+
+            var expectedSql = "select [ColumnName1], [ColumnName2] from [TableName] where [ColumnName] = @ColumnNameConstraint";
+
+            var command = _generator.GenerateSelectQuery("TableName", columnsToSelect, expression);
+
+            Assert.AreEqual(expectedSql, command.CommandText);
+
+            Assert.AreEqual(1, command.Parameters.Count);
+            Assert.AreEqual("ColumnNameConstraint", command.Parameters[0].ParameterName);
+            Assert.AreEqual("Value", command.Parameters[0].Value);
         }
     }
 }

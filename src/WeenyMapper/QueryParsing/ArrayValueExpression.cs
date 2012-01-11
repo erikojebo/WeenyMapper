@@ -29,5 +29,10 @@ namespace WeenyMapper.QueryParsing
             var values = string.Join(", ", Values);
             return string.Format("({0})", values);
         }
+
+        public override void Visit(IExpressionVisitor expressionVisitor)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

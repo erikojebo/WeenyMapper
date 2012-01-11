@@ -2,7 +2,7 @@
 {
     public class LessOrEqualExpression : BinaryComparisonExpression<LessOrEqualExpression>
     {
-        public LessOrEqualExpression(QueryExpression left, QueryExpression right) : base(left, right) {}
+        public LessOrEqualExpression(PropertyExpression propertyExpression, ValueExpression valueExpression) : base(propertyExpression, valueExpression) { }
 
         protected override string OperatorString
         {

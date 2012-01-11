@@ -7,6 +7,7 @@ using WeenyMapper.Logging;
 using WeenyMapper.Mapping;
 using WeenyMapper.QueryBuilding;
 using WeenyMapper.QueryExecution;
+using WeenyMapper.QueryParsing;
 using WeenyMapper.Reflection;
 using WeenyMapper.Sql;
 
@@ -131,7 +132,7 @@ namespace WeenyMapper
                     ConnectionString = ConnectionString
                 };
 
-            return new StaticSelectBuilder<T>(objectQueryExecutor);
+            return new StaticSelectBuilder<T>(objectQueryExecutor, new ExpressionParser());
         }
 
         public int Delete<T>(T entity)
