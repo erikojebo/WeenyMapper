@@ -4,6 +4,7 @@ using System.Linq;
 using NUnit.Framework;
 using WeenyMapper.QueryParsing;
 using WeenyMapper.Sql;
+using WeenyMapper.Extensions;
 
 namespace WeenyMapper.Specs.Sql
 {
@@ -288,6 +289,54 @@ namespace WeenyMapper.Specs.Sql
             Assert.AreEqual(1, command.Parameters.Count);
             Assert.AreEqual("ColumnNameConstraint", command.Parameters[0].ParameterName);
             Assert.AreEqual("Value", command.Parameters[0].Value);
+        }
+
+        [Test]
+        public void Conjunction_of_equals_expressions_creates_parameterized_sql_query_with_corresponding_where_clause()
+        {
+            var columnsToSelect = new[] { "ColumnName1", "ColumnName2" };
+
+            var expression = new AndExpression(
+                new EqualsExpression(new PropertyExpression("ColumnName1"), new ValueExpression(1)),
+                new EqualsExpression(new PropertyExpression("ColumnName2"), new ValueExpression(2)));
+
+            var expectedSql = "select [ColumnName1], [ColumnName2] from [TableName] " +
+                              "where [ColumnName1] = @ColumnName1Constraint and [ColumnName2] = @ColumnName2Constraint";
+
+            var command = _generator.GenerateSelectQuery("TableName", columnsToSelect, expression);
+            var actualParameters = command.Parameters.SortByParameterName();
+
+            Assert.AreEqual(expectedSql, command.CommandText);
+
+            Assert.AreEqual(2, actualParameters.Count);
+            Assert.AreEqual("ColumnName1Constraint", actualParameters[0].ParameterName);
+            Assert.AreEqual(1, actualParameters[0].Value);
+            Assert.AreEqual("ColumnName2Constraint", actualParameters[1].ParameterName);
+            Assert.AreEqual(2, actualParameters[1].Value);
+        }
+
+        [Test]
+        public void Disjunction_of_equals_expressions_creates_parameterized_sql_query_with_corresponding_where_clause()
+        {
+            var columnsToSelect = new[] { "ColumnName1", "ColumnName2" };
+
+            var expression = new OrExpression(
+                new EqualsExpression(new PropertyExpression("ColumnName1"), new ValueExpression(1)),
+                new EqualsExpression(new PropertyExpression("ColumnName2"), new ValueExpression(2)));
+
+            var expectedSql = "select [ColumnName1], [ColumnName2] from [TableName] " +
+                              "where [ColumnName1] = @ColumnName1Constraint or [ColumnName2] = @ColumnName2Constraint";
+
+            var command = _generator.GenerateSelectQuery("TableName", columnsToSelect, expression);
+            var actualParameters = command.Parameters.SortByParameterName();
+
+            Assert.AreEqual(expectedSql, command.CommandText);
+
+            Assert.AreEqual(2, actualParameters.Count);
+            Assert.AreEqual("ColumnName1Constraint", actualParameters[0].ParameterName);
+            Assert.AreEqual(1, actualParameters[0].Value);
+            Assert.AreEqual("ColumnName2Constraint", actualParameters[1].ParameterName);
+            Assert.AreEqual(2, actualParameters[1].Value);
         }
     }
 }

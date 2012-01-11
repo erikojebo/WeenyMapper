@@ -1,4 +1,5 @@
 ﻿using System;
+using WeenyMapper.Conventions;
 
 namespace WeenyMapper.QueryParsing
 {
@@ -12,7 +13,7 @@ namespace WeenyMapper.QueryParsing
 
         public PropertyExpression PropertyExpression { get; private set; }
         public ValueExpression ValueExpression { get; private set; }
-        
+
         protected abstract string OperatorString { get; }
 
         public override int GetHashCode()
@@ -30,9 +31,13 @@ namespace WeenyMapper.QueryParsing
             return string.Format("({0} {2} {1})", PropertyExpression, ValueExpression, OperatorString);
         }
 
-        public override void Visit(IExpressionVisitor expressionVisitor)
+        public override QueryExpression Translate(IConvention convention)
         {
-            throw new NotImplementedException();
+            return Create(
+                (PropertyExpression)PropertyExpression.Translate(convention),
+                (ValueExpression)ValueExpression.Translate(convention));
         }
+
+        protected abstract QueryExpression Create(PropertyExpression propertyExpression, ValueExpression valueExpression);
     }
 }

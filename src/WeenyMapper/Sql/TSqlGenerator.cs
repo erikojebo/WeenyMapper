@@ -157,7 +157,7 @@ namespace WeenyMapper.Sql
             {
                 Parameters = new List<SqlParameter>();
 
-                expression.Visit(this);
+                expression.Accept(this);
             }
 
             public string ConstraintCommandText { get; private set; }
@@ -168,14 +168,30 @@ namespace WeenyMapper.Sql
                 return new TSqlExpression(queryExpression);
             }
 
-            public void Accept(EqualsExpression equalsExpression)
+            public void Visit(EqualsExpression expression)
             {
-                var columnName = equalsExpression.PropertyExpression.PropertyName;
+                var columnName = expression.PropertyExpression.PropertyName;
                 var equalsText = CreateParameterEqualsStatement(columnName, "Constraint");
 
-                Parameters.Add(new SqlParameter(columnName + "Constraint", equalsExpression.ValueExpression.Value));
+                Parameters.Add(new SqlParameter(columnName + "Constraint", expression.ValueExpression.Value));
 
                 ConstraintCommandText = equalsText;
+            }
+
+            public void Visit(AndExpression expression)
+            {
+                var sqlExpressions = expression.Expressions.Select(Create);
+                
+                Parameters = sqlExpressions.SelectMany(x => x.Parameters).ToList();
+                ConstraintCommandText = string.Join(" and ", sqlExpressions.Select(x => x.ConstraintCommandText));
+            }
+
+            public void Visit(OrExpression expression)
+            {
+                var sqlExpressions = expression.Expressions.Select(Create);
+
+                Parameters = sqlExpressions.SelectMany(x => x.Parameters).ToList();
+                ConstraintCommandText = string.Join(" or ", sqlExpressions.Select(x => x.ConstraintCommandText));
             }
         }
     }

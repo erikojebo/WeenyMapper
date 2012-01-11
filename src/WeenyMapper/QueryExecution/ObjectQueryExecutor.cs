@@ -72,10 +72,12 @@ namespace WeenyMapper.QueryExecution
         public IList<T> Find<T>(string className, QueryExpression queryExpression) where T : new()
         {
             var propertiesInTargetType = GetPropertiesInTargetType<T>();
+            var columnNamesToSelect = propertiesInTargetType.Select(_convention.GetColumnName);
+            
             var translatedExpression = queryExpression.Translate(_convention);
             var tableName = _convention.GetTableName(className);
 
-            var command = _sqlGenerator.GenerateSelectQuery(tableName, propertiesInTargetType, translatedExpression);
+            var command = _sqlGenerator.GenerateSelectQuery(tableName, columnNamesToSelect, translatedExpression);
 
             return ReadEntities<T>(command);
         }

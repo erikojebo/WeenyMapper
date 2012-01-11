@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using WeenyMapper.Conventions;
 
 namespace WeenyMapper.QueryParsing
 {
@@ -69,9 +70,10 @@ namespace WeenyMapper.QueryParsing
             return Create(expressions.ToArray());
         }
 
-        public override void Visit(IExpressionVisitor expressionVisitor)
+        public override QueryExpression Translate(IConvention convention)
         {
-            throw new NotImplementedException();
+            var translatedExpressions = Expressions.Select(x => x.Translate(convention));
+            return Create(translatedExpressions.ToArray());
         }
     }
 }

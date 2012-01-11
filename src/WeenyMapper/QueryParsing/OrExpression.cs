@@ -4,69 +4,23 @@ using System.Linq;
 
 namespace WeenyMapper.QueryParsing
 {
-    public class OrExpression : QueryExpression
+    public class OrExpression : PolyadicOperatorExpression<OrExpression>
     {
-        public OrExpression(params QueryExpression[] expressions)
+        public OrExpression(params QueryExpression[] expressions) : base(expressions) {}
+
+        protected override OrExpression Create(params QueryExpression[] expressions)
         {
-            Expressions = expressions;
+            return new OrExpression(expressions);
         }
 
-        public IList<QueryExpression> Expressions { get; private set; }
-
-        public override int GetHashCode()
+        protected override string OperatorString
         {
-            return Expressions.Sum(x => x.GetHashCode());
+            get { return " || "; }
         }
 
-        public override bool Equals(object obj)
+        public override void Accept(IExpressionVisitor expressionVisitor)
         {
-            var other = obj as OrExpression;
-
-            if (other == null || Expressions.Count != other.Expressions.Count)
-            {
-                return false;
-            }
-
-            for (int i = 0; i < Expressions.Count; i++)
-            {
-                if (!Expressions[i].Equals(other.Expressions[i]))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        public override string ToString()
-        {
-            var conjunction = string.Join(" && ", Expressions);
-            return string.Format("({0})", conjunction);
-        }
-
-        public OrExpression Flatten()
-        {
-            var expressions = new List<QueryExpression>();
-
-            foreach (var queryExpression in Expressions)
-            {
-                if (queryExpression is OrExpression)
-                {
-                    var andExpression = ((OrExpression)queryExpression).Flatten();
-                    expressions.AddRange(andExpression.Expressions);
-                }
-                else
-                {
-                    expressions.Add(queryExpression);
-                }
-            }
-
-            return new OrExpression(expressions.ToArray());
-        }
-
-        public override void Visit(IExpressionVisitor expressionVisitor)
-        {
-            throw new NotImplementedException();
+            expressionVisitor.Visit(this);
         }
     }
 }

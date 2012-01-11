@@ -1,4 +1,6 @@
-﻿namespace WeenyMapper.QueryParsing
+﻿using System;
+
+namespace WeenyMapper.QueryParsing
 {
     public class EqualsExpression : BinaryComparisonExpression<EqualsExpression>
     {
@@ -9,9 +11,14 @@
             get { return "=="; }
         }
 
-        public override void Visit(IExpressionVisitor expressionVisitor)
+        protected override QueryExpression Create(PropertyExpression propertyExpression, ValueExpression valueExpression)
         {
-            expressionVisitor.Accept(this);
+            return new EqualsExpression(propertyExpression, valueExpression);
+        }
+
+        public override void Accept(IExpressionVisitor expressionVisitor)
+        {
+            expressionVisitor.Visit(this);
         }
     }
 }

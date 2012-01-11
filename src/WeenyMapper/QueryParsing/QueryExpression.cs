@@ -9,6 +9,6 @@ namespace WeenyMapper.QueryParsing
             return this;
         }
 
-        public abstract void Visit(IExpressionVisitor expressionVisitor);
+        public abstract void Accept(IExpressionVisitor expressionVisitor);
     }
 }

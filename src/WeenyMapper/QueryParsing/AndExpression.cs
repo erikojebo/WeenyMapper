@@ -15,9 +15,10 @@ namespace WeenyMapper.QueryParsing
         {
             get { return "&&"; }
         }
-        public override void Visit(IExpressionVisitor expressionVisitor)
+
+        public override void Accept(IExpressionVisitor expressionVisitor)
         {
-            throw new NotImplementedException();
+            expressionVisitor.Visit(this);
         }
     }
 }

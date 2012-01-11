@@ -1,4 +1,6 @@
-﻿namespace WeenyMapper.QueryParsing
+﻿using System;
+
+namespace WeenyMapper.QueryParsing
 {
     public class GreaterOrEqualExpression : BinaryComparisonExpression<GreaterOrEqualExpression>
     {
@@ -7,6 +9,11 @@
         protected override string OperatorString
         {
             get { return ">="; }
+        }
+
+        protected override QueryExpression Create(PropertyExpression propertyExpression, ValueExpression valueExpression)
+        {
+            return new GreaterOrEqualExpression(propertyExpression, valueExpression);
         }
     }
 }

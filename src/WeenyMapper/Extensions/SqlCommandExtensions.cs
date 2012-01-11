@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Data.SqlClient;
+using System.Linq;
 
 namespace WeenyMapper.Extensions
 {
@@ -11,6 +13,11 @@ namespace WeenyMapper.Extensions
             {
                 sqlCommand.Dispose();
             }
+        }
+
+        public static IList<DbParameter> SortByParameterName(this DbParameterCollection parameters)
+        {
+            return parameters.OfType<DbParameter>().OrderBy(x => x.ParameterName).ToList();
         }
     }
 }

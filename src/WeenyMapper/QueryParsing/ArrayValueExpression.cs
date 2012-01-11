@@ -30,7 +30,7 @@ namespace WeenyMapper.QueryParsing
             return string.Format("({0})", values);
         }
 
-        public override void Visit(IExpressionVisitor expressionVisitor)
+        public override void Accept(IExpressionVisitor expressionVisitor)
         {
             throw new NotImplementedException();
         }

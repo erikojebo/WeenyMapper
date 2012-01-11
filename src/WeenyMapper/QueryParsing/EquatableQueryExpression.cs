@@ -22,7 +22,7 @@ namespace WeenyMapper.QueryParsing
         }
 
         protected abstract bool NullSafeEquals(T other);
-        public override void Visit(IExpressionVisitor expressionVisitor)
+        public override void Accept(IExpressionVisitor expressionVisitor)
         {
             throw new NotImplementedException();
         }
