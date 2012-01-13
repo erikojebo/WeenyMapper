@@ -6,7 +6,7 @@ namespace WeenyMapper.QueryParsing
     {
         public GreaterOrEqualExpression(PropertyExpression propertyExpression, ValueExpression valueExpression) : base(propertyExpression, valueExpression) { }
 
-        protected override string OperatorString
+        public override string OperatorString
         {
             get { return ">="; }
         }
@@ -14,6 +14,11 @@ namespace WeenyMapper.QueryParsing
         protected override QueryExpression Create(PropertyExpression propertyExpression, ValueExpression valueExpression)
         {
             return new GreaterOrEqualExpression(propertyExpression, valueExpression);
+        }
+
+        public override void Accept(IExpressionVisitor expressionVisitor)
+        {
+            expressionVisitor.Visit(this);
         }
     }
 }

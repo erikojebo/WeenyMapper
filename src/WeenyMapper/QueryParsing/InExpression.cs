@@ -26,5 +26,10 @@
         {
             return string.Format("{0} in {1}", PropertyExpression, ArrayValueExpression);
         }
+
+        public override void Accept(IExpressionVisitor expressionVisitor)
+        {
+            expressionVisitor.Visit(this);
+        }
     }
 }

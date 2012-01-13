@@ -6,7 +6,7 @@ namespace WeenyMapper.QueryParsing
     {
         public EqualsExpression(PropertyExpression propertyExpression, ValueExpression valueExpression) : base(propertyExpression, valueExpression) { }
 
-        protected override string OperatorString
+        public override string OperatorString
         {
             get { return "=="; }
         }

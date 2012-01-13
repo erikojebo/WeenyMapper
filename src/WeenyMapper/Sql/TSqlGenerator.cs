@@ -146,6 +146,11 @@ namespace WeenyMapper.Sql
             return string.Format("{0} = @{1}" + parameterNameSuffix, Escape(columnName), columnName);
         }
 
+        private static string CreateParameterOperatorStatement(string columnName, string operatorString, string parameterNameSuffix = "")
+        {
+            return string.Format("{0} {1} @{2}" + parameterNameSuffix, Escape(columnName), operatorString, columnName);
+        }
+
         private static string Escape(string propertyName)
         {
             return string.Format("[{0}]", propertyName);
@@ -168,30 +173,68 @@ namespace WeenyMapper.Sql
                 return new TSqlExpression(queryExpression);
             }
 
-            public void Visit(EqualsExpression expression)
-            {
-                var columnName = expression.PropertyExpression.PropertyName;
-                var equalsText = CreateParameterEqualsStatement(columnName, "Constraint");
-
-                Parameters.Add(new SqlParameter(columnName + "Constraint", expression.ValueExpression.Value));
-
-                ConstraintCommandText = equalsText;
-            }
-
             public void Visit(AndExpression expression)
             {
-                var sqlExpressions = expression.Expressions.Select(Create);
-                
-                Parameters = sqlExpressions.SelectMany(x => x.Parameters).ToList();
-                ConstraintCommandText = string.Join(" and ", sqlExpressions.Select(x => x.ConstraintCommandText));
+                VisitPolyadicOperatorExpression(expression, " and ");
             }
 
             public void Visit(OrExpression expression)
             {
+                VisitPolyadicOperatorExpression(expression, " or ");
+            }
+
+            private void VisitPolyadicOperatorExpression<T>(PolyadicOperatorExpression<T> expression, string separator) where T : PolyadicOperatorExpression<T>
+            {
                 var sqlExpressions = expression.Expressions.Select(Create);
 
                 Parameters = sqlExpressions.SelectMany(x => x.Parameters).ToList();
-                ConstraintCommandText = string.Join(" or ", sqlExpressions.Select(x => x.ConstraintCommandText));
+                var commandText = string.Join(separator, sqlExpressions.Select(x => x.ConstraintCommandText));
+
+                ConstraintCommandText = string.Format("({0})", commandText);
+            }
+
+            public void Visit(ValueExpression expression) {}
+
+            public void Visit(PropertyExpression expression) {}
+
+            public void Visit(InExpression expression)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Visit(EqualsExpression expression)
+            {
+                VisitBinaryComparisonExpression(expression);
+            }
+
+            public void Visit(LessOrEqualExpression expression)
+            {
+                VisitBinaryComparisonExpression(expression);
+            }
+
+            public void Visit(LessExpression expression)
+            {
+                VisitBinaryComparisonExpression(expression);
+            }
+
+            public void Visit(GreaterOrEqualExpression expression)
+            {
+                VisitBinaryComparisonExpression(expression);
+            }
+
+            public void Visit(GreaterExpression expression)
+            {
+                VisitBinaryComparisonExpression(expression);
+            }
+
+            private void VisitBinaryComparisonExpression<T>(BinaryComparisonExpression<T> expression) where T : BinaryComparisonExpression<T>
+            {
+                var columnName = expression.PropertyExpression.PropertyName;
+                var text = CreateParameterOperatorStatement(columnName, expression.OperatorString, "Constraint");
+
+                Parameters.Add(new SqlParameter(columnName + "Constraint", expression.ValueExpression.Value));
+
+                ConstraintCommandText = text;
             }
         }
     }

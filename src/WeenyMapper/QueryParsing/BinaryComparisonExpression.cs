@@ -14,7 +14,7 @@ namespace WeenyMapper.QueryParsing
         public PropertyExpression PropertyExpression { get; private set; }
         public ValueExpression ValueExpression { get; private set; }
 
-        protected abstract string OperatorString { get; }
+        public abstract string OperatorString { get; }
 
         public override int GetHashCode()
         {

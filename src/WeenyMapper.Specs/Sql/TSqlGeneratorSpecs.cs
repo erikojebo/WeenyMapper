@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using NUnit.Framework;
+using WeenyMapper.Extensions;
 using WeenyMapper.QueryParsing;
 using WeenyMapper.Sql;
-using WeenyMapper.Extensions;
 
 namespace WeenyMapper.Specs.Sql
 {
@@ -301,7 +301,7 @@ namespace WeenyMapper.Specs.Sql
                 new EqualsExpression(new PropertyExpression("ColumnName2"), new ValueExpression(2)));
 
             var expectedSql = "select [ColumnName1], [ColumnName2] from [TableName] " +
-                              "where [ColumnName1] = @ColumnName1Constraint and [ColumnName2] = @ColumnName2Constraint";
+                              "where ([ColumnName1] = @ColumnName1Constraint and [ColumnName2] = @ColumnName2Constraint)";
 
             var command = _generator.GenerateSelectQuery("TableName", columnsToSelect, expression);
             var actualParameters = command.Parameters.SortByParameterName();
@@ -325,7 +325,7 @@ namespace WeenyMapper.Specs.Sql
                 new EqualsExpression(new PropertyExpression("ColumnName2"), new ValueExpression(2)));
 
             var expectedSql = "select [ColumnName1], [ColumnName2] from [TableName] " +
-                              "where [ColumnName1] = @ColumnName1Constraint or [ColumnName2] = @ColumnName2Constraint";
+                              "where ([ColumnName1] = @ColumnName1Constraint or [ColumnName2] = @ColumnName2Constraint)";
 
             var command = _generator.GenerateSelectQuery("TableName", columnsToSelect, expression);
             var actualParameters = command.Parameters.SortByParameterName();
@@ -337,6 +337,47 @@ namespace WeenyMapper.Specs.Sql
             Assert.AreEqual(1, actualParameters[0].Value);
             Assert.AreEqual("ColumnName2Constraint", actualParameters[1].ParameterName);
             Assert.AreEqual(2, actualParameters[1].Value);
+        }
+
+        [Test]
+        public void Conjunction_of_disjunctions_is_parenthezised_to_ensure_correct_evaluation_order()
+        {
+            var columnsToSelect = new[] { "ColumnName1", "ColumnName2" };
+
+            var expression = new AndExpression(
+                new OrExpression(
+                    new LessExpression(new PropertyExpression("ColumnName1"), new ValueExpression(1)),
+                    new GreaterExpression(new PropertyExpression("ColumnName2"), new ValueExpression(2)),
+                    new EqualsExpression(new PropertyExpression("ColumnName2"), new ValueExpression(3))),
+                new OrExpression(
+                    new GreaterOrEqualExpression(new PropertyExpression("ColumnName1"), new ValueExpression(3)),
+                    new LessOrEqualExpression(new PropertyExpression("ColumnName2"), new ValueExpression(4))));
+
+            var expectedSql = "select [ColumnName1], [ColumnName2] from [TableName] " +
+                              "where (([ColumnName1] < @ColumnName1Constraint or [ColumnName2] > @ColumnName2Constraint or [ColumnName2] = @ColumnName2Constraint2) and" +
+                              "([ColumnName1] >= @ColumnName1Constraint2 or [ColumnName2] <= @ColumnName2Constraint3))";
+
+            var command = _generator.GenerateSelectQuery("TableName", columnsToSelect, expression);
+            var actualParameters = command.Parameters.SortByParameterName();
+
+            Assert.AreEqual(expectedSql, command.CommandText);
+
+            Assert.AreEqual(5, actualParameters.Count);
+
+            Assert.AreEqual("ColumnName1Constraint", actualParameters[0].ParameterName);
+            Assert.AreEqual(1, actualParameters[0].Value);
+
+            Assert.AreEqual("ColumnName1Constraint2", actualParameters[1].ParameterName);
+            Assert.AreEqual(3, actualParameters[1].Value);
+
+            Assert.AreEqual("ColumnName2Constraint", actualParameters[2].ParameterName);
+            Assert.AreEqual(2, actualParameters[2].Value);
+
+            Assert.AreEqual("ColumnName2Constraint1", actualParameters[3].ParameterName);
+            Assert.AreEqual(3, actualParameters[3].Value);
+
+            Assert.AreEqual("ColumnName2Constraint2", actualParameters[4].ParameterName);
+            Assert.AreEqual(4, actualParameters[4].Value);
         }
     }
 }

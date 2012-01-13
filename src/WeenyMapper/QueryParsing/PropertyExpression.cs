@@ -32,5 +32,10 @@ namespace WeenyMapper.QueryParsing
         {
             return "[" + PropertyName + "]";
         }
+
+        public override void Accept(IExpressionVisitor expressionVisitor)
+        {
+            expressionVisitor.Visit(this);
+        }
     }
 }

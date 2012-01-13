@@ -4,7 +4,7 @@
     {
         public LessOrEqualExpression(PropertyExpression propertyExpression, ValueExpression valueExpression) : base(propertyExpression, valueExpression) {}
 
-        protected override string OperatorString
+        public override string OperatorString
         {
             get { return "<="; }
         }
@@ -12,6 +12,11 @@
         protected override QueryExpression Create(PropertyExpression propertyExpression, ValueExpression valueExpression)
         {
             return new LessExpression(propertyExpression, valueExpression);
+        }
+
+        public override void Accept(IExpressionVisitor expressionVisitor)
+        {
+            expressionVisitor.Visit(this);
         }
     }
 }
