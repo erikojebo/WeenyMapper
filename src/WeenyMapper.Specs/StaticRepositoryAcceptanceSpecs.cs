@@ -684,7 +684,7 @@ namespace WeenyMapper.Specs
             Repository.InsertMany(book1, book2, book3, book4, book5, book6);
 
             var actualBooks = Repository.Find<Book>()
-                .Where(x => x.Isbn == "6" || (x.PageCount == 75 && x.Title == "Another Author Name"))
+                .Where(x => x.Isbn == "6" || (x.PageCount == 75 && x.AuthorName == "Another Author Name"))
                 .ExecuteList();
 
             Assert.AreEqual(2, actualBooks.Count);

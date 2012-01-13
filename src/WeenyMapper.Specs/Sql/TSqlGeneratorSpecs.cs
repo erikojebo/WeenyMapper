@@ -354,7 +354,7 @@ namespace WeenyMapper.Specs.Sql
                     new LessOrEqualExpression(new PropertyExpression("ColumnName2"), new ValueExpression(4))));
 
             var expectedSql = "select [ColumnName1], [ColumnName2] from [TableName] " +
-                              "where (([ColumnName1] < @ColumnName1Constraint or [ColumnName2] > @ColumnName2Constraint or [ColumnName2] = @ColumnName2Constraint2) and" +
+                              "where (([ColumnName1] < @ColumnName1Constraint or [ColumnName2] > @ColumnName2Constraint or [ColumnName2] = @ColumnName2Constraint2) and " +
                               "([ColumnName1] >= @ColumnName1Constraint2 or [ColumnName2] <= @ColumnName2Constraint3))";
 
             var command = _generator.GenerateSelectQuery("TableName", columnsToSelect, expression);
@@ -373,10 +373,10 @@ namespace WeenyMapper.Specs.Sql
             Assert.AreEqual("ColumnName2Constraint", actualParameters[2].ParameterName);
             Assert.AreEqual(2, actualParameters[2].Value);
 
-            Assert.AreEqual("ColumnName2Constraint1", actualParameters[3].ParameterName);
+            Assert.AreEqual("ColumnName2Constraint2", actualParameters[3].ParameterName);
             Assert.AreEqual(3, actualParameters[3].Value);
 
-            Assert.AreEqual("ColumnName2Constraint2", actualParameters[4].ParameterName);
+            Assert.AreEqual("ColumnName2Constraint3", actualParameters[4].ParameterName);
             Assert.AreEqual(4, actualParameters[4].Value);
         }
     }

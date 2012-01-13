@@ -20,11 +20,11 @@ namespace WeenyMapper.Sql
         public DbCommand GenerateSelectQuery(string tableName, IEnumerable<string> columnsToSelect, QueryExpression queryExpression)
         {
             var selectedColumnString = CreateColumnNameList(columnsToSelect, Escape);
-            var whereClause = TSqlExpression.Create(queryExpression);
-            var commandString = string.Format("select {0} from {1} where {2}", selectedColumnString, Escape(tableName), whereClause.ConstraintCommandText);
+            var whereExpression = TSqlExpression.Create(queryExpression, new CommandParameterFactory());
+            var commandString = string.Format("select {0} from {1} where {2}", selectedColumnString, Escape(tableName), whereExpression.ConstraintCommandText);
 
             var command = new SqlCommand(commandString);
-            command.Parameters.AddRange(whereClause.Parameters.ToArray());
+            command.Parameters.AddRange(whereExpression.CommandParameters.Select(x => new SqlParameter(x.Name, x.Value)).ToArray());
 
             return command;
         }
@@ -146,11 +146,6 @@ namespace WeenyMapper.Sql
             return string.Format("{0} = @{1}" + parameterNameSuffix, Escape(columnName), columnName);
         }
 
-        private static string CreateParameterOperatorStatement(string columnName, string operatorString, string parameterNameSuffix = "")
-        {
-            return string.Format("{0} {1} @{2}" + parameterNameSuffix, Escape(columnName), operatorString, columnName);
-        }
-
         private static string Escape(string propertyName)
         {
             return string.Format("[{0}]", propertyName);
@@ -158,19 +153,22 @@ namespace WeenyMapper.Sql
 
         public class TSqlExpression : IExpressionVisitor
         {
-            private TSqlExpression(QueryExpression expression)
+            private readonly ICommandParameterFactory _commandParameterFactory;
+
+            private TSqlExpression(QueryExpression expression, ICommandParameterFactory commandParameterFactory)
             {
-                Parameters = new List<SqlParameter>();
+                _commandParameterFactory = commandParameterFactory;
+                CommandParameters = new List<CommandParameter>();
 
                 expression.Accept(this);
             }
 
             public string ConstraintCommandText { get; private set; }
-            public IList<SqlParameter> Parameters { get; private set; }
+            public IList<CommandParameter> CommandParameters { get; private set; }
 
-            public static TSqlExpression Create(QueryExpression queryExpression)
+            public static TSqlExpression Create(QueryExpression queryExpression, ICommandParameterFactory commandParameterFactory)
             {
-                return new TSqlExpression(queryExpression);
+                return new TSqlExpression(queryExpression, commandParameterFactory);
             }
 
             public void Visit(AndExpression expression)
@@ -183,12 +181,13 @@ namespace WeenyMapper.Sql
                 VisitPolyadicOperatorExpression(expression, " or ");
             }
 
-            private void VisitPolyadicOperatorExpression<T>(PolyadicOperatorExpression<T> expression, string separator) where T : PolyadicOperatorExpression<T>
+            private void VisitPolyadicOperatorExpression<T>(PolyadicOperatorExpression<T> expression, string operatorString)
+                where T : PolyadicOperatorExpression<T>
             {
-                var sqlExpressions = expression.Expressions.Select(Create);
+                var sqlExpressions = expression.Expressions.Select(x => Create(x, _commandParameterFactory)).ToList();
 
-                Parameters = sqlExpressions.SelectMany(x => x.Parameters).ToList();
-                var commandText = string.Join(separator, sqlExpressions.Select(x => x.ConstraintCommandText));
+                CommandParameters = sqlExpressions.SelectMany(x => x.CommandParameters).ToList();
+                var commandText = string.Join(operatorString, sqlExpressions.Select(x => x.ConstraintCommandText));
 
                 ConstraintCommandText = string.Format("({0})", commandText);
             }
@@ -204,38 +203,42 @@ namespace WeenyMapper.Sql
 
             public void Visit(EqualsExpression expression)
             {
-                VisitBinaryComparisonExpression(expression);
+                VisitBinaryComparisonExpression(expression, "=");
             }
 
             public void Visit(LessOrEqualExpression expression)
             {
-                VisitBinaryComparisonExpression(expression);
+                VisitBinaryComparisonExpression(expression, "<=");
             }
 
             public void Visit(LessExpression expression)
             {
-                VisitBinaryComparisonExpression(expression);
+                VisitBinaryComparisonExpression(expression, "<");
             }
 
             public void Visit(GreaterOrEqualExpression expression)
             {
-                VisitBinaryComparisonExpression(expression);
+                VisitBinaryComparisonExpression(expression, ">=");
             }
 
             public void Visit(GreaterExpression expression)
             {
-                VisitBinaryComparisonExpression(expression);
+                VisitBinaryComparisonExpression(expression, ">");
             }
 
-            private void VisitBinaryComparisonExpression<T>(BinaryComparisonExpression<T> expression) where T : BinaryComparisonExpression<T>
+            private void VisitBinaryComparisonExpression<T>(BinaryComparisonExpression<T> expression, string operatorString)
+                where T : BinaryComparisonExpression<T>
             {
                 var columnName = expression.PropertyExpression.PropertyName;
-                var text = CreateParameterOperatorStatement(columnName, expression.OperatorString, "Constraint");
+                var value = expression.ValueExpression.Value;
 
-                Parameters.Add(new SqlParameter(columnName + "Constraint", expression.ValueExpression.Value));
+                var commandParameter = _commandParameterFactory.Create(columnName, value);
 
-                ConstraintCommandText = text;
+                CommandParameters.Add(commandParameter);
+
+                ConstraintCommandText = commandParameter.ToConstraintString(operatorString, Escape);
             }
+
         }
     }
 }
