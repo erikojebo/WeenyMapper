@@ -24,6 +24,12 @@ namespace WeenyMapper.Specs.Sql
         }
 
         [Test]
+        public void Reference_name_is_name_prefixed_with_at_sign()
+        {
+            Assert.AreEqual("@ColumnNameConstraint", _parameter.ReferenceName);
+        }
+
+        [Test]
         public void Constraint_string_is_ColumnName_operator_ParameterName()
         {
             var constraintString = _parameter.ToConstraintString("<", x => string.Format("[{0}]", x));

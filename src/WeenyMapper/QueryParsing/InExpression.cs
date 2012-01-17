@@ -31,5 +31,12 @@
         {
             expressionVisitor.Visit(this);
         }
+
+        public override QueryExpression Translate(Conventions.IConvention convention)
+        {
+            return new InExpression(
+                (PropertyExpression)PropertyExpression.Translate(convention), 
+                (ArrayValueExpression)ArrayValueExpression.Translate(convention));
+        }
     }
 }

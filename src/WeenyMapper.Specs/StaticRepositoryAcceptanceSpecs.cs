@@ -691,5 +691,71 @@ namespace WeenyMapper.Specs
             CollectionAssert.Contains(actualBooks, book4);
             CollectionAssert.Contains(actualBooks, book6);
         }
+
+        [Test]
+        public void Linq_contains_call_within_composite_query_expressions_can_be_used_to_run_sql_in_queries()
+        {
+            Repository.Convention = new BookConvention();
+
+            var book1 = new Book
+            {
+                Isbn = "1",
+                AuthorName = "Author Name",
+                Title = "Title 1",
+                PageCount = 100,
+            };
+
+            var book2 = new Book
+            {
+                Isbn = "2",
+                AuthorName = "Another Author Name",
+                Title = "Title 2",
+                PageCount = 200
+            };
+
+            var book3 = new Book
+            {
+                Isbn = "3",
+                AuthorName = "Another Author Name",
+                Title = "Title 3",
+                PageCount = 150
+            };
+            
+            var book4 = new Book
+            {
+                Isbn = "4",
+                AuthorName = "Another Author Name",
+                Title = "Title 4",
+                PageCount = 75
+            };
+
+            var book5 = new Book
+            {
+                Isbn = "5",
+                AuthorName = "Author Name",
+                Title = "Title 5",
+                PageCount = 75
+            };
+            
+            var book6 = new Book
+            {
+                Isbn = "6",
+                AuthorName = "Author Name",
+                Title = "Title 6",
+                PageCount = 50
+            };
+
+            Repository.InsertMany(book1, book2, book3, book4, book5, book6);
+
+            var titles = new[] { "Title 4", "Title 5", "Title 6" };
+
+            var actualBooks = Repository.Find<Book>()
+                .Where(x => titles.Contains(x.Title) && x.AuthorName == "Author Name")
+                .ExecuteList();
+
+            Assert.AreEqual(2, actualBooks.Count);
+            CollectionAssert.Contains(actualBooks, book5);
+            CollectionAssert.Contains(actualBooks, book6);
+        }
     }
 }

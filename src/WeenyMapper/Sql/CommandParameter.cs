@@ -24,11 +24,16 @@ namespace WeenyMapper.Sql
         public object Value { get; private set; }
         public int ColumnNameOccurrenceIndex { get; set; }
 
+        public string ReferenceName
+        {
+            get { return "@" + Name; }
+        }
+
         public string ToConstraintString(string operatorString, Func<string, string> escapeFunction)
         {
             var escapedColumnName = escapeFunction(_columnName);
 
-            return string.Format("{0} {1} @{2}", escapedColumnName, operatorString, Name);
+            return string.Format("{0} {1} {2}", escapedColumnName, operatorString, ReferenceName);
         }
 
         public override int GetHashCode()

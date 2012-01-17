@@ -198,7 +198,18 @@ namespace WeenyMapper.Sql
 
             public void Visit(InExpression expression)
             {
-                throw new NotImplementedException();
+                var columnName = expression.PropertyExpression.PropertyName;
+
+                var newParameters = new List<CommandParameter>();
+
+                foreach (var value in expression.ArrayValueExpression.Values)
+                {
+                    var commandParameter = _commandParameterFactory.Create(columnName, value);
+                    CommandParameters.Add(commandParameter);
+                    newParameters.Add(commandParameter);
+                }
+                var parameterString = string.Join(", ", newParameters.Select(x => x.ReferenceName));
+                ConstraintCommandText = string.Format("({0} in ({1}))", Escape(expression.PropertyExpression.PropertyName), parameterString);
             }
 
             public void Visit(EqualsExpression expression)

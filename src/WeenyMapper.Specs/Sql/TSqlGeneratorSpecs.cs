@@ -378,5 +378,31 @@ namespace WeenyMapper.Specs.Sql
             Assert.AreEqual("ColumnName2Constraint3", actualParameters[4].ParameterName);
             Assert.AreEqual(4, actualParameters[4].Value);
         }
+
+        [Test]
+        public void Query_with_in_expression_is_translated_to_sql_query_with_in_clause()
+        {
+            var values = new[] { (object)1, 2, 3 };
+
+            _query.QueryExpression = new InExpression(new PropertyExpression("PropertyName"), new ArrayValueExpression(values));
+
+            var expectedSql = "select [ColumnName1], [ColumnName2] from [TableName] " +
+                              "where ([PropertyName] in (@PropertyNameConstraint, @PropertyNameConstraint2, @PropertyNameConstraint3))";
+
+            var command = _generator.GenerateSelectQuery(_query);
+            var actualParameters = command.Parameters.SortByParameterName();
+
+            Assert.AreEqual(expectedSql, command.CommandText);
+            Assert.AreEqual(3, actualParameters.Count);
+
+            Assert.AreEqual("PropertyNameConstraint", actualParameters[0].ParameterName);
+            Assert.AreEqual(1, actualParameters[0].Value);
+
+            Assert.AreEqual("PropertyNameConstraint2", actualParameters[1].ParameterName);
+            Assert.AreEqual(2, actualParameters[1].Value);
+            
+            Assert.AreEqual("PropertyNameConstraint3", actualParameters[2].ParameterName);
+            Assert.AreEqual(3, actualParameters[2].Value);
+        }
     }
 }
