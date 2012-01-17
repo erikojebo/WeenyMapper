@@ -17,11 +17,11 @@ namespace WeenyMapper.Sql
             return CreateSqlCommandWithWhereClause(commandString, constraints);
         }
 
-        public DbCommand GenerateSelectQuery(string tableName, IEnumerable<string> columnsToSelect, QueryExpression queryExpression)
+        public DbCommand GenerateSelectQuery(SqlQuery query)
         {
-            var selectedColumnString = CreateColumnNameList(columnsToSelect, Escape);
-            var whereExpression = TSqlExpression.Create(queryExpression, new CommandParameterFactory());
-            var commandString = string.Format("select {0} from {1} where {2}", selectedColumnString, Escape(tableName), whereExpression.ConstraintCommandText);
+            var selectedColumnString = CreateColumnNameList(query.ColumnsToSelect, Escape);
+            var whereExpression = TSqlExpression.Create(query.QueryExpression, new CommandParameterFactory());
+            var commandString = string.Format("select {0} from {1} where {2}", selectedColumnString, Escape(query.TableName), whereExpression.ConstraintCommandText);
 
             var command = new SqlCommand(commandString);
             command.Parameters.AddRange(whereExpression.CommandParameters.Select(x => new SqlParameter(x.Name, x.Value)).ToArray());

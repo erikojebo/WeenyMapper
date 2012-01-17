@@ -77,7 +77,14 @@ namespace WeenyMapper.QueryExecution
             var translatedExpression = queryExpression.Translate(_convention);
             var tableName = _convention.GetTableName(className);
 
-            var command = _sqlGenerator.GenerateSelectQuery(tableName, columnNamesToSelect, translatedExpression);
+            var query = new SqlQuery
+                {
+                    TableName = tableName,
+                    ColumnsToSelect = columnNamesToSelect,
+                    QueryExpression = translatedExpression
+                };
+
+            var command = _sqlGenerator.GenerateSelectQuery(query);
 
             return ReadEntities<T>(command);
         }

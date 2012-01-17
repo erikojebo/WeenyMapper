@@ -103,6 +103,7 @@
     <Compile Include="Sql\ISqlGenerator.cs" />
     <Compile Include="QueryExecution\ObjectQueryExecutor.cs" />
     <Compile Include="Sql\SqlCommandExecutor.cs" />
+    <Compile Include="Sql\SqlQuery.cs" />
     <Compile Include="Sql\TSqlGenerator.cs" />
   </ItemGroup>
   <ItemGroup />
