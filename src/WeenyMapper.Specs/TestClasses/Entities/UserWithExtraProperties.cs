@@ -2,6 +2,8 @@ namespace WeenyMapper.Specs.TestClasses.Entities
 {
     public class UserWithExtraProperties : User
     {
+        // This class contains a lot of stuff to test the ShouldMapProperty convention
+
         private string _privateField;
         private string _publicField;
         private static string _privateStaticField;

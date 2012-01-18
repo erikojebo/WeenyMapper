@@ -1,5 +1,4 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace WeenyMapper.Conventions
 {
@@ -22,7 +21,14 @@ namespace WeenyMapper.Conventions
 
         public virtual bool ShouldMapProperty(PropertyInfo propertyInfo)
         {
-            return true;
+            const bool findNonPublic = true;
+
+            var getter = propertyInfo.GetGetMethod(findNonPublic);
+            var setter = propertyInfo.GetSetMethod(findNonPublic);
+
+            return getter != null && getter.IsPublic &&
+                   setter != null && setter.IsPublic &&
+                   !getter.IsStatic && !setter.IsStatic;
         }
     }
 }

@@ -47,6 +47,18 @@ namespace WeenyMapper.Specs.QueryParsing
 
             Assert.AreEqual(expectedExpression, expression);
         }
+        
+        [Test]
+        public void Single_equality_comparison_with_object_property_invocation_is_parsed_into_property_name_and_value()
+        {
+            var user = new User { Username = "A username" };
+
+            var expression = _parser.Parse<User>(x => x.Username == user.Username);
+
+            var expectedExpression = new EqualsExpression(new PropertyExpression("Username"), new ValueExpression("a username"));
+
+            Assert.AreEqual(expectedExpression, expression);
+        }
 
         [Test]
         public void Conjunction_of_multiple_equality_comparisons_is_parsed_into_AndExpression_with_corresponding_property_names_and_values()

@@ -812,5 +812,24 @@ namespace WeenyMapper.Specs
             Assert.AreEqual("Extra user 3", batchUpdatedUsers.Last().Username);
             Assert.AreEqual("Another updated password", batchUpdatedUsers.Last().Password);
         }
+
+        [Test]
+        public void Default_convention_only_maps_non_static_public_read_write_properties()
+        {
+            var movie = new Movie
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Movie title",
+                    ReleaseDate = new DateTime(2012, 01, 18)
+                };
+
+            movie.SetRating(4);
+
+            Repository.Insert(movie);
+
+            var actualMovie = Repository.Find<Movie>().Where(x => x.Id == movie.Id);
+
+            Assert.AreEqual(movie, actualMovie);
+        }
     }
 }

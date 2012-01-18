@@ -13,3 +13,9 @@ CREATE TABLE [dbo].[t_Books](
 	[c_AUTHORNAME] [nvarchar](255) NOT NULL,
 	[c_PAGECOUNT] [int] NOT NULL)
 GO
+CREATE TABLE [dbo].[Movie](
+	[Id] [uniqueidentifier] NOT NULL PRIMARY KEY,
+	[Title] [nvarchar](255) NOT NULL,
+	[ReleaseDate] [nvarchar](255) NOT NULL,
+	[Rating] [int] NULL)
+GO
