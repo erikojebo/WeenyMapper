@@ -793,13 +793,13 @@ namespace WeenyMapper.Specs
             user1.Password = "Updated password";
 
             Repository.Update<User>(user1);
-            Repository.Update<User>().Where(x => x.Password, "Password").Set(x => x.Password, "Another updated password").Execute();
+            Repository.Update<User>().Where(x => x.Password == "Password").Set(x => x.Password, "Another updated password").Execute();
 
-            var batchUpdatedUsers = Repository.Find<User>().Where(x => x.Password, "Another updated password").ExecuteList()
+            var batchUpdatedUsers = Repository.Find<User>().Where(x => x.Password == "Another updated password").ExecuteList()
                 .OrderBy(x => x.Username).ToList();
 
             Repository.Delete(user3);
-            Repository.Delete<UserWithExtraProperties>().Where(x => x.Username, "Extra user 2").Execute();
+            Repository.Delete<UserWithExtraProperties>().Where(x => x.Username == "Extra user 2").Execute();
 
             var finalUsers = Repository.Find<User>().ExecuteList();
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using WeenyMapper.Async;
 using WeenyMapper.Extensions;
+using WeenyMapper.QueryParsing;
 using WeenyMapper.Reflection;
 using WeenyMapper.Sql;
 
@@ -50,6 +51,14 @@ namespace WeenyMapper.QueryExecution
         public void DeleteAsync<T>(T entity, Action callback)
         {
             TaskRunner.Run(() => Delete(entity), callback);
+        }
+
+        public int Delete<T>(QueryExpression queryExpression)
+        {
+            var tableName = _conventionDataReader.GetTableName<T>();
+            var command = _sqlGenerator.CreateDeleteCommand(tableName, queryExpression);
+
+            return _dbCommandExecutor.ExecuteNonQuery(command, ConnectionString);
         }
     }
 }

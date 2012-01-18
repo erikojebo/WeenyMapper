@@ -162,7 +162,7 @@ namespace WeenyMapper
                     ConnectionString = ConnectionString
                 };
 
-            return new StaticDeleteBuilder<T>(objectDeleteExecutor);
+            return new StaticDeleteBuilder<T>(objectDeleteExecutor, new ExpressionParser());
         }
 
         public dynamic DynamicDelete<T>()

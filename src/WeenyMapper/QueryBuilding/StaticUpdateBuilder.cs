@@ -49,5 +49,10 @@ namespace WeenyMapper.QueryBuilding
         {
             TaskRunner.Run(Execute, callback);
         }
+
+        public StaticUpdateBuilder<T> Where(Expression<Func<T, bool>> queryExpression)
+        {
+            return this;
+        }
     }
 }
