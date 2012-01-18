@@ -175,6 +175,43 @@ namespace WeenyMapper.Specs.Sql
         }
 
         [Test]
+        public void Update_command_for_mass_update_with_query_constraint_and_multiple_setters_creates_parameterized_sql_with_matching_where_and_set_clauses()
+        {
+            var columnConstraints = new Dictionary<string, object>();
+            var columnSetters = new Dictionary<string, object>();
+
+            columnSetters["ColumnName1"] = "value 1";
+            columnSetters["ColumnName2"] = "value 2";
+
+            columnConstraints["ColumnName3"] = "value 3";
+            columnConstraints["ColumnName4"] = "value 4";
+
+            var expression = new AndExpression(
+                new EqualsExpression(new PropertyExpression("ColumnName3"), new ValueExpression("value 3")),
+                new EqualsExpression(new PropertyExpression("ColumnName4"), new ValueExpression("value 4")));
+
+            var sqlCommand = _generator.CreateUpdateCommand("TableName", "IdColumnName", expression, columnSetters);
+
+            var expectedSql = "update [TableName] set [ColumnName1] = @ColumnName1, [ColumnName2] = @ColumnName2 " +
+                              "where ([ColumnName3] = @ColumnName3Constraint and [ColumnName4] = @ColumnName4Constraint)";
+
+            Assert.AreEqual(expectedSql, sqlCommand.CommandText);
+
+            Assert.AreEqual(4, sqlCommand.Parameters.Count);
+
+            var actualParameters = sqlCommand.Parameters.OfType<SqlParameter>().OrderBy(x => x.ParameterName).ToList();
+
+            Assert.AreEqual("ColumnName1", actualParameters[0].ParameterName);
+            Assert.AreEqual("value 1", actualParameters[0].Value);
+            Assert.AreEqual("ColumnName2", actualParameters[1].ParameterName);
+            Assert.AreEqual("value 2", actualParameters[1].Value);
+            Assert.AreEqual("ColumnName3Constraint", actualParameters[2].ParameterName);
+            Assert.AreEqual("value 3", actualParameters[2].Value);
+            Assert.AreEqual("ColumnName4Constraint", actualParameters[3].ParameterName);
+            Assert.AreEqual("value 4", actualParameters[3].Value);
+        }
+
+        [Test]
         public void Delete_command_without_constraints_creates_delete_without_where_clause()
         {
             var columnConstraints = new Dictionary<string, object>();
@@ -214,6 +251,29 @@ namespace WeenyMapper.Specs.Sql
 
             var expectedSql = "delete from [TableName] " +
                               "where [ColumnName1] = @ColumnName1Constraint and [ColumnName2] = @ColumnName2Constraint";
+
+            Assert.AreEqual(expectedSql, sqlCommand.CommandText);
+
+            Assert.AreEqual(2, sqlCommand.Parameters.Count);
+
+            Assert.AreEqual("ColumnName1Constraint", actualParameters[0].ParameterName);
+            Assert.AreEqual("value 1", actualParameters[0].Value);
+            Assert.AreEqual("ColumnName2Constraint", actualParameters[1].ParameterName);
+            Assert.AreEqual("value 2", actualParameters[1].Value);
+        }
+
+        [Test]
+        public void Delete_command_with_query_constraint_creates_parameterized_delete_with_corresponding_where_clause()
+        {
+            var expression = new AndExpression(
+                new EqualsExpression(new PropertyExpression("ColumnName1"), new ValueExpression("value 1")),
+                new EqualsExpression(new PropertyExpression("ColumnName2"), new ValueExpression("value 2")));
+
+            var sqlCommand = _generator.CreateDeleteCommand("TableName", expression);
+            var actualParameters = sqlCommand.Parameters.SortByParameterName();
+
+            var expectedSql = "delete from [TableName] " +
+                              "where ([ColumnName1] = @ColumnName1Constraint and [ColumnName2] = @ColumnName2Constraint)";
 
             Assert.AreEqual(expectedSql, sqlCommand.CommandText);
 

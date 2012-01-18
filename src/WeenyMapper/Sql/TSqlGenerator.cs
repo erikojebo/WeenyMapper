@@ -82,7 +82,6 @@ namespace WeenyMapper.Sql
             var nonPrimaryKeyColumns = columnSetters.Where(x => x.Key != primaryKeyColumn);
             var updateString = CreateColumnNameList(nonPrimaryKeyColumns, x => CreateParameterEqualsStatement(x));
 
-
             var whereExpression = TSqlExpression.Create(constraintExpression, new CommandParameterFactory());
 
             var sql = string.Format("update {0} set {1} where {2}", Escape(tableName), updateString, whereExpression.ConstraintCommandText);
