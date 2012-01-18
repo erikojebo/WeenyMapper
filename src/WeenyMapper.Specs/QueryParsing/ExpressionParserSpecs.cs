@@ -1,8 +1,9 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using WeenyMapper.QueryParsing;
 using WeenyMapper.Specs.TestClasses.Entities;
-using System.Linq;
 
 namespace WeenyMapper.Specs.QueryParsing
 {
@@ -47,13 +48,52 @@ namespace WeenyMapper.Specs.QueryParsing
 
             Assert.AreEqual(expectedExpression, expression);
         }
-        
+
         [Test]
         public void Single_equality_comparison_with_object_property_invocation_is_parsed_into_property_name_and_value()
         {
             var user = new User { Username = "a username" };
 
             var expression = _parser.Parse<User>(x => x.Username == user.Username);
+
+            var expectedExpression = new EqualsExpression(new PropertyExpression("Username"), new ValueExpression("a username"));
+
+            Assert.AreEqual(expectedExpression, expression);
+        }
+
+        [Test]
+        public void Single_equality_comparison_with_method_parameter_is_parsed_into_property_name_and_value()
+        {
+            AssertParsingOfEqualsExpressionWithMethodParameter("a username");
+        }
+
+        private void AssertParsingOfEqualsExpressionWithMethodParameter(string username)
+        {
+            var expression = _parser.Parse<User>(x => x.Username == username);
+
+            var expectedExpression = new EqualsExpression(new PropertyExpression("Username"), new ValueExpression("a username"));
+
+            Assert.AreEqual(expectedExpression, expression);
+        }
+
+        [Test]
+        public void Single_equality_comparison_with_lambda_parameter_is_parsed_into_property_name_and_value()
+        {
+            Func<string, QueryExpression> func = s => _parser.Parse<User>(x => x.Username == s);
+            var expression = func("a username");
+
+            var expectedExpression = new EqualsExpression(new PropertyExpression("Username"), new ValueExpression("a username"));
+
+            Assert.AreEqual(expectedExpression, expression);
+        }
+
+        [Test]
+        public void Single_equality_comparison_with_property_acces_on_lambda_parameter_is_parsed_into_property_name_and_value()
+        {
+            var user = new User { Username = "a username" };
+
+            Func<User, QueryExpression> func = u => _parser.Parse<User>(x => x.Username == u.Username);
+            var expression = func(user);
 
             var expectedExpression = new EqualsExpression(new PropertyExpression("Username"), new ValueExpression("a username"));
 
@@ -183,11 +223,11 @@ namespace WeenyMapper.Specs.QueryParsing
         public void Linq_contains_call_with_ienumerable_is_parsed_into_InExpression_with_property_name_and_values()
         {
             IEnumerable<string> titles = new List<string> { "Title 1", "Title 2" };
-                
+
             var expression = _parser.Parse<Book>(x => titles.Contains(x.Title));
 
             var expectedExpression = new InExpression(
-                new PropertyExpression("Title"), 
+                new PropertyExpression("Title"),
                 new ArrayValueExpression(titles));
 
             Assert.AreEqual(expectedExpression, expression);
