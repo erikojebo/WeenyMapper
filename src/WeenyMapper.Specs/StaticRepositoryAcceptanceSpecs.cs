@@ -757,5 +757,60 @@ namespace WeenyMapper.Specs
             CollectionAssert.Contains(actualBooks, book5);
             CollectionAssert.Contains(actualBooks, book6);
         }
+
+        [Test]
+        public void Only_properties_matching_ShouldMap_predicate_in_current_convention_should_be_read_and_written_to_the_database()
+        {
+            Repository.Convention = new UserWithExtraPropertiesConvention();
+
+            var user1 = new UserWithExtraProperties
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "Extra user 1",
+                    Password = "Password",
+                    PublicExtraProperty = "Extra property value"
+                };
+            
+            var user2 = new UserWithExtraProperties
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "Extra user 2",
+                    Password = "Password",
+                    PublicExtraProperty = "Extra property value"
+                };
+            
+            var user3 = new UserWithExtraProperties
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "Extra user 3",
+                    Password = "Password",
+                    PublicExtraProperty = "Extra property value"
+                };
+
+            Repository.Insert(user1);
+            Repository.InsertMany(user2, user3);
+
+            user1.Password = "Updated password";
+
+            Repository.Update<User>(user1);
+            Repository.Update<User>().Where(x => x.Password, "Password").Set(x => x.Password, "Another updated password").Execute();
+
+            var batchUpdatedUsers = Repository.Find<User>().Where(x => x.Password, "Another updated password").ExecuteList()
+                .OrderBy(x => x.Username).ToList();
+
+            Repository.Delete(user3);
+            Repository.Delete<UserWithExtraProperties>().Where(x => x.Username, "Extra user 2").Execute();
+
+            var finalUsers = Repository.Find<User>().ExecuteList();
+
+            Assert.AreEqual(1, finalUsers.Count);
+            Assert.AreEqual(user1, finalUsers.First());
+
+            Assert.AreEqual(2, batchUpdatedUsers.Count);
+            Assert.AreEqual("Extra user 2", batchUpdatedUsers.First().Username);
+            Assert.AreEqual("Another updated password", batchUpdatedUsers.First().Password);
+            Assert.AreEqual("Extra user 3", batchUpdatedUsers.Last().Username);
+            Assert.AreEqual("Another updated password", batchUpdatedUsers.Last().Password);
+        }
     }
 }

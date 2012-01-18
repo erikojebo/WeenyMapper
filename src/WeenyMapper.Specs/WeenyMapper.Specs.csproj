@@ -64,6 +64,7 @@
     <Compile Include="TestClasses\Conventions\BookConvention.cs" />
     <Compile Include="TestClasses\Conventions\UpperCaseConvention.cs" />
     <Compile Include="TestClasses\Conventions\UserConvention.cs" />
+    <Compile Include="TestClasses\Conventions\UserWithExtraPropertiesConvention.cs" />
     <Compile Include="TestClasses\Entities\Book.cs" />
     <Compile Include="TestClasses\Entities\PartialUser.cs" />
     <Compile Include="TestClasses\Entities\User.cs" />
@@ -71,6 +72,7 @@
     <Compile Include="QueryParsing\QueryParserSpecs.cs" />
     <Compile Include="DynamicRepositoryAcceptanceSpecs.cs" />
     <Compile Include="Sql\TSqlGeneratorSpecs.cs" />
+    <Compile Include="TestClasses\Entities\UserWithExtraProperties.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

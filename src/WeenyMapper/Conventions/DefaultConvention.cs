@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 
 namespace WeenyMapper.Conventions
 {
@@ -17,6 +18,11 @@ namespace WeenyMapper.Conventions
         public virtual bool IsIdProperty(string propertyName)
         {
             return propertyName == "Id";
+        }
+
+        public virtual bool ShouldMapProperty(PropertyInfo propertyInfo)
+        {
+            return true;
         }
     }
 }

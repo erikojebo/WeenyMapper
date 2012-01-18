@@ -61,7 +61,7 @@ namespace WeenyMapper.Reflection
 
         private IDictionary<string, object> GetPropertyValues(object instance)
         {
-            var properties = instance.GetType().GetProperties();
+            var properties = instance.GetType().GetProperties().Where(_convention.ShouldMapProperty);
 
             var propertyValues = new Dictionary<string, object>();
 

@@ -1,3 +1,5 @@
+using System;
+using System.Reflection;
 using WeenyMapper.Conventions;
 
 namespace WeenyMapper.Specs.TestClasses.Conventions
@@ -17,6 +19,11 @@ namespace WeenyMapper.Specs.TestClasses.Conventions
         public bool IsIdProperty(string propertyName)
         {
             return propertyName == "Isbn";
+        }
+
+        public bool ShouldMapProperty(PropertyInfo propertyInfo)
+        {
+            return true;
         }
     }
 }
