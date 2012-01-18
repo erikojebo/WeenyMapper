@@ -77,6 +77,24 @@ namespace WeenyMapper.Sql
             return command;
         }
 
+        public DbCommand CreateUpdateCommand(string tableName, string primaryKeyColumn, QueryExpression constraintExpression, IDictionary<string, object> columnSetters)
+        {
+            var nonPrimaryKeyColumns = columnSetters.Where(x => x.Key != primaryKeyColumn);
+            var updateString = CreateColumnNameList(nonPrimaryKeyColumns, x => CreateParameterEqualsStatement(x));
+
+
+            var whereExpression = TSqlExpression.Create(constraintExpression, new CommandParameterFactory());
+
+            var sql = string.Format("update {0} set {1} where {2}", Escape(tableName), updateString, whereExpression.ConstraintCommandText);
+            var command = new SqlCommand(sql);
+
+            AddParameters(command, columnSetters);
+
+            command.Parameters.AddRange(whereExpression.CommandParameters.Select(x => new SqlParameter(x.Name, x.Value)).ToArray());
+
+            return command;
+        }
+
         public DbCommand CreateDeleteCommand(string tableName, IDictionary<string, object> constraints)
         {
             var deleteCommand = string.Format("delete from {0}", Escape(tableName));

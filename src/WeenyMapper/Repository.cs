@@ -78,7 +78,7 @@ namespace WeenyMapper
                     ConnectionString = ConnectionString
                 };
 
-            var builder = new StaticUpdateBuilder<T>(objectUpdateExecutor);
+            var builder = new StaticUpdateBuilder<T>(objectUpdateExecutor, new ExpressionParser());
 
             return builder.Update(entity);
         }
@@ -90,7 +90,7 @@ namespace WeenyMapper
                 ConnectionString = ConnectionString
             };
 
-            var builder = new StaticUpdateBuilder<T>(objectUpdateExecutor);
+            var builder = new StaticUpdateBuilder<T>(objectUpdateExecutor, new ExpressionParser());
 
             builder.UpdateAsync(entity, callback);
         }
@@ -102,7 +102,7 @@ namespace WeenyMapper
                     ConnectionString = ConnectionString
                 };
 
-            return new StaticUpdateBuilder<T>(objectUpdateExecutor);
+            return new StaticUpdateBuilder<T>(objectUpdateExecutor, new ExpressionParser());
         }
 
         public dynamic DynamicUpdate<T>()

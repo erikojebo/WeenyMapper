@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using WeenyMapper.Extensions;
+using WeenyMapper.QueryParsing;
 using WeenyMapper.Reflection;
 using WeenyMapper.Sql;
 
@@ -42,6 +44,17 @@ namespace WeenyMapper.QueryExecution
             var primaryKeyColumn = _conventionDataReader.GetPrimaryKeyColumnName<T>();
 
             var command = _sqlGenerator.CreateUpdateCommand(tableName, primaryKeyColumn, columnConstraints, columnSetters);
+
+            return _dbCommandExecutor.ExecuteNonQuery(command, ConnectionString);
+        }
+
+        public int Update<T>(QueryExpression queryExpression, IDictionary<string, object> setters)
+        {
+            var tableName = _conventionDataReader.GetTableName<T>();
+            var columnSetters = _conventionDataReader.GetColumnValues(setters);
+            var primaryKeyColumn = _conventionDataReader.GetPrimaryKeyColumnName<T>();
+
+            var command = _sqlGenerator.CreateUpdateCommand(tableName, primaryKeyColumn, queryExpression, columnSetters);
 
             return _dbCommandExecutor.ExecuteNonQuery(command, ConnectionString);
         }
