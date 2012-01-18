@@ -48,6 +48,16 @@ namespace WeenyMapper.Reflection
             return property.GetValue(instance, null);
         }
 
+        public IEnumerable<string> GetColumnNames(Type type)
+        {
+            return GetColumnProperties(type).Select(x => x.Name);
+        }
+        
+        public IEnumerable<PropertyInfo> GetColumnProperties(Type type)
+        {
+            return type.GetProperties().Where(_convention.ShouldMapProperty);
+        }
+
         private PropertyInfo GetIdProperty<T>()
         {
             return typeof(T).GetProperties()
@@ -61,7 +71,7 @@ namespace WeenyMapper.Reflection
 
         private IDictionary<string, object> GetPropertyValues(object instance)
         {
-            var properties = instance.GetType().GetProperties().Where(_convention.ShouldMapProperty);
+            var properties = GetColumnProperties(instance.GetType());
 
             var propertyValues = new Dictionary<string, object>();
 

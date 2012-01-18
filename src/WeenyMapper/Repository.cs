@@ -117,7 +117,7 @@ namespace WeenyMapper
 
         public dynamic DynamicFind<T>() where T : new()
         {
-            var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator(), new SqlCommandExecutor(SqlLogger), new EntityMapper(Convention))
+            var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator(), new SqlCommandExecutor(SqlLogger), new EntityMapper(Convention), new ConventionDataReader(Convention))
                 {
                     ConnectionString = ConnectionString
                 };
@@ -127,7 +127,7 @@ namespace WeenyMapper
 
         public StaticSelectBuilder<T> Find<T>() where T : new()
         {
-            var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator(), new SqlCommandExecutor(SqlLogger), new EntityMapper(Convention))
+            var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator(), new SqlCommandExecutor(SqlLogger), new EntityMapper(Convention), new ConventionDataReader(Convention))
                 {
                     ConnectionString = ConnectionString
                 };

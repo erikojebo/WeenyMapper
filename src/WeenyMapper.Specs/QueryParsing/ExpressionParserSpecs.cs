@@ -51,7 +51,7 @@ namespace WeenyMapper.Specs.QueryParsing
         [Test]
         public void Single_equality_comparison_with_object_property_invocation_is_parsed_into_property_name_and_value()
         {
-            var user = new User { Username = "A username" };
+            var user = new User { Username = "a username" };
 
             var expression = _parser.Parse<User>(x => x.Username == user.Username);
 

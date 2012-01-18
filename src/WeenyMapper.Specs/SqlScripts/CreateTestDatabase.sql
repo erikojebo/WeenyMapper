@@ -16,6 +16,6 @@ GO
 CREATE TABLE [dbo].[Movie](
 	[Id] [uniqueidentifier] NOT NULL PRIMARY KEY,
 	[Title] [nvarchar](255) NOT NULL,
-	[ReleaseDate] [nvarchar](255) NOT NULL,
+	[ReleaseDate] [datetime] NOT NULL,
 	[Rating] [int] NULL)
 GO

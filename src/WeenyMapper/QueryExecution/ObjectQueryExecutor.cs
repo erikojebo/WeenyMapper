@@ -6,6 +6,7 @@ using WeenyMapper.Conventions;
 using WeenyMapper.Extensions;
 using WeenyMapper.Mapping;
 using WeenyMapper.QueryParsing;
+using WeenyMapper.Reflection;
 using WeenyMapper.Sql;
 
 namespace WeenyMapper.QueryExecution
@@ -16,13 +17,20 @@ namespace WeenyMapper.QueryExecution
         private readonly ISqlGenerator _sqlGenerator;
         private readonly IDbCommandExecutor _dbCommandExecutor;
         private readonly IEntityMapper _entityMapper;
+        private readonly IConventionDataReader _conventionDataReader;
 
-        public ObjectQueryExecutor(IConvention convention, ISqlGenerator sqlGenerator, IDbCommandExecutor dbCommandExecutor, IEntityMapper entityMapper)
+        public ObjectQueryExecutor(
+            IConvention convention, 
+            ISqlGenerator sqlGenerator, 
+            IDbCommandExecutor dbCommandExecutor, 
+            IEntityMapper entityMapper,
+            IConventionDataReader conventionDataReader)
         {
             _convention = convention;
             _sqlGenerator = sqlGenerator;
             _dbCommandExecutor = dbCommandExecutor;
             _entityMapper = entityMapper;
+            _conventionDataReader = conventionDataReader;
         }
 
         public string ConnectionString { get; set; }
@@ -101,7 +109,7 @@ namespace WeenyMapper.QueryExecution
 
         private IEnumerable<string> GetPropertiesInTargetType<T>()
         {
-            return typeof(T).GetProperties().Select(x => x.Name);
+            return _conventionDataReader.GetColumnNames(typeof(T));
         }
 
         private IList<T> ReadEntities<T>(DbCommand command) where T : new()

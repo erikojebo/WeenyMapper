@@ -93,7 +93,7 @@ namespace WeenyMapper.QueryParsing
 
         private QueryExpression ParseMemberExpression(MemberExpression expression)
         {
-            if (expression.Member is PropertyInfo)
+            if (expression.Expression is ParameterExpression && expression.Member is PropertyInfo)
             {
                 return new PropertyExpression(expression.Member.Name);
             }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace WeenyMapper.Reflection
 {
@@ -9,5 +10,6 @@ namespace WeenyMapper.Reflection
         string GetTableName<T>();
         string GetPrimaryKeyColumnName<T>();
         object GetPrimaryKeyValue<T>(T instance);
+        IEnumerable<string> GetColumnNames(Type type);
     }
 }

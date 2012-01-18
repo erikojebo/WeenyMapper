@@ -816,6 +816,8 @@ namespace WeenyMapper.Specs
         [Test]
         public void Default_convention_only_maps_non_static_public_read_write_properties()
         {
+            Repository.Convention = new DefaultConvention();
+
             var movie = new Movie
                 {
                     Id = Guid.NewGuid(),
@@ -827,9 +829,12 @@ namespace WeenyMapper.Specs
 
             Repository.Insert(movie);
 
-            var actualMovie = Repository.Find<Movie>().Where(x => x.Id == movie.Id);
+            var actualMovie = Repository.Find<Movie>().Where(x => x.Id == movie.Id).Execute();
 
-            Assert.AreEqual(movie, actualMovie);
+            Assert.AreEqual(movie.Id, actualMovie.Id);
+            Assert.AreEqual(movie.Title, actualMovie.Title);
+            Assert.AreEqual(movie.ReleaseDate, actualMovie.ReleaseDate);
+            Assert.AreEqual(0, actualMovie.Rating); // should not be mapped
         }
     }
 }

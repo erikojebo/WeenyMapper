@@ -41,5 +41,10 @@ namespace WeenyMapper.Specs.TestClasses.Entities
                    ReleaseDate == other.ReleaseDate &&
                    Rating == other.Rating;
         }
+
+        public override string ToString()
+        {
+            return string.Format("Id: {0}, title: {1}, release date: {2}, rating: {3}", Id, Title, ReleaseDate, Rating);
+        }
     }
 }
