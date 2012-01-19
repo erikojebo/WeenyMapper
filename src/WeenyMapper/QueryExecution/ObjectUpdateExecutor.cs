@@ -32,21 +32,11 @@ namespace WeenyMapper.QueryExecution
             var columnValues = _conventionDataReader.GetColumnValuesFromEntity(instance);
 
             var primaryKeyColumn = _conventionDataReader.GetPrimaryKeyColumnName<T>();
+            var primaryKeyValue = _conventionDataReader.GetPrimaryKeyValue(instance);
 
-            var command = _sqlGenerator.CreateUpdateCommand(tableName, primaryKeyColumn, columnValues);
+            var constraintExpression = QueryExpression.Create(new EqualsExpression(primaryKeyColumn, primaryKeyValue));
 
-            return _dbCommandExecutor.ExecuteNonQuery(command, ConnectionString);
-        }
-
-        public int Update<T>(IDictionary<string, object> constraints, IDictionary<string, object> setters)
-        {
-            var tableName = _conventionDataReader.GetTableName<T>();
-            var columnConstraints = _conventionDataReader.GetColumnValues(constraints);
-            var columnSetters = _conventionDataReader.GetColumnValues(setters);
-
-            var primaryKeyColumn = _conventionDataReader.GetPrimaryKeyColumnName<T>();
-
-            var command = _sqlGenerator.CreateUpdateCommand(tableName, primaryKeyColumn, columnConstraints, columnSetters);
+            var command = _sqlGenerator.CreateUpdateCommand(tableName, primaryKeyColumn, constraintExpression, columnValues);
 
             return _dbCommandExecutor.ExecuteNonQuery(command, ConnectionString);
         }

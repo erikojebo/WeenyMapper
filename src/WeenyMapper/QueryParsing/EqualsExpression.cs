@@ -1,10 +1,10 @@
-﻿using System;
-
-namespace WeenyMapper.QueryParsing
+﻿namespace WeenyMapper.QueryParsing
 {
     public class EqualsExpression : BinaryComparisonExpression<EqualsExpression>
     {
-        public EqualsExpression(PropertyExpression propertyExpression, ValueExpression valueExpression) : base(propertyExpression, valueExpression) { }
+        public EqualsExpression(string propertyName, object value) : this(new PropertyExpression(propertyName), new ValueExpression(value)) {}
+
+        public EqualsExpression(PropertyExpression propertyExpression, ValueExpression valueExpression) : base(propertyExpression, valueExpression) {}
 
         protected override string OperatorString
         {

@@ -37,53 +37,18 @@ namespace WeenyMapper.Sql
             return sqlCommand;
         }
 
-        public DbCommand CreateUpdateCommand(string tableName, string primaryKeyColumn, IDictionary<string, object> propertyValues)
-        {
-            var setters = new Dictionary<string, object>();
-            var constraints = new Dictionary<string, object>();
-
-            foreach (var propertyValue in propertyValues)
-            {
-                if (propertyValue.Key == primaryKeyColumn)
-                {
-                    constraints.Add(propertyValue.Key, propertyValue.Value);
-                }
-                else
-                {
-                    setters.Add(propertyValue.Key, propertyValue.Value);
-                }
-            }
-
-            return CreateUpdateCommand(tableName, primaryKeyColumn, constraints, setters);
-        }
-
-        public DbCommand CreateUpdateCommand(string tableName, string primaryKeyColumn, IDictionary<string, object> columnConstraints, IDictionary<string, object> columnSetters)
-        {
-            var nonPrimaryKeyColumns = columnSetters.Where(x => x.Key != primaryKeyColumn);
-            var updateString = CreateColumnNameList(nonPrimaryKeyColumns, x => CreateParameterEqualsStatement(x));
-
-            var sql = string.Format("update {0} set {1}", Escape(tableName), updateString);
-
-            var command = CreateSqlCommandWithWhereClause(sql, columnConstraints);
-
-            AddParameters(command, columnSetters);
-
-            return command;
-        }
-
         public DbCommand CreateUpdateCommand(string tableName, string primaryKeyColumn, QueryExpression constraintExpression, IDictionary<string, object> columnSetters)
         {
             var nonPrimaryKeyColumns = columnSetters.Where(x => x.Key != primaryKeyColumn);
             var updateString = CreateColumnNameList(nonPrimaryKeyColumns, x => CreateParameterEqualsStatement(x));
 
-            var whereExpression = TSqlExpression.Create(constraintExpression, new CommandParameterFactory());
-
-            var sql = string.Format("update {0} set {1} where {2}", Escape(tableName), updateString, whereExpression.ConstraintCommandText);
+            var sql = string.Format("update {0} set {1}", Escape(tableName), updateString);
             var command = new SqlCommand(sql);
 
+            var commandText = AppendConstraint(sql, command, constraintExpression);
             AddParameters(command, columnSetters);
 
-            command.Parameters.AddRange(whereExpression.CommandParameters.Select(x => new SqlParameter(x.Name, x.Value)).ToArray());
+            command.CommandText = commandText;
 
             return command;
         }

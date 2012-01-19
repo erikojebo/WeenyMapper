@@ -1,4 +1,5 @@
-﻿using WeenyMapper.Conventions;
+﻿using System;
+using WeenyMapper.Conventions;
 
 namespace WeenyMapper.QueryParsing
 {
@@ -10,5 +11,15 @@ namespace WeenyMapper.QueryParsing
         }
 
         public abstract void Accept(IExpressionVisitor expressionVisitor);
+
+        public static RootExpression Create(QueryExpression queryExpression)
+        {
+            return new RootExpression(queryExpression);
+        }
+        
+        public static RootExpression Create()
+        {
+            return new RootExpression();
+        }
     }
 }
