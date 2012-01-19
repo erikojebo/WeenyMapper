@@ -51,9 +51,6 @@
     <Compile Include="Logging\NullSqlCommandLogger.cs" />
     <Compile Include="Mapping\EntityMapper.cs" />
     <Compile Include="Mapping\IEntityMapper.cs" />
-    <Compile Include="QueryBuilding\DynamicCommandBuilderBase.cs" />
-    <Compile Include="QueryBuilding\DynamicCountBuilder.cs" />
-    <Compile Include="QueryBuilding\DynamicDeleteBuilder.cs" />
     <Compile Include="QueryBuilding\StaticCommandBuilderBase.cs" />
     <Compile Include="QueryBuilding\StaticCountBuilder.cs" />
     <Compile Include="QueryBuilding\StaticDeleteBuilder.cs" />
@@ -87,8 +84,6 @@
     <Compile Include="Reflection\IConventionDataReader.cs" />
     <Compile Include="Reflection\PropertyMetadataReader.cs" />
     <Compile Include="Reflection\ConventionDataReader.cs" />
-    <Compile Include="QueryBuilding\DynamicSelectBuilder.cs" />
-    <Compile Include="QueryBuilding\DynamicUpdateBuilder.cs" />
     <Compile Include="QueryParsing\IQueryParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryParsing\SelectQuery.cs" />

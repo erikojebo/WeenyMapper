@@ -105,26 +105,6 @@ namespace WeenyMapper
             return new StaticUpdateBuilder<T>(objectUpdateExecutor, new ExpressionParser());
         }
 
-        public dynamic DynamicUpdate<T>()
-        {
-            var objectUpdateExecutor = new ObjectUpdateExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
-                {
-                    ConnectionString = ConnectionString
-                };
-
-            return new DynamicUpdateBuilder<T>(objectUpdateExecutor);
-        }
-
-        public dynamic DynamicFind<T>() where T : new()
-        {
-            var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator(), new SqlCommandExecutor(SqlLogger), new EntityMapper(Convention), new ConventionDataReader(Convention))
-                {
-                    ConnectionString = ConnectionString
-                };
-
-            return new DynamicSelectBuilder<T>(objectQueryExecutor);
-        }
-
         public StaticSelectBuilder<T> Find<T>() where T : new()
         {
             var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator(), new SqlCommandExecutor(SqlLogger), new EntityMapper(Convention), new ConventionDataReader(Convention))
@@ -165,16 +145,6 @@ namespace WeenyMapper
             return new StaticDeleteBuilder<T>(objectDeleteExecutor, new ExpressionParser());
         }
 
-        public dynamic DynamicDelete<T>()
-        {
-            var objectDeleteExecutor = new ObjectDeleteExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
-                {
-                    ConnectionString = ConnectionString
-                };
-
-            return new DynamicDeleteBuilder<T>(objectDeleteExecutor);
-        }
-
         public StaticCountBuilder<T> Count<T>()
         {
             var objectCountExecutor = new ObjectCountExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
@@ -183,16 +153,6 @@ namespace WeenyMapper
                 };
 
             return new StaticCountBuilder<T>(objectCountExecutor);
-        }
-
-        public dynamic DynamicCount<T>()
-        {
-            var objectCountExecutor = new ObjectCountExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
-                {
-                    ConnectionString = ConnectionString
-                };
-
-            return new DynamicCountBuilder<T>(objectCountExecutor);
         }
 
         public void EnableSqlConsoleLogging()
