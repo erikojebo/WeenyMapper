@@ -124,7 +124,7 @@ namespace WeenyMapper.Specs
             AssertParameterizedCallbackIsInvoked(2,
                 callback =>
                 Repository.Update<User>()
-                    .Where(x => x.Password, "a password")
+                    .Where(x => x.Password == "a password")
                     .Set(x => x.Password, "updated password")
                     .ExecuteAsync(callback));
 
@@ -189,7 +189,7 @@ namespace WeenyMapper.Specs
             AssertParameterizedCallbackIsInvoked(2,
                 callback =>
                 Repository.Delete<User>()
-                    .Where(x => x.Password, "a password")
+                    .Where(x => x.Password == "a password")
                     .ExecuteAsync(callback));
 
             var userCount = Repository.Count<User>().Execute();

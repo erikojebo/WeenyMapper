@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using WeenyMapper.Async;
+using WeenyMapper.Conventions;
 using WeenyMapper.Extensions;
 using WeenyMapper.QueryParsing;
 using WeenyMapper.Reflection;
@@ -13,12 +14,14 @@ namespace WeenyMapper.QueryExecution
         private readonly ISqlGenerator _sqlGenerator;
         private readonly IConventionDataReader _conventionDataReader;
         private readonly IDbCommandExecutor _dbCommandExecutor;
+        private readonly IConvention _convention;
 
-        public ObjectDeleteExecutor(ISqlGenerator sqlGenerator, IConventionDataReader conventionDataReader, IDbCommandExecutor dbCommandExecutor)
+        public ObjectDeleteExecutor(ISqlGenerator sqlGenerator, IConventionDataReader conventionDataReader, IDbCommandExecutor dbCommandExecutor, IConvention convention)
         {
             _sqlGenerator = sqlGenerator;
             _conventionDataReader = conventionDataReader;
             _dbCommandExecutor = dbCommandExecutor;
+            _convention = convention;
         }
 
         public string ConnectionString { get; set; }
@@ -56,7 +59,7 @@ namespace WeenyMapper.QueryExecution
         public int Delete<T>(QueryExpression queryExpression)
         {
             var tableName = _conventionDataReader.GetTableName<T>();
-            var command = _sqlGenerator.CreateDeleteCommand(tableName, queryExpression);
+            var command = _sqlGenerator.CreateDeleteCommand(tableName, queryExpression.Translate(_convention));
 
             return _dbCommandExecutor.ExecuteNonQuery(command, ConnectionString);
         }

@@ -73,7 +73,7 @@ namespace WeenyMapper
 
         public int Update<T>(T entity)
         {
-            var objectUpdateExecutor = new ObjectUpdateExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
+            var objectUpdateExecutor = new ObjectUpdateExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger), Convention)
                 {
                     ConnectionString = ConnectionString
                 };
@@ -85,7 +85,7 @@ namespace WeenyMapper
 
         public void UpdateAsync<T>(T entity, Action callback)
         {
-            var objectUpdateExecutor = new ObjectUpdateExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
+            var objectUpdateExecutor = new ObjectUpdateExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger), Convention)
             {
                 ConnectionString = ConnectionString
             };
@@ -97,7 +97,7 @@ namespace WeenyMapper
 
         public StaticUpdateBuilder<T> Update<T>()
         {
-            var objectUpdateExecutor = new ObjectUpdateExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
+            var objectUpdateExecutor = new ObjectUpdateExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger), Convention)
                 {
                     ConnectionString = ConnectionString
                 };
@@ -117,7 +117,7 @@ namespace WeenyMapper
 
         public int Delete<T>(T entity)
         {
-            var objectDeleteExecutor = new ObjectDeleteExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
+            var objectDeleteExecutor = new ObjectDeleteExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger), Convention)
                 {
                     ConnectionString = ConnectionString
                 };
@@ -127,7 +127,7 @@ namespace WeenyMapper
 
         public void DeleteAsync<T>(T entity, Action callback)
         {
-            var objectDeleteExecutor = new ObjectDeleteExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
+            var objectDeleteExecutor = new ObjectDeleteExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger), Convention)
             {
                 ConnectionString = ConnectionString
             };
@@ -137,7 +137,7 @@ namespace WeenyMapper
 
         public StaticDeleteBuilder<T> Delete<T>()
         {
-            var objectDeleteExecutor = new ObjectDeleteExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
+            var objectDeleteExecutor = new ObjectDeleteExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger), Convention)
                 {
                     ConnectionString = ConnectionString
                 };

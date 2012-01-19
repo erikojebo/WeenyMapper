@@ -192,7 +192,7 @@ namespace WeenyMapper.Specs
                 .Where(x => x.AuthorName, "Updated author name")
                 .Execute();
 
-            var updatedRowCount = Repository.Update<Book>().Where(x => x.AuthorName, "Author Name 2")
+            var updatedRowCount = Repository.Update<Book>().Where(x => x.AuthorName == "Author Name 2")
                 .Set(x => x.PageCount, 456)
                 .Execute();
 
@@ -201,7 +201,7 @@ namespace WeenyMapper.Specs
                 .ExecuteList();
 
             var deletedRowCount = Repository.Delete<Book>()
-                .Where(x => x.PageCount, 456)
+                .Where(x => x.PageCount == 456)
                 .Execute();
 
             Repository.Delete(book1);
@@ -311,15 +311,13 @@ namespace WeenyMapper.Specs
             Repository.Insert(book4);
 
             Repository.Update<Book>()
-                .Where(x => x.AuthorName, "Author Name 2")
-                .Where(x => x.PageCount, 123)
+                .Where(x => x.AuthorName == "Author Name 2" && x.PageCount == 123)
                 .Set(x => x.PageCount, 456)
                 .Set(x => x.Title, "new title")
                 .Execute();
 
             var actualBooks = Repository.Find<Book>()
-                .Where(x => x.PageCount, 456)
-                .Where(x => x.Title, "new title")
+                .Where(x => x.PageCount == 456 &&  x.Title == "new title")
                 .ExecuteList();
 
             Assert.AreEqual(2, actualBooks.Count);
@@ -398,8 +396,7 @@ namespace WeenyMapper.Specs
             Repository.Insert(book4);
 
             Repository.Delete<Book>()
-                .Where(x => x.AuthorName, "Author Name 2")
-                .Where(x => x.PageCount, 123)
+                .Where(x => x.AuthorName == "Author Name 2" && x.PageCount == 123)
                 .Execute();
 
             var allBooks = Repository.Find<Book>().ExecuteList();

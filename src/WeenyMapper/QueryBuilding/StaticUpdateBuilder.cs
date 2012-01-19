@@ -27,12 +27,6 @@ namespace WeenyMapper.QueryBuilding
             return _objectUpdateExecutor.Update(instance);
         }
 
-        public StaticUpdateBuilder<T> Where<TValue>(Expression<Func<T, TValue>> getter, TValue value)
-        {
-            StorePropertyValue(getter, value, _constraints);
-            return this;
-        }
-
         public StaticUpdateBuilder<T> Set<TValue>(Expression<Func<T, TValue>> getter, TValue value)
         {
             StorePropertyValue(getter, value, _setters);

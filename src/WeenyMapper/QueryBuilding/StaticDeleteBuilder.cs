@@ -20,12 +20,6 @@ namespace WeenyMapper.QueryBuilding
             _expressionParser = expressionParser;
         }
 
-        public StaticDeleteBuilder<T> Where<TValue>(Expression<Func<T, TValue>> getter, TValue value)
-        {
-            StorePropertyValue(getter, value, _constraints);
-            return this;
-        }
-
         public int Execute()
         {
             if (_queryExpression != null)

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using WeenyMapper.Conventions;
 using WeenyMapper.Extensions;
 using WeenyMapper.QueryParsing;
 using WeenyMapper.Reflection;
@@ -13,12 +14,14 @@ namespace WeenyMapper.QueryExecution
         private readonly ISqlGenerator _sqlGenerator;
         private readonly IConventionDataReader _conventionDataReader;
         private readonly IDbCommandExecutor _dbCommandExecutor;
+        private readonly IConvention _convention;
 
-        public ObjectUpdateExecutor(ISqlGenerator sqlGenerator, IConventionDataReader conventionDataReader, IDbCommandExecutor dbCommandExecutor)
+        public ObjectUpdateExecutor(ISqlGenerator sqlGenerator, IConventionDataReader conventionDataReader, IDbCommandExecutor dbCommandExecutor, IConvention convention)
         {
             _sqlGenerator = sqlGenerator;
             _conventionDataReader = conventionDataReader;
             _dbCommandExecutor = dbCommandExecutor;
+            _convention = convention;
         }
 
         public string ConnectionString { get; set; }
@@ -54,7 +57,7 @@ namespace WeenyMapper.QueryExecution
             var columnSetters = _conventionDataReader.GetColumnValues(setters);
             var primaryKeyColumn = _conventionDataReader.GetPrimaryKeyColumnName<T>();
 
-            var command = _sqlGenerator.CreateUpdateCommand(tableName, primaryKeyColumn, queryExpression, columnSetters);
+            var command = _sqlGenerator.CreateUpdateCommand(tableName, primaryKeyColumn, queryExpression.Translate(_convention), columnSetters);
 
             return _dbCommandExecutor.ExecuteNonQuery(command, ConnectionString);
         }
