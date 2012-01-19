@@ -12,24 +12,24 @@ namespace WeenyMapper.Specs.Sql
     public class TSqlGeneratorSpecs
     {
         private TSqlGenerator _generator;
-        private SqlQuery _query;
+        private QuerySpecification _querySpecification;
 
         [SetUp]
         public void SetUp()
         {
             _generator = new TSqlGenerator();
-            _query = new SqlQuery();
+            _querySpecification = new QuerySpecification();
 
-            _query.ColumnsToSelect = new[] { "ColumnName1", "ColumnName2" };
-            _query.TableName = "TableName";
+            _querySpecification.ColumnsToSelect = new[] { "ColumnName1", "ColumnName2" };
+            _querySpecification.TableName = "TableName";
         }
 
         [Test]
         public void Generating_select_without_constraints_generates_select_of_escaped_column_names_without_where_clause()
         {
-            _query.QueryExpression = new RootExpression();
+            _querySpecification.QueryExpression = new RootExpression();
 
-            var query = _generator.GenerateSelectQuery(_query);
+            var query = _generator.GenerateSelectQuery(_querySpecification);
 
             Assert.AreEqual("select [ColumnName1], [ColumnName2] from [TableName]", query.CommandText);
         }
@@ -37,10 +37,10 @@ namespace WeenyMapper.Specs.Sql
         [Test]
         public void Generating_select_with_single_constraints_generates_select_with_parameterized_where_clause()
         {
-            _query.ColumnsToSelect = new[] { "ColumnName" };
-            _query.QueryExpression = new EqualsExpression(new PropertyExpression("ColumnName"), new ValueExpression("value"));
+            _querySpecification.ColumnsToSelect = new[] { "ColumnName" };
+            _querySpecification.QueryExpression = new EqualsExpression(new PropertyExpression("ColumnName"), new ValueExpression("value"));
 
-            var sqlCommand = _generator.GenerateSelectQuery(_query);
+            var sqlCommand = _generator.GenerateSelectQuery(_querySpecification);
 
             Assert.AreEqual("select [ColumnName] from [TableName] where [ColumnName] = @ColumnNameConstraint", sqlCommand.CommandText);
 
@@ -52,14 +52,14 @@ namespace WeenyMapper.Specs.Sql
         [Test]
         public void Generating_select_with_multiple_constraints_generates_select_with_where_clause_containing_both_constraints()
         {
-            _query.ColumnsToSelect = new[] { "ColumnName1" };
-            _query.QueryExpression =
+            _querySpecification.ColumnsToSelect = new[] { "ColumnName1" };
+            _querySpecification.QueryExpression =
                 new RootExpression(
                     new AndExpression(
                         new EqualsExpression(new PropertyExpression("ColumnName1"), new ValueExpression("value")),
                         new EqualsExpression(new PropertyExpression("ColumnName2"), new ValueExpression(123))));
 
-            var sqlCommand = _generator.GenerateSelectQuery(_query);
+            var sqlCommand = _generator.GenerateSelectQuery(_querySpecification);
 
             var expectedQuery = "select [ColumnName1] from [TableName] " +
                                 "where [ColumnName1] = @ColumnName1Constraint and [ColumnName2] = @ColumnName2Constraint";
@@ -255,13 +255,13 @@ namespace WeenyMapper.Specs.Sql
         [Test]
         public void Expression_with_single_equals_comparison_creates_parameterized_sql_query_with_corresponding_where_clause()
         {
-            _query.ColumnsToSelect = new[] { "ColumnName1", "ColumnName2" };
-            _query.QueryExpression = new EqualsExpression(new PropertyExpression("ColumnName"), new ValueExpression("Value"));
-            _query.TableName = "TableName";
+            _querySpecification.ColumnsToSelect = new[] { "ColumnName1", "ColumnName2" };
+            _querySpecification.QueryExpression = new EqualsExpression(new PropertyExpression("ColumnName"), new ValueExpression("Value"));
+            _querySpecification.TableName = "TableName";
 
             var expectedSql = "select [ColumnName1], [ColumnName2] from [TableName] where [ColumnName] = @ColumnNameConstraint";
 
-            var command = _generator.GenerateSelectQuery(_query);
+            var command = _generator.GenerateSelectQuery(_querySpecification);
 
             Assert.AreEqual(expectedSql, command.CommandText);
 
@@ -273,14 +273,14 @@ namespace WeenyMapper.Specs.Sql
         [Test]
         public void Conjunction_of_equals_expressions_creates_parameterized_sql_query_with_corresponding_where_clause()
         {
-            _query.QueryExpression = new AndExpression(
+            _querySpecification.QueryExpression = new AndExpression(
                 new EqualsExpression(new PropertyExpression("ColumnName1"), new ValueExpression(1)),
                 new EqualsExpression(new PropertyExpression("ColumnName2"), new ValueExpression(2)));
 
             var expectedSql = "select [ColumnName1], [ColumnName2] from [TableName] " +
                               "where ([ColumnName1] = @ColumnName1Constraint and [ColumnName2] = @ColumnName2Constraint)";
 
-            var command = _generator.GenerateSelectQuery(_query);
+            var command = _generator.GenerateSelectQuery(_querySpecification);
             var actualParameters = command.Parameters.SortByParameterName();
 
             Assert.AreEqual(expectedSql, command.CommandText);
@@ -295,14 +295,14 @@ namespace WeenyMapper.Specs.Sql
         [Test]
         public void Disjunction_of_equals_expressions_creates_parameterized_sql_query_with_corresponding_where_clause()
         {
-            _query.QueryExpression = new OrExpression(
+            _querySpecification.QueryExpression = new OrExpression(
                 new EqualsExpression(new PropertyExpression("ColumnName1"), new ValueExpression(1)),
                 new EqualsExpression(new PropertyExpression("ColumnName2"), new ValueExpression(2)));
 
             var expectedSql = "select [ColumnName1], [ColumnName2] from [TableName] " +
                               "where ([ColumnName1] = @ColumnName1Constraint or [ColumnName2] = @ColumnName2Constraint)";
 
-            var command = _generator.GenerateSelectQuery(_query);
+            var command = _generator.GenerateSelectQuery(_querySpecification);
             var actualParameters = command.Parameters.SortByParameterName();
 
             Assert.AreEqual(expectedSql, command.CommandText);
@@ -317,7 +317,7 @@ namespace WeenyMapper.Specs.Sql
         [Test]
         public void Conjunction_of_disjunctions_is_parenthezised_to_ensure_correct_evaluation_order()
         {
-            _query.QueryExpression = new AndExpression(
+            _querySpecification.QueryExpression = new AndExpression(
                 new OrExpression(
                     new LessExpression(new PropertyExpression("ColumnName1"), new ValueExpression(1)),
                     new GreaterExpression(new PropertyExpression("ColumnName2"), new ValueExpression(2)),
@@ -330,7 +330,7 @@ namespace WeenyMapper.Specs.Sql
                               "where (([ColumnName1] < @ColumnName1Constraint or [ColumnName2] > @ColumnName2Constraint or [ColumnName2] = @ColumnName2Constraint2) and " +
                               "([ColumnName1] >= @ColumnName1Constraint2 or [ColumnName2] <= @ColumnName2Constraint3))";
 
-            var command = _generator.GenerateSelectQuery(_query);
+            var command = _generator.GenerateSelectQuery(_querySpecification);
             var actualParameters = command.Parameters.SortByParameterName();
 
             Assert.AreEqual(expectedSql, command.CommandText);
@@ -358,12 +358,12 @@ namespace WeenyMapper.Specs.Sql
         {
             var values = new[] { (object)1, 2, 3 };
 
-            _query.QueryExpression = new InExpression(new PropertyExpression("PropertyName"), new ArrayValueExpression(values));
+            _querySpecification.QueryExpression = new InExpression(new PropertyExpression("PropertyName"), new ArrayValueExpression(values));
 
             var expectedSql = "select [ColumnName1], [ColumnName2] from [TableName] " +
                               "where ([PropertyName] in (@PropertyNameConstraint, @PropertyNameConstraint2, @PropertyNameConstraint3))";
 
-            var command = _generator.GenerateSelectQuery(_query);
+            var command = _generator.GenerateSelectQuery(_querySpecification);
             var actualParameters = command.Parameters.SortByParameterName();
 
             Assert.AreEqual(expectedSql, command.CommandText);

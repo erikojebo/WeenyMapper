@@ -3,24 +3,36 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
+using WeenyMapper.Extensions;
 using WeenyMapper.QueryParsing;
 
 namespace WeenyMapper.Sql
 {
     public class TSqlGenerator : ISqlGenerator
     {
-        public DbCommand GenerateSelectQuery(SqlQuery query)
+        public DbCommand GenerateSelectQuery(QuerySpecification querySpecification)
         {
-            var selectedColumnString = CreateColumnNameList(query.ColumnsToSelect, Escape);
-            var commandString = string.Format("select {0} from {1}", selectedColumnString, Escape(query.TableName));
+            var selectedColumnString = CreateColumnNameList(querySpecification.ColumnsToSelect, Escape);
+            var commandString = string.Format("select {0} from {1}", selectedColumnString, Escape(querySpecification.TableName));
 
             var command = new SqlCommand(commandString);
 
-            commandString = AppendConstraint(commandString, command, query.QueryExpression);
+            commandString = AppendConstraint(commandString, command, querySpecification.QueryExpression);
+            commandString = AppendOrderBy(commandString, querySpecification.OrderByStatements);
 
             command.CommandText = commandString;
 
             return command;
+        }
+
+        private string AppendOrderBy(string commandString, IEnumerable<OrderByStatement> orderByStatements)
+        {
+            if (orderByStatements.IsEmpty())
+            {
+                return commandString;
+            }
+
+            return commandString + " order by " + string.Join(", ", orderByStatements.Select(x => x.PropertyName));
         }
 
         public DbCommand CreateInsertCommand(string tableName, IDictionary<string, object> propertyValues)

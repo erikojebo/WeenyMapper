@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using WeenyMapper.Conventions;
+using WeenyMapper.Extensions;
 using WeenyMapper.Mapping;
 using WeenyMapper.QueryParsing;
 using WeenyMapper.Reflection;
@@ -34,71 +35,44 @@ namespace WeenyMapper.QueryExecution
 
         public string ConnectionString { get; set; }
 
-        public TScalar FindScalar<T, TScalar>(string className, QueryExpression queryExpression)
+        public TScalar FindScalar<T, TScalar>(QuerySpecification querySpecification)
         {
-            var propertiesInTargetType = GetPropertiesInTargetType<T>();
-
-            return FindScalar<T, TScalar>(className, queryExpression, propertiesInTargetType);
-        }
-
-        public TScalar FindScalar<T, TScalar>(string className, QueryExpression queryExpression, IEnumerable<string> propertiesToSelect)
-        {
-            var command = CreateCommand(className, queryExpression, propertiesToSelect);
+            var command = CreateCommand<T>(querySpecification);
 
             return _dbCommandExecutor.ExecuteScalar<TScalar>(command, ConnectionString);
         }
 
-        public IList<TScalar> FindScalarList<T, TScalar>(string className, QueryExpression queryExpression)
+        public IList<TScalar> FindScalarList<T, TScalar>(QuerySpecification querySpecification)
         {
-            var propertiesInTargetType = GetPropertiesInTargetType<T>();
-
-            return FindScalarList<T, TScalar>(className, queryExpression, propertiesInTargetType);
-        }
-
-        public IList<TScalar> FindScalarList<T, TScalar>(string className, QueryExpression queryExpression, IEnumerable<string> propertiesToSelect)
-        {
-            var command = CreateCommand(className, queryExpression, propertiesToSelect);
+            var command = CreateCommand<T>(querySpecification);
 
             return _dbCommandExecutor.ExecuteScalarList<TScalar>(command, ConnectionString);
         }
 
-        public IList<T> Find<T>(string className, QueryExpression queryExpression, IEnumerable<string> propertiesToSelect) where T : new()
+        public IList<T> Find<T>(QuerySpecification querySpecification) where T : new()
         {
-            var command = CreateCommand(className, queryExpression, propertiesToSelect);
+            var command = CreateCommand<T>(querySpecification);
 
             return ReadEntities<T>(command);
         }
 
-        public IList<T> Find<T>(string className, QueryExpression queryExpression) where T : new()
+        private DbCommand CreateCommand<T>(QuerySpecification querySpecification)
         {
-            var propertiesInTargetType = GetPropertiesInTargetType<T>();
-            var columnNamesToSelect = propertiesInTargetType.Select(_convention.GetColumnName);
-            
-            var translatedExpression = queryExpression.Translate(_convention);
-            var tableName = _convention.GetTableName(className);
+            if (!querySpecification.PropertiesToSelect.Any())
+            {
+                querySpecification.PropertiesToSelect.AddRange(GetPropertiesInTargetType<T>());
+            }
 
-            var query = new SqlQuery
+            var columnNamesToSelect = querySpecification.PropertiesToSelect.Select(_convention.GetColumnName);
+            var translatedOrderByStatements = querySpecification.OrderByStatements.Select(x => x.Translate(_convention));
+            var tableName = _convention.GetTableName(querySpecification.TableName);
+
+            var sqlQuery = new QuerySpecification
                 {
+                    ColumnsToSelect = columnNamesToSelect,
+                    QueryExpression = querySpecification.QueryExpression.Translate(_convention),
                     TableName = tableName,
-                    ColumnsToSelect = columnNamesToSelect,
-                    QueryExpression = translatedExpression
-                };
-
-            var command = _sqlGenerator.GenerateSelectQuery(query);
-
-            return ReadEntities<T>(command);
-        }
-
-        private DbCommand CreateCommand(string className, QueryExpression queryExpression, IEnumerable<string> propertiesToSelect)
-        {
-            var columnNamesToSelect = propertiesToSelect.Select(_convention.GetColumnName);
-            var tableName = _convention.GetTableName(className);
-
-            var sqlQuery = new SqlQuery
-                {
-                    ColumnsToSelect = columnNamesToSelect,
-                    QueryExpression = queryExpression.Translate(_convention),
-                    TableName = tableName
+                    OrderByStatements = translatedOrderByStatements.ToList()
                 };
 
             return _sqlGenerator.GenerateSelectQuery(sqlQuery);

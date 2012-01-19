@@ -8,7 +8,7 @@ using WeenyMapper.Specs.TestClasses.Entities;
 namespace WeenyMapper.Specs
 {
     [TestFixture]
-    public class StaticRepositoryAcceptanceSpecs : AcceptanceSpecsBase
+    public class RepositoryAcceptanceSpecs : AcceptanceSpecsBase
     {
         /*
          
@@ -828,6 +828,69 @@ namespace WeenyMapper.Specs
             Assert.AreEqual(movie.Title, actualMovie.Title);
             Assert.AreEqual(movie.ReleaseDate, actualMovie.ReleaseDate);
             Assert.AreEqual(0, actualMovie.Rating); // should not be mapped
+        }
+
+        [Test]
+        public void Result_from_find_query_can_be_ordered_by_multiple_columns()
+        {
+            Repository.Convention = new BookConvention();
+
+            var book1 = new Book
+            {
+                Isbn = "1",
+                AuthorName = "Author Name",
+                Title = "Title 1",
+                PageCount = 100,
+            };
+
+            var book2 = new Book
+            {
+                Isbn = "2",
+                AuthorName = "Another Author Name",
+                Title = "Title 2",
+                PageCount = 200
+            };
+
+            var book3 = new Book
+            {
+                Isbn = "3",
+                AuthorName = "Another Author Name",
+                Title = "Title 3",
+                PageCount = 150
+            };
+
+            var book4 = new Book
+            {
+                Isbn = "4",
+                AuthorName = "Another Author Name",
+                Title = "Title 4",
+                PageCount = 75
+            };
+
+            var book5 = new Book
+            {
+                Isbn = "5",
+                AuthorName = "Author Name",
+                Title = "Title 5",
+                PageCount = 75
+            };
+
+            var book6 = new Book
+            {
+                Isbn = "6",
+                AuthorName = "Author Name",
+                Title = "Title 6",
+                PageCount = 50
+            };
+
+            Repository.InsertMany(book1, book2, book3, book4, book5, book6);
+
+            var actualBooks = Repository.Find<Book>()
+                .OrderBy(x => x.AuthorName, x => x.PageCount)
+                .ExecuteList();
+
+            Assert.AreEqual(6, actualBooks.Count);
+            CollectionAssert.AreEqual(new [] { book4, book3, book2, book6, book5,    book1 }, actualBooks);
         }
     }
 }

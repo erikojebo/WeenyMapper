@@ -6,6 +6,8 @@ using WeenyMapper.Async;
 using WeenyMapper.Exceptions;
 using WeenyMapper.QueryExecution;
 using WeenyMapper.QueryParsing;
+using WeenyMapper.Sql;
+using WeenyMapper.Extensions;
 
 namespace WeenyMapper.QueryBuilding
 {
@@ -14,17 +16,20 @@ namespace WeenyMapper.QueryBuilding
         private readonly IObjectQueryExecutor _objectQueryExecutor;
         private readonly IExpressionParser _expressionParser;
         private readonly IList<string> _propertiesToSelect = new List<string>();
-        private QueryExpression _parsedExpression = new RootExpression();
+        private readonly IList<OrderByStatement> _orderByStatements = new List<OrderByStatement>();
+        private readonly QuerySpecification _querySpecification;
 
         public StaticSelectBuilder(IObjectQueryExecutor objectQueryExecutor, IExpressionParser expressionParser)
         {
             _objectQueryExecutor = objectQueryExecutor;
             _expressionParser = expressionParser;
+
+            _querySpecification = QuerySpecification.CreateFor<T>();
         }
 
         public StaticSelectBuilder<T> Where(Expression<Func<T, bool>> queryExpression)
         {
-            _parsedExpression = _expressionParser.Parse(queryExpression);
+            _querySpecification.QueryExpression = _expressionParser.Parse(queryExpression);
             return this;
         }
 
@@ -42,18 +47,15 @@ namespace WeenyMapper.QueryBuilding
 
         public IList<T> ExecuteList()
         {
-            if (_propertiesToSelect.Any())
-            {
-                return _objectQueryExecutor.Find<T>(typeof(T).Name, _parsedExpression, _propertiesToSelect);
-            }
-
-            return _objectQueryExecutor.Find<T>(typeof(T).Name, _parsedExpression);
+            return _objectQueryExecutor.Find<T>(_querySpecification);
         }
 
         public StaticSelectBuilder<T> Select<TValue>(Expression<Func<T, TValue>> propertySelector)
         {
             string propertyName = GetPropertyName(propertySelector);
-            _propertiesToSelect.Add(propertyName);
+
+            _querySpecification.PropertiesToSelect.Add(propertyName);
+
             return this;
         }
 
@@ -74,12 +76,7 @@ namespace WeenyMapper.QueryBuilding
 
         public TScalar ExecuteScalar<TScalar>()
         {
-            if (_propertiesToSelect.Any())
-            {
-                return _objectQueryExecutor.FindScalar<T, TScalar>(typeof(T).Name, _parsedExpression, _propertiesToSelect);
-            }
-
-            return _objectQueryExecutor.FindScalar<T, TScalar>(typeof(T).Name, _parsedExpression);
+            return _objectQueryExecutor.FindScalar<T, TScalar>(_querySpecification);
         }
 
         public void ExecuteScalarListAsync<TScalar>(Action<IList<TScalar>> callback)
@@ -89,12 +86,15 @@ namespace WeenyMapper.QueryBuilding
 
         public IList<TScalar> ExecuteScalarList<TScalar>()
         {
-            if (_propertiesToSelect.Any())
-            {
-                return _objectQueryExecutor.FindScalarList<T, TScalar>(typeof(T).Name, _parsedExpression, _propertiesToSelect);
-            }
+            return _objectQueryExecutor.FindScalarList<T, TScalar>(_querySpecification);
+        }
 
-            return _objectQueryExecutor.FindScalarList<T, TScalar>(typeof(T).Name, _parsedExpression);
+        public StaticSelectBuilder<T> OrderBy(params Expression<Func<T, object>>[] getters)
+        {
+            var orderByStatements = getters.Select(GetPropertyName).Select(OrderByStatement.CreateAscending);
+            _querySpecification.OrderByStatements.AddRange(orderByStatements);
+
+            return this;
         }
     }
 }

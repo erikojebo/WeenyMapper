@@ -51,6 +51,7 @@
     <Compile Include="Logging\NullSqlCommandLogger.cs" />
     <Compile Include="Mapping\EntityMapper.cs" />
     <Compile Include="Mapping\IEntityMapper.cs" />
+    <Compile Include="QueryParsing\OrderByStatement.cs" />
     <Compile Include="QueryBuilding\StaticCommandBuilderBase.cs" />
     <Compile Include="QueryBuilding\StaticCountBuilder.cs" />
     <Compile Include="QueryBuilding\StaticDeleteBuilder.cs" />
@@ -99,7 +100,7 @@
     <Compile Include="Sql\ISqlGenerator.cs" />
     <Compile Include="QueryExecution\ObjectQueryExecutor.cs" />
     <Compile Include="Sql\SqlCommandExecutor.cs" />
-    <Compile Include="Sql\SqlQuery.cs" />
+    <Compile Include="Sql\QuerySpecification.cs" />
     <Compile Include="Sql\TSqlGenerator.cs" />
   </ItemGroup>
   <ItemGroup />
