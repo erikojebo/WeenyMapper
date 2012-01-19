@@ -91,10 +91,23 @@ namespace WeenyMapper.QueryBuilding
 
         public StaticSelectBuilder<T> OrderBy(params Expression<Func<T, object>>[] getters)
         {
-            var orderByStatements = getters.Select(GetPropertyName).Select(OrderByStatement.CreateAscending);
-            _querySpecification.OrderByStatements.AddRange(orderByStatements);
-
+            AddOrderByStatements(getters, OrderByDirection.Ascending);
             return this;
+        }
+
+        public StaticSelectBuilder<T> OrderByDescending(params Expression<Func<T, object>>[] getters)
+        {
+            AddOrderByStatements(getters, OrderByDirection.Descending);
+            return this;
+        }
+
+        private void AddOrderByStatements(IEnumerable<Expression<Func<T, object>>> getters, OrderByDirection orderByDirection)
+        {
+            var orderByStatements = getters
+                .Select(GetPropertyName)
+                .Select(x => OrderByStatement.Create(x, orderByDirection));
+
+            _querySpecification.OrderByStatements.AddRange(orderByStatements);
         }
     }
 }

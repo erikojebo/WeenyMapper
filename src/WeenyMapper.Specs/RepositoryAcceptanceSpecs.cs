@@ -856,7 +856,7 @@ namespace WeenyMapper.Specs
                 Isbn = "3",
                 AuthorName = "Another Author Name",
                 Title = "Title 3",
-                PageCount = 150
+                PageCount = 75
             };
 
             var book4 = new Book
@@ -864,7 +864,7 @@ namespace WeenyMapper.Specs
                 Isbn = "4",
                 AuthorName = "Another Author Name",
                 Title = "Title 4",
-                PageCount = 75
+                PageCount = 150
             };
 
             var book5 = new Book
@@ -880,17 +880,18 @@ namespace WeenyMapper.Specs
                 Isbn = "6",
                 AuthorName = "Author Name",
                 Title = "Title 6",
-                PageCount = 50
+                PageCount = 75
             };
 
             Repository.InsertMany(book1, book2, book3, book4, book5, book6);
 
             var actualBooks = Repository.Find<Book>()
-                .OrderBy(x => x.AuthorName, x => x.PageCount)
+                .OrderBy(x => x.AuthorName)
+                .OrderByDescending(x => x.PageCount, x => x.Title)
                 .ExecuteList();
 
             Assert.AreEqual(6, actualBooks.Count);
-            CollectionAssert.AreEqual(new [] { book4, book3, book2, book6, book5,    book1 }, actualBooks);
+            CollectionAssert.AreEqual(new [] { book2, book4, book3, book1, book6, book5 }, actualBooks);
         }
     }
 }

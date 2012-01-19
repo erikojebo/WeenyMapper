@@ -1,5 +1,4 @@
-﻿using System;
-using WeenyMapper.Conventions;
+﻿using WeenyMapper.Conventions;
 
 namespace WeenyMapper.QueryParsing
 {
@@ -11,11 +10,11 @@ namespace WeenyMapper.QueryParsing
 
     public class OrderByStatement
     {
-        public static OrderByStatement CreateAscending(string propertyName)
+        public static OrderByStatement Create(string propertyName, OrderByDirection orderByDirection)
         {
             var statement = new OrderByStatement
                 {
-                    Direction = OrderByDirection.Ascending,
+                    Direction = orderByDirection,
                     PropertyName = propertyName
                 };
 

@@ -32,7 +32,17 @@ namespace WeenyMapper.Sql
                 return commandString;
             }
 
-            return commandString + " order by " + string.Join(", ", orderByStatements.Select(x => x.PropertyName));
+            return commandString + " order by " + string.Join(", ", orderByStatements.Select(CreateOrderByString));
+        }
+
+        private static string CreateOrderByString(OrderByStatement orderByStatement)
+        {
+            if (orderByStatement.Direction == OrderByDirection.Ascending)
+            {
+                return orderByStatement.PropertyName;
+            }
+
+            return orderByStatement.PropertyName + " desc";
         }
 
         public DbCommand CreateInsertCommand(string tableName, IDictionary<string, object> propertyValues)
