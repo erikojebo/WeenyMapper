@@ -109,5 +109,11 @@ namespace WeenyMapper.QueryBuilding
 
             _querySpecification.OrderByStatements.AddRange(orderByStatements);
         }
+
+        public StaticSelectBuilder<T> Top(int rowCount)
+        {
+            _querySpecification.RowCountLimit = rowCount;
+            return this;
+        }
     }
 }

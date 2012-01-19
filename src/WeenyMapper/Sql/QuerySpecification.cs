@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using WeenyMapper.QueryParsing;
 
 namespace WeenyMapper.Sql
@@ -18,6 +16,7 @@ namespace WeenyMapper.Sql
         public QueryExpression QueryExpression { get; set; }
         public IList<string> PropertiesToSelect { get; set; }
         public IList<OrderByStatement> OrderByStatements { get; set; }
+        public int RowCountLimit { get; set; }
 
         public static QuerySpecification CreateFor<T>()
         {

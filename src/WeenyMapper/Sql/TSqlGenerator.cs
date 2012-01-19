@@ -13,7 +13,8 @@ namespace WeenyMapper.Sql
         public DbCommand GenerateSelectQuery(QuerySpecification querySpecification)
         {
             var selectedColumnString = CreateColumnNameList(querySpecification.ColumnsToSelect, Escape);
-            var commandString = string.Format("select {0} from {1}", selectedColumnString, Escape(querySpecification.TableName));
+            var topString = CreateTopString(querySpecification.RowCountLimit);
+            var commandString = string.Format("select {0}{1} from {2}", topString, selectedColumnString, Escape(querySpecification.TableName));
 
             var command = new SqlCommand(commandString);
 
@@ -23,6 +24,16 @@ namespace WeenyMapper.Sql
             command.CommandText = commandString;
 
             return command;
+        }
+
+        private string CreateTopString(int rowCountLimit)
+        {
+            if (rowCountLimit <= 0)
+            {
+                return "";
+            }
+
+            return string.Format(" top({0})", rowCountLimit);
         }
 
         private string AppendOrderBy(string commandString, IEnumerable<OrderByStatement> orderByStatements)

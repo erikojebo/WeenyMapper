@@ -72,7 +72,8 @@ namespace WeenyMapper.QueryExecution
                     ColumnsToSelect = columnNamesToSelect,
                     QueryExpression = querySpecification.QueryExpression.Translate(_convention),
                     TableName = tableName,
-                    OrderByStatements = translatedOrderByStatements.ToList()
+                    OrderByStatements = translatedOrderByStatements.ToList(),
+                    RowCountLimit =  querySpecification.RowCountLimit
                 };
 
             return _sqlGenerator.GenerateSelectQuery(sqlQuery);
