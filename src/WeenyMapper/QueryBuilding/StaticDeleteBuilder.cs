@@ -11,8 +11,7 @@ namespace WeenyMapper.QueryBuilding
     {
         private readonly ObjectDeleteExecutor _objectDeleteExecutor;
         private readonly ExpressionParser _expressionParser;
-        private readonly IDictionary<string, object> _constraints = new Dictionary<string, object>();
-        private QueryExpression _queryExpression;
+        private QueryExpression _queryExpression = new RootExpression();
 
         public StaticDeleteBuilder(ObjectDeleteExecutor objectDeleteExecutor, ExpressionParser expressionParser)
         {
@@ -22,12 +21,7 @@ namespace WeenyMapper.QueryBuilding
 
         public int Execute()
         {
-            if (_queryExpression != null)
-            {
-                return _objectDeleteExecutor.Delete<T>(_queryExpression);
-            }
-
-            return _objectDeleteExecutor.Delete<T>(_constraints);
+            return _objectDeleteExecutor.Delete<T>(_queryExpression);
         }
 
         public void ExecuteAsync(Action<int> callback)

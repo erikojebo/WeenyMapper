@@ -53,21 +53,14 @@ namespace WeenyMapper.Sql
             return command;
         }
 
-        public DbCommand CreateDeleteCommand(string tableName, IDictionary<string, object> constraints)
-        {
-            var deleteCommand = string.Format("delete from {0}", Escape(tableName));
-
-            return CreateSqlCommandWithWhereClause(deleteCommand, constraints);
-        }
-
         public DbCommand CreateDeleteCommand(string tableName, QueryExpression queryExpression)
         {
-            var whereExpression = TSqlExpression.Create(queryExpression, new CommandParameterFactory());
-            var deleteCommand = string.Format("delete from {0} where {1}", Escape(tableName), whereExpression.ConstraintCommandText);
+            var commandText = string.Format("delete from {0}", Escape(tableName));
 
-            var command = new SqlCommand(deleteCommand);
-            command.Parameters.AddRange(whereExpression.CommandParameters.Select(x => new SqlParameter(x.Name, x.Value)).ToArray());
+            var command = new SqlCommand(commandText);
+            commandText = AppendConstraint(commandText, command, queryExpression);
 
+            command.CommandText = commandText;
             return command;
         }
 

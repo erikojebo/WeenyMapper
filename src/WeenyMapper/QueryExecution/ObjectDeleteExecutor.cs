@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using WeenyMapper.Async;
 using WeenyMapper.Conventions;
 using WeenyMapper.Extensions;
@@ -30,23 +29,12 @@ namespace WeenyMapper.QueryExecution
         {
             var tableName = _conventionDataReader.GetTableName<T>();
 
-            var constraints = new Dictionary<string, object>();
-
             var primaryKeyColumnName = _conventionDataReader.GetPrimaryKeyColumnName<T>();
             var primaryKeyValue = _conventionDataReader.GetPrimaryKeyValue(instance);
 
-            constraints[primaryKeyColumnName] = primaryKeyValue;
+            var constraintExpression = QueryExpression.Create(new EqualsExpression(primaryKeyColumnName, primaryKeyValue));
 
-            var command = _sqlGenerator.CreateDeleteCommand(tableName, constraints);
-
-            return _dbCommandExecutor.ExecuteNonQuery(command, ConnectionString);
-        }
-
-        public int Delete<T>(IDictionary<string, object> constraints)
-        {
-            var tableName = _conventionDataReader.GetTableName<T>();
-            var columnConstraints = _conventionDataReader.GetColumnValues(constraints);
-            var command = _sqlGenerator.CreateDeleteCommand(tableName, columnConstraints);
+            var command = _sqlGenerator.CreateDeleteCommand(tableName, constraintExpression);
 
             return _dbCommandExecutor.ExecuteNonQuery(command, ConnectionString);
         }
