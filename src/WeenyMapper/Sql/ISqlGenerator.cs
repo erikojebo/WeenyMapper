@@ -9,7 +9,7 @@ namespace WeenyMapper.Sql
         DbCommand GenerateSelectQuery(SqlQuery query);
         DbCommand CreateInsertCommand(string tableName, IDictionary<string, object> propertyValues);
         DbCommand CreateUpdateCommand(string tableName, string primaryKeyColumn, QueryExpression constraintExpression, IDictionary<string, object> columnSetters);
-        DbCommand CreateCountCommand(string tableName, IDictionary<string, object> columnConstraints);
+        DbCommand CreateCountCommand(string tableName, QueryExpression queryExpression);
         DbCommand CreateDeleteCommand(string tableName, QueryExpression queryExpression);
     }
 }

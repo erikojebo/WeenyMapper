@@ -474,8 +474,7 @@ namespace WeenyMapper.Specs
             Repository.InsertMany(book1, book2, book3, book4);
 
             int count = Repository.Count<Book>()
-                .Where(x => x.AuthorName, "Author Name 2")
-                .Where(x => x.PageCount, 123)
+                .Where(x => x.AuthorName == "Author Name 2" && x.PageCount == 123)
                 .Execute();
 
             Assert.AreEqual(2, count);

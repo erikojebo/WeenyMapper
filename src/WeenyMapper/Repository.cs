@@ -147,12 +147,12 @@ namespace WeenyMapper
 
         public StaticCountBuilder<T> Count<T>()
         {
-            var objectCountExecutor = new ObjectCountExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger))
+            var objectCountExecutor = new ObjectCountExecutor(new TSqlGenerator(), new ConventionDataReader(Convention), new SqlCommandExecutor(SqlLogger), Convention)
                 {
                     ConnectionString = ConnectionString
                 };
 
-            return new StaticCountBuilder<T>(objectCountExecutor);
+            return new StaticCountBuilder<T>(objectCountExecutor, new ExpressionParser());
         }
 
         public void EnableSqlConsoleLogging()

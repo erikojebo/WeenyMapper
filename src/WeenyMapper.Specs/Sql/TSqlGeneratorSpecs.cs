@@ -202,9 +202,7 @@ namespace WeenyMapper.Specs.Sql
         [Test]
         public void Count_query_without_constraints_creates_sql_count_query_without_where_clause()
         {
-            var columnConstraints = new Dictionary<string, object>();
-
-            var sqlCommand = _generator.CreateCountCommand("TableName", columnConstraints);
+            var sqlCommand = _generator.CreateCountCommand("TableName", QueryExpression.Create());
 
             Assert.AreEqual("select count(*) from [TableName]", sqlCommand.CommandText);
         }
@@ -212,11 +210,9 @@ namespace WeenyMapper.Specs.Sql
         [Test]
         public void Count_query_with_single_constraint_creates_parameterized_sql_query_with_corresponding_where_clause()
         {
-            var columnConstraints = new Dictionary<string, object>();
+            var queryExpression = QueryExpression.Create(new EqualsExpression("ColumnName1", 1));
 
-            columnConstraints["ColumnName1"] = 1;
-
-            var sqlCommand = _generator.CreateCountCommand("TableName", columnConstraints);
+            var sqlCommand = _generator.CreateCountCommand("TableName", queryExpression);
 
             Assert.AreEqual("select count(*) from [TableName] where [ColumnName1] = @ColumnName1Constraint", sqlCommand.CommandText);
 
@@ -234,7 +230,11 @@ namespace WeenyMapper.Specs.Sql
             columnConstraints["ColumnName1"] = 1;
             columnConstraints["ColumnName2"] = "2";
 
-            var sqlCommand = _generator.CreateCountCommand("TableName", columnConstraints);
+            var queryExpression = QueryExpression.Create(new AndExpression(
+                new EqualsExpression("ColumnName1", 1),
+                new EqualsExpression("ColumnName2", "2")));
+
+            var sqlCommand = _generator.CreateCountCommand("TableName", queryExpression);
 
             var actualParameters = sqlCommand.Parameters.OfType<SqlParameter>().OrderBy(x => x.ParameterName).ToList();
 

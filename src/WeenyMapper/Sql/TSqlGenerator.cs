@@ -64,22 +64,17 @@ namespace WeenyMapper.Sql
             return command;
         }
 
-        public DbCommand CreateCountCommand(string tableName, IDictionary<string, object> columnConstraints)
+        public DbCommand CreateCountCommand(string tableName, QueryExpression queryExpression)
         {
             var countQuery = string.Format("select count(*) from {0}", Escape(tableName));
 
-            return CreateSqlCommandWithWhereClause(countQuery, columnConstraints);
-        }
+            var command = new SqlCommand();
 
-        private DbCommand CreateSqlCommandWithWhereClause(string sql, IEnumerable<KeyValuePair<string, object>> columnConstraints)
-        {
-            sql = AppendWhereClause(sql, columnConstraints);
+            countQuery = AppendConstraint(countQuery, command, queryExpression);
 
-            var sqlCommand = new SqlCommand(sql);
+            command.CommandText = countQuery;
 
-            AddParameters(sqlCommand, columnConstraints, "Constraint");
-
-            return sqlCommand;
+            return command;
         }
 
         private string CreateColumnNameList(IEnumerable<KeyValuePair<string, object>> propertyValues, Func<string, string> transformation)
@@ -111,36 +106,12 @@ namespace WeenyMapper.Sql
             return newCommandString;
         }
 
-        private string AppendWhereClause(string countQuery, IEnumerable<KeyValuePair<string, object>> columnConstraints)
-        {
-            if (columnConstraints.Any())
-            {
-                var constraintClause = CreateConstraintClause(columnConstraints);
-
-                if (constraintClause != "()" && !string.IsNullOrWhiteSpace(constraintClause))
-                {
-                    countQuery += " where " + CreateConstraintClause(columnConstraints);
-                }
-            }
-
-            return countQuery;
-        }
-
         private void AddParameters(DbCommand command, IEnumerable<KeyValuePair<string, object>> columnSetters, string parameterNameSuffix = "")
         {
             foreach (var propertyValue in columnSetters)
             {
                 command.Parameters.Add(new SqlParameter(propertyValue.Key + parameterNameSuffix, propertyValue.Value));
             }
-        }
-
-        private string CreateConstraintClause(IEnumerable<KeyValuePair<string, object>> columnConstraints)
-        {
-            var constraintStrings = columnConstraints
-                .Select(x => x.Key)
-                .Select(columnName => CreateParameterEqualsStatement(columnName, "Constraint"));
-
-            return string.Join(" and ", constraintStrings);
         }
 
         private static string CreateParameterEqualsStatement(string columnName, string parameterNameSuffix = "")
