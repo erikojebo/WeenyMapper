@@ -12,5 +12,6 @@
         void Visit(LessExpression expression);
         void Visit(GreaterOrEqualExpression expression);
         void Visit(GreaterExpression expression);
+        void Visit(RootExpression expression);
     }
 }

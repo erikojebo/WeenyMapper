@@ -14,7 +14,7 @@ namespace WeenyMapper.QueryBuilding
         private readonly IObjectQueryExecutor _objectQueryExecutor;
         private readonly IExpressionParser _expressionParser;
         private readonly IList<string> _propertiesToSelect = new List<string>();
-        private QueryExpression _parsedExpression = new AndExpression();
+        private QueryExpression _parsedExpression = new RootExpression();
 
         public StaticSelectBuilder(IObjectQueryExecutor objectQueryExecutor, IExpressionParser expressionParser)
         {

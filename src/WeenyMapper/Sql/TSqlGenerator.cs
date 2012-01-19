@@ -31,23 +31,6 @@ namespace WeenyMapper.Sql
             return command;
         }
 
-        private string AppendConstraint(string commandString, SqlCommand command, QueryExpression queryExpression)
-        {
-            var newCommandString = commandString;
-
-            var whereExpression = TSqlExpression.Create(queryExpression, new CommandParameterFactory());
-            var constraintString = whereExpression.ConstraintCommandText;
-
-            if (constraintString != "()" && !string.IsNullOrWhiteSpace(constraintString))
-            {
-                newCommandString += " where " + whereExpression.ConstraintCommandText;
-            }
-
-            command.Parameters.AddRange(whereExpression.CommandParameters.Select(x => new SqlParameter(x.Name, x.Value)).ToArray());
-
-            return newCommandString;
-        }
-
         public DbCommand CreateInsertCommand(string tableName, IDictionary<string, object> propertyValues)
         {
             var columnNamesString = CreateColumnNameList(propertyValues, Escape);
@@ -138,6 +121,17 @@ namespace WeenyMapper.Sql
             return CreateSqlCommandWithWhereClause(countQuery, columnConstraints);
         }
 
+        private DbCommand CreateSqlCommandWithWhereClause(string sql, IEnumerable<KeyValuePair<string, object>> columnConstraints)
+        {
+            sql = AppendWhereClause(sql, columnConstraints);
+
+            var sqlCommand = new SqlCommand(sql);
+
+            AddParameters(sqlCommand, columnConstraints, "Constraint");
+
+            return sqlCommand;
+        }
+
         private string CreateColumnNameList(IEnumerable<KeyValuePair<string, object>> propertyValues, Func<string, string> transformation)
         {
             var columnNames = propertyValues.Select(x => x.Key);
@@ -150,15 +144,21 @@ namespace WeenyMapper.Sql
             return string.Join(", ", escapedColumnNames);
         }
 
-        private DbCommand CreateSqlCommandWithWhereClause(string sql, IEnumerable<KeyValuePair<string, object>> columnConstraints)
+        private string AppendConstraint(string commandString, SqlCommand command, QueryExpression queryExpression)
         {
-            sql = AppendWhereClause(sql, columnConstraints);
+            var newCommandString = commandString;
 
-            var sqlCommand = new SqlCommand(sql);
+            var whereExpression = TSqlExpression.Create(queryExpression, new CommandParameterFactory());
+            var constraintString = whereExpression.ConstraintCommandText;
 
-            AddParameters(sqlCommand, columnConstraints, "Constraint");
+            if (constraintString != "()" && !string.IsNullOrWhiteSpace(constraintString))
+            {
+                newCommandString += " where " + whereExpression.ConstraintCommandText;
+            }
 
-            return sqlCommand;
+            command.Parameters.AddRange(whereExpression.CommandParameters.Select(x => new SqlParameter(x.Name, x.Value)).ToArray());
+
+            return newCommandString;
         }
 
         private string AppendWhereClause(string countQuery, IEnumerable<KeyValuePair<string, object>> columnConstraints)
@@ -287,6 +287,14 @@ namespace WeenyMapper.Sql
             public void Visit(GreaterExpression expression)
             {
                 VisitBinaryComparisonExpression(expression, ">");
+            }
+
+            public void Visit(RootExpression expression)
+            {
+                if (expression.HasChildExpression)
+                {
+                    expression.Accept(this);
+                }
             }
 
             private void VisitBinaryComparisonExpression<T>(BinaryComparisonExpression<T> expression, string operatorString)

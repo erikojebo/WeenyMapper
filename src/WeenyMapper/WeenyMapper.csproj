@@ -80,6 +80,7 @@
     <Compile Include="QueryParsing\PolyadicOperatorExpression.cs" />
     <Compile Include="QueryParsing\PropertyExpression.cs" />
     <Compile Include="QueryParsing\QueryExpression.cs" />
+    <Compile Include="QueryParsing\RootExpression.cs" />
     <Compile Include="QueryParsing\ValueExpression.cs" />
     <Compile Include="Reflection\IConventionDataReader.cs" />
     <Compile Include="Reflection\PropertyMetadataReader.cs" />
