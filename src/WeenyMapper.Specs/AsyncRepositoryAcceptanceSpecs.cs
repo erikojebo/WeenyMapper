@@ -41,7 +41,7 @@ namespace WeenyMapper.Specs
 
             AssertCallbackIsInvoked(callback => Repository.InsertAsync(user, callback));
 
-            var actualUser = Repository.Find<User>().Where(x => x.Id, user.Id).Execute();
+            var actualUser = Repository.Find<User>().Where(x => x.Id == user.Id).Execute();
             Assert.AreEqual(user, actualUser);
         }
 
@@ -89,7 +89,7 @@ namespace WeenyMapper.Specs
 
             AssertCallbackIsInvoked(callback => Repository.UpdateAsync(user1, callback));
 
-            var actualUser = Repository.Find<User>().Where(x => x.Id, user1.Id).Execute();
+            var actualUser = Repository.Find<User>().Where(x => x.Id == user1.Id).Execute();
 
             Assert.AreEqual(user1, actualUser);
         }
@@ -129,7 +129,7 @@ namespace WeenyMapper.Specs
                     .ExecuteAsync(callback));
 
             var actualUsers = Repository.Find<User>()
-                .Where(x => x.Password, "updated password")
+                .Where(x => x.Password == "updated password")
                 .ExecuteList();
 
             Assert.AreEqual(2, actualUsers.Count);
@@ -219,7 +219,7 @@ namespace WeenyMapper.Specs
 
             AssertParameterizedCallbackIsInvoked(user1,
                 callback => Repository.Find<User>()
-                                .Where(x => x.Id, user1.Id)
+                                .Where(x => x.Id == user1.Id)
                                 .ExecuteAsync(callback));
         }
 
@@ -252,7 +252,7 @@ namespace WeenyMapper.Specs
 
             AssertListCallbackIsInvoked(new[] { user1, user3 },
                 callback => Repository.Find<User>()
-                                .Where(x => x.Password, "a password")
+                                .Where(x => x.Password == "a password")
                                 .ExecuteListAsync(callback));
         }
 
@@ -278,7 +278,7 @@ namespace WeenyMapper.Specs
 
             AssertParameterizedCallbackIsInvoked("username2",
                 callback => Repository.Find<User>()
-                                .Where(x => x.Id, user2.Id)
+                                .Where(x => x.Id == user2.Id)
                                 .Select(x => x.Username)
                                 .ExecuteScalarAsync(callback));
         }
@@ -312,7 +312,7 @@ namespace WeenyMapper.Specs
 
             AssertListCallbackIsInvoked(new[] { "username1", "username3" },
                 callback => Repository.Find<User>()
-                                .Where(x => x.Password, "a password")
+                                .Where(x => x.Password == "a password")
                                 .Select(x => x.Username)
                                 .ExecuteScalarListAsync(callback));
         }

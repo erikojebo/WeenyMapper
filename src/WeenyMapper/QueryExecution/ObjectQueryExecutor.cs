@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using WeenyMapper.Conventions;
-using WeenyMapper.Extensions;
 using WeenyMapper.Mapping;
 using WeenyMapper.QueryParsing;
 using WeenyMapper.Reflection;
@@ -35,44 +34,37 @@ namespace WeenyMapper.QueryExecution
 
         public string ConnectionString { get; set; }
 
-        public TScalar FindScalar<T, TScalar>(string className, IDictionary<string, object> constraints)
+        public TScalar FindScalar<T, TScalar>(string className, QueryExpression queryExpression)
         {
             var propertiesInTargetType = GetPropertiesInTargetType<T>();
 
-            return FindScalar<T, TScalar>(className, constraints, propertiesInTargetType);
+            return FindScalar<T, TScalar>(className, queryExpression, propertiesInTargetType);
         }
 
-        public TScalar FindScalar<T, TScalar>(string className, IDictionary<string, object> constraints, IEnumerable<string> propertiesToSelect)
+        public TScalar FindScalar<T, TScalar>(string className, QueryExpression queryExpression, IEnumerable<string> propertiesToSelect)
         {
-            var command = CreateCommand(className, constraints, propertiesToSelect);
+            var command = CreateCommand(className, queryExpression, propertiesToSelect);
 
             return _dbCommandExecutor.ExecuteScalar<TScalar>(command, ConnectionString);
         }
 
-        public IList<TScalar> FindScalarList<T, TScalar>(string className, IDictionary<string, object> constraints)
+        public IList<TScalar> FindScalarList<T, TScalar>(string className, QueryExpression queryExpression)
         {
             var propertiesInTargetType = GetPropertiesInTargetType<T>();
 
-            return FindScalarList<T, TScalar>(className, constraints, propertiesInTargetType);
+            return FindScalarList<T, TScalar>(className, queryExpression, propertiesInTargetType);
         }
 
-        public IList<TScalar> FindScalarList<T, TScalar>(string className, IDictionary<string, object> constraints, IEnumerable<string> propertiesToSelect)
+        public IList<TScalar> FindScalarList<T, TScalar>(string className, QueryExpression queryExpression, IEnumerable<string> propertiesToSelect)
         {
-            var command = CreateCommand(className, constraints, propertiesToSelect);
+            var command = CreateCommand(className, queryExpression, propertiesToSelect);
 
             return _dbCommandExecutor.ExecuteScalarList<TScalar>(command, ConnectionString);
         }
 
-        public IList<T> Find<T>(string className, IDictionary<string, object> constraints) where T : new()
+        public IList<T> Find<T>(string className, QueryExpression queryExpression, IEnumerable<string> propertiesToSelect) where T : new()
         {
-            var propertiesInTargetType = GetPropertiesInTargetType<T>();
-
-            return Find<T>(className, constraints, propertiesInTargetType);
-        }
-
-        public IList<T> Find<T>(string className, IDictionary<string, object> constraints, IEnumerable<string> propertiesToSelect) where T : new()
-        {
-            var command = CreateCommand(className, constraints, propertiesToSelect);
+            var command = CreateCommand(className, queryExpression, propertiesToSelect);
 
             return ReadEntities<T>(command);
         }
@@ -97,14 +89,19 @@ namespace WeenyMapper.QueryExecution
             return ReadEntities<T>(command);
         }
 
-        private DbCommand CreateCommand(string className, IDictionary<string, object> constraints, IEnumerable<string> propertiesToSelect)
+        private DbCommand CreateCommand(string className, QueryExpression queryExpression, IEnumerable<string> propertiesToSelect)
         {
             var columnNamesToSelect = propertiesToSelect.Select(_convention.GetColumnName);
             var tableName = _convention.GetTableName(className);
 
-            var columnConstraints = constraints.TransformKeys(_convention.GetColumnName);
+            var sqlQuery = new SqlQuery
+                {
+                    ColumnsToSelect = columnNamesToSelect,
+                    QueryExpression = queryExpression.Translate(_convention),
+                    TableName = tableName
+                };
 
-            return _sqlGenerator.GenerateSelectQuery(tableName, columnNamesToSelect, columnConstraints);
+            return _sqlGenerator.GenerateSelectQuery(sqlQuery);
         }
 
         private IEnumerable<string> GetPropertiesInTargetType<T>()

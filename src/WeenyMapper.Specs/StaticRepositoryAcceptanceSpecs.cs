@@ -39,7 +39,7 @@ namespace WeenyMapper.Specs
                 };
 
             Repository.Insert(user);
-            var actualUser = Repository.Find<User>().Where(x => x.Id, user.Id).Execute();
+            var actualUser = Repository.Find<User>().Where(x => x.Id == user.Id).Execute();
 
             Assert.AreEqual(user, actualUser);
         }
@@ -78,9 +78,7 @@ namespace WeenyMapper.Specs
             Repository.Insert(book3);
 
             Book actualBook = Repository.Find<Book>()
-                .Where(x => x.AuthorName, "Author Name")
-                .Where(x => x.Title, "Title 2")
-                .Where(x => x.PageCount, 123)
+                .Where(x => x.AuthorName == "Author Name" &&  x.Title == "Title 2" && x.PageCount == 123)
                 .Execute();
 
             Assert.AreEqual(book2, actualBook);
@@ -114,7 +112,7 @@ namespace WeenyMapper.Specs
 
             Repository.Update(updatedUser2);
 
-            var actualUser = Repository.Find<User>().Where(x => x.Id, updatedUser2.Id).Execute();
+            var actualUser = Repository.Find<User>().Where(x => x.Id == updatedUser2.Id).Execute();
 
             Assert.AreEqual(updatedUser2, actualUser);
         }
@@ -132,7 +130,7 @@ namespace WeenyMapper.Specs
                 };
 
             Repository.Insert(user);
-            var actualUser = Repository.Find<PartialUser>().Where(x => x.Id, user.Id).Execute();
+            var actualUser = Repository.Find<PartialUser>().Where(x => x.Id == user.Id).Execute();
 
             Assert.AreEqual(user.Id, actualUser.Id);
             Assert.AreEqual("a username", actualUser.Username);
@@ -180,7 +178,7 @@ namespace WeenyMapper.Specs
             Repository.Insert(book3);
             Repository.Insert(book4);
 
-            var readBook = Repository.Find<Book>().Where(x => x.Isbn, book1.Isbn).Execute();
+            var readBook = Repository.Find<Book>().Where(x => x.Isbn == book1.Isbn).Execute();
 
             readBook.Title = "Updated book title";
             readBook.AuthorName = "Updated author name";
@@ -188,8 +186,8 @@ namespace WeenyMapper.Specs
             Repository.Update(readBook);
 
             var readUpdatedBook = Repository.Find<Book>()
-                .Where(x => x.Title, "Updated book title")
-                .Where(x => x.AuthorName, "Updated author name")
+                .Where(x => x.Title == "Updated book title")
+                .Where(x => x.AuthorName == "Updated author name")
                 .Execute();
 
             var updatedRowCount = Repository.Update<Book>().Where(x => x.AuthorName == "Author Name 2")
@@ -197,7 +195,7 @@ namespace WeenyMapper.Specs
                 .Execute();
 
             var updatedBooks = Repository.Find<Book>()
-                .Where(x => x.PageCount, 456)
+                .Where(x => x.PageCount == 456)
                 .ExecuteList();
 
             var deletedRowCount = Repository.Delete<Book>()
@@ -258,8 +256,7 @@ namespace WeenyMapper.Specs
             Repository.Insert(book4);
 
             var actualBooks = Repository.Find<Book>()
-                .Where(x => x.AuthorName, "Author Name 2")
-                .Where(x => x.PageCount, 123)
+                .Where(x => x.AuthorName == "Author Name 2" && x.PageCount == 123)
                 .ExecuteList();
 
             Assert.AreEqual(2, actualBooks.Count);
@@ -500,7 +497,7 @@ namespace WeenyMapper.Specs
             Repository.Insert(book1);
 
             var partialBook = Repository.Find<Book>()
-                .Where(x => x.Isbn, "1")
+                .Where(x => x.Isbn == "1")
                 .Select(x => x.Isbn)
                 .Select(x => x.Title)
                 .Execute();
@@ -543,7 +540,7 @@ namespace WeenyMapper.Specs
             Repository.InsertMany(book1, book2, book3);
 
             var partialBooks = Repository.Find<Book>()
-                .Where(x => x.AuthorName, "Author Name 2")
+                .Where(x => x.AuthorName == "Author Name 2")
                 .Select(x => x.Isbn)
                 .Select(x => x.Title)
                 .ExecuteList()
@@ -582,7 +579,7 @@ namespace WeenyMapper.Specs
             Repository.InsertMany(user1, user2);
 
             var actualUsername = Repository.Find<User>()
-                .Where(x => x.Id, user2.Id)
+                .Where(x => x.Id == user2.Id)
                 .Select(x => x.Username)
                 .ExecuteScalar<string>();
 
@@ -616,7 +613,7 @@ namespace WeenyMapper.Specs
             Repository.InsertMany(user1, user2, user3);
 
             var usernames = Repository.Find<User>()
-                .Where(x => x.Password, "a password")
+                .Where(x => x.Password == "a password")
                 .Select(x => x.Username)
                 .ExecuteScalarList<string>();
 

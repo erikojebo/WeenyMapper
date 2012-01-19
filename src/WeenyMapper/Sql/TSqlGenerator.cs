@@ -20,13 +20,32 @@ namespace WeenyMapper.Sql
         public DbCommand GenerateSelectQuery(SqlQuery query)
         {
             var selectedColumnString = CreateColumnNameList(query.ColumnsToSelect, Escape);
-            var whereExpression = TSqlExpression.Create(query.QueryExpression, new CommandParameterFactory());
-            var commandString = string.Format("select {0} from {1} where {2}", selectedColumnString, Escape(query.TableName), whereExpression.ConstraintCommandText);
+            var commandString = string.Format("select {0} from {1}", selectedColumnString, Escape(query.TableName));
 
             var command = new SqlCommand(commandString);
-            command.Parameters.AddRange(whereExpression.CommandParameters.Select(x => new SqlParameter(x.Name, x.Value)).ToArray());
+
+            commandString = AppendConstraint(commandString, command, query.QueryExpression);
+
+            command.CommandText = commandString;
 
             return command;
+        }
+
+        private string AppendConstraint(string commandString, SqlCommand command, QueryExpression queryExpression)
+        {
+            var newCommandString = commandString;
+
+            var whereExpression = TSqlExpression.Create(queryExpression, new CommandParameterFactory());
+            var constraintString = whereExpression.ConstraintCommandText;
+
+            if (constraintString != "()" && !string.IsNullOrWhiteSpace(constraintString))
+            {
+                newCommandString += " where " + whereExpression.ConstraintCommandText;
+            }
+
+            command.Parameters.AddRange(whereExpression.CommandParameters.Select(x => new SqlParameter(x.Name, x.Value)).ToArray());
+
+            return newCommandString;
         }
 
         public DbCommand CreateInsertCommand(string tableName, IDictionary<string, object> propertyValues)
@@ -146,7 +165,12 @@ namespace WeenyMapper.Sql
         {
             if (columnConstraints.Any())
             {
-                countQuery += " where " + CreateConstraintClause(columnConstraints);
+                var constraintClause = CreateConstraintClause(columnConstraints);
+
+                if (constraintClause != "()" && !string.IsNullOrWhiteSpace(constraintClause))
+                {
+                    countQuery += " where " + CreateConstraintClause(columnConstraints);
+                }
             }
 
             return countQuery;
@@ -277,7 +301,6 @@ namespace WeenyMapper.Sql
 
                 ConstraintCommandText = commandParameter.ToConstraintString(operatorString, Escape);
             }
-
         }
     }
 }
