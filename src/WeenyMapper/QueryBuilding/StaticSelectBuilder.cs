@@ -115,5 +115,11 @@ namespace WeenyMapper.QueryBuilding
             _querySpecification.RowCountLimit = rowCount;
             return this;
         }
+
+        public StaticSelectBuilder<T> Page(int pageIndex, int pageSize)
+        {
+            _querySpecification.Page = new Page { PageIndex = pageIndex, PageSize = pageSize };
+            return this;
+        }
     }
 }
