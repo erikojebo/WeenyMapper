@@ -9,14 +9,6 @@ namespace WeenyMapper.Sql
 {
     public class TSqlGenerator : ISqlGenerator
     {
-        public DbCommand GenerateSelectQuery(string tableName, IEnumerable<string> columnNamesToSelect, IDictionary<string, object> constraints)
-        {
-            var selectedColumnString = CreateColumnNameList(columnNamesToSelect, Escape);
-            var commandString = string.Format("select {0} from {1}", selectedColumnString, Escape(tableName));
-
-            return CreateSqlCommandWithWhereClause(commandString, constraints);
-        }
-
         public DbCommand GenerateSelectQuery(SqlQuery query)
         {
             var selectedColumnString = CreateColumnNameList(query.ColumnsToSelect, Escape);
@@ -293,8 +285,17 @@ namespace WeenyMapper.Sql
             {
                 if (expression.HasChildExpression)
                 {
-                    expression.Accept(this);
+                    expression.ChildExpression.Accept(this);
+
+                    RemoveOutermostCommandTextParens();
                 }
+            }
+
+            private void RemoveOutermostCommandTextParens()
+            {
+                ConstraintCommandText = ConstraintCommandText
+                    .TrimStart('(')
+                    .TrimEnd(')');
             }
 
             private void VisitBinaryComparisonExpression<T>(BinaryComparisonExpression<T> expression, string operatorString)

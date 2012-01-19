@@ -27,9 +27,9 @@ namespace WeenyMapper.Specs.Sql
         [Test]
         public void Generating_select_without_constraints_generates_select_of_escaped_column_names_without_where_clause()
         {
-            var columnsToSelect = new[] { "ColumnName1", "ColumnName2" };
-            var constraints = new Dictionary<string, object>();
-            var query = _generator.GenerateSelectQuery("TableName", columnsToSelect, constraints);
+            _query.QueryExpression = new RootExpression();
+
+            var query = _generator.GenerateSelectQuery(_query);
 
             Assert.AreEqual("select [ColumnName1], [ColumnName2] from [TableName]", query.CommandText);
         }
@@ -37,11 +37,10 @@ namespace WeenyMapper.Specs.Sql
         [Test]
         public void Generating_select_with_single_constraints_generates_select_with_parameterized_where_clause()
         {
-            var columnsToSelect = new[] { "ColumnName" };
-            var constraints = new Dictionary<string, object>();
-            constraints["ColumnName"] = "value";
+            _query.ColumnsToSelect = new[] { "ColumnName" };
+            _query.QueryExpression = new EqualsExpression(new PropertyExpression("ColumnName"), new ValueExpression("value"));
 
-            var sqlCommand = _generator.GenerateSelectQuery("TableName", columnsToSelect, constraints);
+            var sqlCommand = _generator.GenerateSelectQuery(_query);
 
             Assert.AreEqual("select [ColumnName] from [TableName] where [ColumnName] = @ColumnNameConstraint", sqlCommand.CommandText);
 
@@ -53,12 +52,14 @@ namespace WeenyMapper.Specs.Sql
         [Test]
         public void Generating_select_with_multiple_constraints_generates_select_with_where_clause_containing_both_constraints()
         {
-            var columnsToSelect = new[] { "ColumnName1" };
-            var constraints = new Dictionary<string, object>();
-            constraints["ColumnName1"] = "value";
-            constraints["ColumnName2"] = 123;
+            _query.ColumnsToSelect = new[] { "ColumnName1" };
+            _query.QueryExpression =
+                new RootExpression(
+                    new AndExpression(
+                        new EqualsExpression(new PropertyExpression("ColumnName1"), new ValueExpression("value")),
+                        new EqualsExpression(new PropertyExpression("ColumnName2"), new ValueExpression(123))));
 
-            var sqlCommand = _generator.GenerateSelectQuery("TableName", columnsToSelect, constraints);
+            var sqlCommand = _generator.GenerateSelectQuery(_query);
 
             var expectedQuery = "select [ColumnName1] from [TableName] " +
                                 "where [ColumnName1] = @ColumnName1Constraint and [ColumnName2] = @ColumnName2Constraint";
@@ -460,7 +461,7 @@ namespace WeenyMapper.Specs.Sql
 
             Assert.AreEqual("PropertyNameConstraint2", actualParameters[1].ParameterName);
             Assert.AreEqual(2, actualParameters[1].Value);
-            
+
             Assert.AreEqual("PropertyNameConstraint3", actualParameters[2].ParameterName);
             Assert.AreEqual(3, actualParameters[2].Value);
         }
