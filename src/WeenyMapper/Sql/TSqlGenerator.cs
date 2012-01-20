@@ -12,6 +12,11 @@ namespace WeenyMapper.Sql
     {
         public DbCommand GenerateSelectQuery(QuerySpecification querySpecification)
         {
+            if (querySpecification.Page != null && querySpecification.Page.PageSize != 0)
+            {
+                return GeneratePagingQuery(querySpecification);
+            }
+
             var selectedColumnString = CreateColumnNameList(querySpecification.ColumnsToSelect, Escape);
             var topString = CreateTopString(querySpecification.RowCountLimit);
             var commandString = string.Format("SELECT {0}{1} FROM {2}", topString, selectedColumnString, Escape(querySpecification.TableName));
@@ -20,6 +25,28 @@ namespace WeenyMapper.Sql
 
             commandString = AppendConstraint(commandString, command, querySpecification.QueryExpression);
             commandString = AppendOrderBy(commandString, querySpecification.OrderByStatements);
+
+            command.CommandText = commandString;
+
+            return command;
+        }
+
+        private DbCommand GeneratePagingQuery(QuerySpecification querySpecification)
+        {
+            var selectedColumnString = CreateColumnNameList(querySpecification.ColumnsToSelect, Escape);
+
+            var commandString = string.Format(
+                "WITH [CompleteResult] AS (SELECT {0}, ROW_NUMBER() OVER (ORDER BY {1}) AS [RowNumber] FROM {2}) " +
+                "SELECT {0} FROM [CompleteResult] WHERE [RowNumber] BETWEEN @LowRowLimit AND @HighRowLimit", 
+                selectedColumnString, Escape(querySpecification.PrimaryKeyColumnName), Escape(querySpecification.TableName));
+
+            var command = new SqlCommand(commandString);
+
+            command.Parameters.Add(new SqlParameter("LowRowLimit", querySpecification.Page.LowRowLimit));
+            command.Parameters.Add(new SqlParameter("HighRowLimit", querySpecification.Page.HighRowLimit));
+
+            //commandString = AppendConstraint(commandString, command, querySpecification.QueryExpression);
+            //commandString = AppendOrderBy(commandString, querySpecification.OrderByStatements);
 
             command.CommandText = commandString;
 

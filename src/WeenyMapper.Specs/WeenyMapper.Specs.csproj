@@ -61,6 +61,7 @@
     <Compile Include="Sql\CommandParameterFactorySpecs.cs" />
     <Compile Include="Sql\CommandParameterSpecs.cs" />
     <Compile Include="RepositoryAcceptanceSpecs.cs" />
+    <Compile Include="Sql\PageSpecs.cs" />
     <Compile Include="TestClasses\Conventions\BookConvention.cs" />
     <Compile Include="TestClasses\Conventions\UpperCaseConvention.cs" />
     <Compile Include="TestClasses\Conventions\UserConvention.cs" />

@@ -399,7 +399,7 @@ namespace WeenyMapper.Specs.Sql
             Assert.AreEqual(4, actualParameters[0].Value);
 
             Assert.AreEqual("LowRowLimit", actualParameters[1].ParameterName);
-            Assert.AreEqual(3, actualParameters[0].Value);
+            Assert.AreEqual(3, actualParameters[1].Value);
         }
     }
 }

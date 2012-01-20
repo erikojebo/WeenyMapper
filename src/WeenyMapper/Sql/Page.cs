@@ -1,4 +1,7 @@
-﻿namespace WeenyMapper.Sql
+﻿using System;
+using System.Data;
+
+namespace WeenyMapper.Sql
 {
     public class Page
     {
@@ -12,5 +15,15 @@
 
         public int PageIndex { get; set; }
         public int PageSize { get; set; }
+
+        public int LowRowLimit
+        {
+            get { return PageIndex * PageSize + 1; }
+        }
+
+        public int HighRowLimit
+        {
+            get { return (PageIndex + 1) * PageSize; }
+        }
     }
 }
