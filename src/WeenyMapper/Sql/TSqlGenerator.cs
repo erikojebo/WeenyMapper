@@ -69,9 +69,9 @@ namespace WeenyMapper.Sql
                 return commandText;
             }
 
-            command.Parameters.Add(new SqlParameter("RowCountConstraint", rowCountLimit));
+            command.Parameters.Add(new SqlParameter("RowCountLimit", rowCountLimit));
 
-            return commandText + string.Format(" TOP(@RowCountConstraint)");
+            return commandText + string.Format(" TOP(@RowCountLimit)");
         }
 
         private string AppendOrderBy(string commandString, IEnumerable<OrderByStatement> orderByStatements)

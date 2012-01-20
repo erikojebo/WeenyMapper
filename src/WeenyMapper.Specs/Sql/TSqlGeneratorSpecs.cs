@@ -385,7 +385,7 @@ namespace WeenyMapper.Specs.Sql
             _querySpecification.RowCountLimit = 3;
             _querySpecification.QueryExpression = new EqualsExpression("ColumnName1", 1);
 
-            var expectedSql = "SELECT TOP(@RowCountConstraint) [ColumnName1], [ColumnName2] FROM [TableName] " +
+            var expectedSql = "SELECT TOP(@RowCountLimit) [ColumnName1], [ColumnName2] FROM [TableName] " +
                               "WHERE [ColumnName1] = @ColumnName1Constraint";
 
             var command = _generator.GenerateSelectQuery(_querySpecification);
@@ -398,7 +398,7 @@ namespace WeenyMapper.Specs.Sql
             Assert.AreEqual("ColumnName1Constraint", actualParameters[0].ParameterName);
             Assert.AreEqual(1, actualParameters[0].Value);
             
-            Assert.AreEqual("RowCountConstraint", actualParameters[1].ParameterName);
+            Assert.AreEqual("RowCountLimit", actualParameters[1].ParameterName);
             Assert.AreEqual(3, actualParameters[1].Value);
         }
 
