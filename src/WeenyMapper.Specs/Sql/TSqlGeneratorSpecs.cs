@@ -380,6 +380,29 @@ namespace WeenyMapper.Specs.Sql
         }
 
         [Test]
+        public void Adding_a_row_count_limit_translates_into_a_top_clause()
+        {
+            _querySpecification.RowCountLimit = 3;
+            _querySpecification.QueryExpression = new EqualsExpression("ColumnName1", 1);
+
+            var expectedSql = "SELECT TOP(@RowCountConstraint) [ColumnName1], [ColumnName2] FROM [TableName] " +
+                              "WHERE [ColumnName1] = @ColumnName1Constraint";
+
+            var command = _generator.GenerateSelectQuery(_querySpecification);
+            var actualParameters = command.Parameters.SortByParameterName();
+
+            Assert.AreEqual(expectedSql, command.CommandText);
+
+            Assert.AreEqual(2, actualParameters.Count);
+
+            Assert.AreEqual("ColumnName1Constraint", actualParameters[0].ParameterName);
+            Assert.AreEqual(1, actualParameters[0].Value);
+            
+            Assert.AreEqual("RowCountConstraint", actualParameters[1].ParameterName);
+            Assert.AreEqual(3, actualParameters[1].Value);
+        }
+
+        [Test]
         public void Paging_query_without_constraints_or_ordering_is_translated_to_row_number_query_ordered_by_primary_key()
         {
             _querySpecification.Page = new Page(1, 2);

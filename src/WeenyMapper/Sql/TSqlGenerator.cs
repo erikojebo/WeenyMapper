@@ -17,11 +17,12 @@ namespace WeenyMapper.Sql
                 return GeneratePagingQuery(querySpecification);
             }
 
-            var selectedColumnString = CreateColumnNameList(querySpecification.ColumnsToSelect, Escape);
-            var topString = CreateTopString(querySpecification.RowCountLimit);
-            var commandString = string.Format("SELECT {0}{1} FROM {2}", topString, selectedColumnString, Escape(querySpecification.TableName));
+            var command = new SqlCommand();
 
-            var command = new SqlCommand(commandString);
+            var selectedColumnString = CreateColumnNameList(querySpecification.ColumnsToSelect, Escape);
+            var topString = AppendTopString("", command, querySpecification.RowCountLimit);
+
+            var commandString = string.Format("SELECT{0} {1} FROM {2}", topString, selectedColumnString, Escape(querySpecification.TableName));
 
             commandString = AppendConstraint(commandString, command, querySpecification.QueryExpression);
             commandString = AppendOrderBy(commandString, querySpecification.OrderByStatements);
@@ -61,14 +62,16 @@ namespace WeenyMapper.Sql
             return command;
         }
 
-        private string CreateTopString(int rowCountLimit)
+        private string AppendTopString(string commandText, DbCommand command, int rowCountLimit)
         {
             if (rowCountLimit <= 0)
             {
-                return "";
+                return commandText;
             }
 
-            return string.Format(" TOP({0})", rowCountLimit);
+            command.Parameters.Add(new SqlParameter("RowCountConstraint", rowCountLimit));
+
+            return commandText + string.Format(" TOP(@RowCountConstraint)");
         }
 
         private string AppendOrderBy(string commandString, IEnumerable<OrderByStatement> orderByStatements)
