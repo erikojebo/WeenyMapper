@@ -33,20 +33,28 @@ namespace WeenyMapper.Sql
 
         private DbCommand GeneratePagingQuery(QuerySpecification querySpecification)
         {
+            var command = new SqlCommand();
+
+            if (querySpecification.OrderByStatements.IsEmpty())
+            {
+                var orderByPrimaryKeyStatement = OrderByStatement.Create(querySpecification.PrimaryKeyColumnName, OrderByDirection.Ascending);
+                querySpecification.OrderByStatements.Add(orderByPrimaryKeyStatement);
+            }
+
             var selectedColumnString = CreateColumnNameList(querySpecification.ColumnsToSelect, Escape);
 
-            var commandString = string.Format(
-                "WITH [CompleteResult] AS (SELECT {0}, ROW_NUMBER() OVER (ORDER BY {1}) AS [RowNumber] FROM {2}) " +
-                "SELECT {0} FROM [CompleteResult] WHERE [RowNumber] BETWEEN @LowRowLimit AND @HighRowLimit", 
-                selectedColumnString, Escape(querySpecification.PrimaryKeyColumnName), Escape(querySpecification.TableName));
+            var constraintString = AppendConstraint("", command, querySpecification.QueryExpression);
+            var orderByString = AppendOrderBy("", querySpecification.OrderByStatements).Trim();
 
-            var command = new SqlCommand(commandString);
+            var commandString = string.Format(
+                "WITH [CompleteResult] AS (SELECT {0}, ROW_NUMBER() OVER ({1}) AS [RowNumber] FROM {2}{3}) " +
+                "SELECT {0} FROM [CompleteResult] WHERE [RowNumber] BETWEEN @LowRowLimit AND @HighRowLimit",
+                selectedColumnString, orderByString, Escape(querySpecification.TableName), constraintString);
+
+            command.CommandText = commandString;
 
             command.Parameters.Add(new SqlParameter("LowRowLimit", querySpecification.Page.LowRowLimit));
             command.Parameters.Add(new SqlParameter("HighRowLimit", querySpecification.Page.HighRowLimit));
-
-            //commandString = AppendConstraint(commandString, command, querySpecification.QueryExpression);
-            //commandString = AppendOrderBy(commandString, querySpecification.OrderByStatements);
 
             command.CommandText = commandString;
 
@@ -75,12 +83,10 @@ namespace WeenyMapper.Sql
 
         private static string CreateOrderByString(OrderByStatement orderByStatement)
         {
-            if (orderByStatement.Direction == OrderByDirection.Ascending)
-            {
-                return orderByStatement.PropertyName;
-            }
+            var direction = orderByStatement.Direction == OrderByDirection.Ascending ? "" : " DESC";
+            var columnName = Escape(orderByStatement.PropertyName);
 
-            return orderByStatement.PropertyName + " DESC";
+            return columnName + direction;
         }
 
         public DbCommand CreateInsertCommand(string tableName, IDictionary<string, object> propertyValues)

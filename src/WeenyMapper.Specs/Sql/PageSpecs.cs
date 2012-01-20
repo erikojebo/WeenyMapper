@@ -23,7 +23,7 @@ namespace WeenyMapper.Specs.Sql
         [Test]
         public void High_row_limit_is_page_index_plus_one_times_page_size()
         {
-            Assert.AreEqual(36, _page.LowRowLimit);
+            Assert.AreEqual(36, _page.HighRowLimit);
         }
     }
 }

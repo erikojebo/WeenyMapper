@@ -95,7 +95,6 @@ namespace WeenyMapper.Specs.Sql
             Assert.AreEqual("value 2", sqlCommand.Parameters[1].Value);
         }
 
-
         [Test]
         public void Update_command_for_mass_update_without_constraints_and_single_setter_creates_parameterized_sql_with_matching_set_clause()
         {
@@ -392,14 +391,59 @@ namespace WeenyMapper.Specs.Sql
             var actualParameters = command.Parameters.SortByParameterName();
 
             Assert.AreEqual(expectedSql, command.CommandText);
-            
+
             Assert.AreEqual(2, actualParameters.Count);
-            
+
             Assert.AreEqual("HighRowLimit", actualParameters[0].ParameterName);
             Assert.AreEqual(4, actualParameters[0].Value);
 
             Assert.AreEqual("LowRowLimit", actualParameters[1].ParameterName);
             Assert.AreEqual(3, actualParameters[1].Value);
+        }
+
+        [Test]
+        public void Paging_query_with_constraints_creates_row_number_query_with_constraint_in_aliased_select()
+        {
+            _querySpecification.Page = new Page(1, 2);
+            _querySpecification.QueryExpression = QueryExpression.Create(new EqualsExpression("ColumnName3", "value"));
+
+            var expectedSql = "WITH [CompleteResult] AS (SELECT [ColumnName1], [ColumnName2], ROW_NUMBER() OVER (ORDER BY [IdColumnName]) AS [RowNumber] " +
+                              "FROM [TableName] WHERE [ColumnName3] = @ColumnName3Constraint) " +
+                              "SELECT [ColumnName1], [ColumnName2] FROM [CompleteResult] WHERE [RowNumber] BETWEEN @LowRowLimit AND @HighRowLimit";
+
+            var command = _generator.GenerateSelectQuery(_querySpecification);
+            var actualParameters = command.Parameters.SortByParameterName();
+
+            Assert.AreEqual(expectedSql, command.CommandText);
+
+            Assert.AreEqual(3, actualParameters.Count);
+
+            Assert.AreEqual("ColumnName3Constraint", actualParameters[0].ParameterName);
+            Assert.AreEqual("value", actualParameters[0].Value);
+
+            Assert.AreEqual("HighRowLimit", actualParameters[1].ParameterName);
+            Assert.AreEqual(4, actualParameters[1].Value);
+
+            Assert.AreEqual("LowRowLimit", actualParameters[2].ParameterName);
+            Assert.AreEqual(3, actualParameters[2].Value);
+        }
+
+        [Test]
+        public void Paging_query_with_specified_order_by_uses_specified_order_by_in_row_number_over_clause()
+        {
+            _querySpecification.Page = new Page(1, 2);
+            _querySpecification.QueryExpression = QueryExpression.Create(new EqualsExpression("ColumnName3", "value"));
+            _querySpecification.OrderByStatements.Add(OrderByStatement.Create("ColumnName3", OrderByDirection.Descending));
+            _querySpecification.OrderByStatements.Add(OrderByStatement.Create("ColumnName4", OrderByDirection.Ascending));
+
+            var expectedSql = "WITH [CompleteResult] AS (SELECT [ColumnName1], [ColumnName2], ROW_NUMBER() " +
+                              "OVER (ORDER BY [ColumnName3] DESC, [ColumnName4]) AS [RowNumber] " +
+                              "FROM [TableName] WHERE [ColumnName3] = @ColumnName3Constraint) " +
+                              "SELECT [ColumnName1], [ColumnName2] FROM [CompleteResult] WHERE [RowNumber] BETWEEN @LowRowLimit AND @HighRowLimit";
+
+            var command = _generator.GenerateSelectQuery(_querySpecification);
+
+            Assert.AreEqual(expectedSql, command.CommandText);
         }
     }
 }
