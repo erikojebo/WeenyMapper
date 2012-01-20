@@ -403,6 +403,26 @@ namespace WeenyMapper.Specs.Sql
         }
 
         [Test]
+        public void Adding_order_by_statements_adds_corresponding_order_by_clause_to_the_sql_query()
+        {
+            _querySpecification.QueryExpression = QueryExpression.Create(new EqualsExpression("ColumnName1", "value"));
+            _querySpecification.OrderByStatements.Add(new OrderByStatement("ColumnName1", OrderByDirection.Descending));
+            _querySpecification.OrderByStatements.Add(new OrderByStatement("ColumnName3"));
+            _querySpecification.OrderByStatements.Add(new OrderByStatement("ColumnName2"));
+
+            var sqlCommand = _generator.GenerateSelectQuery(_querySpecification);
+
+            var expectedQuery = "SELECT [ColumnName1], [ColumnName2] FROM [TableName] " +
+                                "WHERE [ColumnName1] = @ColumnName1Constraint ORDER BY [ColumnName1] DESC, [ColumnName3], [ColumnName2]";
+
+            Assert.AreEqual(expectedQuery, sqlCommand.CommandText);
+
+            Assert.AreEqual(1, sqlCommand.Parameters.Count);
+            Assert.AreEqual("ColumnName1Constraint", sqlCommand.Parameters[0].ParameterName);
+            Assert.AreEqual("value", sqlCommand.Parameters[0].Value);
+        }
+
+        [Test]
         public void Paging_query_without_constraints_or_ordering_is_translated_to_row_number_query_ordered_by_primary_key()
         {
             _querySpecification.Page = new Page(1, 2);

@@ -10,15 +10,15 @@ namespace WeenyMapper.QueryParsing
 
     public class OrderByStatement
     {
+        public OrderByStatement(string propertyName, OrderByDirection orderByDirection = OrderByDirection.Ascending)
+        {
+            Direction = orderByDirection;
+            PropertyName = propertyName;
+        }
+
         public static OrderByStatement Create(string propertyName, OrderByDirection orderByDirection)
         {
-            var statement = new OrderByStatement
-                {
-                    Direction = orderByDirection,
-                    PropertyName = propertyName
-                };
-
-            return statement;
+            return new OrderByStatement(propertyName, orderByDirection);
         }
 
         public string PropertyName { get; private set; }
@@ -26,11 +26,7 @@ namespace WeenyMapper.QueryParsing
 
         public OrderByStatement Translate(IConvention convention)
         {
-            return new OrderByStatement
-                {
-                    PropertyName = convention.GetColumnName(PropertyName),
-                    Direction = Direction
-                };
+            return new OrderByStatement(convention.GetColumnName(PropertyName), Direction);
         }
     }
 }
