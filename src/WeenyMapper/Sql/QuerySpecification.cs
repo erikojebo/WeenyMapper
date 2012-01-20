@@ -22,6 +22,11 @@ namespace WeenyMapper.Sql
         public Page Page { get; set; }
         public string PrimaryKeyColumnName { get; set; }
 
+        public bool IsPagingQuery
+        {
+            get { return Page != null && Page.PageSize > 0; }
+        }
+
         public static QuerySpecification CreateFor<T>()
         {
             return new QuerySpecification

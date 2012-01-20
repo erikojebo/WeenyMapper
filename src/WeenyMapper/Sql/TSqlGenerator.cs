@@ -12,7 +12,7 @@ namespace WeenyMapper.Sql
     {
         public DbCommand GenerateSelectQuery(QuerySpecification querySpecification)
         {
-            if (querySpecification.Page != null && querySpecification.Page.PageSize != 0)
+            if (querySpecification.IsPagingQuery)
             {
                 return GeneratePagingQuery(querySpecification);
             }
