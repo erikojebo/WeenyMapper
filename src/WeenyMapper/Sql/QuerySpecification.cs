@@ -10,6 +10,7 @@ namespace WeenyMapper.Sql
         {
             PropertiesToSelect = new List<string>();
             OrderByStatements = new List<OrderByStatement>();
+            QueryExpression = QueryExpression.Create();
         }
 
         public string TableName { get; set; }
@@ -19,20 +20,14 @@ namespace WeenyMapper.Sql
         public IList<OrderByStatement> OrderByStatements { get; set; }
         public int RowCountLimit { get; set; }
         public Page Page { get; set; }
+        public string PrimaryKeyColumnName { get; set; }
 
         public static QuerySpecification CreateFor<T>()
         {
             return new QuerySpecification
                 {
                     TableName = typeof(T).Name,
-                    QueryExpression = QueryExpression.Create()
                 };
         }
-    }
-
-    public class Page
-    {
-        public int PageIndex { get; set; }
-        public int PageSize { get; set; }
     }
 }

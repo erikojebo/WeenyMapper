@@ -14,7 +14,7 @@ namespace WeenyMapper.Sql
         {
             var selectedColumnString = CreateColumnNameList(querySpecification.ColumnsToSelect, Escape);
             var topString = CreateTopString(querySpecification.RowCountLimit);
-            var commandString = string.Format("select {0}{1} from {2}", topString, selectedColumnString, Escape(querySpecification.TableName));
+            var commandString = string.Format("SELECT {0}{1} FROM {2}", topString, selectedColumnString, Escape(querySpecification.TableName));
 
             var command = new SqlCommand(commandString);
 
@@ -33,7 +33,7 @@ namespace WeenyMapper.Sql
                 return "";
             }
 
-            return string.Format(" top({0})", rowCountLimit);
+            return string.Format(" TOP({0})", rowCountLimit);
         }
 
         private string AppendOrderBy(string commandString, IEnumerable<OrderByStatement> orderByStatements)
@@ -43,7 +43,7 @@ namespace WeenyMapper.Sql
                 return commandString;
             }
 
-            return commandString + " order by " + string.Join(", ", orderByStatements.Select(CreateOrderByString));
+            return commandString + " ORDER BY " + string.Join(", ", orderByStatements.Select(CreateOrderByString));
         }
 
         private static string CreateOrderByString(OrderByStatement orderByStatement)
@@ -53,7 +53,7 @@ namespace WeenyMapper.Sql
                 return orderByStatement.PropertyName;
             }
 
-            return orderByStatement.PropertyName + " desc";
+            return orderByStatement.PropertyName + " DESC";
         }
 
         public DbCommand CreateInsertCommand(string tableName, IDictionary<string, object> propertyValues)
@@ -61,7 +61,7 @@ namespace WeenyMapper.Sql
             var columnNamesString = CreateColumnNameList(propertyValues, Escape);
             var parameterNamesString = CreateColumnNameList(propertyValues, x => "@" + x);
 
-            var insertCommand = string.Format("insert into {0} ({1}) values ({2})", Escape(tableName), columnNamesString, parameterNamesString);
+            var insertCommand = string.Format("INSERT INTO {0} ({1}) VALUES ({2})", Escape(tableName), columnNamesString, parameterNamesString);
 
             var sqlCommand = new SqlCommand(insertCommand);
 
@@ -75,7 +75,7 @@ namespace WeenyMapper.Sql
             var nonPrimaryKeyColumns = columnSetters.Where(x => x.Key != primaryKeyColumn);
             var updateString = CreateColumnNameList(nonPrimaryKeyColumns, x => CreateParameterEqualsStatement(x));
 
-            var sql = string.Format("update {0} set {1}", Escape(tableName), updateString);
+            var sql = string.Format("UPDATE {0} SET {1}", Escape(tableName), updateString);
             var command = new SqlCommand(sql);
 
             var commandText = AppendConstraint(sql, command, constraintExpression);
@@ -88,7 +88,7 @@ namespace WeenyMapper.Sql
 
         public DbCommand CreateDeleteCommand(string tableName, QueryExpression queryExpression)
         {
-            var commandText = string.Format("delete from {0}", Escape(tableName));
+            var commandText = string.Format("DELETE FROM {0}", Escape(tableName));
 
             var command = new SqlCommand(commandText);
             commandText = AppendConstraint(commandText, command, queryExpression);
@@ -99,7 +99,7 @@ namespace WeenyMapper.Sql
 
         public DbCommand CreateCountCommand(string tableName, QueryExpression queryExpression)
         {
-            var countQuery = string.Format("select count(*) from {0}", Escape(tableName));
+            var countQuery = string.Format("SELECT COUNT(*) FROM {0}", Escape(tableName));
 
             var command = new SqlCommand();
 
@@ -131,7 +131,7 @@ namespace WeenyMapper.Sql
 
             if (constraintString != "()" && !string.IsNullOrWhiteSpace(constraintString))
             {
-                newCommandString += " where " + whereExpression.ConstraintCommandText;
+                newCommandString += " WHERE " + whereExpression.ConstraintCommandText;
             }
 
             command.Parameters.AddRange(whereExpression.CommandParameters.Select(x => new SqlParameter(x.Name, x.Value)).ToArray());
@@ -179,12 +179,12 @@ namespace WeenyMapper.Sql
 
             public void Visit(AndExpression expression)
             {
-                VisitPolyadicOperatorExpression(expression, " and ");
+                VisitPolyadicOperatorExpression(expression, " AND ");
             }
 
             public void Visit(OrExpression expression)
             {
-                VisitPolyadicOperatorExpression(expression, " or ");
+                VisitPolyadicOperatorExpression(expression, " OR ");
             }
 
             private void VisitPolyadicOperatorExpression<T>(PolyadicOperatorExpression<T> expression, string operatorString)
@@ -215,7 +215,7 @@ namespace WeenyMapper.Sql
                     newParameters.Add(commandParameter);
                 }
                 var parameterString = string.Join(", ", newParameters.Select(x => x.ReferenceName));
-                ConstraintCommandText = string.Format("({0} in ({1}))", Escape(expression.PropertyExpression.PropertyName), parameterString);
+                ConstraintCommandText = string.Format("({0} IN ({1}))", Escape(expression.PropertyExpression.PropertyName), parameterString);
             }
 
             public void Visit(EqualsExpression expression)
