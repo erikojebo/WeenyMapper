@@ -58,18 +58,18 @@ namespace WeenyMapper.QueryExecution
 
         private DbCommand CreateCommand<T>(QuerySpecification querySpecification)
         {
-            if (!querySpecification.PropertiesToSelect.Any())
+            if (!querySpecification.ColumnsToSelect.Any())
             {
-                querySpecification.PropertiesToSelect.AddRange(GetPropertiesInTargetType<T>());
+                querySpecification.ColumnsToSelect.AddRange(GetPropertiesInTargetType<T>());
             }
 
-            var columnNamesToSelect = querySpecification.PropertiesToSelect.Select(_convention.GetColumnName);
+            var columnNamesToSelect = querySpecification.ColumnsToSelect.Select(_convention.GetColumnName);
             var translatedOrderByStatements = querySpecification.OrderByStatements.Select(x => x.Translate(_convention));
             var tableName = _convention.GetTableName(querySpecification.TableName);
 
             var sqlQuery = new QuerySpecification
                 {
-                    ColumnsToSelect = columnNamesToSelect,
+                    ColumnsToSelect = columnNamesToSelect.ToList(),
                     QueryExpression = querySpecification.QueryExpression.Translate(_convention),
                     TableName = tableName,
                     OrderByStatements = translatedOrderByStatements.ToList(),

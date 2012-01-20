@@ -54,7 +54,7 @@ namespace WeenyMapper.QueryBuilding
         {
             string propertyName = GetPropertyName(propertySelector);
 
-            _querySpecification.PropertiesToSelect.Add(propertyName);
+            _querySpecification.ColumnsToSelect.Add(propertyName);
 
             return this;
         }

@@ -8,15 +8,14 @@ namespace WeenyMapper.Sql
     {
         public QuerySpecification()
         {
-            PropertiesToSelect = new List<string>();
+            ColumnsToSelect = new List<string>();
             OrderByStatements = new List<OrderByStatement>();
             QueryExpression = QueryExpression.Create();
         }
 
         public string TableName { get; set; }
-        public IEnumerable<string> ColumnsToSelect { get; set; }
+        public IList<string> ColumnsToSelect { get; set; }
         public QueryExpression QueryExpression { get; set; }
-        public IList<string> PropertiesToSelect { get; set; }
         public IList<OrderByStatement> OrderByStatements { get; set; }
         public int RowCountLimit { get; set; }
         public Page Page { get; set; }
