@@ -51,6 +51,7 @@
     <Compile Include="Logging\NullSqlCommandLogger.cs" />
     <Compile Include="Mapping\EntityMapper.cs" />
     <Compile Include="Mapping\IEntityMapper.cs" />
+    <Compile Include="QueryParsing\LikeExpression.cs" />
     <Compile Include="QueryParsing\OrderByStatement.cs" />
     <Compile Include="QueryBuilding\StaticCommandBuilderBase.cs" />
     <Compile Include="QueryBuilding\StaticCountBuilder.cs" />

@@ -13,5 +13,6 @@
         void Visit(GreaterOrEqualExpression expression);
         void Visit(GreaterExpression expression);
         void Visit(RootExpression expression);
+        void Visit(LikeExpression expression);
     }
 }

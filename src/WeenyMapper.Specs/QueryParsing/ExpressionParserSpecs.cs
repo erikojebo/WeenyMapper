@@ -233,6 +233,16 @@ namespace WeenyMapper.Specs.QueryParsing
             Assert.AreEqual(expectedExpression, expression);
         }
 
+        [Test]
+        public void String_Contains_call_is_parsed_into_like_expression()
+        {
+            var expression = _parser.Parse<Book>(x => x.AuthorName.Contains("Steve"));
+
+            var expectedExpression = new LikeExpression(new PropertyExpression("AuthorName"), "Steve");
+
+            Assert.AreEqual(expectedExpression, expression);
+        }
+
         private string GetUsername()
         {
             return "a username";

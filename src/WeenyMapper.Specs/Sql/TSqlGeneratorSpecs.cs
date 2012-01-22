@@ -488,5 +488,23 @@ namespace WeenyMapper.Specs.Sql
 
             Assert.AreEqual(expectedSql, command.CommandText);
         }
+
+        [Test]
+        public void Like_expression_is_translated_into_like_query()
+        {
+            _querySpecification.QueryExpression = QueryExpression.Create(new LikeExpression(new PropertyExpression("ColumnName1"), "substring"));
+
+            var expectedSql = "SELECT [ColumnName1], [ColumnName2] FROM [TableName] WHERE [ColumnName1] LIKE @ColumnName1Constraint";
+
+            var command = _generator.GenerateSelectQuery(_querySpecification);
+            var actualParameters = command.Parameters.SortByParameterName();
+
+            Assert.AreEqual(expectedSql, command.CommandText);
+
+            Assert.AreEqual(1, actualParameters.Count);
+
+            Assert.AreEqual("ColumnName1Constraint", actualParameters[0].ParameterName);
+            Assert.AreEqual("%substring%", actualParameters[0].Value);
+        }
     }
 }

@@ -1021,5 +1021,69 @@ namespace WeenyMapper.Specs
             Assert.AreEqual(2, actualBooks.Count);
             CollectionAssert.AreEqual(new [] { book4, book3 }, actualBooks);
         }
+
+        [Test]
+        public void String_contains_call_can_be_used_to_execute_like_query()
+        {
+            Repository.Convention = new BookConvention();
+
+            var book1 = new Book
+            {
+                Isbn = "1",
+                AuthorName = "Author Name",
+                Title = "Title 1",
+                PageCount = 100,
+            };
+
+            var book2 = new Book
+            {
+                Isbn = "2",
+                AuthorName = "Steven Smith",
+                Title = "Title 2",
+                PageCount = 200
+            };
+
+            var book3 = new Book
+            {
+                Isbn = "3",
+                AuthorName = "Smith Stevenson",
+                Title = "Title 3",
+                PageCount = 75
+            };
+
+            var book4 = new Book
+            {
+                Isbn = "4",
+                AuthorName = "Another Author Name",
+                Title = "Title 4",
+                PageCount = 150
+            };
+
+            var book5 = new Book
+            {
+                Isbn = "5",
+                AuthorName = "Author Name",
+                Title = "Title 5",
+                PageCount = 75
+            };
+
+            var book6 = new Book
+            {
+                Isbn = "6",
+                AuthorName = "Fred-Steve Smith",
+                Title = "Title 6",
+                PageCount = 75
+            };
+
+            Repository.InsertMany(book1, book2, book3, book4, book5, book6);
+
+            var actualBooks = Repository.Find<Book>()
+                .Where(x => x.AuthorName.Contains("Steve"))
+                .OrderBy(x => x.Isbn)
+                .ExecuteList();
+
+            Assert.AreEqual(3, actualBooks.Count);
+            CollectionAssert.AreEqual(new[] { book2, book3, book6 }, actualBooks);
+        }
     }
 }

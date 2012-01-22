@@ -289,6 +289,17 @@ namespace WeenyMapper.Sql
                 }
             }
 
+            public void Visit(LikeExpression expression)
+            {
+                var searchString = string.Format("%{0}%", expression.SearchString);
+                var propertyName = expression.PropertyExpression.PropertyName;
+
+                var commandParameter = _commandParameterFactory.Create(propertyName, searchString);
+                CommandParameters.Add(commandParameter);
+
+                ConstraintCommandText = string.Format("[{0}] LIKE {1}", propertyName, commandParameter.ReferenceName);
+            }
+
             private void RemoveOutermostCommandTextParens()
             {
                 ConstraintCommandText = ConstraintCommandText

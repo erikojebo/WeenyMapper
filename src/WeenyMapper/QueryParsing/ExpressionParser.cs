@@ -108,9 +108,13 @@ namespace WeenyMapper.QueryParsing
 
         private QueryExpression ParseMethodCallExpression(MethodCallExpression expression)
         {
-            if (expression.Method.Name == "Contains")
+            if (expression.Method.Name == "Contains" && expression.Method.IsStatic)
             {
                 return ParseContainsExpression(expression);
+            }
+            if (expression.Method.Name == "Contains")
+            {
+                return ParseLikeExpression(expression);
             }
 
             return CreateValueExpression(expression);
@@ -122,6 +126,20 @@ namespace WeenyMapper.QueryParsing
             var propertyName = ((MemberExpression)expression.Arguments[1]).Member.Name;
 
             return new InExpression(new PropertyExpression(propertyName), new ArrayValueExpression(values));
+        }
+
+        private QueryExpression ParseLikeExpression(MethodCallExpression expression)
+        {
+            var searchString = (string)Evaluate(expression.Arguments[0]);
+
+            var propertyExpression = Parse(expression.Object) as PropertyExpression;
+
+            if (propertyExpression == null)
+            {
+                throw new WeenyMapperException("Failed to parse Like expression from String.Contains call");
+            }
+
+            return new LikeExpression(propertyExpression, searchString);
         }
 
         private QueryExpression CreateValueExpression(Expression expression)
