@@ -291,7 +291,17 @@ namespace WeenyMapper.Sql
 
             public void Visit(LikeExpression expression)
             {
-                var searchString = string.Format("%{0}%", expression.SearchString);
+                var searchString = expression.SearchString;
+
+                if (expression.HasStartingWildCard)
+                {
+                    searchString = "%" + searchString;
+                }
+                if (expression.HasEndingWildCard)
+                {
+                    searchString = searchString + "%";
+                }
+
                 var propertyName = expression.PropertyExpression.PropertyName;
 
                 var commandParameter = _commandParameterFactory.Create(propertyName, searchString);

@@ -234,11 +234,43 @@ namespace WeenyMapper.Specs.QueryParsing
         }
 
         [Test]
-        public void String_Contains_call_is_parsed_into_like_expression()
+        public void String_Contains_call_is_parsed_into_like_expression_with_starting_and_ending_wildcard()
         {
             var expression = _parser.Parse<Book>(x => x.AuthorName.Contains("Steve"));
 
-            var expectedExpression = new LikeExpression(new PropertyExpression("AuthorName"), "Steve");
+            var expectedExpression = new LikeExpression(new PropertyExpression("AuthorName"), "Steve")
+                {
+                    HasStartingWildCard = true,
+                    HasEndingWildCard = true
+                };
+
+            Assert.AreEqual(expectedExpression, expression);
+        }
+
+        [Test]
+        public void String_StartsWith_call_is_parsed_into_like_expression_with_only_ending_wildcard()
+        {
+            var expression = _parser.Parse<Book>(x => x.AuthorName.StartsWith("Steve"));
+
+            var expectedExpression = new LikeExpression(new PropertyExpression("AuthorName"), "Steve")
+                {
+                    HasStartingWildCard = false,
+                    HasEndingWildCard = true
+                };
+
+            Assert.AreEqual(expectedExpression, expression);
+        }
+
+        [Test]
+        public void String_EndsWith_call_is_parsed_into_like_expression_with_only_starting_wildcard()
+        {
+            var expression = _parser.Parse<Book>(x => x.AuthorName.EndsWith("Steve"));
+
+            var expectedExpression = new LikeExpression(new PropertyExpression("AuthorName"), "Steve")
+                {
+                    HasStartingWildCard = true,
+                    HasEndingWildCard = false
+                };
 
             Assert.AreEqual(expectedExpression, expression);
         }

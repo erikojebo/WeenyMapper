@@ -397,7 +397,7 @@ namespace WeenyMapper.Specs.Sql
 
             Assert.AreEqual("ColumnName1Constraint", actualParameters[0].ParameterName);
             Assert.AreEqual(1, actualParameters[0].Value);
-            
+
             Assert.AreEqual("RowCountLimit", actualParameters[1].ParameterName);
             Assert.AreEqual(3, actualParameters[1].Value);
         }
@@ -490,9 +490,13 @@ namespace WeenyMapper.Specs.Sql
         }
 
         [Test]
-        public void Like_expression_is_translated_into_like_query()
+        public void Like_expression_with_starting_and_ending_wildcard_is_translated_into_like_query_with_starting_and_ending_wildcard()
         {
-            _querySpecification.QueryExpression = QueryExpression.Create(new LikeExpression(new PropertyExpression("ColumnName1"), "substring"));
+            _querySpecification.QueryExpression = QueryExpression.Create(new LikeExpression(new PropertyExpression("ColumnName1"), "substring")
+                {
+                    HasStartingWildCard = true,
+                    HasEndingWildCard = true
+                });
 
             var expectedSql = "SELECT [ColumnName1], [ColumnName2] FROM [TableName] WHERE [ColumnName1] LIKE @ColumnName1Constraint";
 
@@ -505,6 +509,36 @@ namespace WeenyMapper.Specs.Sql
 
             Assert.AreEqual("ColumnName1Constraint", actualParameters[0].ParameterName);
             Assert.AreEqual("%substring%", actualParameters[0].Value);
+        }
+
+        [Test]
+        public void Like_expression_with_only_starting_wildcard_is_translated_into_like_query_with_only_starting_wildcard()
+        {
+            _querySpecification.QueryExpression = QueryExpression.Create(new LikeExpression(new PropertyExpression("ColumnName1"), "substring")
+                {
+                    HasStartingWildCard = true,
+                    HasEndingWildCard = false
+                });
+
+            var command = _generator.GenerateSelectQuery(_querySpecification);
+
+            Assert.AreEqual(1, command.Parameters.Count);
+            Assert.AreEqual("%substring", command.Parameters[0].Value);
+        }
+
+        [Test]
+        public void Like_expression_with_only_ending_wildcard_is_translated_into_like_query_with_only_ending_wildcard()
+        {
+            _querySpecification.QueryExpression = QueryExpression.Create(new LikeExpression(new PropertyExpression("ColumnName1"), "substring")
+                {
+                    HasStartingWildCard = false,
+                    HasEndingWildCard = true
+                });
+
+            var command = _generator.GenerateSelectQuery(_querySpecification);
+
+            Assert.AreEqual(1, command.Parameters.Count);
+            Assert.AreEqual("substring%", command.Parameters[0].Value);
         }
     }
 }

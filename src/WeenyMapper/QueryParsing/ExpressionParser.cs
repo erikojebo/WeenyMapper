@@ -112,7 +112,7 @@ namespace WeenyMapper.QueryParsing
             {
                 return ParseContainsExpression(expression);
             }
-            if (expression.Method.Name == "Contains")
+            if (expression.Method.Name == "Contains" || expression.Method.Name == "StartsWith" || expression.Method.Name == "EndsWith")
             {
                 return ParseLikeExpression(expression);
             }
@@ -139,7 +139,11 @@ namespace WeenyMapper.QueryParsing
                 throw new WeenyMapperException("Failed to parse Like expression from String.Contains call");
             }
 
-            return new LikeExpression(propertyExpression, searchString);
+            return new LikeExpression(propertyExpression, searchString)
+                {
+                    HasStartingWildCard = expression.Method.Name != "StartsWith",
+                    HasEndingWildCard = expression.Method.Name != "EndsWith"
+                };
         }
 
         private QueryExpression CreateValueExpression(Expression expression)
