@@ -78,7 +78,7 @@ namespace WeenyMapper.Specs
             Repository.Insert(book3);
 
             Book actualBook = Repository.Find<Book>()
-                .Where(x => x.AuthorName == "Author Name" &&  x.Title == "Title 2" && x.PageCount == 123)
+                .Where(x => x.AuthorName == "Author Name" && x.Title == "Title 2" && x.PageCount == 123)
                 .Execute();
 
             Assert.AreEqual(book2, actualBook);
@@ -314,7 +314,7 @@ namespace WeenyMapper.Specs
                 .Execute();
 
             var actualBooks = Repository.Find<Book>()
-                .Where(x => x.PageCount == 456 &&  x.Title == "new title")
+                .Where(x => x.PageCount == 456 && x.Title == "new title")
                 .ExecuteList();
 
             Assert.AreEqual(2, actualBooks.Count);
@@ -627,52 +627,52 @@ namespace WeenyMapper.Specs
             Repository.Convention = new BookConvention();
 
             var book1 = new Book
-            {
-                Isbn = "1",
-                AuthorName = "Author Name",
-                Title = "Title 1",
-                PageCount = 100,
-            };
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 100,
+                };
 
             var book2 = new Book
-            {
-                Isbn = "2",
-                AuthorName = "Another Author Name",
-                Title = "Title 2",
-                PageCount = 200
-            };
+                {
+                    Isbn = "2",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 2",
+                    PageCount = 200
+                };
 
             var book3 = new Book
-            {
-                Isbn = "3",
-                AuthorName = "Another Author Name",
-                Title = "Title 3",
-                PageCount = 150
-            };
-            
+                {
+                    Isbn = "3",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 3",
+                    PageCount = 150
+                };
+
             var book4 = new Book
-            {
-                Isbn = "4",
-                AuthorName = "Another Author Name",
-                Title = "Title 4",
-                PageCount = 75
-            };
+                {
+                    Isbn = "4",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 4",
+                    PageCount = 75
+                };
 
             var book5 = new Book
-            {
-                Isbn = "5",
-                AuthorName = "Author Name",
-                Title = "Title 5",
-                PageCount = 75
-            };
-            
+                {
+                    Isbn = "5",
+                    AuthorName = "Author Name",
+                    Title = "Title 5",
+                    PageCount = 75
+                };
+
             var book6 = new Book
-            {
-                Isbn = "6",
-                AuthorName = "Author Name",
-                Title = "Title 6",
-                PageCount = 50
-            };
+                {
+                    Isbn = "6",
+                    AuthorName = "Author Name",
+                    Title = "Title 6",
+                    PageCount = 50
+                };
 
             Repository.InsertMany(book1, book2, book3, book4, book5, book6);
 
@@ -691,52 +691,52 @@ namespace WeenyMapper.Specs
             Repository.Convention = new BookConvention();
 
             var book1 = new Book
-            {
-                Isbn = "1",
-                AuthorName = "Author Name",
-                Title = "Title 1",
-                PageCount = 100,
-            };
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 100,
+                };
 
             var book2 = new Book
-            {
-                Isbn = "2",
-                AuthorName = "Another Author Name",
-                Title = "Title 2",
-                PageCount = 200
-            };
+                {
+                    Isbn = "2",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 2",
+                    PageCount = 200
+                };
 
             var book3 = new Book
-            {
-                Isbn = "3",
-                AuthorName = "Another Author Name",
-                Title = "Title 3",
-                PageCount = 150
-            };
-            
+                {
+                    Isbn = "3",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 3",
+                    PageCount = 150
+                };
+
             var book4 = new Book
-            {
-                Isbn = "4",
-                AuthorName = "Another Author Name",
-                Title = "Title 4",
-                PageCount = 75
-            };
+                {
+                    Isbn = "4",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 4",
+                    PageCount = 75
+                };
 
             var book5 = new Book
-            {
-                Isbn = "5",
-                AuthorName = "Author Name",
-                Title = "Title 5",
-                PageCount = 75
-            };
-            
+                {
+                    Isbn = "5",
+                    AuthorName = "Author Name",
+                    Title = "Title 5",
+                    PageCount = 75
+                };
+
             var book6 = new Book
-            {
-                Isbn = "6",
-                AuthorName = "Author Name",
-                Title = "Title 6",
-                PageCount = 50
-            };
+                {
+                    Isbn = "6",
+                    AuthorName = "Author Name",
+                    Title = "Title 6",
+                    PageCount = 50
+                };
 
             Repository.InsertMany(book1, book2, book3, book4, book5, book6);
 
@@ -763,7 +763,7 @@ namespace WeenyMapper.Specs
                     Password = "Password",
                     PublicExtraProperty = "Extra property value"
                 };
-            
+
             var user2 = new UserWithExtraProperties
                 {
                     Id = Guid.NewGuid(),
@@ -771,7 +771,7 @@ namespace WeenyMapper.Specs
                     Password = "Password",
                     PublicExtraProperty = "Extra property value"
                 };
-            
+
             var user3 = new UserWithExtraProperties
                 {
                     Id = Guid.NewGuid(),
@@ -834,52 +834,52 @@ namespace WeenyMapper.Specs
             Repository.Convention = new BookConvention();
 
             var book1 = new Book
-            {
-                Isbn = "1",
-                AuthorName = "Author Name",
-                Title = "Title 1",
-                PageCount = 100,
-            };
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 100,
+                };
 
             var book2 = new Book
-            {
-                Isbn = "2",
-                AuthorName = "Another Author Name",
-                Title = "Title 2",
-                PageCount = 200
-            };
+                {
+                    Isbn = "2",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 2",
+                    PageCount = 200
+                };
 
             var book3 = new Book
-            {
-                Isbn = "3",
-                AuthorName = "Another Author Name",
-                Title = "Title 3",
-                PageCount = 75
-            };
+                {
+                    Isbn = "3",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 3",
+                    PageCount = 75
+                };
 
             var book4 = new Book
-            {
-                Isbn = "4",
-                AuthorName = "Another Author Name",
-                Title = "Title 4",
-                PageCount = 150
-            };
+                {
+                    Isbn = "4",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 4",
+                    PageCount = 150
+                };
 
             var book5 = new Book
-            {
-                Isbn = "5",
-                AuthorName = "Author Name",
-                Title = "Title 5",
-                PageCount = 75
-            };
+                {
+                    Isbn = "5",
+                    AuthorName = "Author Name",
+                    Title = "Title 5",
+                    PageCount = 75
+                };
 
             var book6 = new Book
-            {
-                Isbn = "6",
-                AuthorName = "Author Name",
-                Title = "Title 6",
-                PageCount = 75
-            };
+                {
+                    Isbn = "6",
+                    AuthorName = "Author Name",
+                    Title = "Title 6",
+                    PageCount = 75
+                };
 
             Repository.InsertMany(book1, book2, book3, book4, book5, book6);
 
@@ -889,7 +889,7 @@ namespace WeenyMapper.Specs
                 .ExecuteList();
 
             Assert.AreEqual(6, actualBooks.Count);
-            CollectionAssert.AreEqual(new [] { book2, book4, book3, book1, book6, book5 }, actualBooks);
+            CollectionAssert.AreEqual(new[] { book2, book4, book3, book1, book6, book5 }, actualBooks);
         }
 
         [Test]
@@ -898,52 +898,52 @@ namespace WeenyMapper.Specs
             Repository.Convention = new BookConvention();
 
             var book1 = new Book
-            {
-                Isbn = "1",
-                AuthorName = "Author Name",
-                Title = "Title 1",
-                PageCount = 100,
-            };
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 100,
+                };
 
             var book2 = new Book
-            {
-                Isbn = "2",
-                AuthorName = "Another Author Name",
-                Title = "Title 2",
-                PageCount = 200
-            };
+                {
+                    Isbn = "2",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 2",
+                    PageCount = 200
+                };
 
             var book3 = new Book
-            {
-                Isbn = "3",
-                AuthorName = "Another Author Name",
-                Title = "Title 3",
-                PageCount = 75
-            };
+                {
+                    Isbn = "3",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 3",
+                    PageCount = 75
+                };
 
             var book4 = new Book
-            {
-                Isbn = "4",
-                AuthorName = "Another Author Name",
-                Title = "Title 4",
-                PageCount = 150
-            };
+                {
+                    Isbn = "4",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 4",
+                    PageCount = 150
+                };
 
             var book5 = new Book
-            {
-                Isbn = "5",
-                AuthorName = "Author Name",
-                Title = "Title 5",
-                PageCount = 75
-            };
+                {
+                    Isbn = "5",
+                    AuthorName = "Author Name",
+                    Title = "Title 5",
+                    PageCount = 75
+                };
 
             var book6 = new Book
-            {
-                Isbn = "6",
-                AuthorName = "Author Name",
-                Title = "Title 6",
-                PageCount = 75
-            };
+                {
+                    Isbn = "6",
+                    AuthorName = "Author Name",
+                    Title = "Title 6",
+                    PageCount = 75
+                };
 
             Repository.InsertMany(book1, book2, book3, book4, book5, book6);
 
@@ -953,7 +953,7 @@ namespace WeenyMapper.Specs
                 .ExecuteList();
 
             Assert.AreEqual(3, actualBooks.Count);
-            CollectionAssert.AreEqual(new [] { book6, book5, book4 }, actualBooks);
+            CollectionAssert.AreEqual(new[] { book6, book5, book4 }, actualBooks);
         }
 
         [Test]
@@ -962,52 +962,52 @@ namespace WeenyMapper.Specs
             Repository.Convention = new BookConvention();
 
             var book1 = new Book
-            {
-                Isbn = "1",
-                AuthorName = "Author Name",
-                Title = "Title 1",
-                PageCount = 100,
-            };
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 100,
+                };
 
             var book2 = new Book
-            {
-                Isbn = "2",
-                AuthorName = "Another Author Name",
-                Title = "Title 2",
-                PageCount = 200
-            };
+                {
+                    Isbn = "2",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 2",
+                    PageCount = 200
+                };
 
             var book3 = new Book
-            {
-                Isbn = "3",
-                AuthorName = "Another Author Name",
-                Title = "Title 3",
-                PageCount = 75
-            };
+                {
+                    Isbn = "3",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 3",
+                    PageCount = 75
+                };
 
             var book4 = new Book
-            {
-                Isbn = "4",
-                AuthorName = "Another Author Name",
-                Title = "Title 4",
-                PageCount = 150
-            };
+                {
+                    Isbn = "4",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 4",
+                    PageCount = 150
+                };
 
             var book5 = new Book
-            {
-                Isbn = "5",
-                AuthorName = "Author Name",
-                Title = "Title 5",
-                PageCount = 75
-            };
+                {
+                    Isbn = "5",
+                    AuthorName = "Author Name",
+                    Title = "Title 5",
+                    PageCount = 75
+                };
 
             var book6 = new Book
-            {
-                Isbn = "6",
-                AuthorName = "Author Name",
-                Title = "Title 6",
-                PageCount = 75
-            };
+                {
+                    Isbn = "6",
+                    AuthorName = "Author Name",
+                    Title = "Title 6",
+                    PageCount = 75
+                };
 
             Repository.InsertMany(book1, book2, book3, book4, book5, book6);
 
@@ -1017,7 +1017,7 @@ namespace WeenyMapper.Specs
                 .ExecuteList();
 
             Assert.AreEqual(2, actualBooks.Count);
-            CollectionAssert.AreEqual(new [] { book4, book3 }, actualBooks);
+            CollectionAssert.AreEqual(new[] { book4, book3 }, actualBooks);
         }
 
         [Test]
@@ -1026,52 +1026,52 @@ namespace WeenyMapper.Specs
             Repository.Convention = new BookConvention();
 
             var book1 = new Book
-            {
-                Isbn = "1",
-                AuthorName = "Author Name",
-                Title = "Title 1",
-                PageCount = 100,
-            };
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 100,
+                };
 
             var book2 = new Book
-            {
-                Isbn = "2",
-                AuthorName = "Steven Smith",
-                Title = "Title 2",
-                PageCount = 200
-            };
+                {
+                    Isbn = "2",
+                    AuthorName = "Steven Smith",
+                    Title = "Title 2",
+                    PageCount = 200
+                };
 
             var book3 = new Book
-            {
-                Isbn = "3",
-                AuthorName = "Smith Stevenson",
-                Title = "Title 3",
-                PageCount = 75
-            };
+                {
+                    Isbn = "3",
+                    AuthorName = "Smith Stevenson",
+                    Title = "Title 3",
+                    PageCount = 75
+                };
 
             var book4 = new Book
-            {
-                Isbn = "4",
-                AuthorName = "Another Author Name",
-                Title = "Title 4",
-                PageCount = 150
-            };
+                {
+                    Isbn = "4",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 4",
+                    PageCount = 150
+                };
 
             var book5 = new Book
-            {
-                Isbn = "5",
-                AuthorName = "Author Name",
-                Title = "Title 5",
-                PageCount = 75
-            };
+                {
+                    Isbn = "5",
+                    AuthorName = "Author Name",
+                    Title = "Title 5",
+                    PageCount = 75
+                };
 
             var book6 = new Book
-            {
-                Isbn = "6",
-                AuthorName = "Fred-Steve Smith",
-                Title = "Title 6",
-                PageCount = 75
-            };
+                {
+                    Isbn = "6",
+                    AuthorName = "Fred-Steve Smith",
+                    Title = "Title 6",
+                    PageCount = 75
+                };
 
             Repository.InsertMany(book1, book2, book3, book4, book5, book6);
 
@@ -1090,52 +1090,52 @@ namespace WeenyMapper.Specs
             Repository.Convention = new BookConvention();
 
             var book1 = new Book
-            {
-                Isbn = "1",
-                AuthorName = "Author Name",
-                Title = "Title 1",
-                PageCount = 100,
-            };
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 100,
+                };
 
             var book2 = new Book
-            {
-                Isbn = "2",
-                AuthorName = "Steven Smith",
-                Title = "Title 2",
-                PageCount = 200
-            };
+                {
+                    Isbn = "2",
+                    AuthorName = "Steven Smith",
+                    Title = "Title 2",
+                    PageCount = 200
+                };
 
             var book3 = new Book
-            {
-                Isbn = "3",
-                AuthorName = "Smith Stevenson",
-                Title = "Title 3",
-                PageCount = 75
-            };
+                {
+                    Isbn = "3",
+                    AuthorName = "Smith Stevenson",
+                    Title = "Title 3",
+                    PageCount = 75
+                };
 
             var book4 = new Book
-            {
-                Isbn = "4",
-                AuthorName = "Another Author Name",
-                Title = "Title 4",
-                PageCount = 150
-            };
+                {
+                    Isbn = "4",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 4",
+                    PageCount = 150
+                };
 
             var book5 = new Book
-            {
-                Isbn = "5",
-                AuthorName = "Author Name",
-                Title = "Title 5",
-                PageCount = 75
-            };
+                {
+                    Isbn = "5",
+                    AuthorName = "Author Name",
+                    Title = "Title 5",
+                    PageCount = 75
+                };
 
             var book6 = new Book
-            {
-                Isbn = "6",
-                AuthorName = "Fred-Steve Smith",
-                Title = "Title 6",
-                PageCount = 75
-            };
+                {
+                    Isbn = "6",
+                    AuthorName = "Fred-Steve Smith",
+                    Title = "Title 6",
+                    PageCount = 75
+                };
 
             Repository.InsertMany(book1, book2, book3, book4, book5, book6);
 
@@ -1146,6 +1146,37 @@ namespace WeenyMapper.Specs
 
             Assert.AreEqual(2, actualBooks.Count);
             CollectionAssert.AreEqual(new[] { book3, book6 }, actualBooks);
+        }
+
+        [Test]
+        public void Entities_with_identity_generated_ids_gets_assigned_id_written_to_id_property_after_insert()
+        {
+            var movie1 = new Movie
+                {
+                    Title = "Movie 1",
+                    ReleaseDate = new DateTime(2012, 1, 2)
+                };
+
+            var movie2 = new Movie
+                {
+                    Title = "Movie 2",
+                    ReleaseDate = new DateTime(2012, 1, 2)
+                };
+
+            var movie3 = new Movie
+                {
+                    Title = "Movie 3",
+                    ReleaseDate = new DateTime(2012, 1, 2)
+                };
+
+            Repository.Insert(movie1);
+            Repository.InsertMany(new[] { movie2, movie3 });
+
+            var allMovies = Repository.Find<Movie>().OrderBy(x => x.Title).ExecuteList();
+
+            Assert.AreEqual(allMovies[0].Id, movie1.Id);
+            Assert.AreEqual(allMovies[1].Id, movie2.Id);
+            Assert.AreEqual(allMovies[2].Id, movie3.Id);
         }
     }
 }
