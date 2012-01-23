@@ -86,7 +86,7 @@
     <Compile Include="QueryParsing\ValueExpression.cs" />
     <Compile Include="Reflection\IConventionDataReader.cs" />
     <Compile Include="Reflection\PropertyMetadataReader.cs" />
-    <Compile Include="Reflection\ConventionDataReader.cs" />
+    <Compile Include="Reflection\ConventionReader.cs" />
     <Compile Include="QueryParsing\IQueryParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryParsing\SelectQuery.cs" />

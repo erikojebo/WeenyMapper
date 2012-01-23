@@ -35,7 +35,7 @@ namespace WeenyMapper.Conventions
 
         public bool HasIdentityId(Type entityType)
         {
-            var dataReader = new ConventionDataReader(this);
+            var dataReader = new ConventionReader(this);
             var idProperty = dataReader.GetIdProperty(entityType);
 
             return idProperty.PropertyType == typeof(int);

@@ -7,11 +7,11 @@ using WeenyMapper.Extensions;
 
 namespace WeenyMapper.Reflection
 {
-    public class ConventionDataReader : IConventionDataReader
+    public class ConventionReader : IConventionDataReader
     {
         private readonly IConvention _convention;
 
-        public ConventionDataReader(IConvention convention)
+        public ConventionReader(IConvention convention)
         {
             _convention = convention;
         }
@@ -100,6 +100,31 @@ namespace WeenyMapper.Reflection
             }
 
             return propertyValues;
+        }
+
+        public string GetColumnName(string propertyName)
+        {
+            return _convention.GetColumnName(propertyName);
+        }
+
+        public string GetTableName(string className)
+        {
+            return _convention.GetTableName(className);
+        }
+
+        public bool IsIdProperty(string propertyName)
+        {
+            return _convention.IsIdProperty(propertyName);
+        }
+
+        public bool ShouldMapProperty(PropertyInfo propertyInfo)
+        {
+            return _convention.ShouldMapProperty(propertyInfo);
+        }
+
+        public bool HasIdentityId(Type entityType)
+        {
+            return _convention.HasIdentityId(entityType);
         }
     }
 }
