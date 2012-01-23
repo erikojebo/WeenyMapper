@@ -79,8 +79,7 @@ namespace WeenyMapper.Reflection
 
         public PropertyInfo GetIdProperty(Type type)
         {
-            return type.GetProperties()
-                .First(x => _convention.IsIdProperty(x.Name));
+            return type.GetProperties().First(_convention.IsIdProperty);
         }
 
         public IDictionary<string, object> GetColumnValues(IDictionary<string, object> propertyValueMap)
@@ -112,9 +111,9 @@ namespace WeenyMapper.Reflection
             return _convention.GetTableName(entityType);
         }
 
-        public bool IsIdProperty(string propertyName)
+        public bool IsIdProperty(PropertyInfo propertyInfo)
         {
-            return _convention.IsIdProperty(propertyName);
+            return _convention.IsIdProperty(propertyInfo);
         }
 
         public bool ShouldMapProperty(PropertyInfo propertyInfo)

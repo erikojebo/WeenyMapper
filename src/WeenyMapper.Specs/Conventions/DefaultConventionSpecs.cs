@@ -35,7 +35,8 @@ namespace WeenyMapper.Specs.Conventions
         [Test]
         public void Property_called_Id_is_id_property()
         {
-            var isIdProperty = _defaultConvention.IsIdProperty("Id");
+            var idProperty = typeof(User).GetProperty("Id");
+            var isIdProperty = _defaultConvention.IsIdProperty(idProperty);
 
             Assert.IsTrue(isIdProperty);
         }
@@ -43,8 +44,11 @@ namespace WeenyMapper.Specs.Conventions
         [Test]
         public void Property_with_name_other_than_Id_is_not_id_property()
         {
-            Assert.IsFalse(_defaultConvention.IsIdProperty("Username"));
-            Assert.IsFalse(_defaultConvention.IsIdProperty("Password"));
+            var usernameProperty = typeof(User).GetProperty("Username");
+            var passwordProperty = typeof(User).GetProperty("Password");
+
+            Assert.IsFalse(_defaultConvention.IsIdProperty(usernameProperty));
+            Assert.IsFalse(_defaultConvention.IsIdProperty(passwordProperty));
         }
 
         [Test]

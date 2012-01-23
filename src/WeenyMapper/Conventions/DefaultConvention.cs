@@ -16,9 +16,9 @@ namespace WeenyMapper.Conventions
             return entityType.Name;
         }
 
-        public virtual bool IsIdProperty(string propertyName)
+        public bool IsIdProperty(PropertyInfo propertyInfo)
         {
-            return propertyName == "Id";
+            return propertyInfo.Name == "Id";
         }
 
         public virtual bool ShouldMapProperty(PropertyInfo propertyInfo)

@@ -16,9 +16,9 @@ namespace WeenyMapper.Specs.TestClasses.Conventions
             return "t_" + entityType.Name + "s";
         }
 
-        public bool IsIdProperty(string propertyName)
+        public bool IsIdProperty(PropertyInfo propertyInfo)
         {
-            return propertyName == "Isbn";
+            return propertyInfo.Name == "Isbn";
         }
 
         public bool ShouldMapProperty(PropertyInfo propertyInfo)

@@ -7,7 +7,7 @@ namespace WeenyMapper.Conventions
     {
         string GetColumnName(string propertyName);
         string GetTableName(Type entityType);
-        bool IsIdProperty(string propertyName);
+        bool IsIdProperty(PropertyInfo propertyInfo);
         bool ShouldMapProperty(PropertyInfo propertyInfo);
         bool HasIdentityId(Type entityType);
     }
