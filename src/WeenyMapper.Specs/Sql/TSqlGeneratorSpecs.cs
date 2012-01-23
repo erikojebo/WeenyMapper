@@ -96,6 +96,30 @@ namespace WeenyMapper.Specs.Sql
         }
 
         [Test]
+        public void Insert_command_for_object_with_identity_id_selects_identity_value()
+        {
+            var propertyValues = new Dictionary<string, object>();
+
+            propertyValues["ColumnName1"] = "value 1";
+            propertyValues["ColumnName2"] = "value 2";
+
+            var sqlCommand = _generator.CreateIdentityInsertCommand("TableName", propertyValues);
+
+            var expectedSql = "INSERT INTO [TableName] ([ColumnName1], [ColumnName2]) VALUES (@ColumnName1, @ColumnName2);" +
+                              "SELECT CAST(@@IDENTITY AS int)";
+
+            Assert.AreEqual(expectedSql, sqlCommand.CommandText);
+
+            Assert.AreEqual(2, sqlCommand.Parameters.Count);
+
+            Assert.AreEqual("ColumnName1", sqlCommand.Parameters[0].ParameterName);
+            Assert.AreEqual("value 1", sqlCommand.Parameters[0].Value);
+
+            Assert.AreEqual("ColumnName2", sqlCommand.Parameters[1].ParameterName);
+            Assert.AreEqual("value 2", sqlCommand.Parameters[1].Value);
+        }
+
+        [Test]
         public void Update_command_for_mass_update_without_constraints_and_single_setter_creates_parameterized_sql_with_matching_set_clause()
         {
             var columnSetters = new Dictionary<string, object>();
