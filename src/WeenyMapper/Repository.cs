@@ -106,7 +106,7 @@ namespace WeenyMapper
 
         public StaticSelectBuilder<T> Find<T>() where T : new()
         {
-            var objectQueryExecutor = new ObjectQueryExecutor(Convention, new TSqlGenerator(), new SqlCommandExecutor(SqlLogger), new EntityMapper(Convention), new ConventionReader(Convention))
+            var objectQueryExecutor = new ObjectQueryExecutor(new TSqlGenerator(), new SqlCommandExecutor(SqlLogger), new EntityMapper(Convention), new ConventionReader(Convention))
                 {
                     ConnectionString = ConnectionString
                 };

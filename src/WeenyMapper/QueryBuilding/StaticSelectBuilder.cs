@@ -15,16 +15,14 @@ namespace WeenyMapper.QueryBuilding
     {
         private readonly IObjectQueryExecutor _objectQueryExecutor;
         private readonly IExpressionParser _expressionParser;
-        private readonly IList<string> _propertiesToSelect = new List<string>();
-        private readonly IList<OrderByStatement> _orderByStatements = new List<OrderByStatement>();
-        private readonly QuerySpecification _querySpecification;
+        private readonly ObjectQuerySpecification<T> _querySpecification;
 
         public StaticSelectBuilder(IObjectQueryExecutor objectQueryExecutor, IExpressionParser expressionParser)
         {
             _objectQueryExecutor = objectQueryExecutor;
             _expressionParser = expressionParser;
 
-            _querySpecification = QuerySpecification.CreateFor<T>();
+            _querySpecification = new ObjectQuerySpecification<T>();
         }
 
         public StaticSelectBuilder<T> Where(Expression<Func<T, bool>> queryExpression)
@@ -47,14 +45,14 @@ namespace WeenyMapper.QueryBuilding
 
         public IList<T> ExecuteList()
         {
-            return _objectQueryExecutor.Find<T>(_querySpecification);
+            return _objectQueryExecutor.Find(_querySpecification);
         }
 
         public StaticSelectBuilder<T> Select<TValue>(Expression<Func<T, TValue>> propertySelector)
         {
             string propertyName = GetPropertyName(propertySelector);
 
-            _querySpecification.ColumnsToSelect.Add(propertyName);
+            _querySpecification.PropertiesToSelect.Add(propertyName);
 
             return this;
         }

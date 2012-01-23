@@ -4,9 +4,9 @@ using WeenyMapper.QueryParsing;
 
 namespace WeenyMapper.Sql
 {
-    public class QuerySpecification
+    public class SqlQuerySpecification
     {
-        public QuerySpecification()
+        public SqlQuerySpecification()
         {
             ColumnsToSelect = new List<string>();
             OrderByStatements = new List<OrderByStatement>();
@@ -26,9 +26,9 @@ namespace WeenyMapper.Sql
             get { return Page != null && Page.PageSize > 0; }
         }
 
-        public static QuerySpecification CreateFor<T>()
+        public static SqlQuerySpecification CreateFor<T>()
         {
-            return new QuerySpecification
+            return new SqlQuerySpecification
                 {
                     TableName = typeof(T).Name,
                 };

@@ -10,7 +10,7 @@ namespace WeenyMapper.Sql
 {
     public class TSqlGenerator : ISqlGenerator
     {
-        public DbCommand GenerateSelectQuery(QuerySpecification querySpecification)
+        public DbCommand GenerateSelectQuery(SqlQuerySpecification querySpecification)
         {
             if (querySpecification.IsPagingQuery)
             {
@@ -32,7 +32,7 @@ namespace WeenyMapper.Sql
             return command;
         }
 
-        private DbCommand GeneratePagingQuery(QuerySpecification querySpecification)
+        private DbCommand GeneratePagingQuery(SqlQuerySpecification querySpecification)
         {
             var command = new SqlCommand();
 

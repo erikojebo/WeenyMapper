@@ -12,13 +12,13 @@ namespace WeenyMapper.Specs.Sql
     public class TSqlGeneratorSpecs
     {
         private TSqlGenerator _generator;
-        private QuerySpecification _querySpecification;
+        private SqlQuerySpecification _querySpecification;
 
         [SetUp]
         public void SetUp()
         {
             _generator = new TSqlGenerator();
-            _querySpecification = new QuerySpecification();
+            _querySpecification = new SqlQuerySpecification();
 
             _querySpecification.ColumnsToSelect = new[] { "ColumnName1", "ColumnName2" };
             _querySpecification.TableName = "TableName";

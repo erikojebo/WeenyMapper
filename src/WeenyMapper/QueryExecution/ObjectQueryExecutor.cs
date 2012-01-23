@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
-using WeenyMapper.Conventions;
 using WeenyMapper.Extensions;
 using WeenyMapper.Mapping;
-using WeenyMapper.QueryParsing;
 using WeenyMapper.Reflection;
 using WeenyMapper.Sql;
 
@@ -13,67 +10,64 @@ namespace WeenyMapper.QueryExecution
 {
     public class ObjectQueryExecutor : IObjectQueryExecutor
     {
-        private readonly IConvention _convention;
         private readonly ISqlGenerator _sqlGenerator;
         private readonly IDbCommandExecutor _dbCommandExecutor;
         private readonly IEntityMapper _entityMapper;
-        private readonly IConventionDataReader _conventionDataReader;
+        private readonly IConventionDataReader _conventionReader;
 
         public ObjectQueryExecutor(
-            IConvention convention, 
-            ISqlGenerator sqlGenerator, 
-            IDbCommandExecutor dbCommandExecutor, 
+            ISqlGenerator sqlGenerator,
+            IDbCommandExecutor dbCommandExecutor,
             IEntityMapper entityMapper,
-            IConventionDataReader conventionDataReader)
+            IConventionDataReader conventionReader)
         {
-            _convention = convention;
             _sqlGenerator = sqlGenerator;
             _dbCommandExecutor = dbCommandExecutor;
             _entityMapper = entityMapper;
-            _conventionDataReader = conventionDataReader;
+            _conventionReader = conventionReader;
         }
 
         public string ConnectionString { get; set; }
 
-        public TScalar FindScalar<T, TScalar>(QuerySpecification querySpecification)
+        public TScalar FindScalar<T, TScalar>(ObjectQuerySpecification<T> querySpecification)
         {
             var command = CreateCommand<T>(querySpecification);
 
             return _dbCommandExecutor.ExecuteScalar<TScalar>(command, ConnectionString);
         }
 
-        public IList<TScalar> FindScalarList<T, TScalar>(QuerySpecification querySpecification)
+        public IList<TScalar> FindScalarList<T, TScalar>(ObjectQuerySpecification<T> querySpecification)
         {
             var command = CreateCommand<T>(querySpecification);
 
             return _dbCommandExecutor.ExecuteScalarList<TScalar>(command, ConnectionString);
         }
 
-        public IList<T> Find<T>(QuerySpecification querySpecification) where T : new()
+        public IList<T> Find<T>(ObjectQuerySpecification<T> querySpecification) where T : new()
         {
             var command = CreateCommand<T>(querySpecification);
 
             return ReadEntities<T>(command);
         }
 
-        private DbCommand CreateCommand<T>(QuerySpecification querySpecification)
+        private DbCommand CreateCommand<T>(ObjectQuerySpecification<T> querySpecification)
         {
-            if (!querySpecification.ColumnsToSelect.Any())
+            if (!querySpecification.PropertiesToSelect.Any())
             {
-                querySpecification.ColumnsToSelect.AddRange(GetPropertiesInTargetType<T>());
+                querySpecification.PropertiesToSelect.AddRange(GetPropertiesInTargetType<T>());
             }
 
-            var columnNamesToSelect = querySpecification.ColumnsToSelect.Select(_convention.GetColumnName);
-            var translatedOrderByStatements = querySpecification.OrderByStatements.Select(x => x.Translate(_convention));
-            var tableName = _convention.GetTableName(querySpecification.TableName);
+            var columnNamesToSelect = querySpecification.PropertiesToSelect.Select(_conventionReader.GetColumnName);
+            var translatedOrderByStatements = querySpecification.OrderByStatements.Select(x => x.Translate(_conventionReader));
+            var tableName = _conventionReader.GetTableName(querySpecification.ResultTypeName);
 
-            var sqlQuery = new QuerySpecification
+            var sqlQuery = new SqlQuerySpecification
                 {
                     ColumnsToSelect = columnNamesToSelect.ToList(),
-                    QueryExpression = querySpecification.QueryExpression.Translate(_convention),
+                    QueryExpression = querySpecification.QueryExpression.Translate(_conventionReader),
                     TableName = tableName,
                     OrderByStatements = translatedOrderByStatements.ToList(),
-                    RowCountLimit =  querySpecification.RowCountLimit,
+                    RowCountLimit = querySpecification.RowCountLimit,
                     Page = querySpecification.Page
                 };
 
@@ -82,7 +76,7 @@ namespace WeenyMapper.QueryExecution
 
         private IEnumerable<string> GetPropertiesInTargetType<T>()
         {
-            return _conventionDataReader.GetColumnNames(typeof(T));
+            return _conventionReader.GetColumnNames(typeof(T));
         }
 
         private IList<T> ReadEntities<T>(DbCommand command) where T : new()
