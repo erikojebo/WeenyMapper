@@ -14,5 +14,6 @@ namespace WeenyMapper.Reflection
         IEnumerable<string> GetColumnNames(Type type);
         IDictionary<string, object> GetColumnValuesForInsert(object instance);
         string GetColumnNamee<T>(string propertyName);
+        void SetId(object entity, int id);
     }
 }

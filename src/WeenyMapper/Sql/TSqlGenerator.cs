@@ -132,6 +132,13 @@ namespace WeenyMapper.Sql
             return command;
         }
 
+        public DbCommand CreateIdentityInsertCommand(string tableName, IDictionary<string, object> columnValues)
+        {
+            var insertCommand = CreateInsertCommand(tableName, columnValues);
+            insertCommand.CommandText += ";SELECT CAST(@@IDENTITY AS int)";
+            return insertCommand;
+        }
+
         public DbCommand CreateCountCommand(string tableName, QueryExpression queryExpression)
         {
             var countQuery = string.Format("SELECT COUNT(*) FROM {0}", Escape(tableName));

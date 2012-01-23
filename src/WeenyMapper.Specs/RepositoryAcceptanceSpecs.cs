@@ -1174,6 +1174,7 @@ namespace WeenyMapper.Specs
 
             var allMovies = Repository.Find<Movie>().OrderBy(x => x.Title).ExecuteList();
 
+            Assert.AreEqual(3, allMovies.Count);
             Assert.AreEqual(allMovies[0].Id, movie1.Id);
             Assert.AreEqual(allMovies[1].Id, movie2.Id);
             Assert.AreEqual(allMovies[2].Id, movie3.Id);

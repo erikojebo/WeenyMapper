@@ -112,6 +112,12 @@ namespace WeenyMapper.Reflection
             return _convention.GetColumnName(propertyInfo);
         }
 
+        public void SetId(object entity, int id)
+        {
+            var property = GetIdProperty(entity.GetType());
+            property.SetValue(entity, id, null);
+        }
+
         public string GetColumnName(string propertyName, Type type)
         {
             var propertyInfo = type.GetProperty(propertyName);

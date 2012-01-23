@@ -22,6 +22,8 @@ namespace WeenyMapper.Specs
             Repository.Delete<Book>().Execute();
 
             Repository.Convention = new DefaultConvention();
+
+            Repository.Delete<Movie>().Execute();
         }
     }
 }

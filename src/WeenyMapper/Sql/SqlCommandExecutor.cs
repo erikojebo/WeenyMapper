@@ -114,6 +114,19 @@ namespace WeenyMapper.Sql
             }
         }
 
+        public IList<T> ExecuteScalarList<T>(IEnumerable<DbCommand> commands, string connectionString)
+        {
+            var values = new List<T>();
+
+            foreach (var dbCommand in commands)
+            {
+                var value = ExecuteScalar<T>(dbCommand, connectionString);
+                values.Add(value);
+            }
+
+            return values;
+        }
+
         private Dictionary<string, object> GetValues(DbDataReader reader)
         {
             var values = new Dictionary<string, object>();

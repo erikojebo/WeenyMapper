@@ -4,6 +4,7 @@ using System.Data.Common;
 using WeenyMapper.Async;
 using WeenyMapper.Reflection;
 using WeenyMapper.Sql;
+using System.Linq;
 
 namespace WeenyMapper.QueryExecution
 {
@@ -24,16 +25,30 @@ namespace WeenyMapper.QueryExecution
 
         public void Insert<T>(IEnumerable<T> entities)
         {
-            var commands = CreateInsertCommands(entities);
+            var entityList = entities.ToList();
 
-            _dbCommandExecutor.ExecuteNonQuery(commands, ConnectionString);
+            if (_conventionReader.HasIdentityId(typeof(T)))
+            {
+                var commands = CreateIdentityInsertCommands(entities);
+                
+                var ids = _dbCommandExecutor.ExecuteScalarList<int>(commands, ConnectionString);
+
+                for (int i = 0; i < ids.Count; i++)
+                {
+                    _conventionReader.SetId(entityList[i], ids[i]);
+                }                
+            }
+            else
+            {
+                var commands = CreateInsertCommands(entities);
+
+                _dbCommandExecutor.ExecuteNonQuery(commands, ConnectionString);
+            }
         }
 
         public void InsertAsync<T>(IEnumerable<T> entities, Action callback)
         {
-            var commands = CreateInsertCommands(entities);
-
-            TaskRunner.Run(() => _dbCommandExecutor.ExecuteNonQuery(commands, ConnectionString), callback);
+            TaskRunner.Run(() => Insert(entities), callback);
         }
 
         private IEnumerable<DbCommand> CreateInsertCommands<T>(IEnumerable<T> entities)
@@ -48,6 +63,22 @@ namespace WeenyMapper.QueryExecution
 
                 commands.Add(command);
             }
+            return commands;
+        }
+
+        private IEnumerable<DbCommand> CreateIdentityInsertCommands<T>(IEnumerable<T> entities)
+        {
+            var commands = new List<DbCommand>();
+
+            foreach (var entity in entities)
+            {
+                var columnValues = _conventionReader.GetColumnValuesForInsert(entity);
+                var tableName = _conventionReader.GetTableName<T>();
+                var command = _sqlGenerator.CreateIdentityInsertCommand(tableName, columnValues);
+
+                commands.Add(command);
+            }
+
             return commands;
         }
     }

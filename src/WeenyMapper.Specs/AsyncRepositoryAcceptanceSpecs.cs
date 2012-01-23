@@ -25,6 +25,7 @@ namespace WeenyMapper.Specs
             DeleteAllExistingTestData();
 
             Repository.Convention = new DefaultConvention();
+
             Repository.EnableSqlConsoleLogging();
         }
 
@@ -338,14 +339,12 @@ namespace WeenyMapper.Specs
                 ReleaseDate = new DateTime(2012, 1, 2)
             };
 
-            Repository.Insert(movie1);
-            Repository.InsertMany(new[] { movie2, movie3 });
-
             AssertCallbackIsInvoked(x => Repository.InsertAsync(movie1, x));
             AssertCallbackIsInvoked(x => Repository.InsertManyAsync(new [] { movie2, movie3 }, x));
 
             var allMovies = Repository.Find<Movie>().OrderBy(x => x.Title).ExecuteList();
 
+            Assert.AreEqual(3, allMovies.Count);
             Assert.AreEqual(allMovies[0].Id, movie1.Id);
             Assert.AreEqual(allMovies[1].Id, movie2.Id);
             Assert.AreEqual(allMovies[2].Id, movie3.Id);
