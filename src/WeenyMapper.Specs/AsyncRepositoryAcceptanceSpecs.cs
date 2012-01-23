@@ -323,24 +323,24 @@ namespace WeenyMapper.Specs
         {
             var movie1 = new Movie
                 {
-                Title = "Movie 1",
-                ReleaseDate = new DateTime(2012, 1, 2)
-            };
+                    Title = "Movie 1",
+                    ReleaseDate = new DateTime(2012, 1, 2)
+                };
 
             var movie2 = new Movie
                 {
-                Title = "Movie 2",
-                ReleaseDate = new DateTime(2012, 1, 2)
-            };
+                    Title = "Movie 2",
+                    ReleaseDate = new DateTime(2012, 1, 2)
+                };
 
             var movie3 = new Movie
                 {
-                Title = "Movie 3",
-                ReleaseDate = new DateTime(2012, 1, 2)
-            };
+                    Title = "Movie 3",
+                    ReleaseDate = new DateTime(2012, 1, 2)
+                };
 
             AssertCallbackIsInvoked(x => Repository.InsertAsync(movie1, x));
-            AssertCallbackIsInvoked(x => Repository.InsertManyAsync(new [] { movie2, movie3 }, x));
+            AssertCallbackIsInvoked(x => Repository.InsertManyAsync(new[] { movie2, movie3 }, x));
 
             var allMovies = Repository.Find<Movie>().OrderBy(x => x.Title).ExecuteList();
 
