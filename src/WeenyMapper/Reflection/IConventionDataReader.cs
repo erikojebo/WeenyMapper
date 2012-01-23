@@ -5,7 +5,7 @@ namespace WeenyMapper.Reflection
 {
     public interface IConventionDataReader
     {
-        IDictionary<string, object> GetNonPrimaryKeyColumnValuesFromEntity(object instance);
+        IDictionary<string, object> GetAllColumnValues(object instance);
         IDictionary<string, object> GetColumnValues(IDictionary<string, object> propertyValueMap);
         string GetTableName<T>();
         string GetPrimaryKeyColumnName<T>();

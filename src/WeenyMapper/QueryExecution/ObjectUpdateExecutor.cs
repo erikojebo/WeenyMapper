@@ -29,7 +29,7 @@ namespace WeenyMapper.QueryExecution
         public int Update<T>(T instance)
         {
             var tableName = _conventionDataReader.GetTableName<T>();
-            var columnValues = _conventionDataReader.GetNonPrimaryKeyColumnValuesFromEntity(instance);
+            var columnValues = _conventionDataReader.GetAllColumnValues(instance);
 
             var primaryKeyColumn = _conventionDataReader.GetPrimaryKeyColumnName<T>();
             var primaryKeyValue = _conventionDataReader.GetPrimaryKeyValue(instance);
