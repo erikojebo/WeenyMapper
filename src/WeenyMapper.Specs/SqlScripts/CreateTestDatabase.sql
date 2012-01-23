@@ -14,7 +14,7 @@ CREATE TABLE [dbo].[t_Books](
 	[c_PAGECOUNT] [int] NOT NULL)
 GO
 CREATE TABLE [dbo].[Movie](
-	[Id] [uniqueidentifier] NOT NULL PRIMARY KEY,
+	[Id] [int] NOT NULL PRIMARY KEY IDENTITY,
 	[Title] [nvarchar](255) NOT NULL,
 	[ReleaseDate] [datetime] NOT NULL,
 	[Rating] [int] NULL)

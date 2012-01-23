@@ -42,7 +42,7 @@ namespace WeenyMapper.QueryExecution
 
             foreach (var entity in entities)
             {
-                var columnValues = _conventionDataReader.GetColumnValuesFromEntity(entity);
+                var columnValues = _conventionDataReader.GetColumnValuesForInsert(entity);
                 var tableName = _conventionDataReader.GetTableName<T>();
                 var command = _sqlGenerator.CreateInsertCommand(tableName, columnValues);
 

@@ -16,19 +16,23 @@ namespace WeenyMapper.Reflection
             _convention = convention;
         }
 
-        public IDictionary<string, object> GetColumnValuesFromEntity(object instance)
+        public IDictionary<string, object> GetAllColumnValues(object instance)
         {
             var propertyValues = GetPropertyValues(instance);
+            return propertyValues.TransformKeys(_convention.GetColumnName);
+        }
+        
+        public IDictionary<string, object> GetColumnValuesForInsert(object instance)
+        {
+            var propertyValues = GetPropertyValues(instance);
+            var entityType = instance.GetType();
 
-            var columnValues = new Dictionary<string, object>();
-
-            foreach (var propertyValue in propertyValues)
+            if (_convention.HasIdentityId(entityType))
             {
-                var columnName = _convention.GetColumnName(propertyValue.Key);
-                columnValues[columnName] = propertyValue.Value;
+                propertyValues.Remove(GetIdPropertyName(entityType));
             }
 
-            return columnValues;
+            return propertyValues.TransformKeys(_convention.GetColumnName);
         }
 
         public string GetTableName<T>()
@@ -38,8 +42,18 @@ namespace WeenyMapper.Reflection
 
         public string GetPrimaryKeyColumnName<T>()
         {
-            var propertyName = GetIdProperty<T>().Name;
+            return GetPrimaryKeyColumnName(typeof(T));
+        }
+
+        public string GetPrimaryKeyColumnName(Type type)
+        {
+            var propertyName = GetIdPropertyName(type);
             return _convention.GetColumnName(propertyName);
+        }
+
+        private string GetIdPropertyName(Type type)
+        {
+            return GetIdProperty(type).Name;
         }
 
         public object GetPrimaryKeyValue<T>(T instance)
@@ -60,7 +74,12 @@ namespace WeenyMapper.Reflection
 
         private PropertyInfo GetIdProperty<T>()
         {
-            return typeof(T).GetProperties()
+            return GetIdProperty(typeof(T));
+        }
+
+        public PropertyInfo GetIdProperty(Type type)
+        {
+            return type.GetProperties()
                 .First(x => _convention.IsIdProperty(x.Name));
         }
 

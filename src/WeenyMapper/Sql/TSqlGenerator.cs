@@ -108,8 +108,7 @@ namespace WeenyMapper.Sql
 
         public DbCommand CreateUpdateCommand(string tableName, string primaryKeyColumn, QueryExpression constraintExpression, IDictionary<string, object> columnSetters)
         {
-            var nonPrimaryKeyColumns = columnSetters.Where(x => x.Key != primaryKeyColumn);
-            var updateString = CreateColumnNameList(nonPrimaryKeyColumns, x => CreateParameterEqualsStatement(x));
+            var updateString = CreateColumnNameList(columnSetters, x => CreateParameterEqualsStatement(x));
 
             var sql = string.Format("UPDATE {0} SET {1}", Escape(tableName), updateString);
             var command = new SqlCommand(sql);

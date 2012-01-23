@@ -813,7 +813,6 @@ namespace WeenyMapper.Specs
 
             var movie = new Movie
                 {
-                    Id = Guid.NewGuid(),
                     Title = "Movie title",
                     ReleaseDate = new DateTime(2012, 01, 18)
                 };
@@ -822,9 +821,8 @@ namespace WeenyMapper.Specs
 
             Repository.Insert(movie);
 
-            var actualMovie = Repository.Find<Movie>().Where(x => x.Id == movie.Id).Execute();
+            var actualMovie = Repository.Find<Movie>().Where(x => x.Title == "Movie title").Execute();
 
-            Assert.AreEqual(movie.Id, actualMovie.Id);
             Assert.AreEqual(movie.Title, actualMovie.Title);
             Assert.AreEqual(movie.ReleaseDate, actualMovie.ReleaseDate);
             Assert.AreEqual(0, actualMovie.Rating); // should not be mapped

@@ -25,5 +25,10 @@ namespace WeenyMapper.Specs.TestClasses.Conventions
         {
             return true;
         }
+
+        public bool HasIdentityId(Type entityType)
+        {
+            return false;
+        }
     }
 }

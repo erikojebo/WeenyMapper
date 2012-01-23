@@ -81,10 +81,32 @@ namespace WeenyMapper.Specs.Conventions
             Assert.IsTrue(shouldMapProperty);
         }
 
+        [Test]
+        public void Class_with_int_id_has_identity_id()
+        {
+            Assert.IsTrue(_defaultConvention.HasIdentityId(typeof(IntIdEntity)));
+        }
+
+        [Test]
+        public void Class_with_guid_id_does_not_have_identity_id()
+        {
+            Assert.IsFalse(_defaultConvention.HasIdentityId(typeof(GuidIdEntity)));
+        }
+
         private bool ShouldMapEntityProperty(string name)
         {
             var property = typeof(Entity).GetProperty(name);
             return _defaultConvention.ShouldMapProperty(property);
+        }
+
+        private class IntIdEntity
+        {
+            public int Id { get; set; }
+        }
+
+        private class GuidIdEntity
+        {
+            public Guid Id { get; set; }
         }
 
         private class Entity

@@ -1,3 +1,4 @@
+using System;
 using System.Reflection;
 
 namespace WeenyMapper.Conventions
@@ -8,5 +9,6 @@ namespace WeenyMapper.Conventions
         string GetTableName(string className);
         bool IsIdProperty(string propertyName);
         bool ShouldMapProperty(PropertyInfo propertyInfo);
+        bool HasIdentityId(Type entityType);
     }
 }

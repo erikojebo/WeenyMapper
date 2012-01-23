@@ -4,7 +4,7 @@ namespace WeenyMapper.Specs.TestClasses.Entities
 {
     public class Movie
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public string Title { get; set; }
         public DateTime ReleaseDate { get; set; }
 

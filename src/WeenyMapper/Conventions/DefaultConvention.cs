@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
+using WeenyMapper.Reflection;
 
 namespace WeenyMapper.Conventions
 {
@@ -29,6 +31,14 @@ namespace WeenyMapper.Conventions
             return getter != null && getter.IsPublic &&
                    setter != null && setter.IsPublic &&
                    !getter.IsStatic && !setter.IsStatic;
+        }
+
+        public bool HasIdentityId(Type entityType)
+        {
+            var dataReader = new ConventionDataReader(this);
+            var idProperty = dataReader.GetIdProperty(entityType);
+
+            return idProperty.PropertyType == typeof(int);
         }
     }
 }
