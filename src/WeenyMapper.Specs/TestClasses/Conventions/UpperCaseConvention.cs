@@ -1,3 +1,4 @@
+using System;
 using WeenyMapper.Conventions;
 
 namespace WeenyMapper.Specs.TestClasses.Conventions
@@ -9,9 +10,9 @@ namespace WeenyMapper.Specs.TestClasses.Conventions
             return propertyName.ToUpper();
         }
 
-        public override string GetTableName(string className)
+        public override string GetTableName(Type entityType)
         {
-            return className.ToUpper();
+            return entityType.Name.ToUpper();
         }
     }
 }

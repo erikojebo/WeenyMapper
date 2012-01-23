@@ -1,3 +1,4 @@
+using System;
 using System.Reflection;
 using WeenyMapper.Conventions;
 
@@ -5,7 +6,7 @@ namespace WeenyMapper.Specs.TestClasses.Conventions
 {
     public class UserWithExtraPropertiesConvention : DefaultConvention
     {
-        public override string GetTableName(string className)
+        public override string GetTableName(Type entityType)
         {
             return "User";
         }

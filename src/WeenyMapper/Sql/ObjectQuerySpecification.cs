@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using WeenyMapper.QueryParsing;
 
 namespace WeenyMapper.Sql
@@ -18,9 +19,9 @@ namespace WeenyMapper.Sql
         public int RowCountLimit { get; set; }
         public Page Page { get; set; }
 
-        public string ResultTypeName
+        public Type ResultType
         {
-            get { return typeof(T).Name; }
+            get { return typeof(T); }
         }
 
         public bool IsPagingQuery

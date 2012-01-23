@@ -59,7 +59,7 @@ namespace WeenyMapper.QueryExecution
 
             var columnNamesToSelect = querySpecification.PropertiesToSelect.Select(_conventionReader.GetColumnName);
             var translatedOrderByStatements = querySpecification.OrderByStatements.Select(x => x.Translate(_conventionReader));
-            var tableName = _conventionReader.GetTableName(querySpecification.ResultTypeName);
+            var tableName = _conventionReader.GetTableName(querySpecification.ResultType);
 
             var sqlQuery = new SqlQuerySpecification
                 {

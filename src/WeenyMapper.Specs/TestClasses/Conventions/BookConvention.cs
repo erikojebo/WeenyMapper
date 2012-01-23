@@ -11,9 +11,9 @@ namespace WeenyMapper.Specs.TestClasses.Conventions
             return "c_" + propertyName.ToUpper();
         }
 
-        public string GetTableName(string className)
+        public string GetTableName(Type entityType)
         {
-            return "t_" + className + "s";
+            return "t_" + entityType.Name + "s";
         }
 
         public bool IsIdProperty(string propertyName)

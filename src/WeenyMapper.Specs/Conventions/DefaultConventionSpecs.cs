@@ -1,6 +1,7 @@
 using System;
 using NUnit.Framework;
 using WeenyMapper.Conventions;
+using WeenyMapper.Specs.TestClasses.Entities;
 
 namespace WeenyMapper.Specs.Conventions
 {
@@ -26,7 +27,7 @@ namespace WeenyMapper.Specs.Conventions
         [Test]
         public void Default_convention_for_table_names_is_class_name()
         {
-            var columnName = _defaultConvention.GetTableName("User");
+            var columnName = _defaultConvention.GetTableName(typeof(User));
 
             Assert.AreEqual("User", columnName);
         }

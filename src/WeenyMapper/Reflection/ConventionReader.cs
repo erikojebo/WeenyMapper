@@ -37,7 +37,7 @@ namespace WeenyMapper.Reflection
 
         public string GetTableName<T>()
         {
-            return _convention.GetTableName(typeof(T).Name);
+            return _convention.GetTableName(typeof(T));
         }
 
         public string GetPrimaryKeyColumnName<T>()
@@ -107,9 +107,9 @@ namespace WeenyMapper.Reflection
             return _convention.GetColumnName(propertyName);
         }
 
-        public string GetTableName(string className)
+        public string GetTableName(Type entityType)
         {
-            return _convention.GetTableName(className);
+            return _convention.GetTableName(entityType);
         }
 
         public bool IsIdProperty(string propertyName)

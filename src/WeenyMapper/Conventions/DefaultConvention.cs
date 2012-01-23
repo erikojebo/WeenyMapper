@@ -11,9 +11,9 @@ namespace WeenyMapper.Conventions
             return propertyName;
         }
 
-        public virtual string GetTableName(string className)
+        public virtual string GetTableName(Type entityType)
         {
-            return className;
+            return entityType.Name;
         }
 
         public virtual bool IsIdProperty(string propertyName)
