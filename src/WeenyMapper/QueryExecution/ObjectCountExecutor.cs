@@ -7,10 +7,10 @@ namespace WeenyMapper.QueryExecution
     public class ObjectCountExecutor : IObjectCountExecutor
     {
         private readonly ISqlGenerator _sqlGenerator;
-        private readonly IConventionDataReader _conventionReader;
+        private readonly IConventionReader _conventionReader;
         private readonly IDbCommandExecutor _dbCommandExecutor;
 
-        public ObjectCountExecutor(ISqlGenerator sqlGenerator, IConventionDataReader conventionReader, IDbCommandExecutor dbCommandExecutor)
+        public ObjectCountExecutor(ISqlGenerator sqlGenerator, IConventionReader conventionReader, IDbCommandExecutor dbCommandExecutor)
         {
             _sqlGenerator = sqlGenerator;
             _conventionReader = conventionReader;

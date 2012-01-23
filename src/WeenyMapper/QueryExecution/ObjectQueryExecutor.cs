@@ -13,13 +13,13 @@ namespace WeenyMapper.QueryExecution
         private readonly ISqlGenerator _sqlGenerator;
         private readonly IDbCommandExecutor _dbCommandExecutor;
         private readonly IEntityMapper _entityMapper;
-        private readonly IConventionDataReader _conventionReader;
+        private readonly IConventionReader _conventionReader;
 
         public ObjectQueryExecutor(
             ISqlGenerator sqlGenerator,
             IDbCommandExecutor dbCommandExecutor,
             IEntityMapper entityMapper,
-            IConventionDataReader conventionReader)
+            IConventionReader conventionReader)
         {
             _sqlGenerator = sqlGenerator;
             _dbCommandExecutor = dbCommandExecutor;
@@ -57,8 +57,8 @@ namespace WeenyMapper.QueryExecution
                 querySpecification.PropertiesToSelect.AddRange(GetPropertiesInTargetType<T>());
             }
 
-            var columnNamesToSelect = querySpecification.PropertiesToSelect.Select(_conventionReader.GetColumnName);
-            var translatedOrderByStatements = querySpecification.OrderByStatements.Select(x => x.Translate(_conventionReader));
+            var columnNamesToSelect = querySpecification.PropertiesToSelect.Select(_conventionReader.GetColumnNamee<T>);
+            var translatedOrderByStatements = querySpecification.OrderByStatements.Select(x => x.Translate<T>(_conventionReader));
             var tableName = _conventionReader.GetTableName(querySpecification.ResultType);
 
             var sqlQuery = new SqlQuerySpecification

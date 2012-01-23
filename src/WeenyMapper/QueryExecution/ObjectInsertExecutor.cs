@@ -10,13 +10,13 @@ namespace WeenyMapper.QueryExecution
     public class ObjectInsertExecutor
     {
         private readonly ISqlGenerator _sqlGenerator;
-        private readonly IConventionDataReader _conventionDataReader;
+        private readonly IConventionReader _conventionReader;
         private readonly IDbCommandExecutor _dbCommandExecutor;
 
-        public ObjectInsertExecutor(ISqlGenerator sqlGenerator, IConventionDataReader conventionDataReader, IDbCommandExecutor dbCommandExecutor)
+        public ObjectInsertExecutor(ISqlGenerator sqlGenerator, IConventionReader conventionReader, IDbCommandExecutor dbCommandExecutor)
         {
             _sqlGenerator = sqlGenerator;
-            _conventionDataReader = conventionDataReader;
+            _conventionReader = conventionReader;
             _dbCommandExecutor = dbCommandExecutor;
         }
 
@@ -42,8 +42,8 @@ namespace WeenyMapper.QueryExecution
 
             foreach (var entity in entities)
             {
-                var columnValues = _conventionDataReader.GetColumnValuesForInsert(entity);
-                var tableName = _conventionDataReader.GetTableName<T>();
+                var columnValues = _conventionReader.GetColumnValuesForInsert(entity);
+                var tableName = _conventionReader.GetTableName<T>();
                 var command = _sqlGenerator.CreateInsertCommand(tableName, columnValues);
 
                 commands.Add(command);

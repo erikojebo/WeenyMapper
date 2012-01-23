@@ -1,4 +1,5 @@
 ﻿using WeenyMapper.Conventions;
+using WeenyMapper.Reflection;
 
 namespace WeenyMapper.QueryParsing
 {
@@ -24,9 +25,9 @@ namespace WeenyMapper.QueryParsing
         public string PropertyName { get; private set; }
         public OrderByDirection Direction { get; private set; }
 
-        public OrderByStatement Translate(IConvention convention)
+        public OrderByStatement Translate<T>(IConventionReader convention)
         {
-            return new OrderByStatement(convention.GetColumnName(PropertyName), Direction);
+            return new OrderByStatement(convention.GetColumnNamee<T>(PropertyName), Direction);
         }
     }
 }

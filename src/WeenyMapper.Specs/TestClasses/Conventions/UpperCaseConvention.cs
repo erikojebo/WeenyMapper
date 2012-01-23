@@ -1,13 +1,14 @@
 using System;
+using System.Reflection;
 using WeenyMapper.Conventions;
 
 namespace WeenyMapper.Specs.TestClasses.Conventions
 {
     public class UpperCaseConvention : DefaultConvention
     {
-        public override string GetColumnName(string propertyName)
+        public override string GetColumnName(PropertyInfo propertyInfo)
         {
-            return propertyName.ToUpper();
+            return propertyInfo.Name.ToUpper();
         }
 
         public override string GetTableName(Type entityType)

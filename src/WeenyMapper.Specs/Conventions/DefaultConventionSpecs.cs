@@ -19,7 +19,8 @@ namespace WeenyMapper.Specs.Conventions
         [Test]
         public void Default_convention_for_column_names_is_property_name()
         {
-            var columnName = _defaultConvention.GetColumnName("Username");
+            var usernameProperty = typeof(User).GetProperty("Username");
+            var columnName = _defaultConvention.GetColumnName(usernameProperty);
 
             Assert.AreEqual("Username", columnName);
         }

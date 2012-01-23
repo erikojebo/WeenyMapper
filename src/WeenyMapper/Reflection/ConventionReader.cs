@@ -7,7 +7,7 @@ using WeenyMapper.Extensions;
 
 namespace WeenyMapper.Reflection
 {
-    public class ConventionReader : IConventionDataReader
+    public class ConventionReader : IConventionReader
     {
         private readonly IConvention _convention;
 
@@ -19,7 +19,7 @@ namespace WeenyMapper.Reflection
         public IDictionary<string, object> GetAllColumnValues(object instance)
         {
             var propertyValues = GetPropertyValues(instance);
-            return propertyValues.TransformKeys(_convention.GetColumnName);
+            return propertyValues.TransformKeys(x => GetColumnName(x, instance.GetType()));
         }
         
         public IDictionary<string, object> GetColumnValuesForInsert(object instance)
@@ -32,7 +32,7 @@ namespace WeenyMapper.Reflection
                 propertyValues.Remove(GetIdPropertyName(entityType));
             }
 
-            return propertyValues.TransformKeys(_convention.GetColumnName);
+            return propertyValues.TransformKeys(x => GetColumnName(x, instance.GetType()));
         }
 
         public string GetTableName<T>()
@@ -48,7 +48,7 @@ namespace WeenyMapper.Reflection
         public string GetPrimaryKeyColumnName(Type type)
         {
             var propertyName = GetIdPropertyName(type);
-            return _convention.GetColumnName(propertyName);
+            return GetColumnName(propertyName, type);
         }
 
         private string GetIdPropertyName(Type type)
@@ -82,9 +82,9 @@ namespace WeenyMapper.Reflection
             return type.GetProperties().First(_convention.IsIdProperty);
         }
 
-        public IDictionary<string, object> GetColumnValues(IDictionary<string, object> propertyValueMap)
+        public IDictionary<string, object> GetColumnValues<T>(IDictionary<string, object> propertyValueMap)
         {
-            return propertyValueMap.TransformKeys(_convention.GetColumnName);
+            return propertyValueMap.TransformKeys(x => GetColumnName(x, typeof(T)));
         }
 
         private IDictionary<string, object> GetPropertyValues(object instance)
@@ -101,9 +101,21 @@ namespace WeenyMapper.Reflection
             return propertyValues;
         }
 
-        public string GetColumnName(string propertyName)
+        public string GetColumnName(PropertyInfo propertyInfo)
         {
-            return _convention.GetColumnName(propertyName);
+            return _convention.GetColumnName(propertyInfo);
+        }
+        
+        public string GetColumnNamee<T>(string propertyName)
+        {
+            var propertyInfo = typeof(T).GetProperty(propertyName);
+            return _convention.GetColumnName(propertyInfo);
+        }
+
+        public string GetColumnName(string propertyName, Type type)
+        {
+            var propertyInfo = type.GetProperty(propertyName);
+            return _convention.GetColumnName(propertyInfo);
         }
 
         public string GetTableName(Type entityType)

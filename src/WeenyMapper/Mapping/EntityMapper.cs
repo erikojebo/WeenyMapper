@@ -22,7 +22,7 @@ namespace WeenyMapper.Mapping
 
             foreach (var value in dictionary)
             {
-                var property = propertiesInTargetType.First(x => _convention.GetColumnName(x.Name) == value.Key);
+                var property = propertiesInTargetType.First(x => _convention.GetColumnName(x) == value.Key);
                 property.SetValue(instance, value.Value, null);
             }
 

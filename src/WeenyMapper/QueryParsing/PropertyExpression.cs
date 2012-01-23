@@ -1,7 +1,4 @@
-﻿using System;
-using WeenyMapper.Conventions;
-
-namespace WeenyMapper.QueryParsing
+﻿namespace WeenyMapper.QueryParsing
 {
     public class PropertyExpression : EquatableQueryExpression<PropertyExpression>
     {
@@ -15,12 +12,6 @@ namespace WeenyMapper.QueryParsing
         public override int GetHashCode()
         {
             return PropertyName.GetHashCode();
-        }
-
-        public override QueryExpression Translate(IConvention convention)
-        {
-            var columnName = convention.GetColumnName(PropertyName);
-            return new PropertyExpression(columnName);
         }
 
         protected override bool NullSafeEquals(PropertyExpression other)

@@ -6,9 +6,9 @@ namespace WeenyMapper.Conventions
 {
     public class DefaultConvention : IConvention
     {
-        public virtual string GetColumnName(string propertyName)
+        public virtual string GetColumnName(PropertyInfo propertyInfo)
         {
-            return propertyName;
+            return propertyInfo.Name;
         }
 
         public virtual string GetTableName(Type entityType)

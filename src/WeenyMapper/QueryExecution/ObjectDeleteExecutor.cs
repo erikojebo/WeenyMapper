@@ -9,10 +9,10 @@ namespace WeenyMapper.QueryExecution
     public class ObjectDeleteExecutor : IObjectDeleteExecutor
     {
         private readonly ISqlGenerator _sqlGenerator;
-        private readonly IConventionDataReader _conventionReader;
+        private readonly IConventionReader _conventionReader;
         private readonly IDbCommandExecutor _dbCommandExecutor;
 
-        public ObjectDeleteExecutor(ISqlGenerator sqlGenerator, IConventionDataReader conventionReader, IDbCommandExecutor dbCommandExecutor)
+        public ObjectDeleteExecutor(ISqlGenerator sqlGenerator, IConventionReader conventionReader, IDbCommandExecutor dbCommandExecutor)
         {
             _sqlGenerator = sqlGenerator;
             _conventionReader = conventionReader;

@@ -95,7 +95,7 @@ namespace WeenyMapper.QueryParsing
         {
             if (expression.Expression is ParameterExpression && expression.Member is PropertyInfo)
             {
-                return new PropertyExpression(expression.Member.Name);
+                return new ReflectedPropertyExpression((PropertyInfo)expression.Member);
             }
 
             return CreateValueExpression(expression);
@@ -123,9 +123,9 @@ namespace WeenyMapper.QueryParsing
         private QueryExpression ParseContainsExpression(MethodCallExpression expression)
         {
             var values = (IEnumerable<object>)Evaluate(expression.Arguments[0]);
-            var propertyName = ((MemberExpression)expression.Arguments[1]).Member.Name;
+            var propertyInfo = (PropertyInfo)((MemberExpression)expression.Arguments[1]).Member;
 
-            return new InExpression(new PropertyExpression(propertyName), new ArrayValueExpression(values));
+            return new InExpression(new ReflectedPropertyExpression(propertyInfo), new ArrayValueExpression(values));
         }
 
         private QueryExpression ParseLikeExpression(MethodCallExpression expression)

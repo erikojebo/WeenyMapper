@@ -8,10 +8,10 @@ namespace WeenyMapper.QueryExecution
     public class ObjectUpdateExecutor : IObjectUpdateExecutor
     {
         private readonly ISqlGenerator _sqlGenerator;
-        private readonly IConventionDataReader _conventionReader;
+        private readonly IConventionReader _conventionReader;
         private readonly IDbCommandExecutor _dbCommandExecutor;
 
-        public ObjectUpdateExecutor(ISqlGenerator sqlGenerator, IConventionDataReader conventionReader, IDbCommandExecutor dbCommandExecutor)
+        public ObjectUpdateExecutor(ISqlGenerator sqlGenerator, IConventionReader conventionReader, IDbCommandExecutor dbCommandExecutor)
         {
             _sqlGenerator = sqlGenerator;
             _conventionReader = conventionReader;
@@ -38,7 +38,7 @@ namespace WeenyMapper.QueryExecution
         public int Update<T>(QueryExpression queryExpression, IDictionary<string, object> setters)
         {
             var tableName = _conventionReader.GetTableName<T>();
-            var columnSetters = _conventionReader.GetColumnValues(setters);
+            var columnSetters = _conventionReader.GetColumnValues<T>(setters);
             var primaryKeyColumn = _conventionReader.GetPrimaryKeyColumnName<T>();
 
             var command = _sqlGenerator.CreateUpdateCommand(tableName, primaryKeyColumn, queryExpression.Translate(_conventionReader), columnSetters);

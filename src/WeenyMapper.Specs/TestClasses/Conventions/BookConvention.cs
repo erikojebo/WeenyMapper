@@ -6,9 +6,9 @@ namespace WeenyMapper.Specs.TestClasses.Conventions
 {
     public class BookConvention : IConvention
     {
-        public string GetColumnName(string propertyName)
+        public string GetColumnName(PropertyInfo propertyInfo)
         {
-            return "c_" + propertyName.ToUpper();
+            return "c_" + propertyInfo.Name.ToUpper();
         }
 
         public string GetTableName(Type entityType)
