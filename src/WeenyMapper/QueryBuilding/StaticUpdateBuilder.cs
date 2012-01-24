@@ -36,14 +36,14 @@ namespace WeenyMapper.QueryBuilding
             return _objectUpdateExecutor.Update<T>(_queryExpression, _setters);
         }
 
-        public void UpdateAsync(T entity, Action callback)
+        public void UpdateAsync(T entity, Action callback, Action<Exception> errorCallback = null)
         {
-            TaskRunner.Run(() => Update(entity), callback);
+            TaskRunner.Run(() => Update(entity), callback, errorCallback);
         }
 
-        public void ExecuteAsync(Action<int> callback)
+        public void ExecuteAsync(Action<int> callback, Action<Exception> errorCallback = null)
         {
-            TaskRunner.Run(Execute, callback);
+            TaskRunner.Run(Execute, callback, errorCallback);
         }
 
         public StaticUpdateBuilder<T> Where(Expression<Func<T, bool>> queryExpression)

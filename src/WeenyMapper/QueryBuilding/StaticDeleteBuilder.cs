@@ -24,9 +24,9 @@ namespace WeenyMapper.QueryBuilding
             return _objectDeleteExecutor.Delete<T>(_queryExpression);
         }
 
-        public void ExecuteAsync(Action<int> callback)
+        public void ExecuteAsync(Action<int> callback, Action<Exception> errorCallback = null)
         {
-            TaskRunner.Run(Execute, callback);
+            TaskRunner.Run(Execute, callback, errorCallback);
         }
 
         public StaticDeleteBuilder<T> Where(Expression<Func<T, bool>> queryExpression)

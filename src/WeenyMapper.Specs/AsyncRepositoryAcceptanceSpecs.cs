@@ -97,7 +97,7 @@ namespace WeenyMapper.Specs
 
         [Timeout(5000)]
         [Test]
-        public void Statically_typed_update_for_multiple_entities_can_be_run_asynchronously()
+        public void Update_for_multiple_entities_can_be_run_asynchronously()
         {
             var user1 = new User
                 {
@@ -162,7 +162,7 @@ namespace WeenyMapper.Specs
 
         [Timeout(5000)]
         [Test]
-        public void Statically_typed_delete_for_multiple_entities_can_be_run_asynchronously()
+        public void Delete_for_multiple_entities_can_be_run_asynchronously()
         {
             var user1 = new User
                 {
@@ -318,6 +318,7 @@ namespace WeenyMapper.Specs
                                 .ExecuteScalarListAsync(callback));
         }
 
+        [Timeout(5000)]
         [Test]
         public void Entities_with_identity_generated_ids_gets_assigned_id_written_to_id_property_after_insert_callback_is_called()
         {
@@ -350,6 +351,55 @@ namespace WeenyMapper.Specs
             Assert.AreEqual(allMovies[2].Id, movie3.Id);
         }
 
+        [Timeout(5000)]
+        [Test]
+        public void Error_callback_is_called_on_exception_while_inserting_single_entity()
+        {
+            AssertErrorCallbackIsInvoked((c, e) => Repository.InsertAsync(new EntityWithoutTable(), c, e));
+        }
+
+        [Timeout(5000)]
+        [Test]
+        public void Error_callback_is_called_on_exception_while_inserting_multiple_entities()
+        {
+            var entities = new[] { new EntityWithoutTable(), new EntityWithoutTable() };
+            AssertErrorCallbackIsInvoked((c, e) => Repository.InsertManyAsync(entities, c, e));
+        }
+        
+        [Timeout(5000)]
+        [Test]
+        public void Error_callback_is_called_on_exception_while_updating_single_entity()
+        {
+            AssertErrorCallbackIsInvoked((c, e) => Repository.UpdateAsync(new EntityWithoutTable(), c, e));
+        }
+
+        [Timeout(5000)]
+        [Test]
+        public void Error_callback_is_called_on_exception_while_updating_multiple_entities()
+        {
+            AssertErrorCallbackForParameterizedResultCallbackIsInvoked<int>(
+                (c, e) => Repository.Update<EntityWithoutTable>()
+                    .Where(x => x.Id == 0)
+                    .Set(x => x.Id, 1).ExecuteAsync(c, e));
+        }
+        
+        [Timeout(5000)]
+        [Test]
+        public void Error_callback_is_called_on_exception_while_deleting_single_entity()
+        {
+            AssertErrorCallbackIsInvoked((c, e) => Repository.DeleteAsync(new EntityWithoutTable(), c, e));
+        }
+
+        [Timeout(5000)]
+        [Test]
+        public void Error_callback_is_called_on_exception_while_deleting_multiple_entities()
+        {
+            AssertErrorCallbackForParameterizedResultCallbackIsInvoked<int>(
+                (c, e) => Repository.Delete<EntityWithoutTable>()
+                    .Where(x => x.Id == 0)
+                    .ExecuteAsync(c, e));
+        }
+
         private void AssertCallbackIsInvoked(Action<Action> operation)
         {
             var wasCallbackCalledSemaphore = new Semaphore(0, 1);
@@ -358,6 +408,26 @@ namespace WeenyMapper.Specs
 
             // Wait until callback is called. The test will fail if the timeout is reached)
             wasCallbackCalledSemaphore.WaitOne();
+        }
+
+        private void AssertErrorCallbackIsInvoked(Action<Action, Action<Exception>> operation)
+        {
+            var wasErrorCallbackCalledSemaphore = new Semaphore(0, 1);
+
+            operation(() => { }, _ => wasErrorCallbackCalledSemaphore.Release());
+
+            // Wait until callback is called. The test will fail if the timeout is reached)
+            wasErrorCallbackCalledSemaphore.WaitOne();
+        }
+        
+        private void AssertErrorCallbackForParameterizedResultCallbackIsInvoked<T>(Action<Action<T>, Action<Exception>> operation)
+        {
+            var wasErrorCallbackCalledSemaphore = new Semaphore(0, 1);
+
+            operation(_ => { }, _ => wasErrorCallbackCalledSemaphore.Release());
+
+            // Wait until callback is called. The test will fail if the timeout is reached)
+            wasErrorCallbackCalledSemaphore.WaitOne();
         }
 
         private void AssertParameterizedCallbackIsInvoked<T>(T expectedParameter, Action<Action<T>> operation)

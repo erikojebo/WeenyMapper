@@ -67,6 +67,7 @@
     <Compile Include="TestClasses\Conventions\UserConvention.cs" />
     <Compile Include="TestClasses\Conventions\UserWithExtraPropertiesConvention.cs" />
     <Compile Include="TestClasses\Entities\Book.cs" />
+    <Compile Include="TestClasses\Entities\EntityWithoutTable.cs" />
     <Compile Include="TestClasses\Entities\Movie.cs" />
     <Compile Include="TestClasses\Entities\PartialUser.cs" />
     <Compile Include="TestClasses\Entities\User.cs" />

@@ -5,23 +5,47 @@ namespace WeenyMapper.Async
 {
     public class TaskRunner
     {
-        public static void Run(Action action, Action callback)
+        public static void Run(Action action, Action callback, Action<Exception> errorCallback = null)
         {
             var task = new Task(() =>
                 {
-                    action();
-                    callback();
+                    try
+                    {
+                        action();
+                        callback();
+                    }
+                    catch (Exception e)
+                    {
+                        if (errorCallback == null)
+                        {
+                            throw;
+                        }
+
+                        errorCallback(e);
+                    }
                 });
 
             task.Start();
         }
 
-        public static void Run<T>(Func<T> action, Action<T> callback)
+        public static void Run<T>(Func<T> action, Action<T> callback, Action<Exception> errorCallback = null)
         {
             var task = new Task(() =>
                 {
-                    var result = action();
-                    callback(result);
+                    try
+                    {
+                        var result = action();
+                        callback(result);
+                    }
+                    catch (Exception e)
+                    {
+                        if (errorCallback == null)
+                        {
+                            throw;
+                        }
+
+                        errorCallback(e);
+                    }
                 });
 
             task.Start();

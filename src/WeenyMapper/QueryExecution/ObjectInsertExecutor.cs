@@ -46,9 +46,9 @@ namespace WeenyMapper.QueryExecution
             }
         }
 
-        public void InsertAsync<T>(IEnumerable<T> entities, Action callback)
+        public void InsertAsync<T>(IEnumerable<T> entities, Action callback, Action<Exception> errorCallback = null)
         {
-            TaskRunner.Run(() => Insert(entities), callback);
+            TaskRunner.Run(() => Insert(entities), callback, errorCallback);
         }
 
         private IEnumerable<DbCommand> CreateInsertCommands<T>(IEnumerable<T> entities)

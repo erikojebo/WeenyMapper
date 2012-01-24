@@ -35,9 +35,9 @@ namespace WeenyMapper.QueryExecution
             return _dbCommandExecutor.ExecuteNonQuery(command, ConnectionString);
         }
 
-        public void DeleteAsync<T>(T entity, Action callback)
+        public void DeleteAsync<T>(T entity, Action callback, Action<Exception> errorCallback = null)
         {
-            TaskRunner.Run(() => Delete(entity), callback);
+            TaskRunner.Run(() => Delete(entity), callback, errorCallback);
         }
 
         public int Delete<T>(QueryExpression queryExpression)

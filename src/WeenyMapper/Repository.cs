@@ -50,24 +50,24 @@ namespace WeenyMapper
             objectInsertExecutor.Insert(new[] { entity });
         }
 
-        public void InsertAsync<T>(T entity, Action callback)
+        public void InsertAsync<T>(T entity, Action callback, Action<Exception> errorCallback = null)
         {
             var objectInsertExecutor = new ObjectInsertExecutor(new TSqlGenerator(), new ConventionReader(Convention), new SqlCommandExecutor(SqlLogger))
                 {
                     ConnectionString = ConnectionString
                 };
 
-            objectInsertExecutor.InsertAsync(new[] { entity }, callback);
+            objectInsertExecutor.InsertAsync(new[] { entity }, callback, errorCallback);
         }
 
-        public void InsertManyAsync<T>(IEnumerable<T> entities, Action callback)
+        public void InsertManyAsync<T>(IEnumerable<T> entities, Action callback, Action<Exception> errorCallback = null)
         {
             var objectInsertExecutor = new ObjectInsertExecutor(new TSqlGenerator(), new ConventionReader(Convention), new SqlCommandExecutor(SqlLogger))
                 {
                     ConnectionString = ConnectionString
                 };
 
-            objectInsertExecutor.InsertAsync(entities, callback);
+            objectInsertExecutor.InsertAsync(entities, callback, errorCallback);
         }
 
         public int Update<T>(T entity)
@@ -82,7 +82,7 @@ namespace WeenyMapper
             return builder.Update(entity);
         }
 
-        public void UpdateAsync<T>(T entity, Action callback)
+        public void UpdateAsync<T>(T entity, Action callback, Action<Exception> errorCallback = null)
         {
             var objectUpdateExecutor = new ObjectUpdateExecutor(new TSqlGenerator(), new ConventionReader(Convention), new SqlCommandExecutor(SqlLogger))
                 {
@@ -91,7 +91,7 @@ namespace WeenyMapper
 
             var builder = new StaticUpdateBuilder<T>(objectUpdateExecutor, new ExpressionParser());
 
-            builder.UpdateAsync(entity, callback);
+            builder.UpdateAsync(entity, callback, errorCallback);
         }
 
         public StaticUpdateBuilder<T> Update<T>()
@@ -124,14 +124,14 @@ namespace WeenyMapper
             return objectDeleteExecutor.Delete(entity);
         }
 
-        public void DeleteAsync<T>(T entity, Action callback)
+        public void DeleteAsync<T>(T entity, Action callback, Action<Exception> errorCallback = null)
         {
             var objectDeleteExecutor = new ObjectDeleteExecutor(new TSqlGenerator(), new ConventionReader(Convention), new SqlCommandExecutor(SqlLogger))
                 {
                     ConnectionString = ConnectionString
                 };
 
-            objectDeleteExecutor.DeleteAsync(entity, callback);
+            objectDeleteExecutor.DeleteAsync(entity, callback, errorCallback);
         }
 
         public StaticDeleteBuilder<T> Delete<T>()
