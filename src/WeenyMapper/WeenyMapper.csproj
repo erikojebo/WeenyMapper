@@ -99,12 +99,14 @@
     <Compile Include="Sql\ICommandParameterFactory.cs" />
     <Compile Include="Sql\IDbCommandExecutor.cs" />
     <Compile Include="QueryParsing\IExpressionVisitor.cs" />
+    <Compile Include="Sql\IDbCommandFactory.cs" />
     <Compile Include="Sql\ISqlGenerator.cs" />
     <Compile Include="QueryExecution\ObjectQueryExecutor.cs" />
     <Compile Include="Sql\ObjectQuerySpecification.cs" />
     <Compile Include="Sql\Page.cs" />
     <Compile Include="Sql\SqlCommandExecutor.cs" />
     <Compile Include="Sql\SqlQuerySpecification.cs" />
+    <Compile Include="Sql\SqlServerCommandFactory.cs" />
     <Compile Include="Sql\TSqlGenerator.cs" />
   </ItemGroup>
   <ItemGroup />

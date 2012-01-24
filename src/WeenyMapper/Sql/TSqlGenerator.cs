@@ -10,6 +10,13 @@ namespace WeenyMapper.Sql
 {
     public class TSqlGenerator : ISqlGenerator
     {
+        private readonly IDbCommandFactory _commandFactory;
+
+        public TSqlGenerator(IDbCommandFactory commandFactory)
+        {
+            _commandFactory = commandFactory;
+        }
+
         public DbCommand GenerateSelectQuery(SqlQuerySpecification querySpecification)
         {
             if (querySpecification.IsPagingQuery)
@@ -17,7 +24,7 @@ namespace WeenyMapper.Sql
                 return GeneratePagingQuery(querySpecification);
             }
 
-            var command = new SqlCommand();
+            var command = _commandFactory.CreateCommand();
 
             var selectedColumnString = CreateColumnNameList(querySpecification.ColumnsToSelect, Escape);
             var topString = AppendTopString("", command, querySpecification.RowCountLimit);
@@ -34,7 +41,7 @@ namespace WeenyMapper.Sql
 
         private DbCommand GeneratePagingQuery(SqlQuerySpecification querySpecification)
         {
-            var command = new SqlCommand();
+            var command = _commandFactory.CreateCommand();
 
             if (querySpecification.OrderByStatements.IsEmpty())
             {
@@ -99,11 +106,12 @@ namespace WeenyMapper.Sql
 
             var insertCommand = string.Format("INSERT INTO {0} ({1}) VALUES ({2})", Escape(tableName), columnNamesString, parameterNamesString);
 
-            var sqlCommand = new SqlCommand(insertCommand);
+            var command = _commandFactory.CreateCommand();
+            command.CommandText = insertCommand;
 
-            AddParameters(sqlCommand, propertyValues);
+            AddParameters(command, propertyValues);
 
-            return sqlCommand;
+            return command;
         }
 
         public DbCommand CreateUpdateCommand(string tableName, string primaryKeyColumn, QueryExpression constraintExpression, IDictionary<string, object> columnSetters)
@@ -111,7 +119,8 @@ namespace WeenyMapper.Sql
             var updateString = CreateColumnNameList(columnSetters, x => CreateParameterEqualsStatement(x));
 
             var sql = string.Format("UPDATE {0} SET {1}", Escape(tableName), updateString);
-            var command = new SqlCommand(sql);
+            var command = _commandFactory.CreateCommand();
+            command.CommandText = sql;
 
             var commandText = AppendConstraint(sql, command, constraintExpression);
             AddParameters(command, columnSetters);
@@ -125,7 +134,8 @@ namespace WeenyMapper.Sql
         {
             var commandText = string.Format("DELETE FROM {0}", Escape(tableName));
 
-            var command = new SqlCommand(commandText);
+            var command = _commandFactory.CreateCommand();
+            command.CommandText = commandText;
             commandText = AppendConstraint(commandText, command, queryExpression);
 
             command.CommandText = commandText;
@@ -143,7 +153,7 @@ namespace WeenyMapper.Sql
         {
             var countQuery = string.Format("SELECT COUNT(*) FROM {0}", Escape(tableName));
 
-            var command = new SqlCommand();
+            var command = _commandFactory.CreateCommand();
 
             countQuery = AppendConstraint(countQuery, command, queryExpression);
 
@@ -164,7 +174,7 @@ namespace WeenyMapper.Sql
             return string.Join(", ", escapedColumnNames);
         }
 
-        private string AppendConstraint(string commandString, SqlCommand command, QueryExpression queryExpression)
+        private string AppendConstraint(string commandString, DbCommand command, QueryExpression queryExpression)
         {
             var newCommandString = commandString;
 

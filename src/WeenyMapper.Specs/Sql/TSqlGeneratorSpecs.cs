@@ -17,7 +17,7 @@ namespace WeenyMapper.Specs.Sql
         [SetUp]
         public void SetUp()
         {
-            _generator = new TSqlGenerator();
+            _generator = new TSqlGenerator(new SqlServerCommandFactory());
             _querySpecification = new SqlQuerySpecification();
 
             _querySpecification.ColumnsToSelect = new[] { "ColumnName1", "ColumnName2" };
