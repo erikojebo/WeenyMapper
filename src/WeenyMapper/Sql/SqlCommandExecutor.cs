@@ -10,10 +10,12 @@ namespace WeenyMapper.Sql
     public class SqlCommandExecutor : IDbCommandExecutor
     {
         private readonly ISqlCommandLogger _sqlCommandLogger;
+        private readonly IDbCommandFactory _commandFactory;
 
-        public SqlCommandExecutor(ISqlCommandLogger sqlCommandLogger)
+        public SqlCommandExecutor(ISqlCommandLogger sqlCommandLogger, IDbCommandFactory commandFactory)
         {
             _sqlCommandLogger = sqlCommandLogger;
+            _commandFactory = commandFactory;
         }
 
         public int ExecuteNonQuery(DbCommand command, string connectionString)
@@ -26,7 +28,7 @@ namespace WeenyMapper.Sql
         {
             var rowCounts = new List<int>();
 
-            using (var connection = new SqlConnection(connectionString))
+            using (var connection = _commandFactory.CreateConnection(connectionString))
             {
                 connection.Open();
 
@@ -49,7 +51,7 @@ namespace WeenyMapper.Sql
         {
             var results = new List<T>();
 
-            using (var connection = new SqlConnection(connectionString))
+            using (var connection = _commandFactory.CreateConnection(connectionString))
             {
                 connection.Open();
                 command.Connection = connection;
@@ -73,7 +75,7 @@ namespace WeenyMapper.Sql
 
         public T ExecuteScalar<T>(DbCommand command, string connectionString)
         {
-            using (var connection = new SqlConnection(connectionString))
+            using (var connection = _commandFactory.CreateConnection(connectionString))
             {
                 connection.Open();
 
@@ -90,7 +92,7 @@ namespace WeenyMapper.Sql
 
         public IList<T> ExecuteScalarList<T>(DbCommand command, string connectionString)
         {
-            using (var connection = new SqlConnection(connectionString))
+            using (var connection = _commandFactory.CreateConnection(connectionString))
             {
                 var result = new List<T>();
 

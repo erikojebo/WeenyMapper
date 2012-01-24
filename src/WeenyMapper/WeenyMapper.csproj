@@ -33,8 +33,11 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.SqlServerCe, Version=3.5.1.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\SQL Server CE\System.Data.SqlServerCe.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -106,10 +109,10 @@
     <Compile Include="Sql\Page.cs" />
     <Compile Include="Sql\SqlCommandExecutor.cs" />
     <Compile Include="Sql\SqlQuerySpecification.cs" />
+    <Compile Include="Sql\SqlCeCommandFactory.cs" />
     <Compile Include="Sql\SqlServerCommandFactory.cs" />
     <Compile Include="Sql\TSqlGenerator.cs" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
