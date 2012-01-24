@@ -400,6 +400,50 @@ namespace WeenyMapper.Specs
                     .ExecuteAsync(c, e));
         }
 
+        [Timeout(5000)]
+        [Test]
+        public void Error_callback_is_called_on_exception_while_finding_single_entity()
+        {
+            AssertErrorCallbackForParameterizedResultCallbackIsInvoked<EntityWithoutTable>(
+                (c, e) => Repository
+                    .Find<EntityWithoutTable>()
+                    .Where(x => x.Id == 1)
+                    .ExecuteAsync(c, e));
+        }
+
+        [Timeout(5000)]
+        [Test]
+        public void Error_callback_is_called_on_exception_while_finding_multiple_entities()
+        {
+            AssertErrorCallbackForParameterizedResultCallbackIsInvoked<IList<EntityWithoutTable>>(
+                (c, e) => Repository
+                    .Find<EntityWithoutTable>()
+                    .ExecuteListAsync(c, e));
+        }
+        
+        [Timeout(5000)]
+        [Test]
+        public void Error_callback_is_called_on_exception_while_finding_single_scalar()
+        {
+            AssertErrorCallbackForParameterizedResultCallbackIsInvoked<EntityWithoutTable>(
+                (c, e) => Repository
+                    .Find<EntityWithoutTable>()
+                    .Where(x => x.Id == 1)
+                    .Select(x => x.Id)
+                    .ExecuteScalarAsync(c, e));
+        }
+
+        [Timeout(5000)]
+        [Test]
+        public void Error_callback_is_called_on_exception_while_finding_list_of_scalars()
+        {
+            AssertErrorCallbackForParameterizedResultCallbackIsInvoked<IList<EntityWithoutTable>>(
+                (c, e) => Repository
+                    .Find<EntityWithoutTable>()
+                    .Select(x => x.Id)
+                    .ExecuteScalarListAsync(c, e));
+        }
+
         private void AssertCallbackIsInvoked(Action<Action> operation)
         {
             var wasCallbackCalledSemaphore = new Semaphore(0, 1);

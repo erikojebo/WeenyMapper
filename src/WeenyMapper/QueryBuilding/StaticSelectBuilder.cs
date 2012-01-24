@@ -57,19 +57,19 @@ namespace WeenyMapper.QueryBuilding
             return this;
         }
 
-        public void ExecuteAsync(Action<T> callback)
+        public void ExecuteAsync(Action<T> callback, Action<Exception> errorCallback = null)
         {
-            TaskRunner.Run(Execute, callback);
+            TaskRunner.Run(Execute, callback, errorCallback);
         }
 
-        public void ExecuteListAsync(Action<IList<T>> callback)
+        public void ExecuteListAsync(Action<IList<T>> callback, Action<Exception> errorCallback = null)
         {
-            TaskRunner.Run(ExecuteList, callback);
+            TaskRunner.Run(ExecuteList, callback, errorCallback);
         }
 
-        public void ExecuteScalarAsync<TScalar>(Action<TScalar> callback)
+        public void ExecuteScalarAsync<TScalar>(Action<TScalar> callback, Action<Exception> errorCallback = null)
         {
-            TaskRunner.Run(ExecuteScalar<TScalar>, callback);
+            TaskRunner.Run(ExecuteScalar<TScalar>, callback, errorCallback);
         }
 
         public TScalar ExecuteScalar<TScalar>()
@@ -77,9 +77,9 @@ namespace WeenyMapper.QueryBuilding
             return _objectQueryExecutor.FindScalar<T, TScalar>(_querySpecification);
         }
 
-        public void ExecuteScalarListAsync<TScalar>(Action<IList<TScalar>> callback)
+        public void ExecuteScalarListAsync<TScalar>(Action<IList<TScalar>> callback, Action<Exception> errorCallback = null)
         {
-            TaskRunner.Run(ExecuteScalarList<TScalar>, callback);
+            TaskRunner.Run(ExecuteScalarList<TScalar>, callback, errorCallback);
         }
 
         public IList<TScalar> ExecuteScalarList<TScalar>()
