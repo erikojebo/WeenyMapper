@@ -61,8 +61,8 @@ namespace WeenyMapper.Sql
 
             command.CommandText = commandString;
 
-            command.Parameters.Add(new SqlParameter("LowRowLimit", querySpecification.Page.LowRowLimit));
-            command.Parameters.Add(new SqlParameter("HighRowLimit", querySpecification.Page.HighRowLimit));
+            command.Parameters.Add(_commandFactory.CreateParameter("LowRowLimit", querySpecification.Page.LowRowLimit));
+            command.Parameters.Add(_commandFactory.CreateParameter("HighRowLimit", querySpecification.Page.HighRowLimit));
 
             command.CommandText = commandString;
 
@@ -76,7 +76,7 @@ namespace WeenyMapper.Sql
                 return commandText;
             }
 
-            command.Parameters.Add(new SqlParameter("RowCountLimit", rowCountLimit));
+            command.Parameters.Add(_commandFactory.CreateParameter("RowCountLimit", rowCountLimit));
 
             return commandText + string.Format(" TOP(@RowCountLimit)");
         }
@@ -186,7 +186,7 @@ namespace WeenyMapper.Sql
                 newCommandString += " WHERE " + whereExpression.ConstraintCommandText;
             }
 
-            command.Parameters.AddRange(whereExpression.CommandParameters.Select(x => new SqlParameter(x.Name, x.Value)).ToArray());
+            command.Parameters.AddRange(whereExpression.CommandParameters.Select(x => _commandFactory.CreateParameter(x.Name, x.Value)).ToArray());
 
             return newCommandString;
         }
@@ -195,7 +195,7 @@ namespace WeenyMapper.Sql
         {
             foreach (var propertyValue in columnSetters)
             {
-                command.Parameters.Add(new SqlParameter(propertyValue.Key + parameterNameSuffix, propertyValue.Value));
+                command.Parameters.Add(_commandFactory.CreateParameter(propertyValue.Key + parameterNameSuffix, propertyValue.Value));
             }
         }
 
