@@ -33,10 +33,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.SqlServerCe, Version=3.5.1.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\SQL Server CE\System.Data.SqlServerCe.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
@@ -51,6 +47,7 @@
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\SqlCommandExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
+    <Compile Include="IDatabaseProvider.cs" />
     <Compile Include="Logging\ISqlCommandLogger.cs" />
     <Compile Include="Logging\NullSqlCommandLogger.cs" />
     <Compile Include="Mapping\EntityMapper.cs" />
@@ -98,6 +95,7 @@
     <Compile Include="QueryParsing\QueryParser.cs" />
     <Compile Include="Repository.cs" />
     <Compile Include="QueryExecution\IObjectQueryExecutor.cs" />
+    <Compile Include="SqlServerDatabaseProvider.cs" />
     <Compile Include="Sql\CommandParameter.cs" />
     <Compile Include="Sql\CommandParameterFactory.cs" />
     <Compile Include="Sql\ICommandParameterFactory.cs" />
@@ -109,10 +107,8 @@
     <Compile Include="Sql\ObjectQuerySpecification.cs" />
     <Compile Include="Sql\Page.cs" />
     <Compile Include="Sql\ScalarCommand.cs" />
-    <Compile Include="Sql\SqlCeTSqlGenerator.cs" />
     <Compile Include="Sql\DbCommandExecutor.cs" />
     <Compile Include="Sql\SqlQuerySpecification.cs" />
-    <Compile Include="Sql\SqlCeCommandFactory.cs" />
     <Compile Include="Sql\SqlServerCommandFactory.cs" />
     <Compile Include="Sql\TSqlGenerator.cs" />
   </ItemGroup>

@@ -21,7 +21,7 @@ namespace WeenyMapper.Specs
 
         protected override void PerformSetUp()
         {
-            Repository.DatabaseSystem = DatabaseSystem.SqlServer;
+            Repository.DatabaseProvider = new SqlServerDatabaseProvider();
             DeleteAllExistingTestData();
         }
 

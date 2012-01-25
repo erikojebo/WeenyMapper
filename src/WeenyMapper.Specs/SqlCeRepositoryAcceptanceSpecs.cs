@@ -6,6 +6,7 @@ using System.Reflection;
 using NUnit.Framework;
 using WeenyMapper.Logging;
 using WeenyMapper.Sql;
+using WeenyMapper.SqlCe;
 
 namespace WeenyMapper.Specs
 {
@@ -14,7 +15,7 @@ namespace WeenyMapper.Specs
     {
         protected override void PerformSetUp()
         {
-            Repository.DatabaseSystem = DatabaseSystem.SqlCe;
+            Repository.DatabaseProvider = new SqlCeDatabaseProvider();
 
             CreateDatabaseFile();
             WriteDatabaseSchema();

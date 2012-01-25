@@ -18,11 +18,12 @@ namespace WeenyMapper
         {
             Convention = new DefaultConvention();
             SqlLogger = new NullSqlCommandLogger();
+            DatabaseProvider = new SqlServerDatabaseProvider();
         }
 
         public static IConvention Convention { get; set; }
         public static ISqlCommandLogger SqlLogger { get; set; }
-        public static DatabaseSystem DatabaseSystem { get; set; }
+        public static IDatabaseProvider DatabaseProvider { get; set; }
 
         public string ConnectionString { get; set; }
 
@@ -176,12 +177,13 @@ namespace WeenyMapper
 
         private TSqlGenerator CreateSqlGenerator()
         {
-            if (DatabaseSystem == DatabaseSystem.SqlCe)
-            {
-                return new SqlCeTSqlGenerator(CreateDbCommandFactory());
-            }
+            return DatabaseProvider.CreateSqlGenerator();
+            //if (DatabaseProvider == DatabaseSystem.SqlCe)
+            //{
+            //    return new SqlCeTSqlGenerator(CreateDbCommandFactory());
+            //}
 
-            return new TSqlGenerator(CreateDbCommandFactory());
+            //return new TSqlGenerator(CreateDbCommandFactory());
         }
 
         private DbCommandExecutor CreateSqlCommandExecutor()
@@ -191,12 +193,13 @@ namespace WeenyMapper
 
         private IDbCommandFactory CreateDbCommandFactory()
         {
-            if (DatabaseSystem == DatabaseSystem.SqlCe)
-            {
-                return new SqlCeCommandFactory();
-            }
+            return DatabaseProvider.CreateDbCommandFactory();
+            //if (DatabaseProvider == DatabaseSystem.SqlCe)
+            //{
+            //    return new SqlCeCommandFactory();
+            //}
 
-            return new SqlServerCommandFactory();
+            //return new SqlServerCommandFactory();
         }
 
         private ConventionReader CreateConventionReader()
