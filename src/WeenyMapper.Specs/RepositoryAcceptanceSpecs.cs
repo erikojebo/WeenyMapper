@@ -1180,6 +1180,8 @@ namespace WeenyMapper.Specs
         [Test]
         public virtual void Many_to_one_relationship_can_be_written_and_read_back_again_single_query_using_join()
         {
+            Repository.Convention = new BlogConvention();
+
             var blog1 = new Blog
                 {
                     Name = "Blog 1",

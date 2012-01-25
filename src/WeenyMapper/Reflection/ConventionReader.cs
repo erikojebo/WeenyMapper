@@ -95,15 +95,51 @@ namespace WeenyMapper.Reflection
 
             foreach (var property in properties)
             {
-                if (property.PropertyType.ImplementsGenericInterface(typeof(IEnumerable<>)) && property.PropertyType != typeof(string))
+                if (IsEntityCollectionProperty(property))
+                {
+                    continue;
+                }
+                if (!IsDataProperty(property))
                 {
                     continue;
                 }
 
                 propertyValues[property.Name] = property.GetValue(instance, null);
+
             }
 
             return propertyValues;
+        }
+
+        private bool IsDataProperty(PropertyInfo property)
+        {
+            var dataPropertyTypes = new List<Type>
+                {
+                    typeof(Guid),
+                    typeof(DateTime),
+                    typeof(TimeSpan),
+                    typeof(string),
+                    typeof(double),
+                    typeof(decimal),
+                    typeof(float),
+                    typeof(bool),
+                    typeof(char),
+                    typeof(long),
+                    typeof(ulong),
+                    typeof(short),
+                    typeof(ushort),
+                    typeof(int),
+                    typeof(uint),
+                    typeof(byte),
+                    typeof(sbyte),
+                };
+
+            return dataPropertyTypes.Contains(property.PropertyType);
+        }
+
+        private bool IsEntityCollectionProperty(PropertyInfo property)
+        {
+            return property.PropertyType.ImplementsGenericInterface(typeof(IEnumerable<>)) && property.PropertyType != typeof(string);
         }
 
         public string GetColumnName(PropertyInfo propertyInfo)
