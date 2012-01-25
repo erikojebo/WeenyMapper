@@ -178,12 +178,6 @@ namespace WeenyMapper
         private TSqlGenerator CreateSqlGenerator()
         {
             return DatabaseProvider.CreateSqlGenerator();
-            //if (DatabaseProvider == DatabaseSystem.SqlCe)
-            //{
-            //    return new SqlCeTSqlGenerator(CreateDbCommandFactory());
-            //}
-
-            //return new TSqlGenerator(CreateDbCommandFactory());
         }
 
         private DbCommandExecutor CreateSqlCommandExecutor()
@@ -194,12 +188,6 @@ namespace WeenyMapper
         private IDbCommandFactory CreateDbCommandFactory()
         {
             return DatabaseProvider.CreateDbCommandFactory();
-            //if (DatabaseProvider == DatabaseSystem.SqlCe)
-            //{
-            //    return new SqlCeCommandFactory();
-            //}
-
-            //return new SqlServerCommandFactory();
         }
 
         private ConventionReader CreateConventionReader()
