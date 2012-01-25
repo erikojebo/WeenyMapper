@@ -176,7 +176,17 @@ namespace WeenyMapper
 
         private TSqlGenerator CreateSqlGenerator()
         {
-            return new TSqlGenerator(CreateDbCommandFactory());
+            if (DatabaseSystem == DatabaseSystem.SqlCe)
+            {
+                return new SqlCeTSqlGenerator(CreateDbCommandFactory(), CreateSqlCommandExecutor());
+            }
+
+            return new TSqlGenerator(CreateDbCommandFactory(), CreateSqlCommandExecutor());
+        }
+
+        private SqlCommandExecutor CreateSqlCommandExecutor()
+        {
+            return new SqlCommandExecutor(SqlLogger, CreateDbCommandFactory());
         }
 
         private IDbCommandFactory CreateDbCommandFactory()
@@ -187,11 +197,6 @@ namespace WeenyMapper
             }
 
             return new SqlServerCommandFactory();
-        }
-
-        private SqlCommandExecutor CreateSqlCommandExecutor()
-        {
-            return new SqlCommandExecutor(SqlLogger, CreateDbCommandFactory());
         }
 
         private ConventionReader CreateConventionReader()

@@ -3,6 +3,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using NUnit.Framework;
 using WeenyMapper.Extensions;
+using WeenyMapper.Logging;
 using WeenyMapper.QueryParsing;
 using WeenyMapper.Sql;
 
@@ -17,7 +18,11 @@ namespace WeenyMapper.Specs.Sql
         [SetUp]
         public void SetUp()
         {
-            _generator = new TSqlGenerator(new SqlServerCommandFactory());
+            var sqlServerCommandFactory = new SqlServerCommandFactory();
+            var sqlCommandExecutor = new SqlCommandExecutor(new NullSqlCommandLogger(), new SqlServerCommandFactory());
+
+            _generator = new TSqlGenerator(sqlServerCommandFactory, sqlCommandExecutor);
+
             _querySpecification = new SqlQuerySpecification();
 
             _querySpecification.ColumnsToSelect = new[] { "ColumnName1", "ColumnName2" };
@@ -103,7 +108,8 @@ namespace WeenyMapper.Specs.Sql
             propertyValues["ColumnName1"] = "value 1";
             propertyValues["ColumnName2"] = "value 2";
 
-            var sqlCommand = _generator.CreateIdentityInsertCommand("TableName", propertyValues);
+            var scalarCommand = _generator.CreateIdentityInsertCommand2("TableName", propertyValues);
+            var sqlCommand = scalarCommand.ResultCommand;
 
             var expectedSql = "INSERT INTO [TableName] ([ColumnName1], [ColumnName2]) VALUES (@ColumnName1, @ColumnName2);" +
                               "SELECT CAST(@@IDENTITY AS int)";

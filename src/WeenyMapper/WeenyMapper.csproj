@@ -108,6 +108,8 @@
     <Compile Include="QueryExecution\ObjectQueryExecutor.cs" />
     <Compile Include="Sql\ObjectQuerySpecification.cs" />
     <Compile Include="Sql\Page.cs" />
+    <Compile Include="Sql\ScalarCommand.cs" />
+    <Compile Include="Sql\SqlCeTSqlGenerator.cs" />
     <Compile Include="Sql\SqlCommandExecutor.cs" />
     <Compile Include="Sql\SqlQuerySpecification.cs" />
     <Compile Include="Sql\SqlCeCommandFactory.cs" />

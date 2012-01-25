@@ -29,7 +29,17 @@ namespace WeenyMapper.QueryExecution
 
             if (_conventionReader.HasIdentityId(typeof(T)))
             {
-                var commands = CreateIdentityInsertCommands(entities);
+                var commands = new List<ScalarCommand>();
+
+                foreach (var entity in entities)
+                {
+                    var columnValues = _conventionReader.GetColumnValuesForInsert(entity);
+                    var tableName = _conventionReader.GetTableName<T>();
+
+                    var command = _sqlGenerator.CreateIdentityInsertCommand2(tableName, columnValues);
+
+                    commands.Add(command);
+                }
 
                 var ids = _dbCommandExecutor.ExecuteScalarList<int>(commands, ConnectionString);
 

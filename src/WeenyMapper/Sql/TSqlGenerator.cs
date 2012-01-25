@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Data.SqlClient;
 using System.Linq;
 using WeenyMapper.Extensions;
 using WeenyMapper.QueryParsing;
@@ -11,10 +10,12 @@ namespace WeenyMapper.Sql
     public class TSqlGenerator : ISqlGenerator
     {
         private readonly IDbCommandFactory _commandFactory;
+        private readonly IDbCommandExecutor _commandExecutor;
 
-        public TSqlGenerator(IDbCommandFactory commandFactory)
+        public TSqlGenerator(IDbCommandFactory commandFactory, IDbCommandExecutor commandExecutor)
         {
             _commandFactory = commandFactory;
+            _commandExecutor = commandExecutor;
         }
 
         public DbCommand GenerateSelectQuery(SqlQuerySpecification querySpecification)
@@ -147,6 +148,18 @@ namespace WeenyMapper.Sql
             var insertCommand = CreateInsertCommand(tableName, columnValues);
             insertCommand.CommandText += ";SELECT CAST(@@IDENTITY AS int)";
             return insertCommand;
+        }
+
+        public virtual ScalarCommand CreateIdentityInsertCommand2(string tableName, IDictionary<string, object> columnValues)
+        {
+            var scalarCommand = new ScalarCommand(_commandExecutor);
+
+            var insertCommand = CreateInsertCommand(tableName, columnValues);
+            insertCommand.CommandText += ";SELECT CAST(@@IDENTITY AS int)";
+
+            scalarCommand.ResultCommand = insertCommand;
+
+            return scalarCommand;
         }
 
         public DbCommand CreateCountCommand(string tableName, QueryExpression queryExpression)

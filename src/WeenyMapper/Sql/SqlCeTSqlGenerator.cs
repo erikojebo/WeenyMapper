@@ -1,0 +1,30 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace WeenyMapper.Sql
+{
+    public class SqlCeTSqlGenerator : TSqlGenerator 
+    {
+        private readonly IDbCommandFactory _commandFactory;
+        private readonly IDbCommandExecutor _commandExecutor;
+
+        public SqlCeTSqlGenerator(IDbCommandFactory commandFactory, IDbCommandExecutor commandExecutor) : base(commandFactory, commandExecutor)
+        {
+            _commandFactory = commandFactory;
+            _commandExecutor = commandExecutor;
+        }
+
+        public override ScalarCommand CreateIdentityInsertCommand2(string tableName, IDictionary<string, object> columnValues)
+        {
+            var scalarCommand = new ScalarCommand(_commandExecutor);
+
+            var insertCommand = CreateInsertCommand(tableName, columnValues);
+            var selectCommand = _commandFactory.CreateCommand("SELECT CAST(@@IDENTITY AS int)");
+
+            scalarCommand.PreparatoryCommands.Add(insertCommand);
+            scalarCommand.ResultCommand = selectCommand;
+
+            return scalarCommand;
+        }
+    }
+}

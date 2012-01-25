@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Data.SqlClient;
-using WeenyMapper.Logging;
 using System.Linq;
+using WeenyMapper.Logging;
 
 namespace WeenyMapper.Sql
 {
@@ -16,6 +15,40 @@ namespace WeenyMapper.Sql
         {
             _sqlCommandLogger = sqlCommandLogger;
             _commandFactory = commandFactory;
+        }
+
+        public IList<T> ExecuteScalarList<T>(IEnumerable<ScalarCommand> commands, string connectionString)
+        {
+            using (var connection = _commandFactory.CreateConnection(connectionString))
+            {
+                var result = new List<T>();
+
+                connection.Open();
+
+                foreach (var scalarCommand in commands)
+                {
+                    foreach (var preparatoryCommand in scalarCommand.PreparatoryCommands)
+                    {
+                        _sqlCommandLogger.Log(preparatoryCommand);
+
+                        preparatoryCommand.Connection = connection;
+                        preparatoryCommand.ExecuteNonQuery();
+                        preparatoryCommand.Dispose();
+                    }
+
+                    var command = scalarCommand.ResultCommand;
+
+                    _sqlCommandLogger.Log(command);
+
+                    command.Connection = connection;
+                    T resultScalar = (T)command.ExecuteScalar();
+                    command.Dispose();
+
+                    result.Add(resultScalar);
+                }
+
+                return result;
+            }
         }
 
         public int ExecuteNonQuery(DbCommand command, string connectionString)
@@ -104,7 +137,7 @@ namespace WeenyMapper.Sql
 
                 var reader = command.ExecuteReader();
 
-                while(reader.Read())
+                while (reader.Read())
                 {
                     var value = reader.GetValue(0);
                     result.Add((T)value);
@@ -142,6 +175,5 @@ namespace WeenyMapper.Sql
             }
             return values;
         }
-
     }
 }
