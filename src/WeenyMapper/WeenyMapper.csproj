@@ -110,7 +110,7 @@
     <Compile Include="Sql\Page.cs" />
     <Compile Include="Sql\ScalarCommand.cs" />
     <Compile Include="Sql\SqlCeTSqlGenerator.cs" />
-    <Compile Include="Sql\SqlCommandExecutor.cs" />
+    <Compile Include="Sql\DbCommandExecutor.cs" />
     <Compile Include="Sql\SqlQuerySpecification.cs" />
     <Compile Include="Sql\SqlCeCommandFactory.cs" />
     <Compile Include="Sql\SqlServerCommandFactory.cs" />

@@ -184,9 +184,9 @@ namespace WeenyMapper
             return new TSqlGenerator(CreateDbCommandFactory(), CreateSqlCommandExecutor());
         }
 
-        private SqlCommandExecutor CreateSqlCommandExecutor()
+        private DbCommandExecutor CreateSqlCommandExecutor()
         {
-            return new SqlCommandExecutor(SqlLogger, CreateDbCommandFactory());
+            return new DbCommandExecutor(SqlLogger, CreateDbCommandFactory());
         }
 
         private IDbCommandFactory CreateDbCommandFactory()

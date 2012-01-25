@@ -16,7 +16,7 @@ namespace WeenyMapper.Specs.Sql
         public void SetUp()
         {
             var sqlServerCommandFactory = new SqlServerCommandFactory();
-            var sqlCommandExecutor = new SqlCommandExecutor(new NullSqlCommandLogger(), new SqlServerCommandFactory());
+            var sqlCommandExecutor = new DbCommandExecutor(new NullSqlCommandLogger(), new SqlServerCommandFactory());
 
             _generator = new SqlCeTSqlGenerator(sqlServerCommandFactory, sqlCommandExecutor);
 
