@@ -19,17 +19,14 @@ namespace WeenyMapper.Specs
          
                  */
 
-        [SetUp]
-        public void SetUp()
+        protected override void PerformSetUp()
         {
+            Repository.DatabaseSystem = DatabaseSystem.SqlServer;
             DeleteAllExistingTestData();
-
-            Repository.Convention = new DefaultConvention();
-            Repository.EnableSqlConsoleLogging();
         }
 
         [Test]
-        public void An_object_can_be_inserted_into_the_database_and_read_back_via_a_dynamic_query_on_the_given_id()
+        public virtual void An_object_can_be_inserted_into_the_database_and_read_back_via_a_dynamic_query_on_the_given_id()
         {
             var user = new User
                 {
@@ -45,7 +42,7 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
-        public void Multiple_properties_can_be_used_when_querying_for_objects()
+        public virtual void Multiple_properties_can_be_used_when_querying_for_objects()
         {
             Repository.Convention = new BookConvention();
 
@@ -85,7 +82,7 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
-        public void Updating_an_object_updates_the_database_entry_with_the_corresponding_id()
+        public virtual void Updating_an_object_updates_the_database_entry_with_the_corresponding_id()
         {
             var user1 = new User
                 {
@@ -118,7 +115,7 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
-        public void Subset_of_the_columns_of_a_table_can_be_read_by_specifying_a_target_type_which_contains_properties_matching_the_subset()
+        public virtual void Subset_of_the_columns_of_a_table_can_be_read_by_specifying_a_target_type_which_contains_properties_matching_the_subset()
         {
             Repository.Convention = new UserConvention();
 
@@ -137,7 +134,7 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
-        public void Object_with_table_and_columns_using_non_default_conventions_can_be_written_updated_and_read()
+        public virtual void Object_with_table_and_columns_using_non_default_conventions_can_be_written_updated_and_read()
         {
             Repository.Convention = new BookConvention();
 
@@ -214,7 +211,7 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
-        public void Multiple_matching_objects_can_be_read_with_a_single_query()
+        public virtual void Multiple_matching_objects_can_be_read_with_a_single_query()
         {
             Repository.Convention = new BookConvention();
 
@@ -266,7 +263,7 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
-        public void Update_commands_can_be_issued_to_update_multiple_entities_at_once()
+        public virtual void Update_commands_can_be_issued_to_update_multiple_entities_at_once()
         {
             Repository.Convention = new BookConvention();
 
@@ -324,7 +321,7 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
-        public void Deleting_an_entity_deletes_the_corresponding_row_and_no_other_row()
+        public virtual void Deleting_an_entity_deletes_the_corresponding_row_and_no_other_row()
         {
             var user1 = new User
                 {
@@ -351,7 +348,7 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
-        public void Delete_commands_can_be_issued_to_update_multiple_entities_at_once()
+        public virtual void Delete_commands_can_be_issued_to_update_multiple_entities_at_once()
         {
             Repository.Convention = new BookConvention();
 
@@ -405,7 +402,7 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
-        public void Multiple_entities_can_be_inserted_with_one_operation()
+        public virtual void Multiple_entities_can_be_inserted_with_one_operation()
         {
             Repository.Convention = new BookConvention();
 
@@ -435,7 +432,7 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
-        public void The_number_of_items_satisfying_a_series_of_constraints_can_be_read_with_a_count_query()
+        public virtual void The_number_of_items_satisfying_a_series_of_constraints_can_be_read_with_a_count_query()
         {
             Repository.Convention = new BookConvention();
 
@@ -481,7 +478,7 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
-        public void Partial_object_can_be_read_by_explicitly_specifying_which_columns_to_fetch()
+        public virtual void Partial_object_can_be_read_by_explicitly_specifying_which_columns_to_fetch()
         {
             Repository.Convention = new BookConvention();
 
@@ -508,7 +505,7 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
-        public void Multiple_partial_objects_can_be_read_by_explicitly_specifying_which_columns_to_fetch()
+        public virtual void Multiple_partial_objects_can_be_read_by_explicitly_specifying_which_columns_to_fetch()
         {
             Repository.Convention = new BookConvention();
 
@@ -559,7 +556,7 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
-        public void Find_query_can_be_evaluated_to_a_single_scalar_value()
+        public virtual void Find_query_can_be_evaluated_to_a_single_scalar_value()
         {
             var user1 = new User
                 {
@@ -586,7 +583,7 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
-        public void Scalar_values_can_be_returned_for_find_query_matching_multiple_entities()
+        public virtual void Scalar_values_can_be_returned_for_find_query_matching_multiple_entities()
         {
             var user1 = new User
                 {
@@ -622,7 +619,7 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
-        public void Expressions_can_be_used_to_run_queries()
+        public virtual void Expressions_can_be_used_to_run_queries()
         {
             Repository.Convention = new BookConvention();
 
@@ -686,7 +683,7 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
-        public void Linq_contains_call_within_composite_query_expressions_can_be_used_to_run_sql_in_queries()
+        public virtual void Linq_contains_call_within_composite_query_expressions_can_be_used_to_run_sql_in_queries()
         {
             Repository.Convention = new BookConvention();
 
@@ -752,7 +749,7 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
-        public void Only_properties_matching_ShouldMap_predicate_in_current_convention_should_be_read_and_written_to_the_database()
+        public virtual void Only_properties_matching_ShouldMap_predicate_in_current_convention_should_be_read_and_written_to_the_database()
         {
             Repository.Convention = new UserWithExtraPropertiesConvention();
 
@@ -807,7 +804,7 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
-        public void Default_convention_only_maps_non_static_public_read_write_properties()
+        public virtual void Default_convention_only_maps_non_static_public_read_write_properties()
         {
             Repository.Convention = new DefaultConvention();
 
@@ -829,7 +826,7 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
-        public void Result_from_find_query_can_be_ordered_by_multiple_columns()
+        public virtual void Result_from_find_query_can_be_ordered_by_multiple_columns()
         {
             Repository.Convention = new BookConvention();
 
@@ -893,7 +890,7 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
-        public void Result_count_can_be_limited_by_using_Top()
+        public virtual void Result_count_can_be_limited_by_using_Top()
         {
             Repository.Convention = new BookConvention();
 
@@ -957,7 +954,7 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
-        public void Part_of_the_result_can_be_returned_from_find_query_by_specifying_page_number_and_size()
+        public virtual void Part_of_the_result_can_be_returned_from_find_query_by_specifying_page_number_and_size()
         {
             Repository.Convention = new BookConvention();
 
@@ -1021,7 +1018,7 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
-        public void String_contains_call_can_be_used_to_execute_like_query()
+        public virtual void String_contains_call_can_be_used_to_execute_like_query()
         {
             Repository.Convention = new BookConvention();
 
@@ -1085,7 +1082,7 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
-        public void String_StartsWith_and_EndsWith_call_can_be_used_to_execute_like_queries()
+        public virtual void String_StartsWith_and_EndsWith_call_can_be_used_to_execute_like_queries()
         {
             Repository.Convention = new BookConvention();
 
@@ -1149,7 +1146,7 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
-        public void Entities_with_identity_generated_ids_gets_assigned_id_written_to_id_property_after_insert()
+        public virtual void Entities_with_identity_generated_ids_gets_assigned_id_written_to_id_property_after_insert()
         {
             var movie1 = new Movie
                 {

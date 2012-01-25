@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using WeenyMapper.Conventions;
 using WeenyMapper.Specs.TestClasses.Conventions;
 using WeenyMapper.Specs.TestClasses.Entities;
@@ -7,12 +8,27 @@ namespace WeenyMapper.Specs
     public class AcceptanceSpecsBase
     {
         protected Repository Repository;
-        public const string TestConnectionString = @"Data source=.\SQLEXPRESS;Initial Catalog=WeenyMapper;Trusted_Connection=true";
 
-        protected void DeleteAllExistingTestData()
+        [SetUp]
+        public void SetUp()
         {
             Repository = new Repository { ConnectionString = TestConnectionString };
 
+            Repository.Convention = new DefaultConvention();
+            Repository.EnableSqlConsoleLogging();
+
+            PerformSetUp();
+        }
+
+        public virtual string TestConnectionString
+        {
+            get { return @"Data source=.\SQLEXPRESS;Initial Catalog=WeenyMapper;Trusted_Connection=true"; }
+        }
+
+        protected virtual void PerformSetUp() {}
+
+        protected void DeleteAllExistingTestData()
+        {
             Repository.Convention = new UserConvention();
 
             Repository.Delete<User>().Execute();

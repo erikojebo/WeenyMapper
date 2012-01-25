@@ -14,8 +14,6 @@ namespace WeenyMapper
 {
     public class Repository
     {
-        public string ConnectionString { get; set; }
-
         static Repository()
         {
             Convention = new DefaultConvention();
@@ -24,6 +22,9 @@ namespace WeenyMapper
 
         public static IConvention Convention { get; set; }
         public static ISqlCommandLogger SqlLogger { get; set; }
+        public static DatabaseSystem DatabaseSystem { get; set; }
+
+        public string ConnectionString { get; set; }
 
         public void InsertMany<T>(params T[] entities)
         {
@@ -32,7 +33,7 @@ namespace WeenyMapper
 
         public void InsertMany<T>(IEnumerable<T> entities)
         {
-            var objectInsertExecutor = new ObjectInsertExecutor(new TSqlGenerator(new SqlServerCommandFactory()), new ConventionReader(Convention), new SqlCommandExecutor(SqlLogger, new SqlServerCommandFactory()))
+            var objectInsertExecutor = new ObjectInsertExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
                 {
                     ConnectionString = ConnectionString
                 };
@@ -42,7 +43,7 @@ namespace WeenyMapper
 
         public void Insert<T>(T entity)
         {
-            var objectInsertExecutor = new ObjectInsertExecutor(new TSqlGenerator(new SqlServerCommandFactory()), new ConventionReader(Convention), new SqlCommandExecutor(SqlLogger, new SqlServerCommandFactory()))
+            var objectInsertExecutor = new ObjectInsertExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
                 {
                     ConnectionString = ConnectionString
                 };
@@ -52,7 +53,7 @@ namespace WeenyMapper
 
         public void InsertAsync<T>(T entity, Action callback, Action<Exception> errorCallback = null)
         {
-            var objectInsertExecutor = new ObjectInsertExecutor(new TSqlGenerator(new SqlServerCommandFactory()), new ConventionReader(Convention), new SqlCommandExecutor(SqlLogger, new SqlServerCommandFactory()))
+            var objectInsertExecutor = new ObjectInsertExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
                 {
                     ConnectionString = ConnectionString
                 };
@@ -62,7 +63,7 @@ namespace WeenyMapper
 
         public void InsertManyAsync<T>(IEnumerable<T> entities, Action callback, Action<Exception> errorCallback = null)
         {
-            var objectInsertExecutor = new ObjectInsertExecutor(new TSqlGenerator(new SqlServerCommandFactory()), new ConventionReader(Convention), new SqlCommandExecutor(SqlLogger, new SqlServerCommandFactory()))
+            var objectInsertExecutor = new ObjectInsertExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
                 {
                     ConnectionString = ConnectionString
                 };
@@ -72,7 +73,7 @@ namespace WeenyMapper
 
         public int Update<T>(T entity)
         {
-            var objectUpdateExecutor = new ObjectUpdateExecutor(new TSqlGenerator(new SqlServerCommandFactory()), new ConventionReader(Convention), new SqlCommandExecutor(SqlLogger, new SqlServerCommandFactory()))
+            var objectUpdateExecutor = new ObjectUpdateExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
                 {
                     ConnectionString = ConnectionString
                 };
@@ -84,7 +85,7 @@ namespace WeenyMapper
 
         public void UpdateAsync<T>(T entity, Action callback, Action<Exception> errorCallback = null)
         {
-            var objectUpdateExecutor = new ObjectUpdateExecutor(new TSqlGenerator(new SqlServerCommandFactory()), new ConventionReader(Convention), new SqlCommandExecutor(SqlLogger, new SqlServerCommandFactory()))
+            var objectUpdateExecutor = new ObjectUpdateExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
                 {
                     ConnectionString = ConnectionString
                 };
@@ -96,7 +97,7 @@ namespace WeenyMapper
 
         public StaticUpdateBuilder<T> Update<T>()
         {
-            var objectUpdateExecutor = new ObjectUpdateExecutor(new TSqlGenerator(new SqlServerCommandFactory()), new ConventionReader(Convention), new SqlCommandExecutor(SqlLogger, new SqlServerCommandFactory()))
+            var objectUpdateExecutor = new ObjectUpdateExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
                 {
                     ConnectionString = ConnectionString
                 };
@@ -106,7 +107,7 @@ namespace WeenyMapper
 
         public StaticSelectBuilder<T> Find<T>() where T : new()
         {
-            var objectQueryExecutor = new ObjectQueryExecutor(new TSqlGenerator(new SqlServerCommandFactory()), new SqlCommandExecutor(SqlLogger, new SqlServerCommandFactory()), new EntityMapper(Convention), new ConventionReader(Convention))
+            var objectQueryExecutor = new ObjectQueryExecutor(CreateSqlGenerator(), CreateSqlCommandExecutor(), new EntityMapper(Convention), CreateConventionReader())
                 {
                     ConnectionString = ConnectionString
                 };
@@ -116,7 +117,7 @@ namespace WeenyMapper
 
         public int Delete<T>(T entity)
         {
-            var objectDeleteExecutor = new ObjectDeleteExecutor(new TSqlGenerator(new SqlServerCommandFactory()), new ConventionReader(Convention), new SqlCommandExecutor(SqlLogger, new SqlServerCommandFactory()))
+            var objectDeleteExecutor = new ObjectDeleteExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
                 {
                     ConnectionString = ConnectionString
                 };
@@ -126,7 +127,7 @@ namespace WeenyMapper
 
         public void DeleteAsync<T>(T entity, Action callback, Action<Exception> errorCallback = null)
         {
-            var objectDeleteExecutor = new ObjectDeleteExecutor(new TSqlGenerator(new SqlServerCommandFactory()), new ConventionReader(Convention), new SqlCommandExecutor(SqlLogger, new SqlServerCommandFactory()))
+            var objectDeleteExecutor = new ObjectDeleteExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
                 {
                     ConnectionString = ConnectionString
                 };
@@ -136,7 +137,7 @@ namespace WeenyMapper
 
         public StaticDeleteBuilder<T> Delete<T>()
         {
-            var objectDeleteExecutor = new ObjectDeleteExecutor(new TSqlGenerator(new SqlServerCommandFactory()), new ConventionReader(Convention), new SqlCommandExecutor(SqlLogger, new SqlServerCommandFactory()))
+            var objectDeleteExecutor = new ObjectDeleteExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
                 {
                     ConnectionString = ConnectionString
                 };
@@ -146,7 +147,7 @@ namespace WeenyMapper
 
         public StaticCountBuilder<T> Count<T>()
         {
-            var objectCountExecutor = new ObjectCountExecutor(new TSqlGenerator(new SqlServerCommandFactory()), new ConventionReader(Convention), new SqlCommandExecutor(SqlLogger, new SqlServerCommandFactory()))
+            var objectCountExecutor = new ObjectCountExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
                 {
                     ConnectionString = ConnectionString
                 };
@@ -166,11 +167,36 @@ namespace WeenyMapper
 
         public CustomSqlQueryExecutor<T> FindBySql<T>(DbCommand dbCommand) where T : new()
         {
-            return new CustomSqlQueryExecutor<T>(new SqlCommandExecutor(SqlLogger, new SqlServerCommandFactory()), new EntityMapper(Convention))
+            return new CustomSqlQueryExecutor<T>(CreateSqlCommandExecutor(), new EntityMapper(Convention))
                 {
                     ConnectionString = ConnectionString,
                     Command = dbCommand
                 };
+        }
+
+        private TSqlGenerator CreateSqlGenerator()
+        {
+            return new TSqlGenerator(CreateDbCommandFactory());
+        }
+
+        private IDbCommandFactory CreateDbCommandFactory()
+        {
+            if (DatabaseSystem == DatabaseSystem.SqlCe)
+            {
+                return new SqlCeCommandFactory();
+            }
+
+            return new SqlServerCommandFactory();
+        }
+
+        private SqlCommandExecutor CreateSqlCommandExecutor()
+        {
+            return new SqlCommandExecutor(SqlLogger, CreateDbCommandFactory());
+        }
+
+        private ConventionReader CreateConventionReader()
+        {
+            return new ConventionReader(Convention);
         }
     }
 }

@@ -1,10 +1,8 @@
-using System;
 using System.Data.SqlClient;
+using System.Linq;
 using NUnit.Framework;
-using WeenyMapper.Conventions;
 using WeenyMapper.Specs.TestClasses.Conventions;
 using WeenyMapper.Specs.TestClasses.Entities;
-using System.Linq;
 
 namespace WeenyMapper.Specs
 {
@@ -15,13 +13,10 @@ namespace WeenyMapper.Specs
           
            The database should be created from the script file at SqlScripts/CreateTestDatabase.sql */
 
-        [SetUp]
-        public void SetUp()
+        protected override void PerformSetUp()
         {
+            Repository.DatabaseSystem = DatabaseSystem.SqlServer;
             DeleteAllExistingTestData();
-
-            Repository.Convention = new DefaultConvention();
-            Repository.EnableSqlConsoleLogging();
         }
 
         [Test]
@@ -30,36 +25,36 @@ namespace WeenyMapper.Specs
             Repository.Convention = new BookConvention();
 
             var book1 = new Book
-            {
-                Isbn = "1",
-                Title = "Book title 1",
-                AuthorName = "Author Name",
-                PageCount = 123
-            };
+                {
+                    Isbn = "1",
+                    Title = "Book title 1",
+                    AuthorName = "Author Name",
+                    PageCount = 123
+                };
 
             var book2 = new Book
-            {
-                Isbn = "2",
-                Title = "Book title 2",
-                AuthorName = "Author Name 2",
-                PageCount = 123
-            };
+                {
+                    Isbn = "2",
+                    Title = "Book title 2",
+                    AuthorName = "Author Name 2",
+                    PageCount = 123
+                };
 
             var book3 = new Book
-            {
-                Isbn = "3",
-                Title = "Book title 3",
-                AuthorName = "Author Name 2",
-                PageCount = 123
-            };
+                {
+                    Isbn = "3",
+                    Title = "Book title 3",
+                    AuthorName = "Author Name 2",
+                    PageCount = 123
+                };
 
             var book4 = new Book
-            {
-                Isbn = "4",
-                Title = "Book title 4",
-                AuthorName = "Author Name",
-                PageCount = 123
-            };
+                {
+                    Isbn = "4",
+                    Title = "Book title 4",
+                    AuthorName = "Author Name",
+                    PageCount = 123
+                };
 
             Repository.InsertMany(book1, book2, book3, book4);
 
@@ -77,36 +72,36 @@ namespace WeenyMapper.Specs
             Repository.Convention = new BookConvention();
 
             var book1 = new Book
-            {
-                Isbn = "1",
-                Title = "Book title 1",
-                AuthorName = "Author Name",
-                PageCount = 123
-            };
+                {
+                    Isbn = "1",
+                    Title = "Book title 1",
+                    AuthorName = "Author Name",
+                    PageCount = 123
+                };
 
             var book2 = new Book
-            {
-                Isbn = "2",
-                Title = "Book title 2",
-                AuthorName = "Author Name 2",
-                PageCount = 123
-            };
+                {
+                    Isbn = "2",
+                    Title = "Book title 2",
+                    AuthorName = "Author Name 2",
+                    PageCount = 123
+                };
 
             var book3 = new Book
-            {
-                Isbn = "3",
-                Title = "Book title 3",
-                AuthorName = "Author Name 2",
-                PageCount = 123
-            };
+                {
+                    Isbn = "3",
+                    Title = "Book title 3",
+                    AuthorName = "Author Name 2",
+                    PageCount = 123
+                };
 
             var book4 = new Book
-            {
-                Isbn = "4",
-                Title = "Book title 4",
-                AuthorName = "Author Name",
-                PageCount = 123
-            };
+                {
+                    Isbn = "4",
+                    Title = "Book title 4",
+                    AuthorName = "Author Name",
+                    PageCount = 123
+                };
 
             Repository.InsertMany(book1, book2, book3, book4);
 
@@ -129,20 +124,20 @@ namespace WeenyMapper.Specs
             Repository.Convention = new BookConvention();
 
             var book1 = new Book
-            {
-                Isbn = "1",
-                Title = "Book title 1",
-                AuthorName = "Author Name",
-                PageCount = 123
-            };
+                {
+                    Isbn = "1",
+                    Title = "Book title 1",
+                    AuthorName = "Author Name",
+                    PageCount = 123
+                };
 
             var book2 = new Book
-            {
-                Isbn = "2",
-                Title = "Book title 2",
-                AuthorName = "Author Name 2",
-                PageCount = 321
-            };
+                {
+                    Isbn = "2",
+                    Title = "Book title 2",
+                    AuthorName = "Author Name 2",
+                    PageCount = 321
+                };
 
             Repository.InsertMany(book1, book2);
 
@@ -160,36 +155,36 @@ namespace WeenyMapper.Specs
             Repository.Convention = new BookConvention();
 
             var book1 = new Book
-            {
-                Isbn = "1",
-                Title = "Book title 1",
-                AuthorName = "Author Name",
-                PageCount = 123
-            };
+                {
+                    Isbn = "1",
+                    Title = "Book title 1",
+                    AuthorName = "Author Name",
+                    PageCount = 123
+                };
 
             var book2 = new Book
-            {
-                Isbn = "2",
-                Title = "Book title 2",
-                AuthorName = "Author Name 2",
-                PageCount = 123
-            };
+                {
+                    Isbn = "2",
+                    Title = "Book title 2",
+                    AuthorName = "Author Name 2",
+                    PageCount = 123
+                };
 
             var book3 = new Book
-            {
-                Isbn = "3",
-                Title = "Book title 3",
-                AuthorName = "Author Name 2",
-                PageCount = 123
-            };
+                {
+                    Isbn = "3",
+                    Title = "Book title 3",
+                    AuthorName = "Author Name 2",
+                    PageCount = 123
+                };
 
             var book4 = new Book
-            {
-                Isbn = "4",
-                Title = "Book title 4",
-                AuthorName = "Author Name",
-                PageCount = 123
-            };
+                {
+                    Isbn = "4",
+                    Title = "Book title 4",
+                    AuthorName = "Author Name",
+                    PageCount = 123
+                };
 
             Repository.InsertMany(book1, book2, book3, book4);
 
@@ -203,6 +198,5 @@ namespace WeenyMapper.Specs
             Assert.AreEqual("2", readIsbnValues[0]);
             Assert.AreEqual("3", readIsbnValues[1]);
         }
-
     }
 }
