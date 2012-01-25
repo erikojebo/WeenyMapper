@@ -119,5 +119,10 @@ namespace WeenyMapper.QueryBuilding
             _querySpecification.Page = new Page { PageIndex = pageIndex, PageSize = pageSize };
             return this;
         }
+
+        public StaticSelectBuilder<T> Join<TJoined>(Expression<Func<T, TJoined>> func)
+        {
+            return this;
+        }
     }
 }

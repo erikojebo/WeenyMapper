@@ -37,9 +37,16 @@ namespace WeenyMapper.Specs
 
             Repository.Delete<Book>().Execute();
 
+            Repository.Convention = new BlogConvention();
+
+            Repository.Delete<Comment>().Execute();
+            Repository.Delete<BlogPost>().Execute();
+            Repository.Delete<Blog>().Execute();
+
             Repository.Convention = new DefaultConvention();
 
             Repository.Delete<Movie>().Execute();
+            
         }
     }
 }

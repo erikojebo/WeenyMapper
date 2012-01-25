@@ -45,6 +45,7 @@
     <Compile Include="DatabaseSystem.cs" />
     <Compile Include="Exceptions\WeenyMapperException.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
+    <Compile Include="Extensions\ReflectionExtensions.cs" />
     <Compile Include="Extensions\SqlCommandExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="IDatabaseProvider.cs" />

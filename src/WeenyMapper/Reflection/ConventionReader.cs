@@ -21,7 +21,7 @@ namespace WeenyMapper.Reflection
             var propertyValues = GetPropertyValues(instance);
             return propertyValues.TransformKeys(x => GetColumnName(x, instance.GetType()));
         }
-        
+
         public IDictionary<string, object> GetColumnValuesForInsert(object instance)
         {
             var propertyValues = GetPropertyValues(instance);
@@ -66,7 +66,7 @@ namespace WeenyMapper.Reflection
         {
             return GetColumnProperties(type).Select(x => x.Name);
         }
-        
+
         public IEnumerable<PropertyInfo> GetColumnProperties(Type type)
         {
             return type.GetProperties().Where(_convention.ShouldMapProperty);
@@ -95,6 +95,11 @@ namespace WeenyMapper.Reflection
 
             foreach (var property in properties)
             {
+                if (property.PropertyType.ImplementsGenericInterface(typeof(IEnumerable<>)) && property.PropertyType != typeof(string))
+                {
+                    continue;
+                }
+
                 propertyValues[property.Name] = property.GetValue(instance, null);
             }
 
@@ -105,7 +110,7 @@ namespace WeenyMapper.Reflection
         {
             return _convention.GetColumnName(propertyInfo);
         }
-        
+
         public string GetColumnNamee<T>(string propertyName)
         {
             var propertyInfo = typeof(T).GetProperty(propertyName);

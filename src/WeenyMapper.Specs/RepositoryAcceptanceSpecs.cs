@@ -1176,5 +1176,51 @@ namespace WeenyMapper.Specs
             Assert.AreEqual(allMovies[1].Id, movie2.Id);
             Assert.AreEqual(allMovies[2].Id, movie3.Id);
         }
+
+        [Test]
+        public virtual void Many_to_one_relationship_can_be_written_and_read_back_again_single_query_using_join()
+        {
+            var blog1 = new Blog
+                {
+                    Name = "Blog 1",
+                };
+
+            var blog2 = new Blog
+                {
+                    Name = "Blog 2",
+                };
+
+            var post1 = new BlogPost
+                {
+                    Title = "Blog post 1",
+                    Content = "Post 1 content",
+                    PublishDate = new DateTime(2011, 1, 1),
+                };
+
+            var post2 = new BlogPost
+                {
+                    Title = "Blog post 2",
+                    Content = "Post 2 content",
+                    PublishDate = new DateTime(2011, 1, 2)
+                };
+            
+            var post3 = new BlogPost
+                {
+                    Title = "Blog post 3",
+                    Content = "Post 3 content",
+                    PublishDate = new DateTime(2011, 1, 3)
+                };
+
+            blog1.Posts.Add(post1);
+            blog1.Posts.Add(post2);
+            blog2.Posts.Add(post3);
+
+            Repository.InsertMany(blog1, blog2);
+            Repository.InsertMany(post1, post2, post3);
+
+            var actualBlog1 = Repository.Find<Blog>().Where(x => x.Name == "Blog 1").Join(x => x.Posts).Execute();
+
+            Assert.AreEqual(blog1, actualBlog1);
+        }
     }
 }

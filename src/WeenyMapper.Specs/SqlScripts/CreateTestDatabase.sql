@@ -29,7 +29,7 @@ CREATE TABLE [Post](
 	[Title] [nvarchar](255) NOT NULL,
 	[Content] [nvarchar](4000) NOT NULL,
 	[PublishDate] [datetime] NOT NULL,
-	[AuthorId] [uniqueidentifier] NOT NULL,
+	[AuthorId] [uniqueidentifier] NULL,
 	[BlogId] [int] NOT NULL
 )
 GO
@@ -43,7 +43,7 @@ CREATE TABLE [Comment](
 	[Id] [int] NOT NULL PRIMARY KEY IDENTITY,
 	[Content] [nvarchar](4000) NOT NULL,
 	[PublishDate] [datetime] NOT NULL,
-	[UserId] [uniqueidentifier] NOT NULL,
+	[UserId] [uniqueidentifier] NULL,
 	[PostId] [int] NOT NULL
 )
 GO
