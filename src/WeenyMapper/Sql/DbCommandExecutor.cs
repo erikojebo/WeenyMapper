@@ -17,52 +17,6 @@ namespace WeenyMapper.Sql
             _commandFactory = commandFactory;
         }
 
-        public IList<T> ExecuteScalarList<T>(IEnumerable<ScalarCommand> commands, string connectionString)
-        {
-            using (var connection = _commandFactory.CreateConnection(connectionString))
-            {
-                connection.Open();
-
-                return commands
-                    .Select(command => ExecuteScalarCommand<T>(command, connection))
-                    .ToList();
-            }
-        }
-
-        private T ExecuteScalarCommand<T>(ScalarCommand scalarCommand, DbConnection connection)
-        {
-            foreach (var preparatoryCommand in scalarCommand.PreparatoryCommands)
-            {
-                ExecuteNonQuery(preparatoryCommand, connection);
-            }
-
-            var command = scalarCommand.ResultCommand;
-
-            return ExecuteScalar<T>(command, connection);
-        }
-
-        private T ExecuteScalar<T>(DbCommand command, DbConnection connection)
-        {
-            _sqlCommandLogger.Log(command);
-
-            command.Connection = connection;
-            T resultScalar = (T)command.ExecuteScalar();
-            command.Dispose();
-
-            return resultScalar;
-        }
-
-        private int ExecuteNonQuery(DbCommand command, DbConnection connection)
-        {
-            _sqlCommandLogger.Log(command);
-
-            command.Connection = connection;
-            var rowCount = command.ExecuteNonQuery();
-            command.Dispose();
-
-            return rowCount;
-        }
-
         public int ExecuteNonQuery(DbCommand command, string connectionString)
         {
             var rowCounts = ExecuteNonQuery(new[] { command }, connectionString);
@@ -79,6 +33,17 @@ namespace WeenyMapper.Sql
                     .Select(command => ExecuteNonQuery(command, connection))
                     .ToList();
             }
+        }
+
+        private int ExecuteNonQuery(DbCommand command, DbConnection connection)
+        {
+            _sqlCommandLogger.Log(command);
+
+            command.Connection = connection;
+            var rowCount = command.ExecuteNonQuery();
+            command.Dispose();
+
+            return rowCount;
         }
 
         public IList<T> ExecuteQuery<T>(DbCommand command, Func<IDictionary<string, object>, T> resultReader, string connectionString)
@@ -107,6 +72,28 @@ namespace WeenyMapper.Sql
             }
         }
 
+        public IList<T> ExecuteScalarList<T>(IEnumerable<ScalarCommand> commands, string connectionString)
+        {
+            using (var connection = _commandFactory.CreateConnection(connectionString))
+            {
+                connection.Open();
+
+                return commands
+                    .Select(command => ExecuteScalarCommand<T>(command, connection))
+                    .ToList();
+            }
+        }
+
+        private T ExecuteScalarCommand<T>(ScalarCommand scalarCommand, DbConnection connection)
+        {
+            foreach (var preparatoryCommand in scalarCommand.PreparatoryCommands)
+            {
+                ExecuteNonQuery(preparatoryCommand, connection);
+            }
+
+            return ExecuteScalar<T>(scalarCommand.ResultCommand, connection);
+        }
+
         public T ExecuteScalar<T>(DbCommand command, string connectionString)
         {
             using (var connection = _commandFactory.CreateConnection(connectionString))
@@ -119,15 +106,25 @@ namespace WeenyMapper.Sql
 
         public IList<T> ExecuteScalarList<T>(IEnumerable<DbCommand> commands, string connectionString)
         {
-            var values = new List<T>();
-
-            foreach (var dbCommand in commands)
+            using (var connection = _commandFactory.CreateConnection(connectionString))
             {
-                var value = ExecuteScalar<T>(dbCommand, connectionString);
-                values.Add(value);
-            }
+                connection.Open();
 
-            return values;
+                return commands
+                    .Select(dbCommand => ExecuteScalar<T>(dbCommand, connection))
+                    .ToList();
+            }
+        }
+
+        private T ExecuteScalar<T>(DbCommand command, DbConnection connection)
+        {
+            _sqlCommandLogger.Log(command);
+
+            command.Connection = connection;
+            T resultScalar = (T)command.ExecuteScalar();
+            command.Dispose();
+
+            return resultScalar;
         }
 
         public IList<T> ExecuteScalarList<T>(DbCommand command, string connectionString)

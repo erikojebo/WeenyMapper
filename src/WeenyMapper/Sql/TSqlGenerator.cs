@@ -10,12 +10,10 @@ namespace WeenyMapper.Sql
     public class TSqlGenerator : ISqlGenerator
     {
         private readonly IDbCommandFactory _commandFactory;
-        private readonly IDbCommandExecutor _commandExecutor;
 
-        public TSqlGenerator(IDbCommandFactory commandFactory, IDbCommandExecutor commandExecutor)
+        public TSqlGenerator(IDbCommandFactory commandFactory)
         {
             _commandFactory = commandFactory;
-            _commandExecutor = commandExecutor;
         }
 
         public DbCommand GenerateSelectQuery(SqlQuerySpecification querySpecification)
@@ -152,7 +150,7 @@ namespace WeenyMapper.Sql
 
         public virtual ScalarCommand CreateIdentityInsertCommand2(string tableName, IDictionary<string, object> columnValues)
         {
-            var scalarCommand = new ScalarCommand(_commandExecutor);
+            var scalarCommand = new ScalarCommand();
 
             var insertCommand = CreateInsertCommand(tableName, columnValues);
             insertCommand.CommandText += ";SELECT CAST(@@IDENTITY AS int)";

@@ -178,10 +178,10 @@ namespace WeenyMapper
         {
             if (DatabaseSystem == DatabaseSystem.SqlCe)
             {
-                return new SqlCeTSqlGenerator(CreateDbCommandFactory(), CreateSqlCommandExecutor());
+                return new SqlCeTSqlGenerator(CreateDbCommandFactory());
             }
 
-            return new TSqlGenerator(CreateDbCommandFactory(), CreateSqlCommandExecutor());
+            return new TSqlGenerator(CreateDbCommandFactory());
         }
 
         private DbCommandExecutor CreateSqlCommandExecutor()

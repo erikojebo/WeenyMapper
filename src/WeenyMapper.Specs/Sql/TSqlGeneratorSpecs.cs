@@ -21,7 +21,7 @@ namespace WeenyMapper.Specs.Sql
             var sqlServerCommandFactory = new SqlServerCommandFactory();
             var sqlCommandExecutor = new DbCommandExecutor(new NullSqlCommandLogger(), new SqlServerCommandFactory());
 
-            _generator = new TSqlGenerator(sqlServerCommandFactory, sqlCommandExecutor);
+            _generator = new TSqlGenerator(sqlServerCommandFactory);
 
             _querySpecification = new SqlQuerySpecification();
 
