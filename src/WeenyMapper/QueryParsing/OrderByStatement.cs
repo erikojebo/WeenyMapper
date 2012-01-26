@@ -27,7 +27,7 @@ namespace WeenyMapper.QueryParsing
 
         public OrderByStatement Translate<T>(IConventionReader convention)
         {
-            return new OrderByStatement(convention.GetColumnNamee<T>(PropertyName), Direction);
+            return new OrderByStatement(convention.GetColumnName<T>(PropertyName), Direction);
         }
     }
 }

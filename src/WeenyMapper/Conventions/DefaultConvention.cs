@@ -16,7 +16,7 @@ namespace WeenyMapper.Conventions
             return entityType.Name;
         }
 
-        public bool IsIdProperty(PropertyInfo propertyInfo)
+        public virtual bool IsIdProperty(PropertyInfo propertyInfo)
         {
             return propertyInfo.Name == "Id";
         }
@@ -33,12 +33,22 @@ namespace WeenyMapper.Conventions
                    !getter.IsStatic && !setter.IsStatic;
         }
 
-        public bool HasIdentityId(Type entityType)
+        public virtual bool HasIdentityId(Type entityType)
         {
             var dataReader = new ConventionReader(this);
             var idProperty = dataReader.GetIdProperty(entityType);
 
             return idProperty.PropertyType == typeof(int);
+        }
+
+        public virtual string GetManyToOneForeignKeyColumnName(PropertyInfo propertyInfo)
+        {
+            return propertyInfo.Name + "Id";
+        }
+
+        public virtual string GetOneToManyForeignKeyColumnName(PropertyInfo propertyInfo)
+        {
+            return propertyInfo.DeclaringType.Name + "Id";
         }
     }
 }

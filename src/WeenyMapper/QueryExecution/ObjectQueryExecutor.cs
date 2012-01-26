@@ -54,10 +54,10 @@ namespace WeenyMapper.QueryExecution
         {
             if (!querySpecification.PropertiesToSelect.Any())
             {
-                querySpecification.PropertiesToSelect.AddRange(GetPropertiesInTargetType<T>());
+                querySpecification.PropertiesToSelect.AddRange(GetSelectablePropertiesInTargetType<T>());
             }
 
-            var columnNamesToSelect = querySpecification.PropertiesToSelect.Select(_conventionReader.GetColumnNamee<T>);
+            var columnNamesToSelect = querySpecification.PropertiesToSelect.Select(_conventionReader.GetColumnName<T>);
             var translatedOrderByStatements = querySpecification.OrderByStatements.Select(x => x.Translate<T>(_conventionReader));
             var tableName = _conventionReader.GetTableName(querySpecification.ResultType);
 
@@ -74,9 +74,9 @@ namespace WeenyMapper.QueryExecution
             return _sqlGenerator.GenerateSelectQuery(sqlQuery);
         }
 
-        private IEnumerable<string> GetPropertiesInTargetType<T>()
+        private IEnumerable<string> GetSelectablePropertiesInTargetType<T>()
         {
-            return _conventionReader.GetColumnNames(typeof(T));
+            return _conventionReader.GetSelectableMappedPropertyNames(typeof(T));
         }
 
         private IList<T> ReadEntities<T>(DbCommand command) where T : new()

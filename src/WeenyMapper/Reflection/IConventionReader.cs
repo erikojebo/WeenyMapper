@@ -10,10 +10,10 @@ namespace WeenyMapper.Reflection
         IDictionary<string, object> GetColumnValues<T>(IDictionary<string, object> propertyValueMap);
         string GetTableName<T>();
         string GetPrimaryKeyColumnName<T>();
-        object GetPrimaryKeyValue<T>(T instance);
-        IEnumerable<string> GetColumnNames(Type type);
+        object GetPrimaryKeyValue(object instance);
+        IEnumerable<string> GetSelectableMappedPropertyNames(Type type);
         IDictionary<string, object> GetColumnValuesForInsert(object instance);
-        string GetColumnNamee<T>(string propertyName);
+        string GetColumnName<T>(string propertyName);
         void SetId(object entity, int id);
     }
 }

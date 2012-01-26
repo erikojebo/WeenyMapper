@@ -1205,7 +1205,7 @@ namespace WeenyMapper.Specs
                     Content = "Post 2 content",
                     PublishDate = new DateTime(2011, 1, 2)
                 };
-            
+
             var post3 = new BlogPost
                 {
                     Title = "Blog post 3",
@@ -1213,9 +1213,9 @@ namespace WeenyMapper.Specs
                     PublishDate = new DateTime(2011, 1, 3)
                 };
 
-            blog1.Posts.Add(post1);
-            blog1.Posts.Add(post2);
-            blog2.Posts.Add(post3);
+            blog1.AddPost(post1);
+            blog1.AddPost(post2);
+            blog2.AddPost(post3);
 
             Repository.InsertMany(blog1, blog2);
             Repository.InsertMany(post1, post2, post3);

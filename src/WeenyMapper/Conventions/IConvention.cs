@@ -7,8 +7,10 @@ namespace WeenyMapper.Conventions
     {
         string GetColumnName(PropertyInfo propertyInfo);
         string GetTableName(Type entityType);
+        string GetManyToOneForeignKeyColumnName(PropertyInfo propertyInfo);
         bool IsIdProperty(PropertyInfo propertyInfo);
         bool ShouldMapProperty(PropertyInfo propertyInfo);
         bool HasIdentityId(Type entityType);
+        string GetOneToManyForeignKeyColumnName(PropertyInfo propertyInfo);
     }
 }

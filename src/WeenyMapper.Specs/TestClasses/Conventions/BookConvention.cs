@@ -4,31 +4,21 @@ using WeenyMapper.Conventions;
 
 namespace WeenyMapper.Specs.TestClasses.Conventions
 {
-    public class BookConvention : IConvention
+    public class BookConvention : DefaultConvention
     {
-        public string GetColumnName(PropertyInfo propertyInfo)
+        public override string GetColumnName(PropertyInfo propertyInfo)
         {
             return "c_" + propertyInfo.Name.ToUpper();
         }
 
-        public string GetTableName(Type entityType)
+        public override string GetTableName(Type entityType)
         {
             return "t_" + entityType.Name + "s";
         }
 
-        public bool IsIdProperty(PropertyInfo propertyInfo)
+        public override bool IsIdProperty(PropertyInfo propertyInfo)
         {
             return propertyInfo.Name == "Isbn";
-        }
-
-        public bool ShouldMapProperty(PropertyInfo propertyInfo)
-        {
-            return true;
-        }
-
-        public bool HasIdentityId(Type entityType)
-        {
-            return false;
         }
     }
 }

@@ -18,13 +18,12 @@ namespace WeenyMapper.Reflection
 
         public IDictionary<string, object> GetAllColumnValues(object instance)
         {
-            var propertyValues = GetPropertyValues(instance);
-            return propertyValues.TransformKeys(x => GetColumnName(x, instance.GetType()));
+            return GetColumnValues(instance);
         }
 
         public IDictionary<string, object> GetColumnValuesForInsert(object instance)
         {
-            var propertyValues = GetPropertyValues(instance);
+            var propertyValues = GetColumnValues(instance);
             var entityType = instance.GetType();
 
             if (_convention.HasIdentityId(entityType))
@@ -32,7 +31,7 @@ namespace WeenyMapper.Reflection
                 propertyValues.Remove(GetIdPropertyName(entityType));
             }
 
-            return propertyValues.TransformKeys(x => GetColumnName(x, instance.GetType()));
+            return propertyValues;
         }
 
         public string GetTableName<T>()
@@ -56,25 +55,20 @@ namespace WeenyMapper.Reflection
             return GetIdProperty(type).Name;
         }
 
-        public object GetPrimaryKeyValue<T>(T instance)
+        public object GetPrimaryKeyValue(object instance)
         {
-            var property = GetIdProperty<T>();
+            var property = GetIdProperty(instance.GetType());
             return property.GetValue(instance, null);
         }
 
-        public IEnumerable<string> GetColumnNames(Type type)
+        public IEnumerable<string> GetSelectableMappedPropertyNames(Type type)
         {
-            return GetColumnProperties(type).Select(x => x.Name);
+            return GetColumnProperties(type).Where(x => !IsEntityCollectionProperty(x)).Select(x => x.Name);
         }
 
         public IEnumerable<PropertyInfo> GetColumnProperties(Type type)
         {
             return type.GetProperties().Where(_convention.ShouldMapProperty);
-        }
-
-        private PropertyInfo GetIdProperty<T>()
-        {
-            return GetIdProperty(typeof(T));
         }
 
         public PropertyInfo GetIdProperty(Type type)
@@ -87,7 +81,7 @@ namespace WeenyMapper.Reflection
             return propertyValueMap.TransformKeys(x => GetColumnName(x, typeof(T)));
         }
 
-        private IDictionary<string, object> GetPropertyValues(object instance)
+        private IDictionary<string, object> GetColumnValues(object instance)
         {
             var properties = GetColumnProperties(instance.GetType());
 
@@ -95,17 +89,28 @@ namespace WeenyMapper.Reflection
 
             foreach (var property in properties)
             {
+                var columnName = GetColumnName(property);
+                var value = property.GetValue(instance, null);
+
                 if (IsEntityCollectionProperty(property))
                 {
                     continue;
                 }
                 if (!IsDataProperty(property))
                 {
-                    continue;
+                    columnName = _convention.GetManyToOneForeignKeyColumnName(property);
+
+                    if (value != null)
+                    {
+                        value = GetPrimaryKeyValue(value);
+                    }
+                    else
+                    {
+                        value = DBNull.Value;
+                    }
                 }
 
-                propertyValues[property.Name] = property.GetValue(instance, null);
-
+                propertyValues[columnName] = value;
             }
 
             return propertyValues;
@@ -147,9 +152,19 @@ namespace WeenyMapper.Reflection
             return _convention.GetColumnName(propertyInfo);
         }
 
-        public string GetColumnNamee<T>(string propertyName)
+        public string GetColumnName<T>(string propertyName)
         {
             var propertyInfo = typeof(T).GetProperty(propertyName);
+
+            if (IsEntityCollectionProperty(propertyInfo))
+            {
+                return GetOneToManyForeignKeyColumnName(propertyInfo);
+            }
+            if (!IsDataProperty(propertyInfo))
+            {
+                return GetManyToOneForeignKeyColumnName(propertyInfo);
+            }
+
             return _convention.GetColumnName(propertyInfo);
         }
 
@@ -183,6 +198,16 @@ namespace WeenyMapper.Reflection
         public bool HasIdentityId(Type entityType)
         {
             return _convention.HasIdentityId(entityType);
+        }
+
+        public string GetOneToManyForeignKeyColumnName(PropertyInfo propertyInfo)
+        {
+            return _convention.GetOneToManyForeignKeyColumnName(propertyInfo);
+        }
+
+        public string GetManyToOneForeignKeyColumnName(PropertyInfo propertyInfo)
+        {
+            return _convention.GetManyToOneForeignKeyColumnName(propertyInfo);
         }
     }
 }

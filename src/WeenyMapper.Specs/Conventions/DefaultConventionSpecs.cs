@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using WeenyMapper.Conventions;
 using WeenyMapper.Specs.TestClasses.Entities;
@@ -99,10 +100,34 @@ namespace WeenyMapper.Specs.Conventions
             Assert.IsFalse(_defaultConvention.HasIdentityId(typeof(GuidIdEntity)));
         }
 
+        [Test]
+        public void Foreign_key_name_for_many_to_one_property_is_property_type_name_followed_by_Id()
+        {
+            var propertyInfo = typeof(Child).GetProperty("Parent");
+            Assert.AreEqual("ParentId", _defaultConvention.GetManyToOneForeignKeyColumnName(propertyInfo));
+        }
+
+        [Test]
+        public void Foreign_key_name_for_one_to_many_property_is_parent_type_name_followed_by_Id()
+        {
+            var propertyInfo = typeof(Parent).GetProperty("Children");
+            Assert.AreEqual("ParentId", _defaultConvention.GetOneToManyForeignKeyColumnName(propertyInfo));
+        }
+
         private bool ShouldMapEntityProperty(string name)
         {
             var property = typeof(Entity).GetProperty(name);
             return _defaultConvention.ShouldMapProperty(property);
+        }
+
+        private class Parent
+        {
+            public IList<Child> Children { get; set; }
+        }
+
+        private class Child
+        {
+            public Parent Parent { get; set; }
         }
 
         private class IntIdEntity
