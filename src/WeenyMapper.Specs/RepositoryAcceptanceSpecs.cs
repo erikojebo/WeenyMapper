@@ -1220,7 +1220,7 @@ namespace WeenyMapper.Specs
             Repository.InsertMany(blog1, blog2);
             Repository.InsertMany(post1, post2, post3);
 
-            var actualBlog1 = Repository.Find<Blog>().Where(x => x.Name == "Blog 1").Join(x => x.Posts).Execute();
+            var actualBlog1 = Repository.Find<Blog>().Where(x => x.Name == "Blog 1").Join<BlogPost>(x => x.Posts, x => x.Blog).Execute();
 
             Assert.AreEqual(blog1, actualBlog1);
         }

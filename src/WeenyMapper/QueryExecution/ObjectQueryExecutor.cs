@@ -29,39 +29,48 @@ namespace WeenyMapper.QueryExecution
 
         public string ConnectionString { get; set; }
 
-        public TScalar FindScalar<T, TScalar>(ObjectQuerySpecification<T> querySpecification)
+        public TScalar FindScalar<T, TScalar>(ObjectQuerySpecification querySpecification)
         {
             var command = CreateCommand<T>(querySpecification);
 
             return _dbCommandExecutor.ExecuteScalar<TScalar>(command, ConnectionString);
         }
 
-        public IList<TScalar> FindScalarList<T, TScalar>(ObjectQuerySpecification<T> querySpecification)
+        public IList<TScalar> FindScalarList<T, TScalar>(ObjectQuerySpecification querySpecification)
         {
             var command = CreateCommand<T>(querySpecification);
 
             return _dbCommandExecutor.ExecuteScalarList<TScalar>(command, ConnectionString);
         }
 
-        public IList<T> Find<T>(ObjectQuerySpecification<T> querySpecification) where T : new()
+        public IList<T> Find<T>(ObjectQuerySpecification querySpecification) where T : new()
         {
             var command = CreateCommand<T>(querySpecification);
 
             return ReadEntities<T>(command);
         }
 
-        private DbCommand CreateCommand<T>(ObjectQuerySpecification<T> querySpecification)
+        private DbCommand CreateCommand<T>(ObjectQuerySpecification querySpecification)
         {
+            var sqlQuerySpecification = CreateSqlQuerySpecification(querySpecification);
+            
+            return _sqlGenerator.GenerateSelectQuery(sqlQuerySpecification);
+        }
+
+        private SqlQuerySpecification CreateSqlQuerySpecification(ObjectQuerySpecification querySpecification) 
+        {
+            var resultType = querySpecification.ResultType;
+
             if (!querySpecification.PropertiesToSelect.Any())
             {
-                querySpecification.PropertiesToSelect.AddRange(GetSelectablePropertiesInTargetType<T>());
+                querySpecification.PropertiesToSelect.AddRange(_conventionReader.GetSelectableMappedPropertyNames(resultType));
             }
 
-            var columnNamesToSelect = querySpecification.PropertiesToSelect.Select(_conventionReader.GetColumnName<T>);
-            var translatedOrderByStatements = querySpecification.OrderByStatements.Select(x => x.Translate<T>(_conventionReader));
-            var tableName = _conventionReader.GetTableName(querySpecification.ResultType);
+            var columnNamesToSelect = querySpecification.PropertiesToSelect.Select(x => _conventionReader.GetColumnName(x, resultType));
+            var translatedOrderByStatements = querySpecification.OrderByStatements.Select(x => x.Translate(_conventionReader, resultType));
+            var tableName = _conventionReader.GetTableName(resultType);
 
-            var sqlQuery = new SqlQuerySpecification
+            var spec = new SqlQuerySpecification
                 {
                     ColumnsToSelect = columnNamesToSelect.ToList(),
                     QueryExpression = querySpecification.QueryExpression.Translate(_conventionReader),
@@ -71,12 +80,12 @@ namespace WeenyMapper.QueryExecution
                     Page = querySpecification.Page
                 };
 
-            return _sqlGenerator.GenerateSelectQuery(sqlQuery);
-        }
+            if (querySpecification.HasJoinSpecification)
+            {
+                spec.JoinSpecification = CreateSqlQuerySpecification(querySpecification.JoinSpecification);
+            }
 
-        private IEnumerable<string> GetSelectablePropertiesInTargetType<T>()
-        {
-            return _conventionReader.GetSelectableMappedPropertyNames(typeof(T));
+            return spec;
         }
 
         private IList<T> ReadEntities<T>(DbCommand command) where T : new()

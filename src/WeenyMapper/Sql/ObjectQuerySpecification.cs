@@ -4,13 +4,14 @@ using WeenyMapper.QueryParsing;
 
 namespace WeenyMapper.Sql
 {
-    public class ObjectQuerySpecification<T>
+    public class ObjectQuerySpecification
     {
-        public ObjectQuerySpecification()
+        public ObjectQuerySpecification(Type resultType)
         {
             PropertiesToSelect = new List<string>();
             OrderByStatements = new List<OrderByStatement>();
             QueryExpression = QueryExpression.Create();
+            ResultType = resultType;
         }
 
         public IList<string> PropertiesToSelect { get; set; }
@@ -18,15 +19,18 @@ namespace WeenyMapper.Sql
         public IList<OrderByStatement> OrderByStatements { get; set; }
         public int RowCountLimit { get; set; }
         public Page Page { get; set; }
-
-        public Type ResultType
-        {
-            get { return typeof(T); }
-        }
+        public Type ResultType { get; set; }
 
         public bool IsPagingQuery
         {
             get { return Page != null && Page.PageSize > 0; }
+        }
+
+        public ObjectQuerySpecification JoinSpecification { get; set; }
+
+        public bool HasJoinSpecification
+        {
+            get { return JoinSpecification != null; }
         }
     }
 }

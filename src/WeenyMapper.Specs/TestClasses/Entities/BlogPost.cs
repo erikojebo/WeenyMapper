@@ -30,7 +30,9 @@ namespace WeenyMapper.Specs.TestClasses.Entities
             var other = obj as BlogPost;
 
             if (other == null)
+            {
                 return false;
+            }
 
             return Id == other.Id &&
                    Title == other.Title &&
