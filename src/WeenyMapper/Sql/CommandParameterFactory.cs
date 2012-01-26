@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace WeenyMapper.Sql
@@ -5,6 +6,8 @@ namespace WeenyMapper.Sql
     public class CommandParameterFactory : ICommandParameterFactory
     {
         private readonly IDictionary<string, int> _occurrenceCount = new Dictionary<string, int>();
+
+        public string ParameterNamePrefix { get; set; }
 
         public CommandParameter Create(string columnName, object value)
         {
@@ -18,7 +21,11 @@ namespace WeenyMapper.Sql
             }
 
             var columnNameOccurrenceIndex = _occurrenceCount[columnName];
-            return new CommandParameter(columnName, value) { ColumnNameOccurrenceIndex = columnNameOccurrenceIndex};
+            return new CommandParameter(columnName, value)
+                {
+                    ColumnNameOccurrenceIndex = columnNameOccurrenceIndex,
+                    ParameterNamePrefix = ParameterNamePrefix
+                };
         }
     }
 }

@@ -18,6 +18,10 @@ namespace WeenyMapper.Sql
 
         public DbCommand GenerateSelectQuery(SqlQuerySpecification querySpecification)
         {
+            if (querySpecification.HasJoinSpecification)
+            {
+                return GenerateJoinQuery(querySpecification);
+            }
             if (querySpecification.IsPagingQuery)
             {
                 return GeneratePagingQuery(querySpecification);
@@ -36,6 +40,41 @@ namespace WeenyMapper.Sql
             command.CommandText = commandString;
 
             return command;
+        }
+
+        private DbCommand GenerateJoinQuery(SqlQuerySpecification querySpecification)
+        {
+            var columnSelectStrings = CreateColumnSelectStrings(querySpecification);
+            var columnSelectString = string.Join(", ", columnSelectStrings);
+            var commandText = string.Format("SELECT {0} FROM {1} LEFT OUTER JOIN {2} ON {3}.{4} = {5}.{6}",
+                columnSelectString,
+                Escape(querySpecification.TableName),
+                Escape(querySpecification.JoinSpecification.SqlQuerySpecification.TableName),
+                Escape(querySpecification.JoinSpecification.ChildTableName),
+                Escape(querySpecification.JoinSpecification.ChildForeignKeyColumnName),
+                Escape(querySpecification.JoinSpecification.ParentTableName),
+                Escape(querySpecification.JoinSpecification.ParentPrimaryKeyColumnName));
+
+            var command = _commandFactory.CreateCommand();
+
+            commandText = AppendConstraint(commandText, command, querySpecification.QueryExpression, querySpecification.TableName, querySpecification.TableName + "_");
+            command.CommandText = commandText;
+
+            return command;
+        }
+
+        private IEnumerable<string> CreateColumnSelectStrings(SqlQuerySpecification querySpecification)
+        {
+            var joinedColumnStrings = Enumerable.Empty<string>();
+
+            if (querySpecification.HasJoinSpecification)
+            {
+                joinedColumnStrings = CreateColumnSelectStrings(querySpecification.JoinSpecification.SqlQuerySpecification);
+            }
+
+            var stringsForCurrentTable = querySpecification.ColumnsToSelect.Select(x => string.Format("{0}.{1}", Escape(querySpecification.TableName), Escape(x)));
+
+            return stringsForCurrentTable.Concat(joinedColumnStrings);
         }
 
         private DbCommand GeneratePagingQuery(SqlQuerySpecification querySpecification)
@@ -185,11 +224,16 @@ namespace WeenyMapper.Sql
             return string.Join(", ", escapedColumnNames);
         }
 
-        private string AppendConstraint(string commandString, DbCommand command, QueryExpression queryExpression)
+        private string AppendConstraint(string commandString, DbCommand command, QueryExpression queryExpression, string columnNamePrefix = "", string parameterNamePrefix = "")
         {
             var newCommandString = commandString;
 
-            var whereExpression = TSqlExpression.Create(queryExpression, new CommandParameterFactory());
+            var commandParameterFactory = new CommandParameterFactory
+                {
+                    ParameterNamePrefix = parameterNamePrefix,
+                };
+
+            var whereExpression = TSqlExpression.Create(queryExpression, commandParameterFactory, columnNamePrefix);
             var constraintString = whereExpression.ConstraintCommandText;
 
             if (constraintString != "()" && !string.IsNullOrWhiteSpace(constraintString))
@@ -223,10 +267,12 @@ namespace WeenyMapper.Sql
         public class TSqlExpression : IExpressionVisitor
         {
             private readonly ICommandParameterFactory _commandParameterFactory;
+            private readonly string _tableName;
 
-            private TSqlExpression(QueryExpression expression, ICommandParameterFactory commandParameterFactory)
+            private TSqlExpression(QueryExpression expression, ICommandParameterFactory commandParameterFactory, string tableName)
             {
                 _commandParameterFactory = commandParameterFactory;
+                _tableName = tableName;
                 CommandParameters = new List<CommandParameter>();
 
                 expression.Accept(this);
@@ -235,9 +281,9 @@ namespace WeenyMapper.Sql
             public string ConstraintCommandText { get; private set; }
             public IList<CommandParameter> CommandParameters { get; private set; }
 
-            public static TSqlExpression Create(QueryExpression queryExpression, ICommandParameterFactory commandParameterFactory)
+            public static TSqlExpression Create(QueryExpression queryExpression, ICommandParameterFactory commandParameterFactory, string columnNamePrefix)
             {
-                return new TSqlExpression(queryExpression, commandParameterFactory);
+                return new TSqlExpression(queryExpression, commandParameterFactory, columnNamePrefix);
             }
 
             public void Visit(AndExpression expression)
@@ -253,7 +299,7 @@ namespace WeenyMapper.Sql
             private void VisitPolyadicOperatorExpression<T>(PolyadicOperatorExpression<T> expression, string operatorString)
                 where T : PolyadicOperatorExpression<T>
             {
-                var sqlExpressions = expression.Expressions.Select(x => Create(x, _commandParameterFactory)).ToList();
+                var sqlExpressions = expression.Expressions.Select(x => Create(x, _commandParameterFactory, _tableName)).ToList();
 
                 CommandParameters = sqlExpressions.SelectMany(x => x.CommandParameters).ToList();
                 var commandText = string.Join(operatorString, sqlExpressions.Select(x => x.ConstraintCommandText));
@@ -354,7 +400,19 @@ namespace WeenyMapper.Sql
 
                 CommandParameters.Add(commandParameter);
 
-                ConstraintCommandText = commandParameter.ToConstraintString(operatorString, Escape);
+                ConstraintCommandText = commandParameter.ToConstraintString(operatorString, CreateColumnNameString);
+            }
+
+            private string CreateColumnNameString(string columnName)
+            {
+                var columnNameString = Escape(columnName);
+
+                if (!string.IsNullOrWhiteSpace(_tableName))
+                {
+                    columnNameString = Escape(_tableName) + "." + columnNameString;
+                }
+
+                return columnNameString;
             }
         }
     }

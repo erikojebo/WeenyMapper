@@ -26,7 +26,7 @@ namespace WeenyMapper.Sql
             get { return Page != null && Page.PageSize > 0; }
         }
 
-        public SqlQuerySpecification JoinSpecification { get; set; }
+        public SqlQueryJoinSpecification JoinSpecification { get; set; }
 
         public bool HasJoinSpecification
         {

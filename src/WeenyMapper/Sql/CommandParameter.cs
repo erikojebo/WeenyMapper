@@ -17,13 +17,14 @@ namespace WeenyMapper.Sql
             get
             {
                 string occurrenceNumber = ColumnNameOccurrenceIndex > 0 ? (ColumnNameOccurrenceIndex + 1).ToString() : "";
-                return _columnName + "Constraint" + occurrenceNumber;
+                return ParameterNamePrefix + _columnName + "Constraint" + occurrenceNumber;
             }
         }
 
         public object Value { get; private set; }
         public int ColumnNameOccurrenceIndex { get; set; }
-
+        public string ParameterNamePrefix { get; set; }
+        
         public string ReferenceName
         {
             get { return "@" + Name; }

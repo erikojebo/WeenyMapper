@@ -4,10 +4,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using WeenyMapper.Async;
 using WeenyMapper.Exceptions;
+using WeenyMapper.Extensions;
 using WeenyMapper.QueryExecution;
 using WeenyMapper.QueryParsing;
+using WeenyMapper.Reflection;
 using WeenyMapper.Sql;
-using WeenyMapper.Extensions;
 
 namespace WeenyMapper.QueryBuilding
 {
@@ -121,10 +122,16 @@ namespace WeenyMapper.QueryBuilding
         }
 
         public StaticSelectBuilder<T> Join<TJoined>(
-            Expression<Func<T, object>> parentProperty, 
+            Expression<Func<T, object>> parentProperty,
             Expression<Func<TJoined, T>> childProperty)
         {
-            _querySpecification.JoinSpecification = new ObjectQuerySpecification(typeof(TJoined));
+            _querySpecification.JoinSpecification = new ObjectQueryJoinSpecification
+                {
+                    ParentProperty = Reflector<T>.GetProperty(parentProperty),
+                    ChildProperty = Reflector<TJoined>.GetProperty(childProperty),
+                    ObjectQuerySpecification = new ObjectQuerySpecification(typeof(TJoined))
+                };
+
             return this;
         }
     }

@@ -4,14 +4,14 @@ using System.Reflection;
 
 namespace WeenyMapper.Reflection
 {
-    public static class PropertyMetadataReader<TInstance>
+    public static class Reflector<TInstance>
     {
         public static string GetPropertyName<TValue>(Expression<Func<TInstance, TValue>> property)
         {
             return GetProperty(property).Name;
         }
 
-        private static PropertyInfo GetProperty(Expression body)
+        public static PropertyInfo GetProperty(Expression body)
         {
             if (body is LambdaExpression)
             {

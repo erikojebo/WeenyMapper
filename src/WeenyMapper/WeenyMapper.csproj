@@ -88,7 +88,7 @@
     <Compile Include="QueryParsing\RootExpression.cs" />
     <Compile Include="QueryParsing\ValueExpression.cs" />
     <Compile Include="Reflection\IConventionReader.cs" />
-    <Compile Include="Reflection\PropertyMetadataReader.cs" />
+    <Compile Include="Reflection\Reflector.cs" />
     <Compile Include="Reflection\ConventionReader.cs" />
     <Compile Include="QueryParsing\IQueryParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -105,10 +105,12 @@
     <Compile Include="Sql\IDbCommandFactory.cs" />
     <Compile Include="Sql\ISqlGenerator.cs" />
     <Compile Include="QueryExecution\ObjectQueryExecutor.cs" />
+    <Compile Include="Sql\ObjectQueryJoinSpecification.cs" />
     <Compile Include="Sql\ObjectQuerySpecification.cs" />
     <Compile Include="Sql\Page.cs" />
     <Compile Include="Sql\ScalarCommand.cs" />
     <Compile Include="Sql\DbCommandExecutor.cs" />
+    <Compile Include="Sql\SqlQueryJoinSpecification.cs" />
     <Compile Include="Sql\SqlQuerySpecification.cs" />
     <Compile Include="Sql\SqlServerCommandFactory.cs" />
     <Compile Include="Sql\TSqlGenerator.cs" />

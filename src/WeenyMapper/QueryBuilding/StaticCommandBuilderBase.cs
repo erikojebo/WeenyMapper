@@ -15,7 +15,7 @@ namespace WeenyMapper.QueryBuilding
 
         protected string GetPropertyName<TInstance, TValue>(Expression<Func<TInstance, TValue>> propertySelector)
         {
-            return PropertyMetadataReader<TInstance>.GetPropertyName(propertySelector);
+            return Reflector<TInstance>.GetPropertyName(propertySelector);
         }
     }
 }

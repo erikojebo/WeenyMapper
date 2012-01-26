@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using WeenyMapper.Logging;
 using WeenyMapper.Sql;
 
 namespace WeenyMapper.Specs.Sql
@@ -16,7 +15,6 @@ namespace WeenyMapper.Specs.Sql
         public void SetUp()
         {
             var sqlServerCommandFactory = new SqlServerCommandFactory();
-            var sqlCommandExecutor = new DbCommandExecutor(new NullSqlCommandLogger(), new SqlServerCommandFactory());
 
             _generator = new SqlCeTSqlGenerator(sqlServerCommandFactory);
 

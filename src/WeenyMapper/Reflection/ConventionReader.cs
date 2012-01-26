@@ -63,10 +63,10 @@ namespace WeenyMapper.Reflection
 
         public IEnumerable<string> GetSelectableMappedPropertyNames(Type type)
         {
-            return GetColumnProperties(type).Where(x => !IsEntityCollectionProperty(x)).Select(x => x.Name);
+            return GetMappedProperties(type).Where(x => !IsEntityCollectionProperty(x)).Select(x => x.Name);
         }
 
-        public IEnumerable<PropertyInfo> GetColumnProperties(Type type)
+        public IEnumerable<PropertyInfo> GetMappedProperties(Type type)
         {
             return type.GetProperties().Where(_convention.ShouldMapProperty);
         }
@@ -83,7 +83,7 @@ namespace WeenyMapper.Reflection
 
         private IDictionary<string, object> GetColumnValues(object instance)
         {
-            var properties = GetColumnProperties(instance.GetType());
+            var properties = GetMappedProperties(instance.GetType());
 
             var propertyValues = new Dictionary<string, object>();
 
@@ -146,6 +146,11 @@ namespace WeenyMapper.Reflection
         {
             return property.PropertyType.ImplementsGenericInterface(typeof(IEnumerable<>)) && property.PropertyType != typeof(string);
         }
+        
+        private bool IsEntityReferenceProperty(PropertyInfo property)
+        {
+            return !IsDataProperty(property) && !IsEntityCollectionProperty(property);
+        }
 
         public string GetColumnName(PropertyInfo propertyInfo)
         {
@@ -172,6 +177,19 @@ namespace WeenyMapper.Reflection
         {
             var property = GetIdProperty(entity.GetType());
             property.SetValue(entity, id, null);
+        }
+
+        public IEnumerable<string> GetSelectableColumNames(Type type)
+        {
+            var mappedProperties = GetMappedProperties(type);
+
+            var entityReferenceProperties = mappedProperties.Where(IsEntityReferenceProperty);
+            var dataProperties = mappedProperties.Where(IsDataProperty);
+
+            var foreignKeyColumnNames = entityReferenceProperties.Select(GetManyToOneForeignKeyColumnName);
+            var dataColumnNames = dataProperties.Select(GetColumnName);
+
+            return dataColumnNames.Concat(foreignKeyColumnNames);
         }
 
         public string GetColumnName(string propertyName, Type type)

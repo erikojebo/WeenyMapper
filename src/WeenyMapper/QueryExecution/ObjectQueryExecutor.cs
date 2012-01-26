@@ -53,20 +53,21 @@ namespace WeenyMapper.QueryExecution
         private DbCommand CreateCommand<T>(ObjectQuerySpecification querySpecification)
         {
             var sqlQuerySpecification = CreateSqlQuerySpecification(querySpecification);
-            
+
             return _sqlGenerator.GenerateSelectQuery(sqlQuerySpecification);
         }
 
-        private SqlQuerySpecification CreateSqlQuerySpecification(ObjectQuerySpecification querySpecification) 
+        private SqlQuerySpecification CreateSqlQuerySpecification(ObjectQuerySpecification querySpecification)
         {
             var resultType = querySpecification.ResultType;
 
+            var columnNamesToSelect = querySpecification.PropertiesToSelect.Select(x => _conventionReader.GetColumnName(x, resultType));
+
             if (!querySpecification.PropertiesToSelect.Any())
             {
-                querySpecification.PropertiesToSelect.AddRange(_conventionReader.GetSelectableMappedPropertyNames(resultType));
+                columnNamesToSelect = _conventionReader.GetSelectableColumNames(resultType);
             }
-
-            var columnNamesToSelect = querySpecification.PropertiesToSelect.Select(x => _conventionReader.GetColumnName(x, resultType));
+            
             var translatedOrderByStatements = querySpecification.OrderByStatements.Select(x => x.Translate(_conventionReader, resultType));
             var tableName = _conventionReader.GetTableName(resultType);
 
@@ -82,10 +83,22 @@ namespace WeenyMapper.QueryExecution
 
             if (querySpecification.HasJoinSpecification)
             {
-                spec.JoinSpecification = CreateSqlQuerySpecification(querySpecification.JoinSpecification);
+                spec.JoinSpecification = CreateSqlQueryJoinSpecification(querySpecification.JoinSpecification);
             }
 
             return spec;
+        }
+
+        private SqlQueryJoinSpecification CreateSqlQueryJoinSpecification(ObjectQueryJoinSpecification joinSpecification)
+        {
+            return new SqlQueryJoinSpecification
+                {
+                    ChildTableName = _conventionReader.GetTableName(joinSpecification.ChildProperty.DeclaringType),
+                    ParentTableName = _conventionReader.GetTableName(joinSpecification.ParentProperty.DeclaringType),
+                    ChildForeignKeyColumnName = _conventionReader.GetManyToOneForeignKeyColumnName(joinSpecification.ChildProperty),
+                    ParentPrimaryKeyColumnName = _conventionReader.GetPrimaryKeyColumnName(joinSpecification.ParentProperty.DeclaringType),
+                    SqlQuerySpecification = CreateSqlQuerySpecification(joinSpecification.ObjectQuerySpecification)
+                };
         }
 
         private IList<T> ReadEntities<T>(DbCommand command) where T : new()

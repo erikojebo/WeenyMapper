@@ -52,5 +52,13 @@ namespace WeenyMapper.Specs.Sql
 
             Assert.AreEqual("ColumnName = @ColumnNameConstraint2", constraintString);
         }
+
+        [Test]
+        public void Parameter_name_is_prefixed_with_specified_paramenter_name_prefix()
+        {
+            _parameter.ParameterNamePrefix = "PREFIX";
+
+            Assert.AreEqual("PREFIXColumnNameConstraint", _parameter.Name);
+        }
     }
 }

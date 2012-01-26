@@ -3,7 +3,6 @@ using System.Data.SqlClient;
 using System.Linq;
 using NUnit.Framework;
 using WeenyMapper.Extensions;
-using WeenyMapper.Logging;
 using WeenyMapper.QueryParsing;
 using WeenyMapper.Sql;
 
@@ -19,7 +18,6 @@ namespace WeenyMapper.Specs.Sql
         public void SetUp()
         {
             var sqlServerCommandFactory = new SqlServerCommandFactory();
-            var sqlCommandExecutor = new DbCommandExecutor(new NullSqlCommandLogger(), new SqlServerCommandFactory());
 
             _generator = new TSqlGenerator(sqlServerCommandFactory);
 
@@ -33,8 +31,6 @@ namespace WeenyMapper.Specs.Sql
         [Test]
         public void Generating_select_without_constraints_generates_select_of_escaped_column_names_without_where_clause()
         {
-            _querySpecification.QueryExpression = new RootExpression();
-
             var query = _generator.GenerateSelectQuery(_querySpecification);
 
             Assert.AreEqual("SELECT [ColumnName1], [ColumnName2] FROM [TableName]", query.CommandText);
@@ -77,6 +73,67 @@ namespace WeenyMapper.Specs.Sql
             Assert.AreEqual("value", sqlCommand.Parameters[0].Value);
             Assert.AreEqual("ColumnName2Constraint", sqlCommand.Parameters[1].ParameterName);
             Assert.AreEqual(123, sqlCommand.Parameters[1].Value);
+        }
+
+        [Test]
+        public void Generating_join_without_constraints_generates_select_of_properties_from_both_tables_with_join_on_child_foreign_key_and_parent_id()
+        {
+            var spec2 = new SqlQuerySpecification
+                {
+                    ColumnsToSelect = new List<string> { "Table2Column1", "Table2Column2" },
+                    TableName = "TableName2"
+                };
+
+            _querySpecification.JoinSpecification = new SqlQueryJoinSpecification
+                {
+                    ParentTableName = "TableName2",
+                    ChildTableName = "TableName",
+                    ParentPrimaryKeyColumnName = "PrimaryKeyColumnName",
+                    ChildForeignKeyColumnName = "ForeignKeyColumnName",
+                    SqlQuerySpecification = spec2
+                };
+
+            var query = _generator.GenerateSelectQuery(_querySpecification);
+
+            var expectedSql = "SELECT [TableName].[ColumnName1], [TableName].[ColumnName2], [TableName2].[Table2Column1], [TableName2].[Table2Column2] " +
+                              "FROM [TableName] LEFT OUTER JOIN [TableName2] " +
+                              "ON [TableName].[ForeignKeyColumnName] = [TableName2].[PrimaryKeyColumnName]";
+
+            Assert.AreEqual(expectedSql, query.CommandText);
+        }
+
+        [Test]
+        public void Generating_join_with_constraints_generates_join_query_with_corresponding_constraints_qualified_with_table_name()
+        {
+            _querySpecification.QueryExpression = QueryExpression.Create(new EqualsExpression("ColumnName1", 123));
+
+            var spec2 = new SqlQuerySpecification
+                {
+                    ColumnsToSelect = new List<string> { "Table2Column1", "Table2Column2" },
+                    TableName = "TableName2"
+                };
+
+            _querySpecification.JoinSpecification = new SqlQueryJoinSpecification
+                {
+                    ParentTableName = "TableName2",
+                    ChildTableName = "TableName",
+                    ParentPrimaryKeyColumnName = "PrimaryKeyColumnName",
+                    ChildForeignKeyColumnName = "ForeignKeyColumnName",
+                    SqlQuerySpecification = spec2
+                };
+
+            var expectedSql = "SELECT [TableName].[ColumnName1], [TableName].[ColumnName2], [TableName2].[Table2Column1], [TableName2].[Table2Column2] " +
+                              "FROM [TableName] LEFT OUTER JOIN [TableName2] " +
+                              "ON [TableName].[ForeignKeyColumnName] = [TableName2].[PrimaryKeyColumnName] " +
+                              "WHERE [TableName].[ColumnName1] = @TableName_ColumnName1Constraint";
+
+            var query = _generator.GenerateSelectQuery(_querySpecification);
+            var actualParameters = query.Parameters.SortByParameterName();
+
+            Assert.AreEqual(expectedSql, query.CommandText);
+            Assert.AreEqual(1, actualParameters.Count);
+            Assert.AreEqual("TableName_ColumnName1Constraint", actualParameters[0].ParameterName);
+            Assert.AreEqual(123, actualParameters[0].Value);
         }
 
         [Test]
