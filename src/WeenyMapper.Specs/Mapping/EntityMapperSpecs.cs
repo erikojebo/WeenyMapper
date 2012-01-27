@@ -4,6 +4,8 @@ using NUnit.Framework;
 using WeenyMapper.Conventions;
 using WeenyMapper.Exceptions;
 using WeenyMapper.Mapping;
+using WeenyMapper.Reflection;
+using WeenyMapper.Specs.TestClasses.Conventions;
 
 namespace WeenyMapper.Specs.Mapping
 {
@@ -12,12 +14,15 @@ namespace WeenyMapper.Specs.Mapping
     {
         private EntityMapper _mapper;
         private List<ColumnValue> _columnValues;
+        private Guid _guid = new Guid("00000000-0000-0000-0000-000000000001");
+        private ObjectRelation _parentChildRelation;
 
         [SetUp]
         public void SetUp()
         {
             _columnValues = new List<ColumnValue>();
-            _mapper = new EntityMapper(new DefaultConvention());
+            _mapper = new EntityMapper(new ConventionReader(new DefaultConvention()));
+            _parentChildRelation = ObjectRelation.Create<Parent, Child>(x => x.Children, x => x.Parent);
         }
 
         [Test]
@@ -43,12 +48,12 @@ namespace WeenyMapper.Specs.Mapping
         public void Creating_instance_with_multiple_values_with_same_column_name_as_property_name_sets_properties()
         {
             AddValue("Name", "a name");
-            AddValue("Id", new Guid("30F3B29F-A2C7-4D5A-ADE0-691B38F32453"));
+            AddValue("Id", _guid);
 
             var instance = _mapper.CreateInstance<ClassWithoutRelations>(_columnValues);
 
             Assert.AreEqual("a name", instance.Name);
-            Assert.AreEqual(new Guid("30F3B29F-A2C7-4D5A-ADE0-691B38F32453"), instance.Id);
+            Assert.AreEqual(_guid, instance.Id);
         }
 
         [ExpectedException(typeof(MissingDefaultConstructorException))]
@@ -66,43 +71,59 @@ namespace WeenyMapper.Specs.Mapping
             _mapper.CreateInstance<ClassWithoutRelations>(_columnValues);
         }
 
+        [Test]
+        public void Creating_instance_with_multiple_values_with_column_name_according_to_convention_sets_corresponding_properties()
+        {
+            _mapper = new EntityMapper(new ConventionReader(new UpperCaseConvention()));
+
+            AddValue("NAME", "a name");
+            AddValue("ID", _guid);
+
+            var instance = _mapper.CreateInstance<ClassWithoutRelations>(_columnValues);
+
+            Assert.AreEqual("a name", instance.Name);
+            Assert.AreEqual(_guid, instance.Id);
+        }
+
+        [Test]
+        public void Creating_instance_with_column_names_prefixed_by_table_name_sets_corresponding_properties()
+        {
+            AddValue("Child Id", 2);
+            AddValue("Child Name", "child name");
+
+            var instance = _mapper.CreateInstance<Child>(_columnValues);
+
+            Assert.AreEqual(2, instance.Id);
+            Assert.AreEqual("child name", instance.Name);
+        }
+
+        [Test]
+        public void Creating_instance_with_parent_property_without_any_values_for_parent_leaves_parent_property_as_null()
+        {
+            AddValue("Child Id", 2);
+
+            var instance = _mapper.CreateInstance<Child>(_columnValues, _parentChildRelation);
+
+            Assert.IsNull(instance.Parent);
+        }
+
+        [Test]
+        public void Creating_instance_with_parent_property_with_single_value_for_parent_sets_parent_property_to_instance_with_properties_set()
+        {
+            AddValue("Child Id", 1);
+            AddValue("Parent Id", _guid);
+
+            var instance = _mapper.CreateInstance<Child>(_columnValues, _parentChildRelation);
+
+            Assert.IsNotNull(instance.Parent);
+            Assert.AreEqual(1, instance.Id);
+            Assert.AreEqual(_guid, instance.Parent.Id);
+        }
+
         private void AddValue(string name, object value)
         {
             _columnValues.Add(new ColumnValue(name, value));
         }
-
-        //[Test]
-        //public void Creates_new_instance_of_target_type_and_writes_values_to_properties_corresponding_to_key_string()
-        //{
-        //    _values["ID"] = 123;
-        //    _values["NAME"] = "a name";
-        //    _values["TITLE"] = "a title";
-
-        //    var child = _mapper.CreateInstance<Child>(_values);
-
-        //    Assert.AreEqual(123, child.Id);
-        //    Assert.AreEqual("a name", child.Name);
-        //    Assert.AreEqual("a title", child.Title);
-        //}
-
-        //[Test]
-        //public void Creates_instance_of_type_for_entity_reference_property_with_values_from_type_name_prefixed_key_string()
-        //{
-        //    _values["CHILD ID"] = 1;
-        //    _values["CHILD NAME"] = "child name";
-        //    _values["CHILD TITLE"] = "child title";
-        //    _values["PARENT ID"] = 2;
-        //    _values["PARENT NAME"] = "parent name";
-
-        //    var parentProperty = Reflector<Child>.GetProperty(x => x.Parent);
-
-        //    var child = _mapper.CreateInstance<Child>(_values, new [] { parentProperty });
-        //    Assert.AreEqual(1, child.Id);
-        //    Assert.AreEqual("child name", child.Name);
-        //    Assert.AreEqual("child title", child.Title);
-        //    Assert.AreEqual(2, child.Parent.Id);
-        //    Assert.AreEqual("parent name", child.Parent.Name);
-        //}
 
         private class ClassWithoutDefaultConstructor
         {
@@ -138,4 +159,5 @@ namespace WeenyMapper.Specs.Mapping
             public DateTime DateTime { get; set; }
         }
     }
+
 }

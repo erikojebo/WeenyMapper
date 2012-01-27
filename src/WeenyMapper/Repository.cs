@@ -108,7 +108,7 @@ namespace WeenyMapper
 
         public StaticSelectBuilder<T> Find<T>() where T : new()
         {
-            var objectQueryExecutor = new ObjectQueryExecutor(CreateSqlGenerator(), CreateSqlCommandExecutor(), new EntityMapper(Convention), CreateConventionReader())
+            var objectQueryExecutor = new ObjectQueryExecutor(CreateSqlGenerator(), CreateSqlCommandExecutor(), new EntityMapper(CreateConventionReader()), CreateConventionReader())
                 {
                     ConnectionString = ConnectionString
                 };
@@ -168,7 +168,7 @@ namespace WeenyMapper
 
         public CustomSqlQueryExecutor<T> FindBySql<T>(DbCommand dbCommand) where T : new()
         {
-            return new CustomSqlQueryExecutor<T>(CreateSqlCommandExecutor(), new EntityMapper(Convention))
+            return new CustomSqlQueryExecutor<T>(CreateSqlCommandExecutor(), new EntityMapper(CreateConventionReader()))
                 {
                     ConnectionString = ConnectionString,
                     Command = dbCommand

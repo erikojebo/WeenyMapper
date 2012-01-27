@@ -16,7 +16,16 @@ namespace WeenyMapper.Exceptions
 
     public class MissingPropertyException : ReflectionException
     {
-        public MissingPropertyException(Type type, string propertyName)
-            : base("Could not find the property '{0}' in the type '{1}'", type.FullName, propertyName) {}
+        private MissingPropertyException(string format, params object[] values) : base(format, values) {}
+
+        public static MissingPropertyException CreateFromPropertyName(Type type, string propertyName)
+        {
+            return new MissingPropertyException("Could not find the property '{0}' in the type '{1}'", propertyName, type.FullName);
+        }
+
+        public static MissingPropertyException CreateFromColumnName(Type type, string columnName)
+        {
+            return new MissingPropertyException("Could not find the any property in the type '{0}' matching the column name or alias '{1}' ", type.FullName, columnName);
+        }
     }
 }

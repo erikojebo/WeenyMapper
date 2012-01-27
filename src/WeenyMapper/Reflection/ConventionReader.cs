@@ -192,6 +192,12 @@ namespace WeenyMapper.Reflection
             return dataColumnNames.Concat(foreignKeyColumnNames);
         }
 
+        public PropertyInfo GetPropertyForColumn(string columnName, Type type)
+        {
+            var properties = GetMappedProperties(type);
+            return properties.FirstOrDefault(x => GetColumnName(x) == columnName);
+        }
+
         public string GetColumnName(string propertyName, Type type)
         {
             var propertyInfo = type.GetProperty(propertyName);

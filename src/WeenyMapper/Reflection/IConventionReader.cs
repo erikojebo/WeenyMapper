@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using WeenyMapper.Conventions;
 
 namespace WeenyMapper.Reflection
@@ -18,5 +19,6 @@ namespace WeenyMapper.Reflection
         string GetColumnName(string propertyName, Type type);
         void SetId(object entity, int id);
         IEnumerable<string> GetSelectableColumNames(Type type);
+        PropertyInfo GetPropertyForColumn(string columnName, Type type);
     }
 }
