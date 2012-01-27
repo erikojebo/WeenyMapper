@@ -43,6 +43,7 @@
     <Compile Include="Conventions\IConvention.cs" />
     <Compile Include="Async\TaskRunner.cs" />
     <Compile Include="DatabaseSystem.cs" />
+    <Compile Include="Exceptions\ReflectionException.cs" />
     <Compile Include="Exceptions\WeenyMapperException.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\ReflectionExtensions.cs" />
@@ -51,6 +52,7 @@
     <Compile Include="IDatabaseProvider.cs" />
     <Compile Include="Logging\ISqlCommandLogger.cs" />
     <Compile Include="Logging\NullSqlCommandLogger.cs" />
+    <Compile Include="Mapping\ColumnValue.cs" />
     <Compile Include="Mapping\EntityMapper.cs" />
     <Compile Include="Mapping\IEntityMapper.cs" />
     <Compile Include="QueryParsing\LikeExpression.cs" />

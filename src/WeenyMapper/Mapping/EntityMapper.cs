@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using WeenyMapper.Conventions;
+using WeenyMapper.Exceptions;
 
 namespace WeenyMapper.Mapping
 {
@@ -17,43 +18,50 @@ namespace WeenyMapper.Mapping
 
         public T CreateInstance<T>(IDictionary<string, object> dictionary) where T : new()
         {
-            var propertiesInTargetType = typeof(T).GetProperties();
+            var values = dictionary.Select(x => new ColumnValue(x.Key, x.Value));
+            return (T)CreateInstance(typeof(T), values);
+        }
 
-            var instance = new T();
+        public T CreateInstance<T>(IList<ColumnValue> columnValues)
+        {
+            return (T)CreateInstance(typeof(T), columnValues);
+        }
 
-            var matchingProperties = FindMatchingProperties(dictionary, typeof(T));
-
-            foreach (var value in matchingProperties)
+        public object CreateInstance(Type type, IEnumerable<ColumnValue> columnValues)
+        {
+            try
             {
-                var property = propertiesInTargetType.First(x => _convention.GetColumnName(x) == GetColumnName(value.Key));
-                property.SetValue(instance, value.Value, null);
+                return InternalCreateInstance(type, columnValues);
+            }
+            catch (MissingMethodException)
+            {
+                throw new MissingDefaultConstructorException(type);
+            }
+        }
+
+        private object InternalCreateInstance(Type type, IEnumerable<ColumnValue> columnValues)
+        {
+            var instance = Activator.CreateInstance(type);
+
+            foreach (var columnValue in columnValues)
+            {
+                var property = GetProperty(type, columnValue);
+                property.SetValue(instance, columnValue.Value, null);
             }
 
             return instance;
         }
 
-        private string GetColumnName(string key)
+        private PropertyInfo GetProperty(Type type, ColumnValue columnValue)
         {
-            if (key.Contains(" "))
+            var propertyInfo = type.GetProperty(columnValue.Name);
+
+            if (propertyInfo == null)
             {
-                return key.Substring(key.IndexOf(" ") + 1);
+                throw new MissingPropertyException(type, columnValue.Name);
             }
 
-            return key;
-        }
-
-        private IEnumerable<KeyValuePair<string, object>> FindMatchingProperties(IEnumerable<KeyValuePair<string, object>> dictionary, Type type)
-        {
-            return dictionary.Where(x => !x.Key.Contains(" ") || (x.Key.Contains(" ") && x.Key.StartsWith(_convention.GetTableName(type))));
-        }
-
-        public T CreateInstance<T>(Dictionary<string, object> dictionary, PropertyInfo[] propertyInfos) where T : new()
-        {
-            var instance = CreateInstance<T>(dictionary);
-
-            propertyInfos.First().SetValue(instance, Activator.CreateInstance(propertyInfos.First().PropertyType), null);
-
-            return instance;
+            return propertyInfo;
         }
     }
 }
