@@ -72,9 +72,15 @@ namespace WeenyMapper.Sql
                 joinedColumnStrings = CreateColumnSelectStrings(querySpecification.JoinSpecification.SqlQuerySpecification);
             }
 
-            var stringsForCurrentTable = querySpecification.ColumnsToSelect.Select(x => string.Format("{0}.{1}", Escape(querySpecification.TableName), Escape(x)));
+            var stringsForCurrentTable = querySpecification.ColumnsToSelect.Select(x => CreateColumnSelectString(x, querySpecification));
 
             return stringsForCurrentTable.Concat(joinedColumnStrings);
+        }
+
+        private string CreateColumnSelectString(string columnName, SqlQuerySpecification querySpecification)
+        {
+            var alias = string.Format("{0} {1}", querySpecification.TableName, columnName);
+            return string.Format("{0}.{1} AS '{2}'", Escape(querySpecification.TableName), Escape(columnName), alias);
         }
 
         private DbCommand GeneratePagingQuery(SqlQuerySpecification querySpecification)

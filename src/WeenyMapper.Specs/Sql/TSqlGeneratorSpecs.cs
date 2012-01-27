@@ -95,7 +95,8 @@ namespace WeenyMapper.Specs.Sql
 
             var query = _generator.GenerateSelectQuery(_querySpecification);
 
-            var expectedSql = "SELECT [TableName].[ColumnName1], [TableName].[ColumnName2], [TableName2].[Table2Column1], [TableName2].[Table2Column2] " +
+            var expectedSql = "SELECT [TableName].[ColumnName1] AS 'TableName ColumnName1', [TableName].[ColumnName2] AS 'TableName ColumnName2', " +
+                              "[TableName2].[Table2Column1] AS 'TableName2 Table2Column1', [TableName2].[Table2Column2] AS 'TableName2 Table2Column2' " +
                               "FROM [TableName] LEFT OUTER JOIN [TableName2] " +
                               "ON [TableName].[ForeignKeyColumnName] = [TableName2].[PrimaryKeyColumnName]";
 
@@ -122,7 +123,8 @@ namespace WeenyMapper.Specs.Sql
                     SqlQuerySpecification = spec2
                 };
 
-            var expectedSql = "SELECT [TableName].[ColumnName1], [TableName].[ColumnName2], [TableName2].[Table2Column1], [TableName2].[Table2Column2] " +
+            var expectedSql = "SELECT [TableName].[ColumnName1] AS 'TableName ColumnName1', [TableName].[ColumnName2] AS 'TableName ColumnName2', " +
+                              "[TableName2].[Table2Column1] AS 'TableName2 Table2Column1', [TableName2].[Table2Column2] AS 'TableName2 Table2Column2' " +
                               "FROM [TableName] LEFT OUTER JOIN [TableName2] " +
                               "ON [TableName].[ForeignKeyColumnName] = [TableName2].[PrimaryKeyColumnName] " +
                               "WHERE [TableName].[ColumnName1] = @TableName_ColumnName1Constraint";

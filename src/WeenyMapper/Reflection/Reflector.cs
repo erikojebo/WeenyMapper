@@ -11,6 +11,11 @@ namespace WeenyMapper.Reflection
             return GetProperty(property).Name;
         }
 
+        public static PropertyInfo GetProperty(Expression<Func<TInstance, object>> expression)
+        {
+            return GetProperty((Expression)expression);
+        }
+
         public static PropertyInfo GetProperty(Expression body)
         {
             if (body is LambdaExpression)
