@@ -26,9 +26,9 @@ namespace WeenyMapper.Mapping
             get { return Alias.Contains(Separator); }
         }
 
-        public bool IsForType(Type type, DefaultConvention defaultConvention)
+        public bool IsForType(Type type, IConvention convention)
         {
-            return !HasTableQualifiedAlias || Alias.StartsWith(type.Name);
+            return !HasTableQualifiedAlias || Alias.StartsWith(convention.GetTableName(type));
         }
     }
 }

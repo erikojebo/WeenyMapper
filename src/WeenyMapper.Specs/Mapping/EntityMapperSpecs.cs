@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using WeenyMapper.Conventions;
 using WeenyMapper.Exceptions;
@@ -120,6 +121,36 @@ namespace WeenyMapper.Specs.Mapping
             Assert.AreEqual(_guid, instance.Parent.Id);
         }
 
+        [Test]
+        public void Creating_child_with_parent_adds_child_to_parents_child_collection()
+        {
+            AddValue("Child Id", 1);
+            AddValue("Parent Id", _guid);
+
+            var child = _mapper.CreateInstance<Child>(_columnValues, _parentChildRelation);
+            var parent = child.Parent;
+
+            Assert.IsNotNull(parent);
+            Assert.AreEqual(1, parent.Children.Count);
+            Assert.AreSame(child, parent.Children.First());
+        }
+
+        [Test]
+        public void Properties_and_table_names_are_matched_using_the_given_convention()
+        {
+            AddValue("CHILD ID", 1);
+            AddValue("PARENT ID", _guid);
+            AddValue("PARENT NAME", "parent name");
+            _mapper = new EntityMapper(new ConventionReader(new UpperCaseConvention()));
+            var instance = _mapper.CreateInstance<Child>(_columnValues, _parentChildRelation);
+
+            Assert.IsNotNull(instance.Parent);
+            Assert.AreEqual(1, instance.Id);
+            Assert.AreEqual(_guid, instance.Parent.Id);
+            Assert.AreEqual("parent name", instance.Parent.Name);
+
+        }
+
         private void AddValue(string name, object value)
         {
             _columnValues.Add(new ColumnValue(name, value));
@@ -138,6 +169,11 @@ namespace WeenyMapper.Specs.Mapping
 
         private class Parent
         {
+            public Parent()
+            {
+                Children = new List<Child>();
+            }
+
             public Guid Id { get; set; }
             public string Name { get; set; }
 
@@ -146,11 +182,17 @@ namespace WeenyMapper.Specs.Mapping
 
         private class Child
         {
+            public Child()
+            {
+                GrandChildren = new List<GrandChild>();
+            }
+
             public int Id { get; set; }
             public string Name { get; set; }
             public string Title { get; set; }
 
             public Parent Parent { get; set; }
+            public IList<GrandChild> GrandChildren { get; set; }
         }
 
         private class GrandChild

@@ -59,11 +59,11 @@ namespace WeenyMapper.Specs.Mapping
         public void Is_for_type_when_qualified_with_table_name_from_type_name_and_convention()
         {
             var columnValue = new ColumnValue("MOVIE COLUMNNAME", 0);
-            Assert.IsFalse(columnValue.IsForType(typeof(Movie), new UpperCaseConvention()));
+            Assert.IsTrue(columnValue.IsForType(typeof(Movie), new UpperCaseConvention()));
         }
 
         [Test]
-        public void Is_type_when_alias_is_unqualified()
+        public void Is_for_type_when_alias_is_unqualified()
         {
             Assert.IsTrue(_unqualifiedColumnValue.IsForType(typeof(Movie), new DefaultConvention()));
         }
