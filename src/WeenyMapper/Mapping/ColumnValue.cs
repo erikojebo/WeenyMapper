@@ -1,16 +1,26 @@
-﻿using System;
-
-namespace WeenyMapper.Mapping
+﻿namespace WeenyMapper.Mapping
 {
-    public class ColumnValue 
+    public class ColumnValue
     {
-        public string Name { get; private set; }
+        private const string Separator = " ";
+
+        public ColumnValue(string alias, object value)
+        {
+            Alias = alias;
+            Value = value;
+        }
+
+        public string Alias { get; private set; }
         public object Value { get; private set; }
 
-        public ColumnValue(string name, object value)
+        public string ColumnName
         {
-            Name = name;
-            Value = value;
+            get { return Alias.Substring(Alias.IndexOf(Separator) + 1); }
+        }
+
+        public bool HasTableQualifiedAlias
+        {
+            get { return Alias.Contains(Separator); }
         }
     }
 }

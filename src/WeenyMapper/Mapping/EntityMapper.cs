@@ -79,9 +79,9 @@ namespace WeenyMapper.Mapping
 
         private bool IsForType(ColumnValue columnValue, Type type)
         {
-            var isTableQualifiedColumnName = IsTableQualifiedColumnName(columnValue.Name);
+            var isTableQualifiedColumnName = IsTableQualifiedColumnName(columnValue.Alias);
 
-            return !isTableQualifiedColumnName || columnValue.Name.StartsWith(type.Name);
+            return !isTableQualifiedColumnName || columnValue.Alias.StartsWith(type.Name);
         }
 
         private PropertyInfo GetProperty(Type type, ColumnValue columnValue)
@@ -100,7 +100,7 @@ namespace WeenyMapper.Mapping
 
         private string GetColumnName(ColumnValue columnValue)
         {
-            var columnName = columnValue.Name;
+            var columnName = columnValue.Alias;
 
             if (IsTableQualifiedColumnName(columnName))
             {
