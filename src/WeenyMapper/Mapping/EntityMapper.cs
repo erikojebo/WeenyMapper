@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using WeenyMapper.Conventions;
 using WeenyMapper.Exceptions;
 using WeenyMapper.Reflection;
 
@@ -31,45 +30,33 @@ namespace WeenyMapper.Mapping
 
         public T CreateInstance<T>(IList<ColumnValue> columnValues, ObjectRelation relation)
         {
-            return (T)CreateInstance(typeof(T), columnValues, relation);
-        }
-
-        public object CreateInstance(Type type, IEnumerable<ColumnValue> columnValues, ObjectRelation relation = null)
-        {
-            try
-            {
-                return CreateInstanceGraph(type, columnValues, relation);
-            }
-            catch (MissingMethodException)
-            {
-                throw new MissingDefaultConstructorException(type);
-            }
+            return (T)CreateInstanceGraph(typeof(T), columnValues, relation);
         }
 
         private object CreateInstanceGraph(Type type, IEnumerable<ColumnValue> columnValues, ObjectRelation relation)
         {
             if (relation == null)
             {
-                return InternalCreateInstance(type, columnValues);
+                return CreateInstance(type, columnValues);
             }
 
-            var child = InternalCreateInstance(relation.ChildProperty.DeclaringType, columnValues);
-            var parent = InternalCreateInstance(relation.ParentProperty.DeclaringType, columnValues);
+            var child = CreateInstance(relation.ChildProperty.DeclaringType, columnValues);
+            var parent = CreateInstance(relation.ParentProperty.DeclaringType, columnValues);
 
             var hasParentProperties = columnValues.Any(x => x.IsForType(relation.ParentProperty.DeclaringType, _conventionReader));
             if (hasParentProperties)
             {
                 relation.ChildProperty.SetValue(child, parent, null);
-                IList parentsChildCollection = (IList)relation.ParentProperty.GetValue(parent, null);
+                var parentsChildCollection = (IList)relation.ParentProperty.GetValue(parent, null);
                 parentsChildCollection.Add(child);
             }
 
             return child;
         }
 
-        private object InternalCreateInstance(Type type, IEnumerable<ColumnValue> columnValues)
+        public object CreateInstance(Type type, IEnumerable<ColumnValue> columnValues)
         {
-            var instance = Activator.CreateInstance(type);
+            var instance = CreateInstance(type);
 
             var columnValuesForCurrentType = columnValues.Where(x => x.IsForType(type, _conventionReader));
             foreach (var columnValue in columnValuesForCurrentType)
@@ -79,6 +66,18 @@ namespace WeenyMapper.Mapping
             }
 
             return instance;
+        }
+
+        private object CreateInstance(Type type)
+        {
+            try
+            {
+                return Activator.CreateInstance(type);
+            }
+            catch (Exception)
+            {
+                throw new MissingDefaultConstructorException(type);
+            }
         }
 
         private PropertyInfo GetProperty(Type type, ColumnValue columnValue)

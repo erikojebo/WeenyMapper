@@ -19,14 +19,9 @@ namespace WeenyMapper.Specs
          
          */
 
-        [SetUp]
-        public void SetUp()
+        protected override void PerformSetUp()
         {
             DeleteAllExistingTestData();
-
-            Repository.Convention = new DefaultConvention();
-
-            Repository.EnableSqlConsoleLogging();
         }
 
         [Timeout(5000)]

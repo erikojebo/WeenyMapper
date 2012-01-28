@@ -148,7 +148,6 @@ namespace WeenyMapper.Specs.Mapping
             Assert.AreEqual(1, instance.Id);
             Assert.AreEqual(_guid, instance.Parent.Id);
             Assert.AreEqual("parent name", instance.Parent.Name);
-
         }
 
         private void AddValue(string name, object value)
