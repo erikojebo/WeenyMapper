@@ -79,44 +79,19 @@ namespace WeenyMapper.Mapping
 
         private bool IsForType(ColumnValue columnValue, Type type)
         {
-            var isTableQualifiedColumnName = IsTableQualifiedColumnName(columnValue.Alias);
-
-            return !isTableQualifiedColumnName || columnValue.Alias.StartsWith(type.Name);
+            return !columnValue.HasTableQualifiedAlias || columnValue.Alias.StartsWith(type.Name);
         }
 
         private PropertyInfo GetProperty(Type type, ColumnValue columnValue)
         {
-            string columnName = GetColumnName(columnValue);
-
-            var propertyInfo = _conventionReader.GetPropertyForColumn(columnName, type);
+            var propertyInfo = _conventionReader.GetPropertyForColumn(columnValue.ColumnName, type);
 
             if (propertyInfo == null)
             {
-                throw MissingPropertyException.CreateFromColumnName(type, columnName);
+                throw MissingPropertyException.CreateFromColumnName(type, columnValue.ColumnName);
             }
 
             return propertyInfo;
-        }
-
-        private string GetColumnName(ColumnValue columnValue)
-        {
-            var columnName = columnValue.Alias;
-
-            if (IsTableQualifiedColumnName(columnName))
-            {
-                columnName = StripTableName(columnName);
-            }
-            return columnName;
-        }
-
-        private string StripTableName(string columnName)
-        {
-            return columnName.Substring(columnName.IndexOf(" ") + 1);
-        }
-
-        private bool IsTableQualifiedColumnName(string columnName)
-        {
-            return columnName.Contains(" ");
         }
     }
 }
