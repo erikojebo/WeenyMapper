@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using WeenyMapper.Conventions;
 using WeenyMapper.Exceptions;
 using WeenyMapper.Reflection;
 
@@ -54,7 +55,7 @@ namespace WeenyMapper.Mapping
             var child = InternalCreateInstance(relation.ChildProperty.DeclaringType, columnValues);
             var parent = InternalCreateInstance(relation.ParentProperty.DeclaringType, columnValues);
 
-            var hasParentProperties = columnValues.Any(x => IsForType(x, relation.ParentProperty.DeclaringType));
+            var hasParentProperties = columnValues.Any(x => x.IsForType(relation.ParentProperty.DeclaringType, new DefaultConvention()));
             if (hasParentProperties)
             {
                 relation.ChildProperty.SetValue(child, parent, null);
@@ -67,7 +68,7 @@ namespace WeenyMapper.Mapping
         {
             var instance = Activator.CreateInstance(type);
 
-            var columnValuesForCurrentType = columnValues.Where(x => IsForType(x, type));
+            var columnValuesForCurrentType = columnValues.Where(x => x.IsForType(type, new DefaultConvention()));
             foreach (var columnValue in columnValuesForCurrentType)
             {
                 var property = GetProperty(type, columnValue);
@@ -75,11 +76,6 @@ namespace WeenyMapper.Mapping
             }
 
             return instance;
-        }
-
-        private bool IsForType(ColumnValue columnValue, Type type)
-        {
-            return !columnValue.HasTableQualifiedAlias || columnValue.Alias.StartsWith(type.Name);
         }
 
         private PropertyInfo GetProperty(Type type, ColumnValue columnValue)

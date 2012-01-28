@@ -1,4 +1,7 @@
-﻿namespace WeenyMapper.Mapping
+﻿using System;
+using WeenyMapper.Conventions;
+
+namespace WeenyMapper.Mapping
 {
     public class ColumnValue
     {
@@ -21,6 +24,11 @@
         public bool HasTableQualifiedAlias
         {
             get { return Alias.Contains(Separator); }
+        }
+
+        public bool IsForType(Type type, DefaultConvention defaultConvention)
+        {
+            return !HasTableQualifiedAlias || Alias.StartsWith(type.Name);
         }
     }
 }
