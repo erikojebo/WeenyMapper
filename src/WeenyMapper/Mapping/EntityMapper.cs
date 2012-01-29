@@ -20,10 +20,10 @@ namespace WeenyMapper.Mapping
         public T CreateInstance<T>(IDictionary<string, object> dictionary) where T : new()
         {
             var values = dictionary.Select(x => new ColumnValue(x.Key, x.Value));
-            return (T)CreateInstance(typeof(T), values);
+            return (T)CreateInstance(typeof(T), new Row(values));
         }
 
-        public T CreateInstance<T>(IList<ColumnValue> columnValues)
+        public T CreateInstance<T>(Row columnValues)
         {
             return (T)CreateInstance(typeof(T), columnValues);
         }
@@ -33,11 +33,6 @@ namespace WeenyMapper.Mapping
             return (T)CreateInstanceGraph(typeof(T), row, relation);
         }
 
-        public T CreateInstanceGraph<T>(IList<ColumnValue> columnValues, ObjectRelation relation)
-        {
-            return (T)CreateInstanceGraph(typeof(T), columnValues, relation);
-        }
-
         private object CreateInstanceGraph(Type type, Row row, ObjectRelation relation)
         {
             return CreateInstanceGraph(type, row.ColumnValues, relation);
@@ -45,8 +40,8 @@ namespace WeenyMapper.Mapping
 
         private object CreateInstanceGraph(Type type, IEnumerable<ColumnValue> columnValues, ObjectRelation relation)
         {
-            var child = CreateInstance(relation.ChildProperty.DeclaringType, columnValues);
-            var parent = CreateInstance(relation.ParentProperty.DeclaringType, columnValues);
+            var child = CreateInstance(relation.ChildProperty.DeclaringType, new Row(columnValues));
+            var parent = CreateInstance(relation.ParentProperty.DeclaringType, new Row(columnValues));
 
             var hasParentProperties = columnValues.Any(x => x.IsForType(relation.ParentProperty.DeclaringType, _conventionReader));
             if (hasParentProperties)
@@ -59,11 +54,11 @@ namespace WeenyMapper.Mapping
             return child;
         }
 
-        public object CreateInstance(Type type, IEnumerable<ColumnValue> columnValues)
+        public object CreateInstance(Type type, Row columnValues)
         {
             var instance = CreateInstance(type);
 
-            var columnValuesForCurrentType = columnValues.Where(x => x.IsForType(type, _conventionReader));
+            var columnValuesForCurrentType = columnValues.ColumnValues.Where(x => x.IsForType(type, _conventionReader));
             foreach (var columnValue in columnValuesForCurrentType)
             {
                 var property = GetProperty(type, columnValue);

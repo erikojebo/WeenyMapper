@@ -31,7 +31,7 @@ namespace WeenyMapper.Specs.Mapping
         [Test]
         public void Creating_instance_of_type_without_values_creates_empty_instance()
         {
-            var instance = _mapper.CreateInstance<ClassWithoutRelations>(_columnValues);
+            var instance = _mapper.CreateInstance<ClassWithoutRelations>(_row);
 
             Assert.AreEqual(null, instance.Name);
             Assert.AreEqual(Guid.Empty, instance.Id);
@@ -42,7 +42,7 @@ namespace WeenyMapper.Specs.Mapping
         {
             AddValue("Name", "a name");
 
-            var instance = _mapper.CreateInstance<ClassWithoutRelations>(_columnValues);
+            var instance = _mapper.CreateInstance<ClassWithoutRelations>(_row);
 
             Assert.AreEqual("a name", instance.Name);
         }
@@ -53,7 +53,7 @@ namespace WeenyMapper.Specs.Mapping
             AddValue("Name", "a name");
             AddValue("Id", _guid);
 
-            var instance = _mapper.CreateInstance<ClassWithoutRelations>(_columnValues);
+            var instance = _mapper.CreateInstance<ClassWithoutRelations>(_row);
 
             Assert.AreEqual("a name", instance.Name);
             Assert.AreEqual(_guid, instance.Id);
@@ -63,7 +63,7 @@ namespace WeenyMapper.Specs.Mapping
         [Test]
         public void Trying_to_create_instance_without_default_constructor_throws_exception()
         {
-            _mapper.CreateInstance<ClassWithoutDefaultConstructor>(_columnValues);
+            _mapper.CreateInstance<ClassWithoutDefaultConstructor>(_row);
         }
 
         [ExpectedException(typeof(MissingPropertyException))]
@@ -71,7 +71,7 @@ namespace WeenyMapper.Specs.Mapping
         public void Trying_to_create_instance_with_values_that_do_not_have_corresponding_properties_throws_exception()
         {
             AddValue("MissingProperty", null);
-            _mapper.CreateInstance<ClassWithoutRelations>(_columnValues);
+            _mapper.CreateInstance<ClassWithoutRelations>(_row);
         }
 
         [Test]
@@ -82,7 +82,7 @@ namespace WeenyMapper.Specs.Mapping
             AddValue("NAME", "a name");
             AddValue("ID", _guid);
 
-            var instance = _mapper.CreateInstance<ClassWithoutRelations>(_columnValues);
+            var instance = _mapper.CreateInstance<ClassWithoutRelations>(_row);
 
             Assert.AreEqual("a name", instance.Name);
             Assert.AreEqual(_guid, instance.Id);
@@ -94,7 +94,7 @@ namespace WeenyMapper.Specs.Mapping
             AddValue("Child Id", 2);
             AddValue("Child Name", "child name");
 
-            var instance = _mapper.CreateInstance<Child>(_columnValues);
+            var instance = _mapper.CreateInstance<Child>(_row);
 
             Assert.AreEqual(2, instance.Id);
             Assert.AreEqual("child name", instance.Name);

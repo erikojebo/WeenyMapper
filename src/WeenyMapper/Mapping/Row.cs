@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace WeenyMapper.Mapping
 {
@@ -7,6 +8,11 @@ namespace WeenyMapper.Mapping
         public Row()
         {
             ColumnValues = new List<ColumnValue>();
+        }
+
+        public Row(IEnumerable<ColumnValue> columnValues)
+        {
+            ColumnValues = columnValues.ToList();
         }
 
         public IList<ColumnValue> ColumnValues { get; set; }
