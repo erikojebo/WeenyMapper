@@ -162,10 +162,6 @@ namespace WeenyMapper.Reflection
         {
             var propertyInfo = typeof(T).GetProperty(propertyName);
 
-            if (IsEntityCollectionProperty(propertyInfo))
-            {
-                return GetOneToManyForeignKeyColumnName(propertyInfo);
-            }
             if (!IsDataProperty(propertyInfo))
             {
                 return GetManyToOneForeignKeyColumnName(propertyInfo);
@@ -229,11 +225,6 @@ namespace WeenyMapper.Reflection
         public bool HasIdentityId(Type entityType)
         {
             return _convention.HasIdentityId(entityType);
-        }
-
-        public string GetOneToManyForeignKeyColumnName(PropertyInfo propertyInfo)
-        {
-            return _convention.GetOneToManyForeignKeyColumnName(propertyInfo);
         }
 
         public string GetManyToOneForeignKeyColumnName(PropertyInfo propertyInfo)

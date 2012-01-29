@@ -11,6 +11,5 @@ namespace WeenyMapper.Conventions
         bool IsIdProperty(PropertyInfo propertyInfo);
         bool ShouldMapProperty(PropertyInfo propertyInfo);
         bool HasIdentityId(Type entityType);
-        string GetOneToManyForeignKeyColumnName(PropertyInfo propertyInfo);
     }
 }

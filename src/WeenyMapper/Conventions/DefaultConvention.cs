@@ -45,10 +45,5 @@ namespace WeenyMapper.Conventions
         {
             return propertyInfo.Name + "Id";
         }
-
-        public virtual string GetOneToManyForeignKeyColumnName(PropertyInfo propertyInfo)
-        {
-            return propertyInfo.DeclaringType.Name + "Id";
-        }
     }
 }
