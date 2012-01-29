@@ -14,7 +14,6 @@ namespace WeenyMapper.Specs.Mapping
     public class EntityMapperSpecs
     {
         private EntityMapper _mapper;
-        private List<ColumnValue> _columnValues;
         private Row _row;
         private Guid _guid = new Guid("00000000-0000-0000-0000-000000000001");
         private ObjectRelation _parentChildRelation;
@@ -23,7 +22,6 @@ namespace WeenyMapper.Specs.Mapping
         public void SetUp()
         {
             _row = new Row();
-            _columnValues = new List<ColumnValue>();
             _mapper = new EntityMapper(new ConventionReader(new DefaultConvention()));
             _parentChildRelation = ObjectRelation.Create<Parent, Child>(x => x.Children, x => x.Parent);
         }
@@ -40,7 +38,7 @@ namespace WeenyMapper.Specs.Mapping
         [Test]
         public void Creating_instance_with_single_value_with_same_column_name_as_property_name_sets_property()
         {
-            AddValue("Name", "a name");
+            _row.Add("Name", "a name");
 
             var instance = _mapper.CreateInstance<ClassWithoutRelations>(_row);
 
@@ -50,8 +48,8 @@ namespace WeenyMapper.Specs.Mapping
         [Test]
         public void Creating_instance_with_multiple_values_with_same_column_name_as_property_name_sets_properties()
         {
-            AddValue("Name", "a name");
-            AddValue("Id", _guid);
+            _row.Add("Name", "a name");
+            _row.Add("Id", _guid);
 
             var instance = _mapper.CreateInstance<ClassWithoutRelations>(_row);
 
@@ -70,7 +68,7 @@ namespace WeenyMapper.Specs.Mapping
         [Test]
         public void Trying_to_create_instance_with_values_that_do_not_have_corresponding_properties_throws_exception()
         {
-            AddValue("MissingProperty", null);
+            _row.Add("MissingProperty", null);
             _mapper.CreateInstance<ClassWithoutRelations>(_row);
         }
 
@@ -79,8 +77,8 @@ namespace WeenyMapper.Specs.Mapping
         {
             _mapper = new EntityMapper(new ConventionReader(new UpperCaseConvention()));
 
-            AddValue("NAME", "a name");
-            AddValue("ID", _guid);
+            _row.Add("NAME", "a name");
+            _row.Add("ID", _guid);
 
             var instance = _mapper.CreateInstance<ClassWithoutRelations>(_row);
 
@@ -91,8 +89,8 @@ namespace WeenyMapper.Specs.Mapping
         [Test]
         public void Creating_instance_with_column_names_prefixed_by_table_name_sets_corresponding_properties()
         {
-            AddValue("Child Id", 2);
-            AddValue("Child Name", "child name");
+            _row.Add("Child Id", 2);
+            _row.Add("Child Name", "child name");
 
             var instance = _mapper.CreateInstance<Child>(_row);
 
@@ -103,7 +101,7 @@ namespace WeenyMapper.Specs.Mapping
         [Test]
         public void Creating_instance_with_parent_property_without_any_values_for_parent_leaves_parent_property_as_null()
         {
-            AddValue("Child Id", 2);
+            _row.Add("Child Id", 2);
 
             var instance = _mapper.CreateInstanceGraph<Child>(_row, _parentChildRelation);
 
@@ -113,8 +111,8 @@ namespace WeenyMapper.Specs.Mapping
         [Test]
         public void Creating_instance_with_parent_property_with_single_value_for_parent_sets_parent_property_to_instance_with_properties_set()
         {
-            AddValue("Child Id", 1);
-            AddValue("Parent Id", _guid);
+            _row.Add("Child Id", 1);
+            _row.Add("Parent Id", _guid);
 
             var instance = _mapper.CreateInstanceGraph<Child>(_row, _parentChildRelation);
 
@@ -126,8 +124,8 @@ namespace WeenyMapper.Specs.Mapping
         [Test]
         public void Creating_child_with_parent_adds_child_to_parents_child_collection()
         {
-            AddValue("Child Id", 1);
-            AddValue("Parent Id", _guid);
+            _row.Add("Child Id", 1);
+            _row.Add("Parent Id", _guid);
 
             var child = _mapper.CreateInstanceGraph<Child>(_row, _parentChildRelation);
             var parent = child.Parent;
@@ -138,12 +136,29 @@ namespace WeenyMapper.Specs.Mapping
         }
 
         [Test]
+        public void Creating_parent_from_row_with_both_parent_and_child_returns_parent_with_initialized_child_added_to_collection()
+        {
+            _row.Add("Child Id", 1);
+            _row.Add("Parent Id", _guid);
+
+            var parent = _mapper.CreateInstanceGraph<Parent>(_row, _parentChildRelation);
+            var child = parent.Children.FirstOrDefault();
+
+            Assert.AreEqual(1, parent.Children.Count);
+            Assert.AreSame(parent, child.Parent);
+            Assert.AreEqual(1, child.Id);
+            Assert.AreEqual(_guid, parent.Id);
+        }
+
+        [Test]
         public void Properties_and_table_names_are_matched_using_the_given_convention()
         {
-            AddValue("CHILD ID", 1);
-            AddValue("PARENT ID", _guid);
-            AddValue("PARENT NAME", "parent name");
+            _row.Add("CHILD ID", 1);
+            _row.Add("PARENT ID", _guid);
+            _row.Add("PARENT NAME", "parent name");
+
             _mapper = new EntityMapper(new ConventionReader(new UpperCaseConvention()));
+            
             var instance = _mapper.CreateInstanceGraph<Child>(_row, _parentChildRelation);
 
             Assert.IsNotNull(instance.Parent);
@@ -162,12 +177,6 @@ namespace WeenyMapper.Specs.Mapping
         public void Creating_instances_from_two_rows_with_single_parent_with_two_children_gives_single_parent_with_two_children()
         {
             Assert.Fail("Not implemented");
-        }
-
-        private void AddValue(string name, object value)
-        {
-            _columnValues.Add(new ColumnValue(name, value));
-            _row.Add(name, value);
         }
 
         private class ClassWithoutDefaultConstructor

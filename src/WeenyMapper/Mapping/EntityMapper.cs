@@ -33,17 +33,16 @@ namespace WeenyMapper.Mapping
             return (T)CreateInstanceGraph(typeof(T), row, relation);
         }
 
-        private object CreateInstanceGraph(Type type, Row row, ObjectRelation relation)
+        private object CreateInstanceGraph(Type resultType, Row row, ObjectRelation relation)
         {
-            return CreateInstanceGraph(type, row.ColumnValues, relation);
-        }
+            var childType = relation.ChildProperty.DeclaringType;
+            var parentType = relation.ParentProperty.DeclaringType;
 
-        private object CreateInstanceGraph(Type type, IEnumerable<ColumnValue> columnValues, ObjectRelation relation)
-        {
-            var child = CreateInstance(relation.ChildProperty.DeclaringType, new Row(columnValues));
-            var parent = CreateInstance(relation.ParentProperty.DeclaringType, new Row(columnValues));
+            var child = CreateInstance(childType, row);
+            var parent = CreateInstance(parentType, row);
 
-            var hasParentProperties = columnValues.Any(x => x.IsForType(relation.ParentProperty.DeclaringType, _conventionReader));
+            var hasParentProperties = row.HasValuesForType(parentType, _conventionReader);
+
             if (hasParentProperties)
             {
                 relation.ChildProperty.SetValue(child, parent, null);
@@ -51,14 +50,20 @@ namespace WeenyMapper.Mapping
                 parentsChildCollection.Add(child);
             }
 
-            return child;
+            if (resultType == childType)
+            {
+                return child;                
+            }
+
+            return parent;
         }
 
-        public object CreateInstance(Type type, Row columnValues)
+        public object CreateInstance(Type type, Row row)
         {
             var instance = CreateInstance(type);
 
-            var columnValuesForCurrentType = columnValues.ColumnValues.Where(x => x.IsForType(type, _conventionReader));
+            var columnValuesForCurrentType = row.GetColumnValuesForType(type, _conventionReader);
+
             foreach (var columnValue in columnValuesForCurrentType)
             {
                 var property = GetProperty(type, columnValue);
