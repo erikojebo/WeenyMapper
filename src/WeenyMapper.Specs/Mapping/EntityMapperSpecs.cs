@@ -170,7 +170,26 @@ namespace WeenyMapper.Specs.Mapping
         [Test]
         public void Creating_child_instances_from_two_rows_with_two_children_referencing_same_parent_gives_two_children_referencing_same_parent_instance()
         {
-            Assert.Fail("Not implemented");
+            var resultSet = new ResultSet();
+
+            resultSet.AddRow(new ColumnValue("Child Id", 1), new ColumnValue("Parent Id", _guid));
+            resultSet.AddRow(new ColumnValue("Child Id", 2), new ColumnValue("Parent Id", _guid));
+
+            var children = _mapper.CreateInstanceGraphs<Child>(resultSet, _parentChildRelation);
+
+            Assert.AreEqual(2, children.Count);
+
+            var parent = children.First().Parent;
+
+            Assert.AreEqual(1, children.First().Id);
+            Assert.AreEqual(2, children.Last().Id);
+            Assert.AreEqual(_guid, parent.Id);
+            
+            Assert.AreSame(parent, children.Last().Parent);
+
+            Assert.AreEqual(2, parent.Children.Count);
+            CollectionAssert.Contains(parent.Children, children.First());
+            CollectionAssert.Contains(parent.Children, children.Last());
         }
         
         [Test]

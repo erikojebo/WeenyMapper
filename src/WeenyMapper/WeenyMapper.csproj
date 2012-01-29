@@ -54,8 +54,10 @@
     <Compile Include="Logging\NullSqlCommandLogger.cs" />
     <Compile Include="Mapping\ColumnValue.cs" />
     <Compile Include="Mapping\EntityMapper.cs" />
+    <Compile Include="Mapping\IdPropertyComparer.cs" />
     <Compile Include="Mapping\IEntityMapper.cs" />
     <Compile Include="Mapping\ObjectRelation.cs" />
+    <Compile Include="Mapping\ResultSet.cs" />
     <Compile Include="Mapping\Row.cs" />
     <Compile Include="QueryParsing\LikeExpression.cs" />
     <Compile Include="QueryParsing\OrderByStatement.cs" />

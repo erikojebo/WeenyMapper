@@ -11,10 +11,12 @@ namespace WeenyMapper.Mapping
     public class EntityMapper : IEntityMapper
     {
         private readonly IConventionReader _conventionReader;
+        private readonly EntityCache _entityCache;
 
         public EntityMapper(IConventionReader conventionReader)
         {
             _conventionReader = conventionReader;
+            _entityCache = new EntityCache(_conventionReader);
         }
 
         public T CreateInstance<T>(IDictionary<string, object> dictionary) where T : new()
@@ -31,6 +33,20 @@ namespace WeenyMapper.Mapping
         public T CreateInstanceGraph<T>(Row row, ObjectRelation relation)
         {
             return (T)CreateInstanceGraph(typeof(T), row, relation);
+        }
+
+        public IList<T> CreateInstanceGraphs<T>(ResultSet resultSet, ObjectRelation parentChildRelation)
+        {
+            var objects = new List<object>();
+
+            foreach (var row in resultSet.Rows)
+            {
+                var instance = CreateInstanceGraph(typeof(T), row, parentChildRelation);
+
+                objects.Add(instance);
+            }
+
+            return objects.OfType<T>().ToList();
         }
 
         private object CreateInstanceGraph(Type resultType, Row row, ObjectRelation relation)
@@ -70,6 +86,13 @@ namespace WeenyMapper.Mapping
                 property.SetValue(instance, columnValue.Value, null);
             }
 
+            if (_entityCache.Contains(instance))
+            {
+                return _entityCache.GetExisting(instance);
+            }
+
+            _entityCache.Add(instance);
+
             return instance;
         }
 
@@ -95,6 +118,46 @@ namespace WeenyMapper.Mapping
             }
 
             return propertyInfo;
+        }
+
+        private class EntityCache
+        {
+            private readonly IDictionary<Type, IList<object>> _cache = new Dictionary<Type, IList<object>>();
+            private readonly IConventionReader _conventionReader;
+            private readonly IdPropertyComparer<object> _idPropertyComparer;
+
+            public EntityCache(IConventionReader conventionReader)
+            {
+                _conventionReader = conventionReader;
+                _idPropertyComparer = new IdPropertyComparer<object>(_conventionReader);
+            }
+
+            public bool Contains(object entity)
+            {
+                return GetCacheForType(entity).Contains(entity, _idPropertyComparer);
+            }
+
+            public void Add(object entity)
+            {
+                GetCacheForType(entity).Add(entity);
+            }
+
+            public object GetExisting(object entity)
+            {
+                return GetCacheForType(entity).First(x => _idPropertyComparer.Equals(x, entity));
+            }
+
+            private IList<object> GetCacheForType(object entity)
+            {
+                var entityType = entity.GetType();
+
+                if (!_cache.ContainsKey(entityType))
+                {
+                    return _cache[entityType] = new List<object>();
+                }
+
+                return _cache[entityType];
+            }
         }
     }
 }
