@@ -35,5 +35,13 @@ namespace WeenyMapper.Mapping
         {
             return string.Format("{0}: {1}", Alias, Value);
         }
+
+        public bool IsForeignKeyValue
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
     }
 }

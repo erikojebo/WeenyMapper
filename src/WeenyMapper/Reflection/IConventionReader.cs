@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using WeenyMapper.Conventions;
+using WeenyMapper.Mapping;
 
 namespace WeenyMapper.Reflection
 {
@@ -20,5 +21,6 @@ namespace WeenyMapper.Reflection
         void SetId(object entity, int id);
         IEnumerable<string> GetSelectableColumNames(Type type);
         PropertyInfo GetPropertyForColumn(string columnName, Type type);
+        bool IsForeignKey(string columnName, Type type);
     }
 }

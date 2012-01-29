@@ -213,6 +213,19 @@ namespace WeenyMapper.Specs.Mapping
             Assert.AreSame(parent, children.Last().Parent);
         }
 
+        [Test]
+        public void Does_not_attempt_to_write_foreign_key_value_to_property_if_property_does_not_exist()
+        {
+            _row.Add("Child Id", 1);
+            _row.Add("Child ParentId", _guid);
+            _row.Add("Parent Id", _guid);
+
+            var child = _mapper.CreateInstanceGraph<Child>(_row, _parentChildRelation);
+
+            Assert.AreEqual(1, child.Id);
+            Assert.AreEqual(_guid, child.Parent.Id);
+        }
+
         private class ClassWithoutDefaultConstructor
         {
             private ClassWithoutDefaultConstructor() {}

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using WeenyMapper.Conventions;
 using WeenyMapper.Extensions;
+using WeenyMapper.Mapping;
 
 namespace WeenyMapper.Reflection
 {
@@ -196,6 +197,12 @@ namespace WeenyMapper.Reflection
         {
             var properties = GetMappedProperties(type);
             return properties.FirstOrDefault(x => GetColumnName(x) == columnName);
+        }
+
+        public bool IsForeignKey(string columnName, Type type)
+        {
+            var properties = GetMappedProperties(type);
+            return properties.Any(x => IsEntityReferenceProperty(x) && GetManyToOneForeignKeyColumnName(x) == columnName);
         }
 
         public string GetColumnName(string propertyName, Type type)

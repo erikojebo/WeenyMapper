@@ -92,13 +92,12 @@ namespace WeenyMapper.Mapping
         {
             var instance = CreateInstance(type);
 
-            var columnValuesForCurrentType = row.GetColumnValuesForType(type, _conventionReader);
+            var columnValuesForCurrentType = row.GetColumnValuesForType(type, _conventionReader)
+                .Where(x => !_conventionReader.IsForeignKey(x.ColumnName, type))
+                .ToList();
 
             foreach (var columnValue in columnValuesForCurrentType)
             {
-                if (columnValue.Alias.Contains("AuthorId") || columnValue.Alias.Contains("BlogId"))
-                    continue;
-                
                 var property = GetProperty(type, columnValue);
                 property.SetValue(instance, columnValue.Value, null);
             }
