@@ -38,8 +38,8 @@ namespace WeenyMapper.Specs.TestClasses.Entities
                    Title == other.Title &&
                    Content == other.Content &&
                    PublishDate == other.PublishDate &&
-                   Equals(Author, other.Author) &&
-                   Equals(Blog, other.Blog) &&
+                   Author.NullSafeIdEquals(other.Author, x => x.Id) &&
+                   Blog.NullSafeIdEquals(other.Blog, x => x.Id) &&
                    Comments.ElementEquals(other.Comments);
         }
 

@@ -95,8 +95,8 @@ namespace WeenyMapper.Specs.Sql
 
             var query = _generator.GenerateSelectQuery(_querySpecification);
 
-            var expectedSql = "SELECT [TableName].[ColumnName1] AS 'TableName ColumnName1', [TableName].[ColumnName2] AS 'TableName ColumnName2', " +
-                              "[TableName2].[Table2Column1] AS 'TableName2 Table2Column1', [TableName2].[Table2Column2] AS 'TableName2 Table2Column2' " +
+            var expectedSql = "SELECT [TableName].[ColumnName1] AS \"TableName ColumnName1\", [TableName].[ColumnName2] AS \"TableName ColumnName2\", " +
+                              "[TableName2].[Table2Column1] AS \"TableName2 Table2Column1\", [TableName2].[Table2Column2] AS \"TableName2 Table2Column2\" " +
                               "FROM [TableName] LEFT OUTER JOIN [TableName2] " +
                               "ON [TableName].[ForeignKeyColumnName] = [TableName2].[PrimaryKeyColumnName]";
 
@@ -123,8 +123,8 @@ namespace WeenyMapper.Specs.Sql
                     SqlQuerySpecification = spec2
                 };
 
-            var expectedSql = "SELECT [TableName].[ColumnName1] AS 'TableName ColumnName1', [TableName].[ColumnName2] AS 'TableName ColumnName2', " +
-                              "[TableName2].[Table2Column1] AS 'TableName2 Table2Column1', [TableName2].[Table2Column2] AS 'TableName2 Table2Column2' " +
+            var expectedSql = "SELECT [TableName].[ColumnName1] AS \"TableName ColumnName1\", [TableName].[ColumnName2] AS \"TableName ColumnName2\", " +
+                              "[TableName2].[Table2Column1] AS \"TableName2 Table2Column1\", [TableName2].[Table2Column2] AS \"TableName2 Table2Column2\" " +
                               "FROM [TableName] LEFT OUTER JOIN [TableName2] " +
                               "ON [TableName].[ForeignKeyColumnName] = [TableName2].[PrimaryKeyColumnName] " +
                               "WHERE [TableName].[ColumnName1] = @TableName_ColumnName1Constraint";
@@ -516,7 +516,7 @@ namespace WeenyMapper.Specs.Sql
         {
             _querySpecification.Page = new Page(1, 2);
 
-            var expectedSql = "WITH [CompleteResult] AS (SELECT [ColumnName1], [ColumnName2], ROW_NUMBER() OVER (ORDER BY [IdColumnName]) AS [RowNumber] " +
+            var expectedSql = "WITH [CompleteResult] AS (SELECT [ColumnName1], [ColumnName2], ROW_NUMBER() OVER (ORDER BY [IdColumnName]) AS \"RowNumber\" " +
                               "FROM [TableName]) SELECT [ColumnName1], [ColumnName2] FROM [CompleteResult] WHERE [RowNumber] BETWEEN @LowRowLimit AND @HighRowLimit";
 
             var command = _generator.GenerateSelectQuery(_querySpecification);
@@ -539,7 +539,7 @@ namespace WeenyMapper.Specs.Sql
             _querySpecification.Page = new Page(1, 2);
             _querySpecification.QueryExpression = QueryExpression.Create(new EqualsExpression("ColumnName3", "value"));
 
-            var expectedSql = "WITH [CompleteResult] AS (SELECT [ColumnName1], [ColumnName2], ROW_NUMBER() OVER (ORDER BY [IdColumnName]) AS [RowNumber] " +
+            var expectedSql = "WITH [CompleteResult] AS (SELECT [ColumnName1], [ColumnName2], ROW_NUMBER() OVER (ORDER BY [IdColumnName]) AS \"RowNumber\" " +
                               "FROM [TableName] WHERE [ColumnName3] = @ColumnName3Constraint) " +
                               "SELECT [ColumnName1], [ColumnName2] FROM [CompleteResult] WHERE [RowNumber] BETWEEN @LowRowLimit AND @HighRowLimit";
 
@@ -569,7 +569,7 @@ namespace WeenyMapper.Specs.Sql
             _querySpecification.OrderByStatements.Add(OrderByStatement.Create("ColumnName4", OrderByDirection.Ascending));
 
             var expectedSql = "WITH [CompleteResult] AS (SELECT [ColumnName1], [ColumnName2], ROW_NUMBER() " +
-                              "OVER (ORDER BY [ColumnName3] DESC, [ColumnName4]) AS [RowNumber] " +
+                              "OVER (ORDER BY [ColumnName3] DESC, [ColumnName4]) AS \"RowNumber\" " +
                               "FROM [TableName] WHERE [ColumnName3] = @ColumnName3Constraint) " +
                               "SELECT [ColumnName1], [ColumnName2] FROM [CompleteResult] WHERE [RowNumber] BETWEEN @LowRowLimit AND @HighRowLimit";
 

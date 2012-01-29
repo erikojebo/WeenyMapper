@@ -14,6 +14,11 @@ namespace WeenyMapper.Mapping
 
         public void AddRow(params ColumnValue[] columnValues)
         {
+            AddRow((IEnumerable<ColumnValue>)columnValues);
+        }
+
+        public void AddRow(IEnumerable<ColumnValue> columnValues)
+        {
             var row = new Row(columnValues);
             Rows.Add(row);
         }

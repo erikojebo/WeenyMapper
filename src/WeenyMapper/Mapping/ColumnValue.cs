@@ -30,5 +30,10 @@ namespace WeenyMapper.Mapping
         {
             return !HasTableQualifiedAlias || Alias.StartsWith(convention.GetTableName(type));
         }
+
+        public override string ToString()
+        {
+            return string.Format("{0}: {1}", Alias, Value);
+        }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using WeenyMapper.Logging;
+using WeenyMapper.Mapping;
 
 namespace WeenyMapper.Sql
 {
@@ -69,6 +70,31 @@ namespace WeenyMapper.Sql
                 command.Dispose();
 
                 return results;
+            }
+        }
+
+        public ResultSet ExecuteQuery(DbCommand command, string connectionString)
+        {
+            using (var connection = _commandFactory.CreateConnection(connectionString))
+            {
+                var resultSet = new ResultSet();
+
+                connection.Open();
+                command.Connection = connection;
+
+                _sqlCommandLogger.Log(command);
+
+                var dataReader = command.ExecuteReader();
+
+                while (dataReader.Read())
+                {
+                    var propertyValues = GetValues(dataReader).Select(x => new ColumnValue(x.Key, x.Value));
+                    resultSet.AddRow(propertyValues);
+                }
+
+                command.Dispose();
+
+                return resultSet;
             }
         }
 

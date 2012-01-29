@@ -80,7 +80,7 @@ namespace WeenyMapper.Sql
         private string CreateColumnSelectString(string columnName, SqlQuerySpecification querySpecification)
         {
             var alias = string.Format("{0} {1}", querySpecification.TableName, columnName);
-            return string.Format("{0}.{1} AS '{2}'", Escape(querySpecification.TableName), Escape(columnName), alias);
+            return string.Format("{0}.{1} AS \"{2}\"", Escape(querySpecification.TableName), Escape(columnName), alias);
         }
 
         private DbCommand GeneratePagingQuery(SqlQuerySpecification querySpecification)
@@ -99,7 +99,7 @@ namespace WeenyMapper.Sql
             var orderByString = AppendOrderBy("", querySpecification.OrderByStatements).Trim();
 
             var commandString = string.Format(
-                "WITH [CompleteResult] AS (SELECT {0}, ROW_NUMBER() OVER ({1}) AS [RowNumber] FROM {2}{3}) " +
+                "WITH [CompleteResult] AS (SELECT {0}, ROW_NUMBER() OVER ({1}) AS \"RowNumber\" FROM {2}{3}) " +
                 "SELECT {0} FROM [CompleteResult] WHERE [RowNumber] BETWEEN @LowRowLimit AND @HighRowLimit",
                 selectedColumnString, orderByString, Escape(querySpecification.TableName), constraintString);
 

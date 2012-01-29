@@ -25,7 +25,7 @@ namespace WeenyMapper.Exceptions
 
         public static MissingPropertyException CreateFromColumnName(Type type, string columnName)
         {
-            return new MissingPropertyException("Could not find the any property in the type '{0}' matching the column name or alias '{1}' ", type.FullName, columnName);
+            return new MissingPropertyException("Could not find any property in the type '{0}' matching the column name or alias '{1}' ", type.FullName, columnName);
         }
     }
 }

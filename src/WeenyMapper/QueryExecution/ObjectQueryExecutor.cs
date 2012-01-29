@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
-using WeenyMapper.Extensions;
 using WeenyMapper.Mapping;
 using WeenyMapper.Reflection;
 using WeenyMapper.Sql;
@@ -31,26 +30,26 @@ namespace WeenyMapper.QueryExecution
 
         public TScalar FindScalar<T, TScalar>(ObjectQuerySpecification querySpecification)
         {
-            var command = CreateCommand<T>(querySpecification);
+            var command = CreateCommand(querySpecification);
 
             return _dbCommandExecutor.ExecuteScalar<TScalar>(command, ConnectionString);
         }
 
         public IList<TScalar> FindScalarList<T, TScalar>(ObjectQuerySpecification querySpecification)
         {
-            var command = CreateCommand<T>(querySpecification);
+            var command = CreateCommand(querySpecification);
 
             return _dbCommandExecutor.ExecuteScalarList<TScalar>(command, ConnectionString);
         }
 
         public IList<T> Find<T>(ObjectQuerySpecification querySpecification) where T : new()
         {
-            var command = CreateCommand<T>(querySpecification);
+            var command = CreateCommand(querySpecification);
 
-            return ReadEntities<T>(command);
+            return ReadEntities<T>(command, querySpecification);
         }
 
-        private DbCommand CreateCommand<T>(ObjectQuerySpecification querySpecification)
+        private DbCommand CreateCommand(ObjectQuerySpecification querySpecification)
         {
             var sqlQuerySpecification = CreateSqlQuerySpecification(querySpecification);
 
@@ -67,7 +66,7 @@ namespace WeenyMapper.QueryExecution
             {
                 columnNamesToSelect = _conventionReader.GetSelectableColumNames(resultType);
             }
-            
+
             var translatedOrderByStatements = querySpecification.OrderByStatements.Select(x => x.Translate(_conventionReader, resultType));
             var tableName = _conventionReader.GetTableName(resultType);
 
@@ -101,9 +100,17 @@ namespace WeenyMapper.QueryExecution
                 };
         }
 
-        private IList<T> ReadEntities<T>(DbCommand command) where T : new()
+        private IList<T> ReadEntities<T>(DbCommand command, ObjectQuerySpecification querySpecification) where T : new()
         {
-            return _dbCommandExecutor.ExecuteQuery(command, _entityMapper.CreateInstance<T>, ConnectionString);
+            var resultSet = _dbCommandExecutor.ExecuteQuery(command, ConnectionString);
+
+            if (querySpecification.HasJoinSpecification)
+            {
+                var objectRelation = new ObjectRelation(querySpecification.JoinSpecification.ParentProperty, querySpecification.JoinSpecification.ChildProperty);
+                return _entityMapper.CreateInstanceGraphs<T>(resultSet, objectRelation);
+            }
+
+            return _entityMapper.CreateInstanceGraphs<T>(resultSet);
         }
     }
 }

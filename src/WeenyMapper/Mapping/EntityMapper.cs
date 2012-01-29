@@ -33,6 +33,21 @@ namespace WeenyMapper.Mapping
             return (T)CreateInstanceGraph(typeof(T), row, relation, new EntityCache(_conventionReader));
         }
 
+        public IList<T> CreateInstanceGraphs<T>(ResultSet resultSet)
+        {
+            var entityCache = new EntityCache(_conventionReader);
+            var objects = new List<object>();
+
+            foreach (var row in resultSet.Rows)
+            {
+                var instance = CreateInstance(typeof(T), row, entityCache);
+
+                objects.Add(instance);
+            }
+
+            return objects.OfType<T>().Distinct(new IdPropertyComparer<T>(_conventionReader)).ToList();
+        }
+
         public IList<T> CreateInstanceGraphs<T>(ResultSet resultSet, ObjectRelation parentChildRelation)
         {
             var entityCache = new EntityCache(_conventionReader);
@@ -81,6 +96,9 @@ namespace WeenyMapper.Mapping
 
             foreach (var columnValue in columnValuesForCurrentType)
             {
+                if (columnValue.Alias.Contains("AuthorId") || columnValue.Alias.Contains("BlogId"))
+                    continue;
+                
                 var property = GetProperty(type, columnValue);
                 property.SetValue(instance, columnValue.Value, null);
             }
