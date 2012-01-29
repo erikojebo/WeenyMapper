@@ -45,17 +45,17 @@ namespace WeenyMapper.Mapping
 
             if (hasParentProperties)
             {
-                relation.ChildProperty.SetValue(child, parent, null);
-                var parentsChildCollection = (IList)relation.ParentProperty.GetValue(parent, null);
-                parentsChildCollection.Add(child);
+                ConnectEntities(relation, child, parent);
             }
 
-            if (resultType == childType)
-            {
-                return child;                
-            }
+            return resultType == childType ? child : parent;
+        }
 
-            return parent;
+        private void ConnectEntities(ObjectRelation relation, object child, object parent)
+        {
+            relation.ChildProperty.SetValue(child, parent, null);
+            var parentsChildCollection = (IList)relation.ParentProperty.GetValue(parent, null);
+            parentsChildCollection.Add(child);
         }
 
         public object CreateInstance(Type type, Row row)
