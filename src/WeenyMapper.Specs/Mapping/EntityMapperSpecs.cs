@@ -195,7 +195,22 @@ namespace WeenyMapper.Specs.Mapping
         [Test]
         public void Creating_instances_from_two_rows_with_single_parent_with_two_children_gives_single_parent_with_two_children()
         {
-            Assert.Fail("Not implemented");
+            var resultSet = new ResultSet();
+
+            resultSet.AddRow(new ColumnValue("Child Id", 1), new ColumnValue("Parent Id", _guid));
+            resultSet.AddRow(new ColumnValue("Child Id", 2), new ColumnValue("Parent Id", _guid));
+
+            var parents = _mapper.CreateInstanceGraphs<Parent>(resultSet, _parentChildRelation);
+
+            Assert.AreEqual(1, parents.Count);
+
+            var parent = parents.First();
+            var children = parent.Children;
+
+            Assert.AreEqual(1, children.First().Id);
+            Assert.AreEqual(2, children.Last().Id);
+            Assert.AreSame(parent, children.First().Parent);
+            Assert.AreSame(parent, children.Last().Parent);
         }
 
         private class ClassWithoutDefaultConstructor

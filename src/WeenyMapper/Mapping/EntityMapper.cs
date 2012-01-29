@@ -46,7 +46,7 @@ namespace WeenyMapper.Mapping
                 objects.Add(instance);
             }
 
-            return objects.OfType<T>().ToList();
+            return objects.OfType<T>().Distinct(new IdPropertyComparer<T>(_conventionReader)).ToList();
         }
 
         private object CreateInstanceGraph(Type resultType, Row row, ObjectRelation relation)
