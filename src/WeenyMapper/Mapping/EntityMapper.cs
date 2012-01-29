@@ -11,37 +11,36 @@ namespace WeenyMapper.Mapping
     public class EntityMapper : IEntityMapper
     {
         private readonly IConventionReader _conventionReader;
-        private readonly EntityCache _entityCache;
 
         public EntityMapper(IConventionReader conventionReader)
         {
             _conventionReader = conventionReader;
-            _entityCache = new EntityCache(_conventionReader);
         }
 
         public T CreateInstance<T>(IDictionary<string, object> dictionary) where T : new()
         {
             var values = dictionary.Select(x => new ColumnValue(x.Key, x.Value));
-            return (T)CreateInstance(typeof(T), new Row(values));
+            return (T)CreateInstance(typeof(T), new Row(values), new EntityCache(_conventionReader));
         }
 
         public T CreateInstance<T>(Row columnValues)
         {
-            return (T)CreateInstance(typeof(T), columnValues);
+            return (T)CreateInstance(typeof(T), columnValues, new EntityCache(_conventionReader));
         }
 
         public T CreateInstanceGraph<T>(Row row, ObjectRelation relation)
         {
-            return (T)CreateInstanceGraph(typeof(T), row, relation);
+            return (T)CreateInstanceGraph(typeof(T), row, relation, new EntityCache(_conventionReader));
         }
 
         public IList<T> CreateInstanceGraphs<T>(ResultSet resultSet, ObjectRelation parentChildRelation)
         {
+            var entityCache = new EntityCache(_conventionReader);
             var objects = new List<object>();
 
             foreach (var row in resultSet.Rows)
             {
-                var instance = CreateInstanceGraph(typeof(T), row, parentChildRelation);
+                var instance = CreateInstanceGraph(typeof(T), row, parentChildRelation, entityCache);
 
                 objects.Add(instance);
             }
@@ -49,13 +48,13 @@ namespace WeenyMapper.Mapping
             return objects.OfType<T>().Distinct(new IdPropertyComparer<T>(_conventionReader)).ToList();
         }
 
-        private object CreateInstanceGraph(Type resultType, Row row, ObjectRelation relation)
+        private object CreateInstanceGraph(Type resultType, Row row, ObjectRelation relation, EntityCache entityCache)
         {
             var childType = relation.ChildProperty.DeclaringType;
             var parentType = relation.ParentProperty.DeclaringType;
 
-            var child = CreateInstance(childType, row);
-            var parent = CreateInstance(parentType, row);
+            var child = CreateInstance(childType, row, entityCache);
+            var parent = CreateInstance(parentType, row, entityCache);
 
             var hasParentProperties = row.HasValuesForType(parentType, _conventionReader);
 
@@ -74,7 +73,7 @@ namespace WeenyMapper.Mapping
             parentsChildCollection.Add(child);
         }
 
-        public object CreateInstance(Type type, Row row)
+        private object CreateInstance(Type type, Row row, EntityCache entityCache)
         {
             var instance = CreateInstance(type);
 
@@ -86,12 +85,12 @@ namespace WeenyMapper.Mapping
                 property.SetValue(instance, columnValue.Value, null);
             }
 
-            if (_entityCache.Contains(instance))
+            if (entityCache.Contains(instance))
             {
-                return _entityCache.GetExisting(instance);
+                return entityCache.GetExisting(instance);
             }
 
-            _entityCache.Add(instance);
+            entityCache.Add(instance);
 
             return instance;
         }
