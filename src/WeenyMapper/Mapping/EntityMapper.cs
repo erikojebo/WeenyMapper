@@ -28,18 +28,23 @@ namespace WeenyMapper.Mapping
             return (T)CreateInstance(typeof(T), columnValues);
         }
 
-        public T CreateInstance<T>(IList<ColumnValue> columnValues, ObjectRelation relation)
+        public T CreateInstanceGraph<T>(Row row, ObjectRelation relation)
+        {
+            return (T)CreateInstanceGraph(typeof(T), row, relation);
+        }
+
+        public T CreateInstanceGraph<T>(IList<ColumnValue> columnValues, ObjectRelation relation)
         {
             return (T)CreateInstanceGraph(typeof(T), columnValues, relation);
         }
 
+        private object CreateInstanceGraph(Type type, Row row, ObjectRelation relation)
+        {
+            return CreateInstanceGraph(type, row.ColumnValues, relation);
+        }
+
         private object CreateInstanceGraph(Type type, IEnumerable<ColumnValue> columnValues, ObjectRelation relation)
         {
-            if (relation == null)
-            {
-                return CreateInstance(type, columnValues);
-            }
-
             var child = CreateInstance(relation.ChildProperty.DeclaringType, columnValues);
             var parent = CreateInstance(relation.ParentProperty.DeclaringType, columnValues);
 

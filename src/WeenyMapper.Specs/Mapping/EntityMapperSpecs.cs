@@ -15,12 +15,14 @@ namespace WeenyMapper.Specs.Mapping
     {
         private EntityMapper _mapper;
         private List<ColumnValue> _columnValues;
+        private Row _row;
         private Guid _guid = new Guid("00000000-0000-0000-0000-000000000001");
         private ObjectRelation _parentChildRelation;
 
         [SetUp]
         public void SetUp()
         {
+            _row = new Row();
             _columnValues = new List<ColumnValue>();
             _mapper = new EntityMapper(new ConventionReader(new DefaultConvention()));
             _parentChildRelation = ObjectRelation.Create<Parent, Child>(x => x.Children, x => x.Parent);
@@ -103,7 +105,7 @@ namespace WeenyMapper.Specs.Mapping
         {
             AddValue("Child Id", 2);
 
-            var instance = _mapper.CreateInstance<Child>(_columnValues, _parentChildRelation);
+            var instance = _mapper.CreateInstanceGraph<Child>(_row, _parentChildRelation);
 
             Assert.IsNull(instance.Parent);
         }
@@ -114,7 +116,7 @@ namespace WeenyMapper.Specs.Mapping
             AddValue("Child Id", 1);
             AddValue("Parent Id", _guid);
 
-            var instance = _mapper.CreateInstance<Child>(_columnValues, _parentChildRelation);
+            var instance = _mapper.CreateInstanceGraph<Child>(_row, _parentChildRelation);
 
             Assert.IsNotNull(instance.Parent);
             Assert.AreEqual(1, instance.Id);
@@ -127,7 +129,7 @@ namespace WeenyMapper.Specs.Mapping
             AddValue("Child Id", 1);
             AddValue("Parent Id", _guid);
 
-            var child = _mapper.CreateInstance<Child>(_columnValues, _parentChildRelation);
+            var child = _mapper.CreateInstanceGraph<Child>(_row, _parentChildRelation);
             var parent = child.Parent;
 
             Assert.IsNotNull(parent);
@@ -142,7 +144,7 @@ namespace WeenyMapper.Specs.Mapping
             AddValue("PARENT ID", _guid);
             AddValue("PARENT NAME", "parent name");
             _mapper = new EntityMapper(new ConventionReader(new UpperCaseConvention()));
-            var instance = _mapper.CreateInstance<Child>(_columnValues, _parentChildRelation);
+            var instance = _mapper.CreateInstanceGraph<Child>(_row, _parentChildRelation);
 
             Assert.IsNotNull(instance.Parent);
             Assert.AreEqual(1, instance.Id);
@@ -150,9 +152,22 @@ namespace WeenyMapper.Specs.Mapping
             Assert.AreEqual("parent name", instance.Parent.Name);
         }
 
+        [Test]
+        public void Creating_child_instances_from_two_rows_with_two_children_referencing_same_parent_gives_two_children_referencing_same_parent_instance()
+        {
+            Assert.Fail("Not implemented");
+        }
+        
+        [Test]
+        public void Creating_instances_from_two_rows_with_single_parent_with_two_children_gives_single_parent_with_two_children()
+        {
+            Assert.Fail("Not implemented");
+        }
+
         private void AddValue(string name, object value)
         {
             _columnValues.Add(new ColumnValue(name, value));
+            _row.Add(name, value);
         }
 
         private class ClassWithoutDefaultConstructor

@@ -56,6 +56,7 @@
     <Compile Include="Mapping\EntityMapper.cs" />
     <Compile Include="Mapping\IEntityMapper.cs" />
     <Compile Include="Mapping\ObjectRelation.cs" />
+    <Compile Include="Mapping\Row.cs" />
     <Compile Include="QueryParsing\LikeExpression.cs" />
     <Compile Include="QueryParsing\OrderByStatement.cs" />
     <Compile Include="QueryBuilding\StaticCommandBuilderBase.cs" />
