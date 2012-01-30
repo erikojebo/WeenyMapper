@@ -55,12 +55,17 @@ namespace WeenyMapper.Mapping
 
         public IList<T> CreateInstanceGraphs<T>(ResultSet resultSet, ObjectRelation parentChildRelation)
         {
+            return CreateInstanceGraphs<T>(resultSet, new[] { parentChildRelation });
+        }
+
+        public IList<T> CreateInstanceGraphs<T>(ResultSet resultSet, IEnumerable<ObjectRelation> parentChildRelation)
+        {
             var entityCache = new EntityCache(_conventionReader);
             var objects = new List<object>();
 
             foreach (var row in resultSet.Rows)
             {
-                var instance = CreateInstanceGraph(typeof(T), row, new[] { parentChildRelation }, entityCache);
+                var instance = CreateInstanceGraph(typeof(T), row, parentChildRelation, entityCache);
 
                 objects.Add(instance);
             }
@@ -99,7 +104,15 @@ namespace WeenyMapper.Mapping
         {
             relation.ChildProperty.SetValue(child, parent, null);
             var parentsChildCollection = (IList)relation.ParentProperty.GetValue(parent, null);
-            parentsChildCollection.Add(child);
+
+            var parentCollectionContainsChild = parentsChildCollection
+                .OfType<object>()
+                .Contains(child, new IdPropertyComparer<object>(_conventionReader));
+            
+            if (!parentCollectionContainsChild)
+            {
+                parentsChildCollection.Add(child);
+            }
         }
 
         private object CreateInstance(Type type, Row row, EntityCache entityCache)

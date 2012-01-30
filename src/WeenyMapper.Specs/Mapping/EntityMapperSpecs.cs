@@ -15,7 +15,8 @@ namespace WeenyMapper.Specs.Mapping
     {
         private EntityMapper _mapper;
         private Row _row;
-        private Guid _guid = new Guid("00000000-0000-0000-0000-000000000001");
+        private Guid _guid1 = new Guid("00000000-0000-0000-0000-000000000001");
+        private Guid _guid2 = new Guid("00000000-0000-0000-0000-000000000002");
         private ObjectRelation _parentChildRelation;
         private ObjectRelation _childParentRelation;
         private ObjectRelation _childGrandChildRelation;
@@ -53,12 +54,12 @@ namespace WeenyMapper.Specs.Mapping
         public void Creating_instance_with_multiple_values_with_same_column_name_as_property_name_sets_properties()
         {
             _row.Add("Name", "a name");
-            _row.Add("Id", _guid);
+            _row.Add("Id", _guid1);
 
             var instance = _mapper.CreateInstance<ClassWithoutRelations>(_row);
 
             Assert.AreEqual("a name", instance.Name);
-            Assert.AreEqual(_guid, instance.Id);
+            Assert.AreEqual(_guid1, instance.Id);
         }
 
         [ExpectedException(typeof(MissingDefaultConstructorException))]
@@ -82,12 +83,12 @@ namespace WeenyMapper.Specs.Mapping
             _mapper = new EntityMapper(new ConventionReader(new UpperCaseConvention()));
 
             _row.Add("NAME", "a name");
-            _row.Add("ID", _guid);
+            _row.Add("ID", _guid1);
 
             var instance = _mapper.CreateInstance<ClassWithoutRelations>(_row);
 
             Assert.AreEqual("a name", instance.Name);
-            Assert.AreEqual(_guid, instance.Id);
+            Assert.AreEqual(_guid1, instance.Id);
         }
 
         [Test]
@@ -117,20 +118,20 @@ namespace WeenyMapper.Specs.Mapping
         public void Creating_instance_with_parent_property_with_single_value_for_parent_sets_parent_property_to_instance_with_properties_set()
         {
             _row.Add("Child Id", 1);
-            _row.Add("Parent Id", _guid);
+            _row.Add("Parent Id", _guid1);
 
             var instance = _mapper.CreateInstanceGraph<Child>(_row, _childParentRelation);
 
             Assert.IsNotNull(instance.Parent);
             Assert.AreEqual(1, instance.Id);
-            Assert.AreEqual(_guid, instance.Parent.Id);
+            Assert.AreEqual(_guid1, instance.Parent.Id);
         }
 
         [Test]
         public void Creating_child_with_parent_adds_child_to_parents_child_collection()
         {
             _row.Add("Child Id", 1);
-            _row.Add("Parent Id", _guid);
+            _row.Add("Parent Id", _guid1);
 
             var child = _mapper.CreateInstanceGraph<Child>(_row, _childParentRelation);
             var parent = child.Parent;
@@ -144,7 +145,7 @@ namespace WeenyMapper.Specs.Mapping
         public void Creating_parent_from_row_with_both_parent_and_child_returns_parent_with_initialized_child_added_to_collection()
         {
             _row.Add("Child Id", 1);
-            _row.Add("Parent Id", _guid);
+            _row.Add("Parent Id", _guid1);
 
             var parent = _mapper.CreateInstanceGraph<Parent>(_row, _parentChildRelation);
             var child = parent.Children.FirstOrDefault();
@@ -152,14 +153,14 @@ namespace WeenyMapper.Specs.Mapping
             Assert.AreEqual(1, parent.Children.Count);
             Assert.AreSame(parent, child.Parent);
             Assert.AreEqual(1, child.Id);
-            Assert.AreEqual(_guid, parent.Id);
+            Assert.AreEqual(_guid1, parent.Id);
         }
 
         [Test]
         public void Properties_and_table_names_are_matched_using_the_given_convention()
         {
             _row.Add("CHILD ID", 1);
-            _row.Add("PARENT ID", _guid);
+            _row.Add("PARENT ID", _guid1);
             _row.Add("PARENT NAME", "parent name");
 
             _mapper = new EntityMapper(new ConventionReader(new UpperCaseConvention()));
@@ -168,7 +169,7 @@ namespace WeenyMapper.Specs.Mapping
 
             Assert.IsNotNull(instance.Parent);
             Assert.AreEqual(1, instance.Id);
-            Assert.AreEqual(_guid, instance.Parent.Id);
+            Assert.AreEqual(_guid1, instance.Parent.Id);
             Assert.AreEqual("parent name", instance.Parent.Name);
         }
 
@@ -177,8 +178,8 @@ namespace WeenyMapper.Specs.Mapping
         {
             var resultSet = new ResultSet();
 
-            resultSet.AddRow(new ColumnValue("Child Id", 1), new ColumnValue("Parent Id", _guid));
-            resultSet.AddRow(new ColumnValue("Child Id", 2), new ColumnValue("Parent Id", _guid));
+            resultSet.AddRow(new ColumnValue("Child Id", 1), new ColumnValue("Parent Id", _guid1));
+            resultSet.AddRow(new ColumnValue("Child Id", 2), new ColumnValue("Parent Id", _guid1));
 
             var children = _mapper.CreateInstanceGraphs<Child>(resultSet, _childParentRelation);
 
@@ -188,7 +189,7 @@ namespace WeenyMapper.Specs.Mapping
 
             Assert.AreEqual(1, children.First().Id);
             Assert.AreEqual(2, children.Last().Id);
-            Assert.AreEqual(_guid, parent.Id);
+            Assert.AreEqual(_guid1, parent.Id);
             
             Assert.AreSame(parent, children.Last().Parent);
 
@@ -202,8 +203,8 @@ namespace WeenyMapper.Specs.Mapping
         {
             var resultSet = new ResultSet();
 
-            resultSet.AddRow(new ColumnValue("Child Id", 1), new ColumnValue("Parent Id", _guid));
-            resultSet.AddRow(new ColumnValue("Child Id", 2), new ColumnValue("Parent Id", _guid));
+            resultSet.AddRow(new ColumnValue("Child Id", 1), new ColumnValue("Parent Id", _guid1));
+            resultSet.AddRow(new ColumnValue("Child Id", 2), new ColumnValue("Parent Id", _guid1));
 
             var parents = _mapper.CreateInstanceGraphs<Parent>(resultSet, _parentChildRelation);
 
@@ -222,19 +223,19 @@ namespace WeenyMapper.Specs.Mapping
         public void Does_not_attempt_to_write_foreign_key_value_to_property_if_property_does_not_exist()
         {
             _row.Add("Child Id", 1);
-            _row.Add("Child ParentId", _guid);
-            _row.Add("Parent Id", _guid);
+            _row.Add("Child ParentId", _guid1);
+            _row.Add("Parent Id", _guid1);
 
             var child = _mapper.CreateInstanceGraph<Child>(_row, _childParentRelation);
 
             Assert.AreEqual(1, child.Id);
-            Assert.AreEqual(_guid, child.Parent.Id);
+            Assert.AreEqual(_guid1, child.Parent.Id);
         }
 
         [Test]
         public void Single_row_with_three_level_relationship_can_be_mapped_to_entity_hierarchy()
         {
-            _row.Add("Parent Id", _guid);
+            _row.Add("Parent Id", _guid1);
             _row.Add("Child Id", 1);
             _row.Add("GrandChild Id", 2);
 
@@ -244,9 +245,76 @@ namespace WeenyMapper.Specs.Mapping
             Assert.AreEqual(1, parent.Children.Count);
             Assert.AreEqual(1, child.GrandChildren.Count);
 
-            Assert.AreEqual(_guid, parent.Id);
+            Assert.AreEqual(_guid1, parent.Id);
             Assert.AreEqual(1, child.Id);
             Assert.AreEqual(2, child.GrandChildren.First().Id);            
+        }
+
+        [Test]
+        public void Two_rows_sharing_no_entities_are_mapped_to_two_separate_hierachies()
+        {
+            var resultSet = new ResultSet();
+
+            resultSet.AddRow(new ColumnValue("Parent Id", _guid1), new ColumnValue("Child Id", 1), new ColumnValue("GrandChild Id", 2));
+            resultSet.AddRow(new ColumnValue("Parent Id", _guid2), new ColumnValue("Child Id", 3), new ColumnValue("GrandChild Id", 4));
+
+            var parents = _mapper.CreateInstanceGraphs<Parent>(resultSet, new [] { _parentChildRelation, _childGrandChildRelation });
+
+            Assert.AreEqual(2, parents.Count);
+
+            var firstParent = parents.First();
+            var secondParent = parents.Last();
+            var firstChild = firstParent.Children.FirstOrDefault();
+            var secondChild = secondParent.Children.FirstOrDefault();
+
+            Assert.AreEqual(1, firstParent.Children.Count);
+            Assert.AreEqual(1, firstChild.GrandChildren.Count);
+
+            Assert.AreEqual(_guid1, firstParent.Id);
+            Assert.AreEqual(1, firstChild.Id);
+            Assert.AreEqual(2, firstChild.GrandChildren.First().Id);            
+            
+            Assert.AreEqual(_guid2, secondParent.Id);
+            Assert.AreEqual(3, secondChild.Id);
+            Assert.AreEqual(4, secondChild.GrandChildren.First().Id);            
+        }
+
+        [Test]
+        public void Two_rows_sharing_some_entities_are_mapped_to_two_hierachies_sharing_instances()
+        {
+            var resultSet = new ResultSet();
+
+            resultSet.AddRow(new ColumnValue("Parent Id", _guid1), new ColumnValue("Child Id", 1), new ColumnValue("GrandChild Id", 2));
+            resultSet.AddRow(new ColumnValue("Parent Id", _guid2), new ColumnValue("Child Id", 3), new ColumnValue("GrandChild Id", 2));
+            resultSet.AddRow(new ColumnValue("Parent Id", _guid1), new ColumnValue("Child Id", 2), new ColumnValue("GrandChild Id", 4));
+            resultSet.AddRow(new ColumnValue("Parent Id", _guid1), new ColumnValue("Child Id", 2), new ColumnValue("GrandChild Id", 5));
+
+            var parents = _mapper.CreateInstanceGraphs<Parent>(resultSet, new [] { _parentChildRelation, _childGrandChildRelation });
+
+            Assert.AreEqual(2, parents.Count);
+
+            var firstParent = parents.First();
+            var secondParent = parents.Last();
+            var firstParentChild1 = firstParent.Children.FirstOrDefault();
+            var firstParentChild2 = firstParent.Children.LastOrDefault();
+            var secondParentChild = secondParent.Children.FirstOrDefault();
+
+            Assert.AreEqual(2, firstParent.Children.Count);
+            Assert.AreEqual(1, firstParentChild1.GrandChildren.Count);
+            Assert.AreEqual(2, firstParentChild2.GrandChildren.Count);
+
+            Assert.AreEqual(_guid1, firstParent.Id);
+            Assert.AreEqual(1, firstParentChild1.Id);
+            Assert.AreEqual(2, firstParentChild1.GrandChildren.First().Id);            
+            Assert.AreEqual(2, firstParentChild2.Id);
+            Assert.AreEqual(4, firstParentChild2.GrandChildren.First().Id);            
+            Assert.AreEqual(5, firstParentChild2.GrandChildren.Last().Id);            
+            
+            Assert.AreEqual(_guid2, secondParent.Id);
+            Assert.AreEqual(3, secondParentChild.Id);
+            Assert.AreEqual(2, secondParentChild.GrandChildren.First().Id);
+
+            Assert.AreSame(firstParentChild1.GrandChildren.First(), secondParentChild.GrandChildren.First());
         }
 
         private class ClassWithoutDefaultConstructor

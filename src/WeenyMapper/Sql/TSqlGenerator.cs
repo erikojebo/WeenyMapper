@@ -46,14 +46,13 @@ namespace WeenyMapper.Sql
         {
             var columnSelectStrings = CreateColumnSelectStrings(querySpecification);
             var columnSelectString = string.Join(", ", columnSelectStrings);
-            var commandText = string.Format("SELECT {0} FROM {1} LEFT OUTER JOIN {2} ON {3}.{4} = {5}.{6}",
+            
+            var joinClause = CreateJoinClauses(querySpecification);
+
+            var commandText = string.Format("SELECT {0} FROM {1} {2}",
                 columnSelectString,
-                Escape(querySpecification.TableName),
-                Escape(querySpecification.JoinSpecification.SqlQuerySpecification.TableName),
-                Escape(querySpecification.JoinSpecification.ChildTableName),
-                Escape(querySpecification.JoinSpecification.ChildForeignKeyColumnName),
-                Escape(querySpecification.JoinSpecification.ParentTableName),
-                Escape(querySpecification.JoinSpecification.ParentPrimaryKeyColumnName));
+                Escape(querySpecification.TableName), 
+                joinClause);
 
             var command = _commandFactory.CreateCommand();
 
@@ -61,6 +60,33 @@ namespace WeenyMapper.Sql
             command.CommandText = commandText;
 
             return command;
+        }
+
+        private string CreateJoinClauses(SqlQuerySpecification querySpecification)
+        {
+            var joinClauses = new List<string>();
+
+            var currentQuerySpecification = querySpecification;
+
+            while (currentQuerySpecification.HasJoinSpecification)
+            {
+                var joinClause = CreateJoinClause(currentQuerySpecification);
+                joinClauses.Add(joinClause);
+
+                currentQuerySpecification = currentQuerySpecification.JoinSpecification.SqlQuerySpecification;
+            }
+
+            return string.Join(" ", joinClauses);
+        }
+
+        private string CreateJoinClause(SqlQuerySpecification querySpecification)
+        {
+            return string.Format("LEFT OUTER JOIN {0} ON {1}.{2} = {3}.{4}",
+                Escape(querySpecification.JoinSpecification.SqlQuerySpecification.TableName),
+                Escape(querySpecification.JoinSpecification.ParentTableName),
+                Escape(querySpecification.JoinSpecification.ParentPrimaryKeyColumnName),
+                Escape(querySpecification.JoinSpecification.ChildTableName),
+                Escape(querySpecification.JoinSpecification.ChildForeignKeyColumnName));
         }
 
         private IEnumerable<string> CreateColumnSelectStrings(SqlQuerySpecification querySpecification)

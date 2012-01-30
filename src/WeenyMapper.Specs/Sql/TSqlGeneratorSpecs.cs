@@ -86,8 +86,8 @@ namespace WeenyMapper.Specs.Sql
 
             _querySpecification.JoinSpecification = new SqlQueryJoinSpecification
                 {
-                    ParentTableName = "TableName2",
-                    ChildTableName = "TableName",
+                    ParentTableName = "TableName",
+                    ChildTableName = "TableName2",
                     ParentPrimaryKeyColumnName = "PrimaryKeyColumnName",
                     ChildForeignKeyColumnName = "ForeignKeyColumnName",
                     SqlQuerySpecification = spec2
@@ -98,7 +98,7 @@ namespace WeenyMapper.Specs.Sql
             var expectedSql = "SELECT [TableName].[ColumnName1] AS \"TableName ColumnName1\", [TableName].[ColumnName2] AS \"TableName ColumnName2\", " +
                               "[TableName2].[Table2Column1] AS \"TableName2 Table2Column1\", [TableName2].[Table2Column2] AS \"TableName2 Table2Column2\" " +
                               "FROM [TableName] LEFT OUTER JOIN [TableName2] " +
-                              "ON [TableName].[ForeignKeyColumnName] = [TableName2].[PrimaryKeyColumnName]";
+                              "ON [TableName].[PrimaryKeyColumnName] = [TableName2].[ForeignKeyColumnName]";
 
             Assert.AreEqual(expectedSql, query.CommandText);
         }
@@ -116,8 +116,8 @@ namespace WeenyMapper.Specs.Sql
 
             _querySpecification.JoinSpecification = new SqlQueryJoinSpecification
                 {
-                    ParentTableName = "TableName2",
-                    ChildTableName = "TableName",
+                    ParentTableName = "TableName",
+                    ChildTableName = "TableName2",
                     ParentPrimaryKeyColumnName = "PrimaryKeyColumnName",
                     ChildForeignKeyColumnName = "ForeignKeyColumnName",
                     SqlQuerySpecification = spec2
@@ -126,7 +126,7 @@ namespace WeenyMapper.Specs.Sql
             var expectedSql = "SELECT [TableName].[ColumnName1] AS \"TableName ColumnName1\", [TableName].[ColumnName2] AS \"TableName ColumnName2\", " +
                               "[TableName2].[Table2Column1] AS \"TableName2 Table2Column1\", [TableName2].[Table2Column2] AS \"TableName2 Table2Column2\" " +
                               "FROM [TableName] LEFT OUTER JOIN [TableName2] " +
-                              "ON [TableName].[ForeignKeyColumnName] = [TableName2].[PrimaryKeyColumnName] " +
+                              "ON [TableName].[PrimaryKeyColumnName] = [TableName2].[ForeignKeyColumnName] " +
                               "WHERE [TableName].[ColumnName1] = @TableName_ColumnName1Constraint";
 
             var query = _generator.GenerateSelectQuery(_querySpecification);
@@ -136,6 +136,54 @@ namespace WeenyMapper.Specs.Sql
             Assert.AreEqual(1, actualParameters.Count);
             Assert.AreEqual("TableName_ColumnName1Constraint", actualParameters[0].ParameterName);
             Assert.AreEqual(123, actualParameters[0].Value);
+        }
+
+        [Test]
+        public void Generating_multi_table_join_generates_join_query_with_corresponding_join_clause()
+        {
+            _querySpecification.QueryExpression = QueryExpression.Create(new EqualsExpression("ColumnName1", 123));
+
+            var spec2 = new SqlQuerySpecification
+                {
+                    ColumnsToSelect = new List<string> { "Table2Column1", "Table2Column2" },
+                    TableName = "TableName2"
+                };
+
+            var spec3 = new SqlQuerySpecification
+                {
+                    ColumnsToSelect = new List<string> { "Table3Column1" },
+                    TableName = "TableName3"
+                };
+
+            _querySpecification.JoinSpecification = new SqlQueryJoinSpecification
+                {
+                    ParentTableName = "TableName",
+                    ChildTableName = "TableName2",
+                    ParentPrimaryKeyColumnName = "PrimaryKeyColumnName",
+                    ChildForeignKeyColumnName = "ForeignKeyColumnName",
+                    SqlQuerySpecification = spec2
+                };
+
+            spec2.JoinSpecification = new SqlQueryJoinSpecification
+                {
+                    ParentTableName = "TableName2",
+                    ChildTableName = "TableName3",
+                    ParentPrimaryKeyColumnName = "Table2PrimaryKey",
+                    ChildForeignKeyColumnName = "Table3ForeignKey",
+                    SqlQuerySpecification = spec3
+                };
+
+            var expectedSql = "SELECT [TableName].[ColumnName1] AS \"TableName ColumnName1\", [TableName].[ColumnName2] AS \"TableName ColumnName2\", " +
+                              "[TableName2].[Table2Column1] AS \"TableName2 Table2Column1\", [TableName2].[Table2Column2] AS \"TableName2 Table2Column2\", " +
+                              "[TableName3].[Table3Column1] AS \"TableName3 Table3Column1\" " +
+                              "FROM [TableName] LEFT OUTER JOIN [TableName2] " +
+                              "ON [TableName].[PrimaryKeyColumnName] = [TableName2].[ForeignKeyColumnName] " +
+                              "LEFT OUTER JOIN [TableName3] ON [TableName2].[Table2PrimaryKey] = [TableName3].[Table3ForeignKey] " +
+                              "WHERE [TableName].[ColumnName1] = @TableName_ColumnName1Constraint";
+
+            var query = _generator.GenerateSelectQuery(_querySpecification);
+
+            Assert.AreEqual(expectedSql, query.CommandText);
         }
 
         [Test]
