@@ -1178,7 +1178,7 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
-        public virtual void Many_to_one_relationship_can_be_written_and_read_back_again_single_query_using_join()
+        public virtual void Many_to_one_relationship_can_be_written_and_read_back_again_in_single_query_using_join()
         {
             Repository.Convention = new BlogConvention();
 
@@ -1220,9 +1220,106 @@ namespace WeenyMapper.Specs
             Repository.InsertMany(blog1, blog2);
             Repository.InsertMany(post1, post2, post3);
 
-            var actualBlog1 = Repository.Find<Blog>().Where(x => x.Name == "Blog 1").Join<BlogPost>(x => x.Posts, x => x.Blog).Execute();
+            var actualBlog1 = Repository.Find<Blog>().Where(x => x.Name == "Blog 1").Join<Blog, BlogPost>(x => x.Posts, x => x.Blog).Execute();
 
             Assert.AreEqual(blog1, actualBlog1);
+        }
+
+        [Test]
+        public virtual void Multi_level_relationship_can_be_written_and_read_back_again_in_single_query_using_join()
+        {
+            Repository.Convention = new BlogConvention();
+
+            var blog1 = new Blog
+                {
+                    Name = "Blog 1",
+                };
+
+            var blog2 = new Blog
+                {
+                    Name = "Blog 2",
+                };
+            
+            var blog3 = new Blog
+                {
+                    Name = "Blog 3",
+                };
+
+            var blog4 = new Blog
+                {
+                    Name = "Blog 4",
+                };
+
+            var post1 = new BlogPost
+                {
+                    Title = "Blog post 1",
+                    Content = "Post 1 content",
+                    PublishDate = new DateTime(2011, 1, 1),
+                };
+
+            var post2 = new BlogPost
+                {
+                    Title = "Blog post 2",
+                    Content = "Post 2 content",
+                    PublishDate = new DateTime(2011, 1, 2)
+                };
+
+            var post3 = new BlogPost
+                {
+                    Title = "Blog post 3",
+                    Content = "Post 3 content",
+                    PublishDate = new DateTime(2011, 1, 3)
+                };
+            
+            var post4 = new BlogPost
+                {
+                    Title = "Blog post 4",
+                    Content = "Post 4 content",
+                    PublishDate = new DateTime(2011, 1, 4)
+                };
+
+            var comment1 = new Comment
+                {
+                    Content = "Comment 1",
+                    PublishDate = new DateTime(2011, 1, 5)
+                };
+
+            var comment2 = new Comment
+                {
+                    Content = "Comment 2",
+                    PublishDate = new DateTime(2011, 1, 6)
+                };
+
+            var comment3 = new Comment
+                {
+                    Content = "Comment 3",
+                    PublishDate = new DateTime(2011, 1, 7)
+                };
+
+            blog1.AddPost(post1);
+            blog1.AddPost(post2);
+            blog2.AddPost(post2);
+            blog2.AddPost(post3);
+            blog4.AddPost(post4);
+
+            post1.AddComment(comment1);
+            post2.AddComment(comment2);
+            post2.AddComment(comment3);
+
+            Repository.InsertMany(blog1, blog2, blog3, blog4);
+            Repository.InsertMany(post1, post2, post3, post4);
+            Repository.InsertMany(comment1, comment2, comment3);
+
+            var actualBlogs = Repository.Find<Blog>().Where(x => x.Name == "Blog 1" || x.Name.EndsWith("3"))
+                .OrderBy(x => x.Name)
+                .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog)
+                .Join<BlogPost, Comment>(x => x.Comments, x => x.BlogPost)
+                .ExecuteList();
+
+            Assert.AreEqual(2, actualBlogs.Count);
+
+            Assert.AreEqual(blog1, actualBlogs[0]);
+            Assert.AreEqual(blog3, actualBlogs[1]);
         }
     }
 }

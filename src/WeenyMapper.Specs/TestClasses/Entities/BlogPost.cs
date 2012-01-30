@@ -47,5 +47,11 @@ namespace WeenyMapper.Specs.TestClasses.Entities
         {
             return string.Format("BlogPost Id: {0}, Title: {1}, Content: {2}, PublishDate: {3}", Id, Title, Content, PublishDate);
         }
+
+        public void AddComment(Comment comment)
+        {
+            Comments.Add(comment);
+            comment.BlogPost = this;
+        }
     }
 }

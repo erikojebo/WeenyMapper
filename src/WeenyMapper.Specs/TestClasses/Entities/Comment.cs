@@ -1,4 +1,5 @@
 using System;
+using WeenyMapper.Extensions;
 
 namespace WeenyMapper.Specs.TestClasses.Entities
 {
@@ -27,8 +28,8 @@ namespace WeenyMapper.Specs.TestClasses.Entities
             return Id == other.Id &&
                    Content == other.Content &&
                    PublishDate == other.PublishDate &&
-                   Equals(BlogPost, other.BlogPost) &&
-                   Equals(User, other.User);
+                   User.NullSafeIdEquals(other.User, x => x.Id) &&
+                   BlogPost.NullSafeIdEquals(other.BlogPost, x => x.Id);
         }
 
         public override string ToString()
