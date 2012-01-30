@@ -106,7 +106,7 @@ namespace WeenyMapper.QueryExecution
 
             if (querySpecification.HasJoinSpecification)
             {
-                var objectRelation = new ObjectRelation(querySpecification.JoinSpecification.ParentProperty, querySpecification.JoinSpecification.ChildProperty);
+                var objectRelation = new ObjectRelation(querySpecification.JoinSpecification.ParentProperty, querySpecification.JoinSpecification.ChildProperty, querySpecification.ResultType);
                 return _entityMapper.CreateInstanceGraphs<T>(resultSet, objectRelation);
             }
 

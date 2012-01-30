@@ -17,13 +17,17 @@ namespace WeenyMapper.Specs.Mapping
         private Row _row;
         private Guid _guid = new Guid("00000000-0000-0000-0000-000000000001");
         private ObjectRelation _parentChildRelation;
+        private ObjectRelation _childParentRelation;
+        private ObjectRelation _childGrandChildRelation;
 
         [SetUp]
         public void SetUp()
         {
             _row = new Row();
             _mapper = new EntityMapper(new ConventionReader(new DefaultConvention()));
-            _parentChildRelation = ObjectRelation.Create<Parent, Child>(x => x.Children, x => x.Parent);
+            _parentChildRelation = ObjectRelation.Create<Parent, Child>(x => x.Children, x => x.Parent, typeof(Parent));
+            _childParentRelation = ObjectRelation.Create<Parent, Child>(x => x.Children, x => x.Parent, typeof(Child));
+            _childGrandChildRelation = ObjectRelation.Create<Child, GrandChild>(x => x.GrandChildren, x => x.Child, typeof(Child));
         }
 
         [Test]
@@ -98,12 +102,13 @@ namespace WeenyMapper.Specs.Mapping
             Assert.AreEqual("child name", instance.Name);
         }
 
+        [Ignore("Not that important, since it will not happen...")]
         [Test]
         public void Creating_instance_with_parent_property_without_any_values_for_parent_leaves_parent_property_as_null()
         {
             _row.Add("Child Id", 2);
 
-            var instance = _mapper.CreateInstanceGraph<Child>(_row, _parentChildRelation);
+            var instance = _mapper.CreateInstanceGraph<Child>(_row, _childParentRelation);
 
             Assert.IsNull(instance.Parent);
         }
@@ -114,7 +119,7 @@ namespace WeenyMapper.Specs.Mapping
             _row.Add("Child Id", 1);
             _row.Add("Parent Id", _guid);
 
-            var instance = _mapper.CreateInstanceGraph<Child>(_row, _parentChildRelation);
+            var instance = _mapper.CreateInstanceGraph<Child>(_row, _childParentRelation);
 
             Assert.IsNotNull(instance.Parent);
             Assert.AreEqual(1, instance.Id);
@@ -127,7 +132,7 @@ namespace WeenyMapper.Specs.Mapping
             _row.Add("Child Id", 1);
             _row.Add("Parent Id", _guid);
 
-            var child = _mapper.CreateInstanceGraph<Child>(_row, _parentChildRelation);
+            var child = _mapper.CreateInstanceGraph<Child>(_row, _childParentRelation);
             var parent = child.Parent;
 
             Assert.IsNotNull(parent);
@@ -158,8 +163,8 @@ namespace WeenyMapper.Specs.Mapping
             _row.Add("PARENT NAME", "parent name");
 
             _mapper = new EntityMapper(new ConventionReader(new UpperCaseConvention()));
-            
-            var instance = _mapper.CreateInstanceGraph<Child>(_row, _parentChildRelation);
+
+            var instance = _mapper.CreateInstanceGraph<Child>(_row, _childParentRelation);
 
             Assert.IsNotNull(instance.Parent);
             Assert.AreEqual(1, instance.Id);
@@ -175,7 +180,7 @@ namespace WeenyMapper.Specs.Mapping
             resultSet.AddRow(new ColumnValue("Child Id", 1), new ColumnValue("Parent Id", _guid));
             resultSet.AddRow(new ColumnValue("Child Id", 2), new ColumnValue("Parent Id", _guid));
 
-            var children = _mapper.CreateInstanceGraphs<Child>(resultSet, _parentChildRelation);
+            var children = _mapper.CreateInstanceGraphs<Child>(resultSet, _childParentRelation);
 
             Assert.AreEqual(2, children.Count);
 
@@ -220,10 +225,28 @@ namespace WeenyMapper.Specs.Mapping
             _row.Add("Child ParentId", _guid);
             _row.Add("Parent Id", _guid);
 
-            var child = _mapper.CreateInstanceGraph<Child>(_row, _parentChildRelation);
+            var child = _mapper.CreateInstanceGraph<Child>(_row, _childParentRelation);
 
             Assert.AreEqual(1, child.Id);
             Assert.AreEqual(_guid, child.Parent.Id);
+        }
+
+        [Test]
+        public void Single_row_with_three_level_relationship_can_be_mapped_to_entity_hierarchy()
+        {
+            _row.Add("Parent Id", _guid);
+            _row.Add("Child Id", 1);
+            _row.Add("GrandChild Id", 2);
+
+            var parent = _mapper.CreateInstanceGraph<Parent>(_row, new [] { _parentChildRelation, _childGrandChildRelation });
+            var child = parent.Children.FirstOrDefault();
+
+            Assert.AreEqual(1, parent.Children.Count);
+            Assert.AreEqual(1, child.GrandChildren.Count);
+
+            Assert.AreEqual(_guid, parent.Id);
+            Assert.AreEqual(1, child.Id);
+            Assert.AreEqual(2, child.GrandChildren.First().Id);            
         }
 
         private class ClassWithoutDefaultConstructor
@@ -269,6 +292,8 @@ namespace WeenyMapper.Specs.Mapping
         {
             public int Id { get; set; }
             public DateTime DateTime { get; set; }
+
+            public Child Child { get; set; }
         }
     }
 

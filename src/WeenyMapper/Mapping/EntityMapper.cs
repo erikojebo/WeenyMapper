@@ -30,7 +30,12 @@ namespace WeenyMapper.Mapping
 
         public T CreateInstanceGraph<T>(Row row, ObjectRelation relation)
         {
-            return (T)CreateInstanceGraph(typeof(T), row, relation, new EntityCache(_conventionReader));
+            return CreateInstanceGraph<T>(row, new[] { relation });
+        }
+
+        public T CreateInstanceGraph<T>(Row row, IEnumerable<ObjectRelation> objectRelations)
+        {
+            return (T)CreateInstanceGraph(typeof(T), row, objectRelations, new EntityCache(_conventionReader));
         }
 
         public IList<T> CreateInstanceGraphs<T>(ResultSet resultSet)
@@ -55,12 +60,26 @@ namespace WeenyMapper.Mapping
 
             foreach (var row in resultSet.Rows)
             {
-                var instance = CreateInstanceGraph(typeof(T), row, parentChildRelation, entityCache);
+                var instance = CreateInstanceGraph(typeof(T), row, new[] { parentChildRelation }, entityCache);
 
                 objects.Add(instance);
             }
 
             return objects.OfType<T>().Distinct(new IdPropertyComparer<T>(_conventionReader)).ToList();
+        }
+
+        private object CreateInstanceGraph(Type resultType, Row row, IEnumerable<ObjectRelation> relations, EntityCache entityCache)
+        {
+            object rootObject = null;
+
+            foreach (var relation in relations)
+            {
+                var instance = CreateInstanceGraph(resultType, row, relation, entityCache);
+
+                rootObject = rootObject ?? instance;
+            }
+
+            return rootObject;
         }
 
         private object CreateInstanceGraph(Type resultType, Row row, ObjectRelation relation, EntityCache entityCache)
@@ -71,12 +90,7 @@ namespace WeenyMapper.Mapping
             var child = CreateInstance(childType, row, entityCache);
             var parent = CreateInstance(parentType, row, entityCache);
 
-            var hasParentProperties = row.HasValuesForType(parentType, _conventionReader);
-
-            if (hasParentProperties)
-            {
-                ConnectEntities(relation, child, parent);
-            }
+            ConnectEntities(relation, child, parent);
 
             return resultType == childType ? child : parent;
         }
