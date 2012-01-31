@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using WeenyMapper.Extensions;
@@ -7,9 +8,9 @@ namespace WeenyMapper.QueryParsing
 {
     public class ArrayValueExpression : EquatableQueryExpression<ArrayValueExpression>
     {
-        public ArrayValueExpression(IEnumerable<object> values)
+        public ArrayValueExpression(IEnumerable values)
         {
-            Values = values.ToArray();
+            Values = values.OfType<object>().ToArray();
         }
 
         public object[] Values { get; set; }

@@ -230,7 +230,7 @@ namespace WeenyMapper.Specs.QueryParsing
         }
 
         [Test]
-        public void Linq_contains_call_with_ienumerable_is_parsed_into_InExpression_with_property_name_and_values()
+        public void Linq_contains_call_with_ienumerable_of_string_is_parsed_into_InExpression_with_property_name_and_values()
         {
             IEnumerable<string> titles = new List<string> { "Title 1", "Title 2" };
 
@@ -239,6 +239,48 @@ namespace WeenyMapper.Specs.QueryParsing
             var expectedExpression = new InExpression(
                 new PropertyExpression("Title"),
                 new ArrayValueExpression(titles));
+
+            Assert.AreEqual(expectedExpression, expression);
+        }
+
+        [Test]
+        public void Linq_contains_call_with_ienumerable_of_int_is_parsed_into_InExpression_with_property_name_and_values()
+        {
+            IEnumerable<int> pageCounts = new List<int> { 0, 1 };
+
+            var expression = _parser.Parse<Book>(x => pageCounts.Contains(x.PageCount));
+
+            var expectedExpression = new InExpression(
+                new PropertyExpression("PageCount"),
+                new ArrayValueExpression(pageCounts));
+
+            Assert.AreEqual(expectedExpression, expression);
+        }
+
+        [Test]
+        public void Contains_call_on_generic_list_of_string_is_parsed_into_InExpression_with_property_name_and_values()
+        {
+            IList<string> titles = new List<string> { "Title 1", "Title 2" };
+
+            var expression = _parser.Parse<Book>(x => titles.Contains(x.Title));
+
+            var expectedExpression = new InExpression(
+                new PropertyExpression("Title"),
+                new ArrayValueExpression(titles));
+
+            Assert.AreEqual(expectedExpression, expression);
+        }
+
+        [Test]
+        public void Contains_call_on_generic_list_of_int_is_parsed_into_InExpression_with_property_name_and_values()
+        {
+            var pageCounts = new List<int> { 0, 1 };
+
+            var expression = _parser.Parse<Book>(x => pageCounts.Contains(x.PageCount));
+
+            var expectedExpression = new InExpression(
+                new PropertyExpression("PageCount"),
+                new ArrayValueExpression(pageCounts));
 
             Assert.AreEqual(expectedExpression, expression);
         }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -117,21 +118,35 @@ namespace WeenyMapper.QueryParsing
 
         private QueryExpression ParseMethodCallExpression(MethodCallExpression expression)
         {
-            if (expression.Method.Name == "Contains" && expression.Method.IsStatic)
-            {
-                return ParseContainsExpression(expression);
-            }
-            if (expression.Method.Name == "Contains" || expression.Method.Name == "StartsWith" || expression.Method.Name == "EndsWith")
+            if (expression.Method.DeclaringType == typeof(string) &&
+                (expression.Method.Name == "Contains" || expression.Method.Name == "StartsWith" || expression.Method.Name == "EndsWith"))
             {
                 return ParseLikeExpression(expression);
+            }
+            if (expression.Method.Name == "Contains")
+            {
+                if (expression.Method.IsStatic)
+                {
+                    return ParseLinqContainsExpression(expression);                    
+                }
+
+                return ParseNonStaticContainsExpression(expression);                    
             }
 
             return CreateValueExpression(expression);
         }
 
-        private QueryExpression ParseContainsExpression(MethodCallExpression expression)
+        private QueryExpression ParseNonStaticContainsExpression(MethodCallExpression expression)
         {
-            var values = (IEnumerable<object>)Evaluate(expression.Arguments[0]);
+            var values = (IEnumerable)Evaluate(expression.Object);
+            var propertyInfo = (PropertyInfo)((MemberExpression)expression.Arguments[0]).Member;
+
+            return new InExpression(new ReflectedPropertyExpression(propertyInfo), new ArrayValueExpression(values));
+        }
+
+        private QueryExpression ParseLinqContainsExpression(MethodCallExpression expression)
+        {
+            var values = (IEnumerable)Evaluate(expression.Arguments[0]);
             var propertyInfo = (PropertyInfo)((MemberExpression)expression.Arguments[1]).Member;
 
             return new InExpression(new ReflectedPropertyExpression(propertyInfo), new ArrayValueExpression(values));
