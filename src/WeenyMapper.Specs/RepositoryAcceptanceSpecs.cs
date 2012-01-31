@@ -1399,7 +1399,7 @@ namespace WeenyMapper.Specs
 
             Repository.InsertMany(blog1, blog2);
             Repository.InsertMany(post1, post2, post3);
-            Repository.InsertMany(comment1, comment2, comment3, comment4);
+            Repository.InsertMany(comment1, comment2, comment3, comment4, comment5);
 
             var actualComments = Repository.Find<Comment>().Where(x => x.PublishDate >= new DateTime(2011, 1, 6))
                 .OrderBy(x => x.PublishDate)
@@ -1407,12 +1407,17 @@ namespace WeenyMapper.Specs
                 .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog)
                 .ExecuteList();
 
+            // Since comment1 has a PublishDate before 2011-01-06 it will not be returned by the query.
+            // Because of this the instance of post1 returned will not have comment1 in its Comments collection.
+            // So, to make the asserts correct. That comment is removed from the original post1.
+            post1.Comments.Remove(comment1);
+
             Assert.AreEqual(4, actualComments.Count);
 
-            Assert.AreEqual(comment1, actualComments[0]);
-            Assert.AreEqual(comment2, actualComments[1]);
-            Assert.AreEqual(comment3, actualComments[2]);
-            Assert.AreEqual(comment4, actualComments[3]);
+            Assert.AreEqual(comment2, actualComments[0]);
+            Assert.AreEqual(comment3, actualComments[1]);
+            Assert.AreEqual(comment4, actualComments[2]);
+            Assert.AreEqual(comment5, actualComments[3]);
 
             Assert.AreEqual(post1, actualComments[0].BlogPost);
             Assert.AreEqual(post2, actualComments[2].BlogPost);
@@ -1420,12 +1425,11 @@ namespace WeenyMapper.Specs
             Assert.AreEqual(blog1, actualComments[0].BlogPost.Blog);
 
             Assert.AreSame(actualComments[0].BlogPost, actualComments[1].BlogPost);
-            Assert.AreSame(actualComments[1].BlogPost, actualComments[2].BlogPost);
+            Assert.AreSame(actualComments[2].BlogPost, actualComments[3].BlogPost);
 
             Assert.AreSame(actualComments[0].BlogPost.Blog, actualComments[1].BlogPost.Blog);
             Assert.AreSame(actualComments[0].BlogPost.Blog, actualComments[2].BlogPost.Blog);
             Assert.AreSame(actualComments[0].BlogPost.Blog, actualComments[3].BlogPost.Blog);
-            Assert.AreSame(actualComments[0].BlogPost.Blog, actualComments[4].BlogPost.Blog);
         }
     }
 }

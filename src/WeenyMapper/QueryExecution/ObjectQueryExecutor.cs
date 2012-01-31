@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using WeenyMapper.Mapping;
@@ -104,26 +105,35 @@ namespace WeenyMapper.QueryExecution
         {
             var resultSet = _dbCommandExecutor.ExecuteQuery(command, ConnectionString);
 
+            var objectRelations = GetObjectRelations(querySpecification);
+
+            if (objectRelations.Any())
+            {
+                return _entityMapper.CreateInstanceGraphs<T>(resultSet, objectRelations);
+            }
+
+            return _entityMapper.CreateInstanceGraphs<T>(resultSet);
+        }
+
+        private IEnumerable<ObjectRelation> GetObjectRelations(ObjectQuerySpecification querySpecification)
+        {
             var objectRelations = new List<ObjectRelation>();
             var currentQuerySpecification = querySpecification;
 
             while (currentQuerySpecification.HasJoinSpecification)
             {
+                var primaryType = currentQuerySpecification.ResultType;
+
                 var objectRelation = new ObjectRelation(
                     currentQuerySpecification.JoinSpecification.ParentProperty,
                     currentQuerySpecification.JoinSpecification.ChildProperty,
-                    currentQuerySpecification.ResultType);
+                    primaryType);
 
                 objectRelations.Add(objectRelation);
 
                 currentQuerySpecification = currentQuerySpecification.JoinSpecification.ObjectQuerySpecification;
             }
-
-            if (objectRelations.Any())
-                return _entityMapper.CreateInstanceGraphs<T>(resultSet, objectRelations);
-
-
-            return _entityMapper.CreateInstanceGraphs<T>(resultSet);
+            return objectRelations;
         }
     }
 }

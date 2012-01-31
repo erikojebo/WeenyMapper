@@ -123,19 +123,26 @@ namespace WeenyMapper.QueryBuilding
             return this;
         }
 
-        public StaticSelectBuilder<T> Join<TParent,TChild>(
+        public StaticSelectBuilder<T> Join<TParent, TChild>(
             Expression<Func<TParent, IList<TChild>>> parentProperty,
             Expression<Func<TChild, TParent>> childProperty)
         {
+            var nextType = typeof(TChild);
+
+            if (nextType == _latestQuerySpecification.ResultType)
+            {
+                nextType = typeof(TParent);
+            }
+
             _latestQuerySpecification.JoinSpecification = new ObjectQueryJoinSpecification
                 {
                     ParentProperty = Reflector<TParent>.GetProperty(parentProperty),
                     ChildProperty = Reflector<TChild>.GetProperty(childProperty),
-                    ObjectQuerySpecification = new ObjectQuerySpecification(typeof(TChild))
+                    ObjectQuerySpecification = new ObjectQuerySpecification(nextType)
                 };
 
             _latestQuerySpecification = _latestQuerySpecification.JoinSpecification.ObjectQuerySpecification;
-            
+
             return this;
         }
     }
