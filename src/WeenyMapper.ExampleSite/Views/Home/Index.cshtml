@@ -1,0 +1,12 @@
+﻿@model WeenyMapper.ExampleSite.Models.HomeModel
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Recent posts from all blogs</h2>
+
+@Html.Partial("PostListControl", Model.Posts)
+
+@Html.ActionLink("Create test data", "Create")
+

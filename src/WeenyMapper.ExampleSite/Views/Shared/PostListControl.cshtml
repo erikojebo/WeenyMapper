@@ -1,0 +1,15 @@
+﻿@model System.Collections.Generic.IList<WeenyMapper.Specs.TestClasses.Entities.BlogPost>
+           
+           <ul class="posts">
+           
+               @foreach (var post in Model)
+               {
+                   <li class="post">
+                    <h2>@post.Title</h2>
+                    <p>@post.Content</p>
+                    <span>Written @post.PublishDate by @post.Author.Username</span>
+                   </li>
+               }
+           
+           </ul>
+
