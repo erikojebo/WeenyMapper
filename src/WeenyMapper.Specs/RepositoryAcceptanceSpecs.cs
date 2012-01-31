@@ -1298,7 +1298,6 @@ namespace WeenyMapper.Specs
 
             blog1.AddPost(post1);
             blog1.AddPost(post2);
-            blog2.AddPost(post2);
             blog2.AddPost(post3);
             blog4.AddPost(post4);
 

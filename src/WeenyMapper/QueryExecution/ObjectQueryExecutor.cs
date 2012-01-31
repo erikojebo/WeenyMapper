@@ -104,11 +104,24 @@ namespace WeenyMapper.QueryExecution
         {
             var resultSet = _dbCommandExecutor.ExecuteQuery(command, ConnectionString);
 
-            if (querySpecification.HasJoinSpecification)
+            var objectRelations = new List<ObjectRelation>();
+            var currentQuerySpecification = querySpecification;
+
+            while (currentQuerySpecification.HasJoinSpecification)
             {
-                var objectRelation = new ObjectRelation(querySpecification.JoinSpecification.ParentProperty, querySpecification.JoinSpecification.ChildProperty, querySpecification.ResultType);
-                return _entityMapper.CreateInstanceGraphs<T>(resultSet, objectRelation);
+                var objectRelation = new ObjectRelation(
+                    currentQuerySpecification.JoinSpecification.ParentProperty,
+                    currentQuerySpecification.JoinSpecification.ChildProperty,
+                    currentQuerySpecification.ResultType);
+
+                objectRelations.Add(objectRelation);
+
+                currentQuerySpecification = currentQuerySpecification.JoinSpecification.ObjectQuerySpecification;
             }
+
+            if (objectRelations.Any())
+                return _entityMapper.CreateInstanceGraphs<T>(resultSet, objectRelations);
+
 
             return _entityMapper.CreateInstanceGraphs<T>(resultSet);
         }
