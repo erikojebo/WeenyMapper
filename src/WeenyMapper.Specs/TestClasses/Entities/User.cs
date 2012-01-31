@@ -1,12 +1,20 @@
 using System;
+using System.Collections.Generic;
+using WeenyMapper.Extensions;
 
 namespace WeenyMapper.Specs.TestClasses.Entities
 {
     public class User
     {
+        public User()
+        {
+            BlogPosts = new List<BlogPost>();
+        }
+
         public Guid Id { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
+        public IList<BlogPost> BlogPosts { get; set; }
 
         public override int GetHashCode()
         {
@@ -24,7 +32,8 @@ namespace WeenyMapper.Specs.TestClasses.Entities
 
             return Id == other.Id &&
                    Username == other.Username &&
-                   Password == other.Password;
+                   Password == other.Password &&
+                   BlogPosts.ElementEquals(other.BlogPosts);
         }
 
         public override string ToString()
