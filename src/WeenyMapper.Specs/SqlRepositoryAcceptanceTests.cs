@@ -56,7 +56,7 @@ namespace WeenyMapper.Specs
                     PageCount = 123
                 };
 
-            Repository.InsertMany(book1, book2, book3, book4);
+            Repository.Insert(book1, book2, book3, book4);
 
             var sqlCommand = new SqlCommand("select [c_ISBN], [c_TITLE], [c_AUTHORNAME], [c_PAGECOUNT] from [t_Books] where [c_ISBN] = @Isbn");
             sqlCommand.Parameters.Add(new SqlParameter("Isbn", book2.Isbn));
@@ -103,7 +103,7 @@ namespace WeenyMapper.Specs
                     PageCount = 123
                 };
 
-            Repository.InsertMany(book1, book2, book3, book4);
+            Repository.Insert(book1, book2, book3, book4);
 
             var sqlCommand = new SqlCommand("select [c_ISBN], [c_TITLE] from [t_Books] where [c_AUTHORNAME] = @AuthorName");
             sqlCommand.Parameters.Add(new SqlParameter("AuthorName", "Author Name 2"));
@@ -139,7 +139,7 @@ namespace WeenyMapper.Specs
                     PageCount = 321
                 };
 
-            Repository.InsertMany(book1, book2);
+            Repository.Insert(book1, book2);
 
             var sqlCommand = new SqlCommand("select [c_PAGECOUNT] from [t_Books] where [c_ISBN] = @Isbn");
             sqlCommand.Parameters.Add(new SqlParameter("Isbn", "2"));
@@ -186,7 +186,7 @@ namespace WeenyMapper.Specs
                     PageCount = 123
                 };
 
-            Repository.InsertMany(book1, book2, book3, book4);
+            Repository.Insert(book1, book2, book3, book4);
 
             var sqlCommand = new SqlCommand("select [c_ISBN] from [t_Books] where [c_AUTHORNAME] = @AuthorName");
             sqlCommand.Parameters.Add(new SqlParameter("AuthorName", "Author Name 2"));

@@ -115,7 +115,7 @@ namespace WeenyMapper.Specs
                     Password = "a password"
                 };
 
-            Repository.InsertMany(user1, user2, user3);
+            Repository.Insert(user1, user2, user3);
 
             AssertParameterizedCallbackIsInvoked(2,
                 callback =>
@@ -180,7 +180,7 @@ namespace WeenyMapper.Specs
                     Password = "a password"
                 };
 
-            Repository.InsertMany(user1, user2, user3);
+            Repository.Insert(user1, user2, user3);
 
             AssertParameterizedCallbackIsInvoked(2,
                 callback =>
@@ -211,7 +211,7 @@ namespace WeenyMapper.Specs
                     Password = "another password"
                 };
 
-            Repository.InsertMany(user1, user2);
+            Repository.Insert(user1, user2);
 
             AssertParameterizedCallbackIsInvoked(user1,
                 callback => Repository.Find<User>()
@@ -244,7 +244,7 @@ namespace WeenyMapper.Specs
                     Password = "a password"
                 };
 
-            Repository.InsertMany(user1, user2, user3);
+            Repository.Insert(user1, user2, user3);
 
             AssertListCallbackIsInvoked(new[] { user1, user3 },
                 callback => Repository.Find<User>()
@@ -270,7 +270,7 @@ namespace WeenyMapper.Specs
                     Password = "another password"
                 };
 
-            Repository.InsertMany(user1, user2);
+            Repository.Insert(user1, user2);
 
             AssertParameterizedCallbackIsInvoked("username2",
                 callback => Repository.Find<User>()
@@ -304,7 +304,7 @@ namespace WeenyMapper.Specs
                     Password = "a password"
                 };
 
-            Repository.InsertMany(user1, user2, user3);
+            Repository.Insert(user1, user2, user3);
 
             AssertListCallbackIsInvoked(new[] { "username1", "username3" },
                 callback => Repository.Find<User>()

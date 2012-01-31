@@ -21,18 +21,24 @@ namespace WeenyMapper
             DatabaseProvider = new SqlServerDatabaseProvider();
         }
 
+        public Repository()
+        {
+            ConnectionString = DefaultConnectionString;
+        }
+
         public static IConvention Convention { get; set; }
         public static ISqlCommandLogger SqlLogger { get; set; }
         public static IDatabaseProvider DatabaseProvider { get; set; }
+        public static string DefaultConnectionString { get; set; }
 
         public string ConnectionString { get; set; }
 
-        public void InsertMany<T>(params T[] entities)
+        public void Insert<T>(params T[] entities)
         {
-            InsertMany((IEnumerable<T>)entities);
+            InsertCollection(entities);
         }
 
-        public void InsertMany<T>(IEnumerable<T> entities)
+        public void InsertCollection<T>(IEnumerable<T> entities)
         {
             var objectInsertExecutor = new ObjectInsertExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
                 {
@@ -40,16 +46,6 @@ namespace WeenyMapper
                 };
 
             objectInsertExecutor.Insert(entities);
-        }
-
-        public void Insert<T>(T entity)
-        {
-            var objectInsertExecutor = new ObjectInsertExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
-                {
-                    ConnectionString = ConnectionString
-                };
-
-            objectInsertExecutor.Insert(new[] { entity });
         }
 
         public void InsertAsync<T>(T entity, Action callback, Action<Exception> errorCallback = null)

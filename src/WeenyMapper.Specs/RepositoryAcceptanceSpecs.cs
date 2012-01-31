@@ -422,7 +422,7 @@ namespace WeenyMapper.Specs
                     PageCount = 123
                 };
 
-            Repository.InsertMany(new[] { book1, book2 });
+            Repository.Insert(new[] { book1, book2 });
 
             var actualBooks = Repository.Find<Book>().ExecuteList();
 
@@ -468,7 +468,7 @@ namespace WeenyMapper.Specs
                     PageCount = 321
                 };
 
-            Repository.InsertMany(book1, book2, book3, book4);
+            Repository.Insert(book1, book2, book3, book4);
 
             int count = Repository.Count<Book>()
                 .Where(x => x.AuthorName == "Author Name 2" && x.PageCount == 123)
@@ -533,7 +533,7 @@ namespace WeenyMapper.Specs
                     PageCount = 123
                 };
 
-            Repository.InsertMany(book1, book2, book3);
+            Repository.Insert(book1, book2, book3);
 
             var partialBooks = Repository.Find<Book>()
                 .Where(x => x.AuthorName == "Author Name 2")
@@ -572,7 +572,7 @@ namespace WeenyMapper.Specs
                     Password = "another password"
                 };
 
-            Repository.InsertMany(user1, user2);
+            Repository.Insert(user1, user2);
 
             var actualUsername = Repository.Find<User>()
                 .Where(x => x.Id == user2.Id)
@@ -606,7 +606,7 @@ namespace WeenyMapper.Specs
                     Password = "a password"
                 };
 
-            Repository.InsertMany(user1, user2, user3);
+            Repository.Insert(user1, user2, user3);
 
             var usernames = Repository.Find<User>()
                 .Where(x => x.Password == "a password")
@@ -671,7 +671,7 @@ namespace WeenyMapper.Specs
                     PageCount = 50
                 };
 
-            Repository.InsertMany(book1, book2, book3, book4, book5, book6);
+            Repository.Insert(book1, book2, book3, book4, book5, book6);
 
             var actualBooks = Repository.Find<Book>()
                 .Where(x => x.Isbn == "6" || (x.PageCount == 75 && x.AuthorName == "Another Author Name"))
@@ -735,7 +735,7 @@ namespace WeenyMapper.Specs
                     PageCount = 50
                 };
 
-            Repository.InsertMany(book1, book2, book3, book4, book5, book6);
+            Repository.Insert(book1, book2, book3, book4, book5, book6);
 
             var titles = new[] { "Title 4", "Title 5", "Title 6" };
 
@@ -778,7 +778,7 @@ namespace WeenyMapper.Specs
                 };
 
             Repository.Insert(user1);
-            Repository.InsertMany(user2, user3);
+            Repository.Insert(user2, user3);
 
             user1.Password = "Updated password";
 
@@ -878,7 +878,7 @@ namespace WeenyMapper.Specs
                     PageCount = 75
                 };
 
-            Repository.InsertMany(book1, book2, book3, book4, book5, book6);
+            Repository.Insert(book1, book2, book3, book4, book5, book6);
 
             var actualBooks = Repository.Find<Book>()
                 .OrderBy(x => x.AuthorName)
@@ -942,7 +942,7 @@ namespace WeenyMapper.Specs
                     PageCount = 75
                 };
 
-            Repository.InsertMany(book1, book2, book3, book4, book5, book6);
+            Repository.Insert(book1, book2, book3, book4, book5, book6);
 
             var actualBooks = Repository.Find<Book>()
                 .OrderByDescending(x => x.Isbn)
@@ -1006,7 +1006,7 @@ namespace WeenyMapper.Specs
                     PageCount = 75
                 };
 
-            Repository.InsertMany(book1, book2, book3, book4, book5, book6);
+            Repository.Insert(book1, book2, book3, book4, book5, book6);
 
             var actualBooks = Repository.Find<Book>()
                 .OrderByDescending(x => x.Isbn)
@@ -1070,7 +1070,7 @@ namespace WeenyMapper.Specs
                     PageCount = 75
                 };
 
-            Repository.InsertMany(book1, book2, book3, book4, book5, book6);
+            Repository.Insert(book1, book2, book3, book4, book5, book6);
 
             var actualBooks = Repository.Find<Book>()
                 .Where(x => x.AuthorName.Contains("Steve"))
@@ -1134,7 +1134,7 @@ namespace WeenyMapper.Specs
                     PageCount = 75
                 };
 
-            Repository.InsertMany(book1, book2, book3, book4, book5, book6);
+            Repository.Insert(book1, book2, book3, book4, book5, book6);
 
             var actualBooks = Repository.Find<Book>()
                 .Where(x => x.AuthorName.StartsWith("Smith") || (x.AuthorName.EndsWith("Smith") && x.Title.EndsWith("6")))
@@ -1167,7 +1167,7 @@ namespace WeenyMapper.Specs
                 };
 
             Repository.Insert(movie1);
-            Repository.InsertMany(new[] { movie2, movie3 });
+            Repository.Insert(new[] { movie2, movie3 });
 
             var allMovies = Repository.Find<Movie>().OrderBy(x => x.Title).ExecuteList();
 
@@ -1217,8 +1217,8 @@ namespace WeenyMapper.Specs
             blog1.AddPost(post2);
             blog2.AddPost(post3);
 
-            Repository.InsertMany(blog1, blog2);
-            Repository.InsertMany(post1, post2, post3);
+            Repository.Insert(blog1, blog2);
+            Repository.Insert(post1, post2, post3);
 
             var actualBlog1 = Repository.Find<Blog>().Where(x => x.Name == "Blog 1").Join<Blog, BlogPost>(x => x.Posts, x => x.Blog).Execute();
 
@@ -1305,9 +1305,9 @@ namespace WeenyMapper.Specs
             post2.AddComment(comment2);
             post2.AddComment(comment3);
 
-            Repository.InsertMany(blog1, blog2, blog3, blog4);
-            Repository.InsertMany(post1, post2, post3, post4);
-            Repository.InsertMany(comment1, comment2, comment3);
+            Repository.Insert(blog1, blog2, blog3, blog4);
+            Repository.Insert(post1, post2, post3, post4);
+            Repository.Insert(comment1, comment2, comment3);
 
             var actualBlogs = Repository.Find<Blog>().Where(x => x.Name == "Blog 1" || x.Name.EndsWith("3"))
                 .OrderBy(x => x.Name)
@@ -1397,9 +1397,9 @@ namespace WeenyMapper.Specs
             post2.AddComment(comment4);
             post2.AddComment(comment5);
 
-            Repository.InsertMany(blog1, blog2);
-            Repository.InsertMany(post1, post2, post3);
-            Repository.InsertMany(comment1, comment2, comment3, comment4, comment5);
+            Repository.Insert(blog1, blog2);
+            Repository.Insert(post1, post2, post3);
+            Repository.Insert(comment1, comment2, comment3, comment4, comment5);
 
             var actualComments = Repository.Find<Comment>().Where(x => x.PublishDate >= new DateTime(2011, 1, 6))
                 .OrderBy(x => x.PublishDate)
