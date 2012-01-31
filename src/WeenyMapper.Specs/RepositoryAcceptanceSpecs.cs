@@ -1239,7 +1239,7 @@ namespace WeenyMapper.Specs
                 {
                     Name = "Blog 2",
                 };
-            
+
             var blog3 = new Blog
                 {
                     Name = "Blog 3",
@@ -1270,7 +1270,7 @@ namespace WeenyMapper.Specs
                     Content = "Post 3 content",
                     PublishDate = new DateTime(2011, 1, 3)
                 };
-            
+
             var post4 = new BlogPost
                 {
                     Title = "Blog post 4",
@@ -1320,6 +1320,113 @@ namespace WeenyMapper.Specs
 
             Assert.AreEqual(blog1, actualBlogs[0]);
             Assert.AreEqual(blog3, actualBlogs[1]);
+        }
+
+        [Test]
+        public virtual void Multi_level_relationship_directed_from_child_to_parent_can_be_written_and_read_back_in_single_query()
+        {
+            Repository.Convention = new BlogConvention();
+
+            var blog1 = new Blog
+                {
+                    Name = "Blog 1",
+                };
+
+            var blog2 = new Blog
+                {
+                    Name = "Blog 2",
+                };
+
+            var post1 = new BlogPost
+                {
+                    Title = "Blog post 1",
+                    Content = "Post 1 content",
+                    PublishDate = new DateTime(2011, 1, 1),
+                };
+
+            var post2 = new BlogPost
+                {
+                    Title = "Blog post 2",
+                    Content = "Post 2 content",
+                    PublishDate = new DateTime(2011, 1, 2)
+                };
+
+            var post3 = new BlogPost
+                {
+                    Title = "Blog post 3",
+                    Content = "Post 3 content",
+                    PublishDate = new DateTime(2011, 1, 3)
+                };
+
+            var comment1 = new Comment
+                {
+                    Content = "Comment 1",
+                    PublishDate = new DateTime(2011, 1, 5)
+                };
+
+            var comment2 = new Comment
+                {
+                    Content = "Comment 2",
+                    PublishDate = new DateTime(2011, 1, 6)
+                };
+
+            var comment3 = new Comment
+                {
+                    Content = "Comment 3",
+                    PublishDate = new DateTime(2011, 1, 7)
+                };
+
+            var comment4 = new Comment
+                {
+                    Content = "Comment 4",
+                    PublishDate = new DateTime(2011, 1, 8)
+                };
+
+            var comment5 = new Comment
+                {
+                    Content = "Comment 5",
+                    PublishDate = new DateTime(2011, 1, 9)
+                };
+
+            blog1.AddPost(post1);
+            blog1.AddPost(post2);
+            blog2.AddPost(post3);
+
+            post1.AddComment(comment1);
+            post1.AddComment(comment2);
+            post1.AddComment(comment3);
+            post2.AddComment(comment4);
+            post2.AddComment(comment5);
+
+            Repository.InsertMany(blog1, blog2);
+            Repository.InsertMany(post1, post2, post3);
+            Repository.InsertMany(comment1, comment2, comment3, comment4);
+
+            var actualComments = Repository.Find<Comment>().Where(x => x.PublishDate >= new DateTime(2011, 1, 6))
+                .OrderBy(x => x.PublishDate)
+                .Join<BlogPost, Comment>(x => x.Comments, x => x.BlogPost)
+                .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog)
+                .ExecuteList();
+
+            Assert.AreEqual(4, actualComments.Count);
+
+            Assert.AreEqual(comment1, actualComments[0]);
+            Assert.AreEqual(comment2, actualComments[1]);
+            Assert.AreEqual(comment3, actualComments[2]);
+            Assert.AreEqual(comment4, actualComments[3]);
+
+            Assert.AreEqual(post1, actualComments[0].BlogPost);
+            Assert.AreEqual(post2, actualComments[2].BlogPost);
+
+            Assert.AreEqual(blog1, actualComments[0].BlogPost.Blog);
+
+            Assert.AreSame(actualComments[0].BlogPost, actualComments[1].BlogPost);
+            Assert.AreSame(actualComments[1].BlogPost, actualComments[2].BlogPost);
+
+            Assert.AreSame(actualComments[0].BlogPost.Blog, actualComments[1].BlogPost.Blog);
+            Assert.AreSame(actualComments[0].BlogPost.Blog, actualComments[2].BlogPost.Blog);
+            Assert.AreSame(actualComments[0].BlogPost.Blog, actualComments[3].BlogPost.Blog);
+            Assert.AreSame(actualComments[0].BlogPost.Blog, actualComments[4].BlogPost.Blog);
         }
     }
 }

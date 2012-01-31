@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using WeenyMapper.Conventions;
 
 namespace WeenyMapper.Specs.TestClasses.Conventions
@@ -13,6 +14,16 @@ namespace WeenyMapper.Specs.TestClasses.Conventions
             }
 
             return base.GetTableName(entityType);
+        }
+
+        public override string GetManyToOneForeignKeyColumnName(PropertyInfo propertyInfo)
+        {
+            if (propertyInfo.Name == "BlogPost")
+            {
+                return "PostId";
+            }
+
+            return base.GetManyToOneForeignKeyColumnName(propertyInfo);
         }
     }
 }

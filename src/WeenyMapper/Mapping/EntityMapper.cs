@@ -102,13 +102,18 @@ namespace WeenyMapper.Mapping
 
         private void ConnectEntities(ObjectRelation relation, object child, object parent)
         {
+            if (child == null || parent == null)
+            {
+                return;
+            }
+
             relation.ChildProperty.SetValue(child, parent, null);
             var parentsChildCollection = (IList)relation.ParentProperty.GetValue(parent, null);
 
             var parentCollectionContainsChild = parentsChildCollection
                 .OfType<object>()
                 .Contains(child, new IdPropertyComparer<object>(_conventionReader));
-            
+
             if (!parentCollectionContainsChild)
             {
                 parentsChildCollection.Add(child);
@@ -122,6 +127,11 @@ namespace WeenyMapper.Mapping
             var columnValuesForCurrentType = row.GetColumnValuesForType(type, _conventionReader)
                 .Where(x => !_conventionReader.IsForeignKey(x.ColumnName, type))
                 .ToList();
+
+            if (columnValuesForCurrentType.Any() && columnValuesForCurrentType.All(x => x.Value == null))
+            {
+                return null;
+            }
 
             foreach (var columnValue in columnValuesForCurrentType)
             {

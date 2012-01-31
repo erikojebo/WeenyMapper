@@ -73,7 +73,7 @@ namespace WeenyMapper.Specs.Mapping
         [Test]
         public void Trying_to_create_instance_with_values_that_do_not_have_corresponding_properties_throws_exception()
         {
-            _row.Add("MissingProperty", null);
+            _row.Add("MissingProperty", "a value");
             _mapper.CreateInstance<ClassWithoutRelations>(_row);
         }
 
@@ -101,17 +101,6 @@ namespace WeenyMapper.Specs.Mapping
 
             Assert.AreEqual(2, instance.Id);
             Assert.AreEqual("child name", instance.Name);
-        }
-
-        [Ignore("Not that important, since it will not happen...")]
-        [Test]
-        public void Creating_instance_with_parent_property_without_any_values_for_parent_leaves_parent_property_as_null()
-        {
-            _row.Add("Child Id", 2);
-
-            var instance = _mapper.CreateInstanceGraph<Child>(_row, _childParentRelation);
-
-            Assert.IsNull(instance.Parent);
         }
 
         [Test]
@@ -154,6 +143,32 @@ namespace WeenyMapper.Specs.Mapping
             Assert.AreSame(parent, child.Parent);
             Assert.AreEqual(1, child.Id);
             Assert.AreEqual(_guid1, parent.Id);
+        }
+
+        [Test]
+        public void Creating_parent_with_null_values_for_child_leaves_child_collection_empty()
+        {
+            _row.Add("Child Id", DBNull.Value);
+            _row.Add("Child Name", DBNull.Value);
+            _row.Add("Parent Id", _guid1);
+
+            var parent = _mapper.CreateInstanceGraph<Parent>(_row, _parentChildRelation);
+
+            Assert.AreEqual(_guid1, parent.Id);
+            Assert.AreEqual(0, parent.Children.Count);
+        }
+
+        [Test]
+        public void Creating_child_with_null_values_for_parent_leaves_parent_as_null()
+        {
+            _row.Add("Child Id", 1);
+            _row.Add("Parent Id", DBNull.Value);
+            _row.Add("Parent Name", DBNull.Value);
+
+            var child = _mapper.CreateInstanceGraph<Child>(_row, _childParentRelation);
+
+            Assert.AreEqual(1, child.Id);
+            Assert.IsNull(child.Parent);
         }
 
         [Test]

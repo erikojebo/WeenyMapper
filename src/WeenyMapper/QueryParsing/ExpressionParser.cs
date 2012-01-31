@@ -31,6 +31,10 @@ namespace WeenyMapper.QueryParsing
             {
                 return ParseMethodCallExpression((MethodCallExpression)expression);
             }
+            if (expression is NewExpression)
+            {
+                return ParseNewExpression((NewExpression)expression);
+            }
 
             throw new WeenyMapperException("Invalid query expression");
         }
@@ -89,6 +93,11 @@ namespace WeenyMapper.QueryParsing
             }
 
             throw new WeenyMapperException("Unrecognized binary expression");
+        }
+
+        private QueryExpression ParseNewExpression(NewExpression expression)
+        {
+            return CreateValueExpression(expression);
         }
 
         private QueryExpression ParseMemberExpression(MemberExpression expression)

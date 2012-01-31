@@ -62,6 +62,16 @@ namespace WeenyMapper.Specs.QueryParsing
         }
 
         [Test]
+        public void Single_equality_comparison_with_new_object_is_parsed_into_property_name_and_value()
+        {
+            var expression = _parser.Parse<Comment>(x => x.PublishDate == new DateTime(2012, 1, 2));
+
+            var expectedExpression = new EqualsExpression(new PropertyExpression("PublishDate"), new ValueExpression(new DateTime(2012, 1, 2)));
+
+            Assert.AreEqual(expectedExpression, expression);
+        }
+
+        [Test]
         public void Single_equality_comparison_with_method_parameter_is_parsed_into_property_name_and_value()
         {
             AssertParsingOfEqualsExpressionWithMethodParameter("a username");

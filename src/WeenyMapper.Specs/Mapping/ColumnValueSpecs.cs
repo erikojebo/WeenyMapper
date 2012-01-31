@@ -1,3 +1,4 @@
+using System;
 using NUnit.Framework;
 using WeenyMapper.Conventions;
 using WeenyMapper.Mapping;
@@ -66,6 +67,13 @@ namespace WeenyMapper.Specs.Mapping
         public void Is_for_type_when_alias_is_unqualified()
         {
             Assert.IsTrue(_unqualifiedColumnValue.IsForType(typeof(Movie), new DefaultConvention()));
+        }
+
+        [Test]
+        public void Value_is_null_for_column_with_DBNull_as_value()
+        {
+            var columnValue = new ColumnValue("Name", DBNull.Value);
+            Assert.IsNull(columnValue.Value);
         }
     }
 }

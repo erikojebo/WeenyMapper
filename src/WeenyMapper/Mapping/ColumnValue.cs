@@ -5,16 +5,21 @@ namespace WeenyMapper.Mapping
 {
     public class ColumnValue
     {
+        private readonly object _value;
         private const string Separator = " ";
 
         public ColumnValue(string alias, object value)
         {
             Alias = alias;
-            Value = value;
+            _value = value;
         }
 
         public string Alias { get; private set; }
-        public object Value { get; private set; }
+
+        public object Value
+        {
+            get { return _value == DBNull.Value ? null : _value; }
+        }
 
         public string ColumnName
         {
@@ -38,10 +43,7 @@ namespace WeenyMapper.Mapping
 
         public bool IsForeignKeyValue
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
+            get { throw new NotImplementedException(); }
         }
     }
 }
