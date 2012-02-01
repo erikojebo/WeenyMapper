@@ -63,6 +63,27 @@ h2
     font-size: 10px;
 }
 
+.post_signature
+{
+    display: inline-block;
+    margin: 10px 0px;
+}
+
+.comments
+{
+    margin-top: 30px;
+}
+
+.comment
+{
+    margin: 20px 0px;
+}
+
+.comment div
+{
+    margin-bottom: 5px;
+}
+
 
 /* Styles for basic forms
 -----------------------------------------------------------*/

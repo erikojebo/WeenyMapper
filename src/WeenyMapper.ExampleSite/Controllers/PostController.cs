@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using WeenyMapper.Specs.TestClasses.Entities;
 
@@ -9,68 +6,62 @@ namespace WeenyMapper.ExampleSite.Controllers
 {
     public class PostController : Controller
     {
-        Repository _repository = new Repository();
+        private readonly Repository _repository = new Repository();
 
         public ActionResult Index(int id)
         {
             var post = _repository.Find<BlogPost>()
                 .Where(x => x.Id == id)
-                .Join<User,BlogPost>(x => x.BlogPosts, x => x.Author)
+                .Join<User, BlogPost>(x => x.BlogPosts, x => x.Author)
                 .Execute();
+
+            var comments = _repository.Find<Comment>()
+                .Where(x => x.BlogPost.Id == post.Id)
+                .OrderByDescending(x => x.PublishDate)
+                .ExecuteList();
+
+            post.Comments = comments;
 
             return View(post);
         }
 
-        //
-        // GET: /Post/Create
-
-        public ActionResult Create()
+        public ActionResult Create(int id)
         {
-            return View();
-        } 
+            var post = new BlogPost
+                {
+                    PublishDate = DateTime.Now,
+                };
 
-        //
-        // POST: /Post/Create
+            ViewBag.BlogId = id;
+
+            return View(post);
+        }
 
         [HttpPost]
-        public ActionResult Create(FormCollection collection)
+        public ActionResult Create(BlogPost post, int blogId)
         {
-            try
-            {
-                // TODO: Add insert logic here
+            var blog = _repository.Find<Blog>().Where(x => x.Id == blogId).Execute();
+            var user = _repository.Find<User>().Top(1).Execute();
 
-                return RedirectToAction("Index");
-            }
-            catch
-            {
-                return View();
-            }
+            post.Blog = blog;
+            post.Author = user;
+
+            _repository.Insert(post);
+
+            return RedirectToAction("Index", new { id = post.Id });
         }
-        
-        //
-        // GET: /Post/Edit/5
- 
+
         public ActionResult Edit(int id)
         {
-            return View();
+            var post = _repository.Find<BlogPost>().Where(x => x.Id == id).Execute();
+            return View(post);
         }
 
-        //
-        // POST: /Post/Edit/5
-
         [HttpPost]
-        public ActionResult Edit(int id, FormCollection collection)
+        public ActionResult Edit(BlogPost post)
         {
-            try
-            {
-                // TODO: Add update logic here
- 
-                return RedirectToAction("Index");
-            }
-            catch
-            {
-                return View();
-            }
+            _repository.Update(post);
+            return RedirectToAction("Index", post.Id);
         }
 
         public ActionResult Delete(int id)

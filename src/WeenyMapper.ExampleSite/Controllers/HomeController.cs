@@ -161,6 +161,17 @@ namespace WeenyMapper.ExampleSite.Controllers
                     Blog = blog
                 };
 
+            for (int i = 0; i < random.Next(10); i++)
+            {
+                var comment = new Comment
+                    {
+                        Content = "Comment " + i,
+                        PublishDate = new DateTime(2011, month, day, random.Next(23), random.Next(59), random.Next(59))
+                    };
+
+                post.AddComment(comment);
+            }
+
             post.Content = post.Title + " content";
 
             return post;

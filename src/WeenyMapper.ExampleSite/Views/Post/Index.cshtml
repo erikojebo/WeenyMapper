@@ -15,3 +15,13 @@
     @Html.ActionLink("Delete", "Delete", new { id = Model.Id })
 </p>
 
+<ul class="comments">
+    @foreach (var comment in Model.Comments)
+    {
+        <li class="comment">
+            <div>@comment.Content</div>
+            <span>Written @comment.PublishDate</span>
+        </li>
+    }
+</ul>
+

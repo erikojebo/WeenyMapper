@@ -6,6 +6,8 @@
 
 <h2>@Model.Blog.Name Blog</h2>
 
+@Html.ActionLink("Create post", "Create", "Post", new { id = Model.Blog.Id }, new { })
+
 @Html.Partial("PostListControl", Model.BlogPosts)
 
 
