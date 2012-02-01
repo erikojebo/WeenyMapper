@@ -67,6 +67,7 @@
     <Compile Include="Sql\CommandParameterSpecs.cs" />
     <Compile Include="RepositoryAcceptanceSpecs.cs" />
     <Compile Include="Sql\PageSpecs.cs" />
+    <Compile Include="Sql\QueryOptimizerSpecs.cs" />
     <Compile Include="Sql\SqlCeTSqlGeneratorSpecs.cs" />
     <Compile Include="TestClasses\Conventions\BlogConvention.cs" />
     <Compile Include="TestClasses\Conventions\BookConvention.cs" />
