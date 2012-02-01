@@ -1,4 +1,4 @@
-using System;
+using System.Collections.Generic;
 
 namespace WeenyMapper.Sql
 {
@@ -6,10 +6,50 @@ namespace WeenyMapper.Sql
     {
         public string ReduceParens(string expression)
         {
-            if (expression.StartsWith("(") && expression.EndsWith(")"))
-                return expression.Substring(1, expression.Length - 2);
+            var reducedExpression = expression;
 
-            return expression;
+            while (CanOutermostParensBeReduced(reducedExpression))
+            {
+                reducedExpression = StripFirstAndLastChar(reducedExpression);
+            }
+
+            return reducedExpression;
+        }
+
+        private bool CanOutermostParensBeReduced(string expression)
+        {
+            return expression.Length >= 2 && 
+                expression.StartsWith("(") && expression.EndsWith(")") && 
+                IsParensBalanced(StripFirstAndLastChar(expression));
+        }
+
+        private string StripFirstAndLastChar(string expression)
+        {
+            return expression.Substring(1, expression.Length - 2);
+        }
+
+        private bool IsParensBalanced(IEnumerable<char> expressionWithStrippedOuterParens)
+        {
+            var nestingLevel = 0;
+
+            foreach (var character in expressionWithStrippedOuterParens)
+            {
+                if (character == '(')
+                {
+                    nestingLevel++;
+                }
+                if (character == ')')
+                {
+                    nestingLevel--;
+                }
+
+                if (nestingLevel < 0)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

@@ -42,9 +42,27 @@ namespace WeenyMapper.Specs.Sql
         }
 
         [Test]
-        public void Optimizing_parens_for_query_surrounded_by_matched_parens_yields_empty_query()
+        public void Optimizing_parens_for_query_surrounded_by_matched_parens_yields_query_with_outer_parens_stripped()
         {
             AssertParenReduction("expression", "(expression)");
+        }
+        
+        [Test]
+        public void Optimizing_parens_for_query_surrounded_by_double_matched_parens_yields_query_with_outer_parens_stripped()
+        {
+            AssertParenReduction("expression", "((expression))");
+        }
+
+        [Test]
+        public void Optimizing_parens_for_query_consisting_of_two_parenthesized_sub_expressions_yields_same_expression()
+        {
+            AssertParenReduction("(sub expression) AND (other sub expression)", "(sub expression) AND (other sub expression)");
+        }
+
+        [Test]
+        public void Optimizing_parens_for_query_consisting_of_two_parenthesized_sub_expressions_surrounded_by_matching_parens_yields_expression_without_surrounding_parens()
+        {
+            AssertParenReduction("(sub expression) AND (other sub expression)", "((sub expression) AND (other sub expression))");
         }
 
         private void AssertParenReduction(string expected, string expression)
