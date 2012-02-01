@@ -140,7 +140,7 @@ namespace WeenyMapper.Specs.Sql
             Assert.AreEqual(3, actualParameters.Count);
             Assert.AreEqual("TableName_ColumnName1Constraint", actualParameters[0].ParameterName);
             Assert.AreEqual(123, actualParameters[0].Value);
-            Assert.AreEqual("TableName_ColumnName2Constraint1", actualParameters[1].ParameterName);
+            Assert.AreEqual("TableName_ColumnName2Constraint", actualParameters[1].ParameterName);
             Assert.AreEqual(1, actualParameters[1].Value);
             Assert.AreEqual("TableName_ColumnName2Constraint2", actualParameters[2].ParameterName);
             Assert.AreEqual(2, actualParameters[2].Value);

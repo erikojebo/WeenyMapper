@@ -300,6 +300,7 @@ namespace WeenyMapper.Sql
         {
             private readonly ICommandParameterFactory _commandParameterFactory;
             private readonly string _tableName;
+            private QueryOptimizer _optimizer = new QueryOptimizer();
 
             private TSqlExpression(QueryExpression expression, ICommandParameterFactory commandParameterFactory, string tableName)
             {
@@ -392,7 +393,7 @@ namespace WeenyMapper.Sql
                 {
                     expression.ChildExpression.Accept(this);
 
-                    RemoveOutermostCommandTextParens();
+                    ConstraintCommandText = _optimizer.ReduceParens(ConstraintCommandText);
                 }
             }
 
@@ -415,13 +416,6 @@ namespace WeenyMapper.Sql
                 CommandParameters.Add(commandParameter);
 
                 ConstraintCommandText = string.Format("[{0}] LIKE {1}", propertyName, commandParameter.ReferenceName);
-            }
-
-            private void RemoveOutermostCommandTextParens()
-            {
-                ConstraintCommandText = ConstraintCommandText
-                    .TrimStart('(')
-                    .TrimEnd(')');
             }
 
             private void VisitBinaryComparisonExpression<T>(BinaryComparisonExpression<T> expression, string operatorString)
