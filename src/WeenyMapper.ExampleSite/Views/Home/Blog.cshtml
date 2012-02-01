@@ -1,0 +1,11 @@
+﻿@model WeenyMapper.ExampleSite.Models.BlogModel
+
+@{
+    ViewBag.Title = @Model.Blog.Name;
+}
+
+<h2>@Model.Blog.Name</h2>
+
+@Html.Partial("PostListControl", Model.BlogPosts)
+
+

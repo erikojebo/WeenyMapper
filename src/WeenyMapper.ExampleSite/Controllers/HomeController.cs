@@ -63,6 +63,38 @@ namespace WeenyMapper.ExampleSite.Controllers
             return View(model);
         }
 
+        public ActionResult Blog(int id, int page = 0)
+        {
+            var blog = _repository.Find<Blog>().Where(x => x.Id == id).Execute();
+
+            var postIds = _repository.Find<BlogPost>()
+                .Select(x => x.Id)
+                .Where(x => x.Blog.Id == id)
+                .Page(page, 5)
+                .OrderByDescending(x => x.PublishDate)
+                .ExecuteScalarList<int>();
+
+            IList<BlogPost> posts = new List<BlogPost>();
+
+            if (postIds.Any())
+            {
+                posts = _repository
+                    .Find<BlogPost>()
+                    .OrderByDescending(x => x.PublishDate)
+                    .Where(x => postIds.Contains(x.Id))
+                    .Join<User, BlogPost>(x => x.BlogPosts, x => x.Author)
+                    .ExecuteList();
+            }
+
+            var model = new BlogModel
+            {
+                BlogPosts = posts,
+                Blog = blog
+            };
+
+            return View(model);
+        }
+
         private void CreateTestData()
         {
             var codeBlog = new Blog { Name = "Code" };
@@ -112,8 +144,8 @@ namespace WeenyMapper.ExampleSite.Controllers
 
         private BlogPost CreatePost(int index, Blog blog, IList<User> users, Random random)
         {
-            var month = (index * 2) / 28 + 1;
-            var day = (index * 2) % 28 + 1;
+            var month = 12 - (index * 2) / 28;
+            var day = 28 - (index * 2) % 28;
             var title = blog.Name + " Post " + index;
             var user = users[random.Next(users.Count)];
 

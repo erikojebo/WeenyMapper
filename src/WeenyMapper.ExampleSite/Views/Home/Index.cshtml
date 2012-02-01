@@ -4,6 +4,13 @@
     ViewBag.Title = "Index";
 }
 
+<ul class="blogs">
+    @foreach (var blog in Model.Blogs)
+    {
+          <li class="blog">@Html.ActionLink(blog.Name, "blog", new { Id = blog.Id })</li>
+    }
+</ul>
+
 <h2>Recent posts from all blogs</h2>
 
 @Html.Partial("PostListControl", Model.Posts)

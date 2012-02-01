@@ -21,6 +21,11 @@ h2
     margin: 15px 0px;
 }
     
+.blog
+{
+    display: inline;
+}
+    
 .post 
 {
     margin: 20px 0px 30px 15px;
