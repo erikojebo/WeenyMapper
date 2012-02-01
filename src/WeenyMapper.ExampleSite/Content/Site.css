@@ -14,21 +14,43 @@ h1
     margin: 20px 0px;
 }
 
+h1 a
+{
+    text-decoration: none;
+}
+
+h1 a:visited
+{
+    color: Black;
+}
+
 h2
 {
     font-size: 24px;
     font-weight: bold;
     margin: 15px 0px;
 }
+
+.blogs
+{
+    margin-bottom: 30px;
+}
     
 .blog
 {
-    display: inline;
+    display: inline-block;
+    font-size: 20px;
+    margin-right: 30px;
 }
     
 .post 
 {
     margin: 20px 0px 30px 15px;
+}
+
+.post h2
+{
+    font-size: 20px;
 }
 
 .post p 
