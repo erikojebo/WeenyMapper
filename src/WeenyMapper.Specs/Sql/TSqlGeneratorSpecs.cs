@@ -106,7 +106,10 @@ namespace WeenyMapper.Specs.Sql
         [Test]
         public void Generating_join_with_constraints_generates_join_query_with_corresponding_constraints_qualified_with_table_name()
         {
-            _querySpecification.QueryExpression = QueryExpression.Create(new EqualsExpression("ColumnName1", 123));
+            _querySpecification.QueryExpression = QueryExpression.Create(
+                new OrExpression(
+                    new EqualsExpression("ColumnName1", 123),
+                    new InExpression(new PropertyExpression("ColumnName2"), new ArrayValueExpression(new[] { 1, 2 }))));
 
             var spec2 = new SqlQuerySpecification
                 {
@@ -127,15 +130,20 @@ namespace WeenyMapper.Specs.Sql
                               "[TableName2].[Table2Column1] AS \"TableName2 Table2Column1\", [TableName2].[Table2Column2] AS \"TableName2 Table2Column2\" " +
                               "FROM [TableName] LEFT OUTER JOIN [TableName2] " +
                               "ON [TableName].[PrimaryKeyColumnName] = [TableName2].[ForeignKeyColumnName] " +
-                              "WHERE [TableName].[ColumnName1] = @TableName_ColumnName1Constraint";
+                              "WHERE [TableName].[ColumnName1] = @TableName_ColumnName1Constraint " +
+                              "OR ([TableName].[ColumnName2] IN (@TableName_ColumnName2Constraint, @TableName_ColumnName2Constraint2))";
 
             var query = _generator.GenerateSelectQuery(_querySpecification);
             var actualParameters = query.Parameters.SortByParameterName();
 
             Assert.AreEqual(expectedSql, query.CommandText);
-            Assert.AreEqual(1, actualParameters.Count);
+            Assert.AreEqual(3, actualParameters.Count);
             Assert.AreEqual("TableName_ColumnName1Constraint", actualParameters[0].ParameterName);
             Assert.AreEqual(123, actualParameters[0].Value);
+            Assert.AreEqual("TableName_ColumnName2Constraint1", actualParameters[1].ParameterName);
+            Assert.AreEqual(1, actualParameters[1].Value);
+            Assert.AreEqual("TableName_ColumnName2Constraint2", actualParameters[2].ParameterName);
+            Assert.AreEqual(2, actualParameters[2].Value);
         }
 
         [Test]

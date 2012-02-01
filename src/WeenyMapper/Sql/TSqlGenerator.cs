@@ -356,7 +356,9 @@ namespace WeenyMapper.Sql
                     newParameters.Add(commandParameter);
                 }
                 var parameterString = string.Join(", ", newParameters.Select(x => x.ReferenceName));
-                ConstraintCommandText = string.Format("({0} IN ({1}))", Escape(expression.PropertyExpression.PropertyName), parameterString);
+                var columnNameString = CreateColumnNameString(expression.PropertyExpression.PropertyName);
+
+                ConstraintCommandText = string.Format("({0} IN ({1}))", columnNameString, parameterString);
             }
 
             public void Visit(EqualsExpression expression)
