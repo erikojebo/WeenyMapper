@@ -1,0 +1,34 @@
+﻿@model WeenyMapper.ExampleSite.Models.BlogModel
+
+@{
+    ViewBag.Title = @Model.Blog.Name;
+}
+
+<h2>@Model.Blog.Name Blog</h2>
+
+@Html.ActionLink("Create post", "Create", "Post", new { id = Model.Blog.Id }, new { })
+
+@Html.Partial("PostListControl", Model.BlogPosts)
+
+@if (ViewBag.PageIndex != null)
+{
+    @Html.ActionLink("Next page", "Blog", new { id = Model.Blog.Id, page = ViewBag.PageIndex + 1 })
+}
+
+<div id="search_box">
+    @using (Html.BeginForm("BlogSearch", "Blog"))
+    {
+        <input type="text" name="searchString" />
+        <input type="submit" value="Search" />
+        @Html.Hidden("id", Model.Blog.Id)
+    }
+</div>
+
+<ul id="blog_calendar">
+    @foreach (var month in Model.Months)
+    {
+        <li class="calendar_month">@Html.ActionLink(month.ToString("MMMM yyyy"), "BlogMonth", new { id = Model.Blog.Id, Month = month.Month, Year = month.Year })</li>
+    }
+</ul>
+
+

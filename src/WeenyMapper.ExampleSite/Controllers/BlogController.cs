@@ -7,11 +7,11 @@ using WeenyMapper.Specs.TestClasses.Entities;
 
 namespace WeenyMapper.ExampleSite.Controllers
 {
-    public class HomeController : Controller
+    public class BlogController : Controller
     {
         private readonly Repository _repository;
 
-        public HomeController()
+        public BlogController()
         {
             _repository = new Repository();
         }
@@ -34,7 +34,7 @@ namespace WeenyMapper.ExampleSite.Controllers
             // posts we want and then fetch the posts and their relatives in a separate
             // query.
 
-            var top10postIds = _repository.Find<BlogPost>()
+            var top10PostIds = _repository.Find<BlogPost>()
                 .Select(x => x.Id)
                 .Top(10)
                 .OrderByDescending(x => x.PublishDate)
@@ -42,19 +42,19 @@ namespace WeenyMapper.ExampleSite.Controllers
 
             IList<BlogPost> posts = new List<BlogPost>();
 
-            if (top10postIds.Any())
+            if (top10PostIds.Any())
             {
                 posts = _repository
                     .Find<BlogPost>()
                     .OrderByDescending(x => x.PublishDate)
-                    .Where(x => top10postIds.Contains(x.Id))
+                    .Where(x => top10PostIds.Contains(x.Id))
                     .Join<User, BlogPost>(x => x.BlogPosts, x => x.Author)
                     .ExecuteList();
             }
 
             var blogs = _repository.Find<Blog>().ExecuteList();
 
-            var model = new HomeModel
+            var model = new BlogsModel
                 {
                     Posts = posts,
                     Blogs = blogs
@@ -74,6 +74,63 @@ namespace WeenyMapper.ExampleSite.Controllers
                 .OrderByDescending(x => x.PublishDate)
                 .ExecuteScalarList<int>();
 
+            var model = new BlogModel
+                {
+                    Months = GetMonthsWithPostsForBlog(id),
+                    BlogPosts = GetPosts(postIds),
+                    Blog = blog
+                };
+
+            ViewBag.PageIndex = page;
+
+            return View(model);
+        }
+
+        public ActionResult BlogMonth(int id, int year, int month)
+        {
+            var earliestDate = new DateTime(year, month, 1);
+            var latestDate = new DateTime(year, month, DateTime.DaysInMonth(year, month));
+
+            var blog = _repository.Find<Blog>().Where(x => x.Id == id).Execute();
+
+            var postIds = _repository.Find<BlogPost>()
+                .Select(x => x.Id)
+                .Where(x => x.Blog.Id == id && x.PublishDate >= earliestDate && x.PublishDate <= latestDate)
+                .OrderByDescending(x => x.PublishDate)
+                .ExecuteScalarList<int>();
+
+            var model = new BlogModel
+                {
+                    Months = GetMonthsWithPostsForBlog(id),
+                    BlogPosts = GetPosts(postIds),
+                    Blog = blog
+                };
+
+            return View("Blog", model);
+        }
+
+        public ActionResult BlogSearch(int id, string searchString)
+        {
+            var blog = _repository.Find<Blog>().Where(x => x.Id == id).Execute();
+
+            var postIds = _repository.Find<BlogPost>()
+                .Select(x => x.Id)
+                .Where(x => x.Blog.Id == id && (x.Content.Contains(searchString) || x.Title.Contains(searchString)))
+                .OrderByDescending(x => x.PublishDate)
+                .ExecuteScalarList<int>();
+
+            var model = new BlogModel
+                {
+                    Months = GetMonthsWithPostsForBlog(id),
+                    BlogPosts = GetPosts(postIds),
+                    Blog = blog
+                };
+
+            return View("Blog", model);
+        }
+
+        private IList<BlogPost> GetPosts(IList<int> postIds)
+        {
             IList<BlogPost> posts = new List<BlogPost>();
 
             if (postIds.Any())
@@ -85,14 +142,18 @@ namespace WeenyMapper.ExampleSite.Controllers
                     .Join<User, BlogPost>(x => x.BlogPosts, x => x.Author)
                     .ExecuteList();
             }
+            return posts;
+        }
 
-            var model = new BlogModel
-            {
-                BlogPosts = posts,
-                Blog = blog
-            };
+        private IEnumerable<DateTime> GetMonthsWithPostsForBlog(int id)
+        {
+            var publishDates = _repository.Find<BlogPost>()
+                .Select(x => x.PublishDate)
+                .Where(x => x.Blog.Id == id)
+                .OrderByDescending(x => x.PublishDate)
+                .ExecuteScalarList<DateTime>();
 
-            return View(model);
+            return publishDates.Select(x => new DateTime(x.Year, x.Month, 1)).Distinct();
         }
 
         private void CreateTestData()

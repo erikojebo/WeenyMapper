@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using WeenyMapper.Specs.TestClasses.Entities;
 
@@ -7,5 +8,6 @@ namespace WeenyMapper.ExampleSite.Models
     {
         public Blog Blog { get; set; }
         public IList<BlogPost> BlogPosts { get; set; }
+        public IEnumerable<DateTime> Months { get; set; }
     }
 }

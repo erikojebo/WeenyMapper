@@ -58,13 +58,13 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\BlogController.cs" />
     <Compile Include="Controllers\PostController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\BlogModel.cs" />
-    <Compile Include="Models\HomeModel.cs" />
+    <Compile Include="Models\BlogsModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -126,13 +126,13 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Blog\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Shared\PostListControl.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Home\Blog.cshtml" />
+    <Content Include="Views\Blog\Blog.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Shared\PostSignatureControl.cshtml" />

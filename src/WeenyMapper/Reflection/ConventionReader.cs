@@ -17,12 +17,7 @@ namespace WeenyMapper.Reflection
             _convention = convention;
         }
 
-        public IDictionary<string, object> GetAllColumnValues(object instance)
-        {
-            return GetColumnValues(instance);
-        }
-
-        public IDictionary<string, object> GetColumnValuesForInsert(object instance)
+        public IDictionary<string, object> GetColumnValuesForInsertOrUpdate(object instance)
         {
             var propertyValues = GetColumnValues(instance);
             var entityType = instance.GetType();

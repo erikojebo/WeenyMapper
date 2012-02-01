@@ -40,10 +40,9 @@ namespace WeenyMapper.ExampleSite.Controllers
         [HttpPost]
         public ActionResult Create(BlogPost post, int blogId)
         {
-            var blog = _repository.Find<Blog>().Where(x => x.Id == blogId).Execute();
             var user = _repository.Find<User>().Top(1).Execute();
 
-            post.Blog = blog;
+            post.Blog = new Blog() { Id = blogId };
             post.Author = user;
 
             _repository.Insert(post);
@@ -53,15 +52,24 @@ namespace WeenyMapper.ExampleSite.Controllers
 
         public ActionResult Edit(int id)
         {
-            var post = _repository.Find<BlogPost>().Where(x => x.Id == id).Execute();
+            var post = _repository.Find<BlogPost>()
+                .Where(x => x.Id == id)
+                .Execute();
+
             return View(post);
         }
 
         [HttpPost]
         public ActionResult Edit(BlogPost post)
         {
-            _repository.Update(post);
-            return RedirectToAction("Index", post.Id);
+            _repository.Update<BlogPost>()
+                .Set(x => x.Title, post.Title)
+                .Set(x => x.Content, post.Content)
+                .Set(x => x.PublishDate, post.PublishDate)
+                .Where(x => x.Id == post.Id)
+                .Execute();
+
+            return RedirectToAction("Index", new { id = post.Id });
         }
 
         public ActionResult Delete(int id)

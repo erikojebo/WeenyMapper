@@ -33,7 +33,7 @@ namespace WeenyMapper.QueryExecution
 
                 foreach (var entity in entities)
                 {
-                    var columnValues = _conventionReader.GetColumnValuesForInsert(entity);
+                    var columnValues = _conventionReader.GetColumnValuesForInsertOrUpdate(entity);
                     var tableName = _conventionReader.GetTableName<T>();
 
                     var command = _sqlGenerator.CreateIdentityInsertCommand2(tableName, columnValues);
@@ -77,7 +77,7 @@ namespace WeenyMapper.QueryExecution
 
             foreach (var entity in entities)
             {
-                var columnValues = _conventionReader.GetColumnValuesForInsert(entity);
+                var columnValues = _conventionReader.GetColumnValuesForInsertOrUpdate(entity);
                 var tableName = _conventionReader.GetTableName<T>();
 
                 var command = f(tableName, columnValues);
