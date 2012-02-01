@@ -15,5 +15,10 @@ namespace WeenyMapper.Specs.TestClasses.Conventions
         {
             return entityType.Name.ToUpper();
         }
+
+        public override string GetManyToOneForeignKeyColumnName(PropertyInfo propertyInfo)
+        {
+            return base.GetManyToOneForeignKeyColumnName(propertyInfo).ToUpper();
+        }
     }
 }

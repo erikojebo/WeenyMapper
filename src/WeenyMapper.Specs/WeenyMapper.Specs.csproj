@@ -58,6 +58,7 @@
     <Compile Include="Mapping\ColumnValueSpecs.cs" />
     <Compile Include="Mapping\EntityMapperSpecs.cs" />
     <Compile Include="Mapping\IdPropertyComparerSpecs.cs" />
+    <Compile Include="QueryParsing\EntityReferenceExpressionSpecs.cs" />
     <Compile Include="QueryParsing\ExpressionParserSpecs.cs" />
     <Compile Include="QueryParsing\PropertyExpressionSpecs.cs" />
     <Compile Include="Reflection\PropertyReaderSpecs.cs" />

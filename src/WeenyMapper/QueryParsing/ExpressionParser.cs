@@ -107,6 +107,14 @@ namespace WeenyMapper.QueryParsing
             {
                 return new ReflectedPropertyExpression((PropertyInfo)expression.Member);
             }
+            if (expression.Expression is MemberExpression && ((MemberExpression)expression.Expression).Expression is ParameterExpression)
+            {
+                var referencePropertyExpression = (PropertyInfo)((MemberExpression)expression.Expression).Member;
+                var dataPropertyExpression = (PropertyInfo)expression.Member;
+
+                return new EntityReferenceExpression(referencePropertyExpression, dataPropertyExpression);
+            }
+
 
             return CreateValueExpression(expression);
         }

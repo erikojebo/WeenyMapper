@@ -14,5 +14,6 @@
         void Visit(GreaterExpression expression);
         void Visit(RootExpression expression);
         void Visit(LikeExpression expression);
+        void Visit(EntityReferenceExpression expression);
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using WeenyMapper.QueryParsing;
+using WeenyMapper.Reflection;
 using WeenyMapper.Specs.TestClasses.Entities;
 
 namespace WeenyMapper.Specs.QueryParsing
@@ -323,6 +324,21 @@ namespace WeenyMapper.Specs.QueryParsing
                     HasStartingWildCard = true,
                     HasEndingWildCard = false
                 };
+
+            Assert.AreEqual(expectedExpression, expression);
+        }
+
+        [Test]
+        public void Equals_expression_with_constant_and_property_access_on_related_entity_yields_equals_expression_with_value_and_entity_reference_expression()
+        {
+            var expression = _parser.Parse<BlogPost>(x => x.Blog.Id == 1);
+
+            var blogProperty = Reflector<BlogPost>.GetProperty(x => x.Blog);
+            var blogIdProperty = Reflector<Blog>.GetProperty(x => x.Id);
+
+            var expectedExpression = new EqualsExpression(
+                new EntityReferenceExpression(blogProperty, blogIdProperty), 
+                new ValueExpression(1));
 
             Assert.AreEqual(expectedExpression, expression);
         }

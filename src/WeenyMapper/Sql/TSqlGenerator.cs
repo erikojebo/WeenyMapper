@@ -442,6 +442,8 @@ namespace WeenyMapper.Sql
                 ConstraintCommandText = string.Format("[{0}] LIKE {1}", propertyName, commandParameter.ReferenceName);
             }
 
+            public void Visit(EntityReferenceExpression expression) {}
+
             private void VisitBinaryComparisonExpression<T>(BinaryComparisonExpression<T> expression, string operatorString)
                 where T : BinaryComparisonExpression<T>
             {
