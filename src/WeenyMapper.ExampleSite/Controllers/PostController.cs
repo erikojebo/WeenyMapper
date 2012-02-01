@@ -75,7 +75,7 @@ namespace WeenyMapper.ExampleSite.Controllers
         public ActionResult Delete(int id)
         {
             _repository.Delete<BlogPost>().Where(x => x.Id == id).Execute();
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Blog");
         }
     }
 }
