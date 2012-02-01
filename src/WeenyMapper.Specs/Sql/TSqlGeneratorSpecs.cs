@@ -195,6 +195,71 @@ namespace WeenyMapper.Specs.Sql
         }
 
         [Test]
+        public void Generating_join_with_order_by_generates_select_with_corresponding_order_by_with_qualified_column_name()
+        {
+            _querySpecification.OrderByStatements.Add(new OrderByStatement("ColumnName3"));
+            _querySpecification.OrderByStatements.Add(new OrderByStatement("ColumnName4", OrderByDirection.Descending));
+
+            var spec2 = new SqlQuerySpecification
+                {
+                    ColumnsToSelect = new List<string> { "Table2Column1" },
+                    TableName = "TableName2"
+                };
+
+            _querySpecification.JoinSpecification = new SqlQueryJoinSpecification
+                {
+                    ParentTableName = "TableName",
+                    ChildTableName = "TableName2",
+                    ParentPrimaryKeyColumnName = "PrimaryKeyColumnName",
+                    ChildForeignKeyColumnName = "ForeignKeyColumnName",
+                    SqlQuerySpecification = spec2
+                };
+
+            var query = _generator.GenerateSelectQuery(_querySpecification);
+
+            var expectedSql = "SELECT [TableName].[ColumnName1] AS \"TableName ColumnName1\", [TableName].[ColumnName2] AS \"TableName ColumnName2\", " +
+                              "[TableName2].[Table2Column1] AS \"TableName2 Table2Column1\" " +
+                              "FROM [TableName] LEFT OUTER JOIN [TableName2] " +
+                              "ON [TableName].[PrimaryKeyColumnName] = [TableName2].[ForeignKeyColumnName] " +
+                              "ORDER BY [TableName].[ColumnName3], [TableName].[ColumnName4] DESC";
+
+            Assert.AreEqual(expectedSql, query.CommandText);
+        }
+
+        [Test]
+        public void Generating_ordered_table_join_with_constraint_adds_where_clause_before_order_by_clause()
+        {
+            _querySpecification.OrderByStatements.Add(new OrderByStatement("ColumnName3"));
+            _querySpecification.QueryExpression = QueryExpression.Create(new EqualsExpression("ColumnName1", 123));
+
+            var spec2 = new SqlQuerySpecification
+            {
+                ColumnsToSelect = new List<string> { "Table2Column1" },
+                TableName = "TableName2"
+            };
+
+            _querySpecification.JoinSpecification = new SqlQueryJoinSpecification
+            {
+                ParentTableName = "TableName",
+                ChildTableName = "TableName2",
+                ParentPrimaryKeyColumnName = "PrimaryKeyColumnName",
+                ChildForeignKeyColumnName = "ForeignKeyColumnName",
+                SqlQuerySpecification = spec2
+            };
+
+            var expectedSql = "SELECT [TableName].[ColumnName1] AS \"TableName ColumnName1\", [TableName].[ColumnName2] AS \"TableName ColumnName2\", " +
+                              "[TableName2].[Table2Column1] AS \"TableName2 Table2Column1\" " +
+                              "FROM [TableName] LEFT OUTER JOIN [TableName2] " +
+                              "ON [TableName].[PrimaryKeyColumnName] = [TableName2].[ForeignKeyColumnName] " +
+                              "WHERE [TableName].[ColumnName1] = @TableName_ColumnName1Constraint " +
+                              "ORDER BY [TableName].[ColumnName3]";
+
+            var query = _generator.GenerateSelectQuery(_querySpecification);
+
+            Assert.AreEqual(expectedSql, query.CommandText);
+        }
+
+        [Test]
         public void Insert_command_for_object_has_column_name_and_parameterized_value_for_each_property()
         {
             var propertyValues = new Dictionary<string, object>();

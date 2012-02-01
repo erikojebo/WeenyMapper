@@ -46,17 +46,19 @@ namespace WeenyMapper.Sql
         {
             var columnSelectStrings = CreateColumnSelectStrings(querySpecification);
             var columnSelectString = string.Join(", ", columnSelectStrings);
-            
+
             var joinClause = CreateJoinClauses(querySpecification);
 
             var commandText = string.Format("SELECT {0} FROM {1} {2}",
                 columnSelectString,
-                Escape(querySpecification.TableName), 
+                Escape(querySpecification.TableName),
                 joinClause);
 
             var command = _commandFactory.CreateCommand();
 
             commandText = AppendConstraint(commandText, command, querySpecification.QueryExpression, querySpecification.TableName, querySpecification.TableName + "_");
+            commandText = AppendOrderBy(commandText, querySpecification.OrderByStatements, Escape(querySpecification.TableName));
+
             command.CommandText = commandText;
 
             return command;
@@ -151,20 +153,20 @@ namespace WeenyMapper.Sql
             return commandText + string.Format(" TOP(@RowCountLimit)");
         }
 
-        private string AppendOrderBy(string commandString, IEnumerable<OrderByStatement> orderByStatements)
+        private string AppendOrderBy(string commandString, IEnumerable<OrderByStatement> orderByStatements, string tableName = "")
         {
             if (orderByStatements.IsEmpty())
             {
                 return commandString;
             }
 
-            return commandString + " ORDER BY " + string.Join(", ", orderByStatements.Select(CreateOrderByString));
+            return commandString + " ORDER BY " + string.Join(", ", orderByStatements.Select(x => CreateOrderByString(x, tableName)));
         }
 
-        private static string CreateOrderByString(OrderByStatement orderByStatement)
+        private static string CreateOrderByString(OrderByStatement orderByStatement, string tableName)
         {
             var direction = orderByStatement.Direction == OrderByDirection.Ascending ? "" : " DESC";
-            var columnName = Escape(orderByStatement.PropertyName);
+            var columnName = CreateColumnNameString(orderByStatement.PropertyName, tableName);
 
             return columnName + direction;
         }
@@ -293,14 +295,36 @@ namespace WeenyMapper.Sql
 
         private static string Escape(string propertyName)
         {
+            if (IsEscaped(propertyName))
+            {
+                return propertyName;
+            }
+
             return string.Format("[{0}]", propertyName);
+        }
+
+        private static bool IsEscaped(string propertyName)
+        {
+            return propertyName.StartsWith("[") && propertyName.EndsWith("]");
+        }
+
+        private static string CreateColumnNameString(string columnName, string tableName)
+        {
+            var columnNameString = Escape(columnName);
+
+            if (!string.IsNullOrWhiteSpace(tableName))
+            {
+                columnNameString = Escape(tableName) + "." + columnNameString;
+            }
+
+            return columnNameString;
         }
 
         public class TSqlExpression : IExpressionVisitor
         {
             private readonly ICommandParameterFactory _commandParameterFactory;
             private readonly string _tableName;
-            private QueryOptimizer _optimizer = new QueryOptimizer();
+            private readonly QueryOptimizer _optimizer = new QueryOptimizer();
 
             private TSqlExpression(QueryExpression expression, ICommandParameterFactory commandParameterFactory, string tableName)
             {
@@ -433,14 +457,7 @@ namespace WeenyMapper.Sql
 
             private string CreateColumnNameString(string columnName)
             {
-                var columnNameString = Escape(columnName);
-
-                if (!string.IsNullOrWhiteSpace(_tableName))
-                {
-                    columnNameString = Escape(_tableName) + "." + columnNameString;
-                }
-
-                return columnNameString;
+                return TSqlGenerator.CreateColumnNameString(columnName, _tableName);
             }
         }
     }
