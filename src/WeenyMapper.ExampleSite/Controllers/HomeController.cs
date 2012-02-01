@@ -36,6 +36,7 @@ namespace WeenyMapper.ExampleSite.Controllers
 
             var top10postIds = _repository.Find<BlogPost>()
                 .Select(x => x.Id)
+                .Top(10)
                 .OrderByDescending(x => x.PublishDate)
                 .ExecuteScalarList<int>();
 

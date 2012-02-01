@@ -51,8 +51,11 @@
     <Compile Include="Extensions\SqlCommandExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="IDatabaseProvider.cs" />
+    <Compile Include="Logging\ConsoleSqlCommandLogger.cs" />
+    <Compile Include="Logging\DebugSqlCommandLoggerBase.cs" />
     <Compile Include="Logging\ISqlCommandLogger.cs" />
     <Compile Include="Logging\NullSqlCommandLogger.cs" />
+    <Compile Include="Logging\SqlCommandLoggerBase.cs" />
     <Compile Include="Mapping\ColumnValue.cs" />
     <Compile Include="Mapping\EntityMapper.cs" />
     <Compile Include="Mapping\IdPropertyComparer.cs" />
