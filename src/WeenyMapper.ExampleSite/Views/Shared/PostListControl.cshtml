@@ -5,9 +5,9 @@
                @foreach (var post in Model)
                {
                    <li class="post">
-                    <h2>@post.Title</h2>
+                    <h2>@Html.ActionLink(@post.Title, "Index", "Post", new { Id = post.Id }, new { })</h2>
                     <p>@post.Content</p>
-                    <span>Written @post.PublishDate by @post.Author.Username</span>
+                    @Html.Partial("PostSignatureControl", post)
                    </li>
                }
            

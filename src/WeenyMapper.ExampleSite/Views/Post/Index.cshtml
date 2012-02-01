@@ -1,0 +1,17 @@
+﻿@model WeenyMapper.Specs.TestClasses.Entities.BlogPost
+
+@{
+    ViewBag.Title = @Model.Title;
+}
+
+<h2>@Model.Title</h2>
+
+<div>@Model.Content</div>
+
+@Html.Partial("PostSignatureControl", Model)
+
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id=Model.Id }) |
+    @Html.ActionLink("Delete", "Delete", new { id = Model.Id })
+</p>
+
