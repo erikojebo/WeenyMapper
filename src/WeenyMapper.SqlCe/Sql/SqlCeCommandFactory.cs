@@ -1,4 +1,5 @@
-﻿using System.Data.Common;
+﻿using System;
+using System.Data.Common;
 using System.Data.SqlServerCe;
 
 namespace WeenyMapper.Sql
@@ -17,12 +18,7 @@ namespace WeenyMapper.Sql
 
         public DbParameter CreateParameter(string name, object value)
         {
-            return new SqlCeParameter(name, value);
-        }
-
-        public DbParameter CreateParameter()
-        {
-            return new SqlCeParameter();
+            return new SqlCeParameter(name, value ?? DBNull.Value);
         }
 
         public DbConnection CreateConnection(string connectionString)

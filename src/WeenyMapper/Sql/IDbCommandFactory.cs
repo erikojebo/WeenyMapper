@@ -6,7 +6,6 @@ namespace WeenyMapper.Sql
     {
         DbCommand CreateCommand();
         DbCommand CreateCommand(string commandText);
-        DbParameter CreateParameter();
         DbParameter CreateParameter(string name, object value);
         DbConnection CreateConnection();
         DbConnection CreateConnection(string connectionString);

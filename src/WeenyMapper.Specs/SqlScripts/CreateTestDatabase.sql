@@ -41,6 +41,7 @@ GO
 
 CREATE TABLE [Comment](
 	[Id] [int] NOT NULL PRIMARY KEY IDENTITY,
+	[Title] [nvarchar](255) NULL,
 	[Content] [nvarchar](4000) NOT NULL,
 	[PublishDate] [datetime] NOT NULL,
 	[UserId] [uniqueidentifier] NULL,
