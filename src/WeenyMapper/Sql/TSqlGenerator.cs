@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
+using WeenyMapper.Exceptions;
 using WeenyMapper.Extensions;
 using WeenyMapper.QueryParsing;
 
@@ -370,6 +371,11 @@ namespace WeenyMapper.Sql
 
             public void Visit(InExpression expression)
             {
+                if (expression.ArrayValueExpression.Values.Count() == 0)
+                {
+                    throw new WeenyMapperException("Can not generate IN constraint from empty collection");
+                }
+
                 var columnName = expression.PropertyExpression.PropertyName;
 
                 var newParameters = new List<CommandParameter>();

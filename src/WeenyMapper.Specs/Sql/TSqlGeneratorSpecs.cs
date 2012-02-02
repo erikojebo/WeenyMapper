@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using NUnit.Framework;
+using WeenyMapper.Exceptions;
 using WeenyMapper.Extensions;
 using WeenyMapper.QueryParsing;
 using WeenyMapper.Sql;
@@ -749,6 +750,18 @@ namespace WeenyMapper.Specs.Sql
 
             Assert.AreEqual(1, command.Parameters.Count);
             Assert.AreEqual("substring%", command.Parameters[0].Value);
+        }
+
+        [ExpectedException(typeof(WeenyMapperException))]
+        [Test]
+        public void Generating_select_with_in_constraint_without_values_throws_exception()
+        {
+            _querySpecification.QueryExpression = QueryExpression.Create(
+                new InExpression(
+                    new PropertyExpression("Property"), 
+                    new ArrayValueExpression(new List<object>())));
+
+            _generator.GenerateSelectQuery(_querySpecification);
         }
     }
 }
