@@ -445,7 +445,7 @@ namespace WeenyMapper.Sql
                 var commandParameter = _commandParameterFactory.Create(propertyName, searchString);
                 CommandParameters.Add(commandParameter);
 
-                ConstraintCommandText = string.Format("[{0}] LIKE {1}", propertyName, commandParameter.ReferenceName);
+                ConstraintCommandText = string.Format("{0} LIKE {1}", CreateColumnNameString(propertyName), commandParameter.ReferenceName);
             }
 
             public void Visit(EntityReferenceExpression expression) {}

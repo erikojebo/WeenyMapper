@@ -110,7 +110,12 @@ namespace WeenyMapper.Specs.Sql
             _querySpecification.QueryExpression = QueryExpression.Create(
                 new OrExpression(
                     new EqualsExpression("ColumnName1", 123),
-                    new InExpression(new PropertyExpression("ColumnName2"), new ArrayValueExpression(new[] { 1, 2 }))));
+                    new InExpression(new PropertyExpression("ColumnName2"), new ArrayValueExpression(new[] { 1, 2 })),
+                    new LikeExpression(new PropertyExpression("ColumnName2"), "likestring")
+                        {
+                            HasStartingWildCard = true, 
+                            HasEndingWildCard = true
+                        }));
 
             var spec2 = new SqlQuerySpecification
                 {
@@ -132,19 +137,22 @@ namespace WeenyMapper.Specs.Sql
                               "FROM [TableName] LEFT OUTER JOIN [TableName2] " +
                               "ON [TableName].[PrimaryKeyColumnName] = [TableName2].[ForeignKeyColumnName] " +
                               "WHERE [TableName].[ColumnName1] = @TableName_ColumnName1Constraint " +
-                              "OR ([TableName].[ColumnName2] IN (@TableName_ColumnName2Constraint, @TableName_ColumnName2Constraint2))";
+                              "OR ([TableName].[ColumnName2] IN (@TableName_ColumnName2Constraint, @TableName_ColumnName2Constraint2)) " +
+                              "OR [TableName].[ColumnName2] LIKE @TableName_ColumnName2Constraint3";
 
             var query = _generator.GenerateSelectQuery(_querySpecification);
             var actualParameters = query.Parameters.SortByParameterName();
 
             Assert.AreEqual(expectedSql, query.CommandText);
-            Assert.AreEqual(3, actualParameters.Count);
+            Assert.AreEqual(4, actualParameters.Count);
             Assert.AreEqual("TableName_ColumnName1Constraint", actualParameters[0].ParameterName);
             Assert.AreEqual(123, actualParameters[0].Value);
             Assert.AreEqual("TableName_ColumnName2Constraint", actualParameters[1].ParameterName);
             Assert.AreEqual(1, actualParameters[1].Value);
             Assert.AreEqual("TableName_ColumnName2Constraint2", actualParameters[2].ParameterName);
             Assert.AreEqual(2, actualParameters[2].Value);
+            Assert.AreEqual("TableName_ColumnName2Constraint3", actualParameters[3].ParameterName);
+            Assert.AreEqual("%likestring%", actualParameters[3].Value);
         }
 
         [Test]
