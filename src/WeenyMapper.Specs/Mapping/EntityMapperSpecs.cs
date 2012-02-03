@@ -360,6 +360,19 @@ namespace WeenyMapper.Specs.Mapping
             Assert.AreEqual(3, child.Parent.Id);
         }
 
+        [Test]
+        public void Insantiates_collection_when_creating_graph_with_parent_having_null_collection()
+        {
+            _row.Add("Child Id", 1);
+            _row.Add("Parent Id", 2);
+
+            var relation = ObjectRelation.Create<NullCollectionParent, ChildWithNullCollectionParent>(x => x.Children, x => x.Parent, typeof(NullCollectionParent));
+
+            var parent = _mapper.CreateInstanceGraph<NullCollectionParent>(_row, relation);
+
+            Assert.AreEqual(1, parent.Children.Count);
+        }
+
         private class ClassWithoutDefaultConstructor
         {
             private ClassWithoutDefaultConstructor() {}
@@ -371,6 +384,17 @@ namespace WeenyMapper.Specs.Mapping
             public string Name { get; set; }
         }
 
+        private class ChildWithNullCollectionParent
+        {
+            public int Id { get; set; }
+            public NullCollectionParent Parent { get; set; }
+        }
+
+        private class NullCollectionParent
+        {
+            public int Id { get; set; }
+            public IList<ChildWithNullCollectionParent> Children { get; set; }
+        }
         private class ParentToChildWithForeignKeyColumn
         {
             public ParentToChildWithForeignKeyColumn()

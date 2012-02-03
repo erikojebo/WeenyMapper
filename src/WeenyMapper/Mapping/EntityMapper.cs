@@ -110,6 +110,13 @@ namespace WeenyMapper.Mapping
             relation.ChildProperty.SetValue(child, parent, null);
             var parentsChildCollection = (IList)relation.ParentProperty.GetValue(parent, null);
 
+            if (parentsChildCollection == null)
+            {
+                var list = Reflector.CreateGenericList(child.GetType());
+                parentsChildCollection = list;
+                relation.ParentProperty.SetValue(parent, list, null);
+            }
+
             var parentCollectionContainsChild = parentsChildCollection
                 .OfType<object>()
                 .Contains(child, new IdPropertyComparer<object>(_conventionReader));
