@@ -89,14 +89,11 @@ namespace WeenyMapper.Reflection
                 var value = property.GetValue(instance, null);
 
 
-                if (IsForeignKeyProperty(property))
-                {
-                }
-                else if (IsEntityCollectionProperty(property))
+                if (IsEntityCollectionProperty(property))
                 {
                     continue;
                 }
-                else if (IsEntityReferenceProperty(property))
+                if (IsEntityReferenceProperty(property))
                 {
                     columnName = _convention.GetManyToOneForeignKeyColumnName(property);
 
@@ -237,11 +234,6 @@ namespace WeenyMapper.Reflection
         public bool HasIdentityId(Type entityType)
         {
             return _convention.HasIdentityId(entityType);
-        }
-
-        public bool IsForeignKeyProperty(PropertyInfo propertyInfo)
-        {
-            return _convention.IsForeignKeyProperty(propertyInfo);
         }
 
         public string GetManyToOneForeignKeyColumnName(PropertyInfo propertyInfo)

@@ -108,18 +108,6 @@ namespace WeenyMapper.Specs.Conventions
             Assert.AreEqual("ParentId", _defaultConvention.GetManyToOneForeignKeyColumnName(propertyInfo));
         }
 
-        [Test]
-        public void Property_with_a_name_ending_in_Id_and_something_before_that_is_considered_a_foreign_key_property()
-        {
-            Assert.IsTrue(_defaultConvention.IsForeignKeyProperty(Reflector<Child>.GetProperty(x => x.ParentId)));
-        }
-
-        [Test]
-        public void Property_with_name_Id_is_NOT_considered_a_foreign_key_property()
-        {
-            Assert.IsFalse(_defaultConvention.IsForeignKeyProperty(Reflector<Child>.GetProperty(x => x.Id)));
-        }
-
         private bool ShouldMapEntityProperty(string name)
         {
             var property = typeof(Entity).GetProperty(name);
