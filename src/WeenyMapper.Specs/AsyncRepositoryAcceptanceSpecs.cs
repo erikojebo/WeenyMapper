@@ -59,7 +59,7 @@ namespace WeenyMapper.Specs
                     Password = "a password"
                 };
 
-            AssertCallbackIsInvoked(callback => Repository.InsertManyAsync(new[] { user1, user2 }, callback));
+            AssertCallbackIsInvoked(callback => Repository.InsertCollectionAsync(new[] { user1, user2 }, callback));
 
             var actualUsers = Repository.Find<User>().ExecuteList();
 
@@ -336,7 +336,7 @@ namespace WeenyMapper.Specs
                 };
 
             AssertCallbackIsInvoked(x => Repository.InsertAsync(movie1, x));
-            AssertCallbackIsInvoked(x => Repository.InsertManyAsync(new[] { movie2, movie3 }, x));
+            AssertCallbackIsInvoked(x => Repository.InsertCollectionAsync(new[] { movie2, movie3 }, x));
 
             var allMovies = Repository.Find<Movie>().OrderBy(x => x.Title).ExecuteList();
 
@@ -358,7 +358,7 @@ namespace WeenyMapper.Specs
         public void Error_callback_is_called_on_exception_while_inserting_multiple_entities()
         {
             var entities = new[] { new EntityWithoutTable(), new EntityWithoutTable() };
-            AssertErrorCallbackIsInvoked((c, e) => Repository.InsertManyAsync(entities, c, e));
+            AssertErrorCallbackIsInvoked((c, e) => Repository.InsertCollectionAsync(entities, c, e));
         }
         
         [Timeout(5000)]

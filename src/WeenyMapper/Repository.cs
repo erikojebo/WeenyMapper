@@ -58,7 +58,7 @@ namespace WeenyMapper
             objectInsertExecutor.InsertAsync(new[] { entity }, callback, errorCallback);
         }
 
-        public void InsertManyAsync<T>(IEnumerable<T> entities, Action callback, Action<Exception> errorCallback = null)
+        public void InsertCollectionAsync<T>(IEnumerable<T> entities, Action callback, Action<Exception> errorCallback = null)
         {
             var objectInsertExecutor = new ObjectInsertExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
                 {
