@@ -1532,5 +1532,58 @@ namespace WeenyMapper.Specs
             Assert.AreEqual(company2, allCompanies[1]);
             Assert.AreEqual(employee2, actualEmployee2);
         }
+
+        [Test]
+        public void Update_can_be_performed_by_setting_a_reference_property_to_another_entity()
+        {
+            var company1 = new Company
+            {
+                Name = "Company 1"
+            };
+            var company2 = new Company
+            {
+                Name = "Company 2"
+            };
+
+            var employee1 = new Employee
+            {
+                FirstName = "Steve",
+                LastName = "Smith",
+                BirthDate = new DateTime(1972, 1, 2),
+            };
+
+            var employee2 = new Employee
+            {
+                FirstName = "John",
+                LastName = "Johnsson",
+                BirthDate = new DateTime(1954, 11, 12),
+            };
+
+            company1.AddEmployee(employee1);
+            company1.AddEmployee(employee2);
+
+            Repository.Insert(company1, company2);
+            Repository.Insert(employee1, employee2);
+
+            Repository.Update<Employee>()
+                .Set(x => x.Company, company2)
+                .Where(x => x.Id == employee2.Id)
+                .Execute();
+
+            var allCompanies = Repository.Find<Company>()
+                .OrderBy(x => x.Name)
+                .Join<Company, Employee>(x => x.Employees, x => x.Company)
+                .ExecuteList();
+
+            // Set up original entities to match the expected result
+            company1.RemoveEmployee(employee2);
+            company2.AddEmployee(employee2);
+
+            employee1.RefreshCompanyId();
+            employee2.RefreshCompanyId();
+
+            Assert.AreEqual(company1, allCompanies[0]);
+            Assert.AreEqual(company2, allCompanies[1]);
+        }
     }
 }
