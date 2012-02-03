@@ -21,5 +21,7 @@ namespace WeenyMapper.Reflection
         IEnumerable<string> GetSelectableColumNames(Type type);
         PropertyInfo GetPropertyForColumn(string columnName, Type type);
         bool IsForeignKey(string columnName, Type type);
+        bool HasProperty(string columnName, Type type);
+        bool IsEntityReferenceProperty(string columnName, Type type);
     }
 }

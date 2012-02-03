@@ -11,5 +11,6 @@ namespace WeenyMapper.Conventions
         bool IsIdProperty(PropertyInfo propertyInfo);
         bool ShouldMapProperty(PropertyInfo propertyInfo);
         bool HasIdentityId(Type entityType);
+        bool IsForeignKeyProperty(PropertyInfo propertyInfo);
     }
 }

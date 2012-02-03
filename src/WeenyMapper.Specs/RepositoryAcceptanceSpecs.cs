@@ -1463,7 +1463,7 @@ namespace WeenyMapper.Specs
                 .OrderBy(x => x.BirthDate)
                 .ExecuteList();
 
-            Assert.AreEqual(2, actualEmployees);
+            Assert.AreEqual(2, actualEmployees.Count);
 
             Assert.IsNull(actualEmployees[0].Company);
             Assert.IsNull(actualEmployees[1].Company);

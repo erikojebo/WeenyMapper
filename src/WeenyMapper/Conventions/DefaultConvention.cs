@@ -45,5 +45,10 @@ namespace WeenyMapper.Conventions
         {
             return propertyInfo.Name + "Id";
         }
+
+        public virtual bool IsForeignKeyProperty(PropertyInfo propertyInfo)
+        {
+            return propertyInfo.Name.EndsWith("Id") && !IsIdProperty(propertyInfo);
+        }
     }
 }

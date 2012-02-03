@@ -46,6 +46,8 @@ namespace WeenyMapper.Specs
             Repository.Convention = new DefaultConvention();
 
             Repository.Delete<Movie>().Execute();
+            Repository.Delete<Employee>().Execute();
+            Repository.Delete<Company>().Execute();
         }
     }
 }

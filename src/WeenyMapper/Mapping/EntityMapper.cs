@@ -125,7 +125,7 @@ namespace WeenyMapper.Mapping
             var instance = CreateInstance(type);
 
             var columnValuesForCurrentType = row.GetColumnValuesForType(type, _conventionReader)
-                .Where(x => !_conventionReader.IsForeignKey(x.ColumnName, type))
+                .Where(x => !_conventionReader.IsEntityReferenceProperty(x.ColumnName, type))
                 .ToList();
 
             if (columnValuesForCurrentType.Any() && columnValuesForCurrentType.All(x => x.Value == null))

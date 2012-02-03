@@ -88,11 +88,15 @@ namespace WeenyMapper.Reflection
                 var columnName = GetColumnName(property);
                 var value = property.GetValue(instance, null);
 
-                if (IsEntityCollectionProperty(property))
+
+                if (IsForeignKeyProperty(property))
+                {
+                }
+                else if (IsEntityCollectionProperty(property))
                 {
                     continue;
                 }
-                if (!IsDataProperty(property))
+                else if (IsEntityReferenceProperty(property))
                 {
                     columnName = _convention.GetManyToOneForeignKeyColumnName(property);
 
@@ -135,7 +139,10 @@ namespace WeenyMapper.Reflection
                     typeof(sbyte),
                 };
 
-            return dataPropertyTypes.Contains(property.PropertyType);
+            var isPrimitiveType = dataPropertyTypes.Contains(property.PropertyType);
+            var isNullableType = property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>);
+
+            return isPrimitiveType || isNullableType;
         }
 
         private bool IsEntityCollectionProperty(PropertyInfo property)
@@ -196,6 +203,16 @@ namespace WeenyMapper.Reflection
             return properties.Any(x => IsEntityReferenceProperty(x) && GetManyToOneForeignKeyColumnName(x) == columnName);
         }
 
+        public bool HasProperty(string columnName, Type type)
+        {
+            return GetPropertyForColumn(columnName, type) != null;
+        }
+
+        public bool IsEntityReferenceProperty(string columnName, Type type)
+        {
+            return IsForeignKey(columnName, type) && !HasProperty(columnName, type);
+        }
+
         public string GetColumnName(string propertyName, Type type)
         {
             var propertyInfo = type.GetProperty(propertyName);
@@ -220,6 +237,11 @@ namespace WeenyMapper.Reflection
         public bool HasIdentityId(Type entityType)
         {
             return _convention.HasIdentityId(entityType);
+        }
+
+        public bool IsForeignKeyProperty(PropertyInfo propertyInfo)
+        {
+            return _convention.IsForeignKeyProperty(propertyInfo);
         }
 
         public string GetManyToOneForeignKeyColumnName(PropertyInfo propertyInfo)

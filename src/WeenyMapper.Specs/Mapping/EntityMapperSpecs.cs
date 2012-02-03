@@ -332,6 +332,19 @@ namespace WeenyMapper.Specs.Mapping
             Assert.AreSame(firstParentChild1.GrandChildren.First(), secondParentChild.GrandChildren.First());
         }
 
+        [Test]
+        public void Foreign_key_value_is_written_to_foreign_key_value_property_even_if_reference_property_for_same_foreign_key_exists()
+        {
+            _row.Add("Id", 1);
+            _row.Add("ParentId", 2);
+
+            var child = _mapper.CreateInstance<ChildWithForeignKeyColumn>(_row);
+
+            Assert.AreEqual(1, child.Id);
+            Assert.AreEqual(2, child.ParentId);
+            Assert.IsNull(child.Parent);
+        }
+
         private class ClassWithoutDefaultConstructor
         {
             private ClassWithoutDefaultConstructor() {}
@@ -341,6 +354,13 @@ namespace WeenyMapper.Specs.Mapping
         {
             public Guid Id { get; set; }
             public string Name { get; set; }
+        }
+
+        private class ChildWithForeignKeyColumn
+        {
+            public int Id { get; set; }
+            public int ParentId { get; set; }
+            public Parent Parent { get; set; }
         }
 
         private class Parent
