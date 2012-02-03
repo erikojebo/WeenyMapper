@@ -333,7 +333,7 @@ namespace WeenyMapper.Specs.Mapping
         }
 
         [Test]
-        public void Foreign_key_value_is_written_to_foreign_key_value_property_even_if_reference_property_for_same_foreign_key_exists()
+        public void Foreign_key_value_is_written_to_foreign_key_value_property_even_if_reference_property_for_same_foreign_key_exists_when_creating_instance()
         {
             _row.Add("Id", 1);
             _row.Add("ParentId", 2);
@@ -343,6 +343,21 @@ namespace WeenyMapper.Specs.Mapping
             Assert.AreEqual(1, child.Id);
             Assert.AreEqual(2, child.ParentId);
             Assert.IsNull(child.Parent);
+        }
+
+        [Test]
+        public void Foreign_key_value_is_written_to_foreign_key_value_property_even_if_reference_property_for_same_foreign_key_exists_when_creating_graph()
+        {
+            _row.Add("ChildWithForeignKeyColumn Id", 1);
+            _row.Add("ChildWithForeignKeyColumn ParentId", 2);
+            _row.Add("ParentToChildWithForeignKeyColumn Id", 3);
+
+            var relation = ObjectRelation.Create<ParentToChildWithForeignKeyColumn, ChildWithForeignKeyColumn>(x => x.Children, x => x.Parent, typeof(ChildWithForeignKeyColumn));
+            var child = _mapper.CreateInstanceGraph<ChildWithForeignKeyColumn>(_row, relation);
+
+            Assert.AreEqual(1, child.Id);
+            Assert.AreEqual(2, child.ParentId);
+            Assert.AreEqual(3, child.Parent.Id);
         }
 
         private class ClassWithoutDefaultConstructor
@@ -356,11 +371,22 @@ namespace WeenyMapper.Specs.Mapping
             public string Name { get; set; }
         }
 
+        private class ParentToChildWithForeignKeyColumn
+        {
+            public ParentToChildWithForeignKeyColumn()
+            {
+                Children = new List<ChildWithForeignKeyColumn>();
+            }
+
+            public int Id { get; set; }
+            public IList<ChildWithForeignKeyColumn> Children { get; set; }            
+        }
+
         private class ChildWithForeignKeyColumn
         {
             public int Id { get; set; }
             public int ParentId { get; set; }
-            public Parent Parent { get; set; }
+            public ParentToChildWithForeignKeyColumn Parent { get; set; }
         }
 
         private class Parent

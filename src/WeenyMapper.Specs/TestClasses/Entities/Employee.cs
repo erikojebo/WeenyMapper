@@ -1,12 +1,17 @@
 using System;
 using System.Collections.Generic;
-using WeenyMapper.Extensions;
 using System.Linq;
+using WeenyMapper.Extensions;
 
 namespace WeenyMapper.Specs.TestClasses.Entities
 {
     public class Employee
     {
+        public Employee()
+        {
+            Subordinates = new List<Employee>();
+        }
+
         public int Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -28,6 +33,11 @@ namespace WeenyMapper.Specs.TestClasses.Entities
         {
             var other = obj as Employee;
 
+            if (other == null)
+            {
+                return false;
+            }
+
             return Id == other.Id &&
                    FirstName == other.FirstName &&
                    LastName == other.LastName &&
@@ -37,6 +47,14 @@ namespace WeenyMapper.Specs.TestClasses.Entities
                    Company.NullSafeIdEquals(other.Company, x => x.Id) &&
                    Manager.NullSafeIdEquals(other.Manager, x => x.Id) &&
                    Subordinates.Select(x => x.Id).ElementEquals(other.Subordinates.Select(x => x.Id));
+        }
+
+        public void RefreshCompanyId()
+        {
+            if (Company != null)
+            {
+                CompanyId = Company.Id;
+            }
         }
     }
 }

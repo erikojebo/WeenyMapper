@@ -5,6 +5,11 @@ namespace WeenyMapper.Specs.TestClasses.Entities
 {
     public class Company
     {
+        public Company()
+        {
+            Employees = new List<Employee>();
+        }
+
         public int Id { get; set; }
         public string Name { get; set; }
 
@@ -19,9 +24,31 @@ namespace WeenyMapper.Specs.TestClasses.Entities
         {
             var other = obj as Company;
 
+            if (other == null)
+            {
+                return false;
+            }
+
             return Id == other.Id &&
                    Name == other.Name &&
                    Employees.ElementEquals(other.Employees);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("Company Id: {0}, Name: {1}, Employee count: {2}", Id, Name, Employees.Count);
+        }
+
+        public void AddEmployee(Employee employee)
+        {
+            Employees.Add(employee);
+            employee.Company = this;
+        }
+
+        public void RemoveEmployee(Employee employee)
+        {
+            Employees.Remove(employee);
+            employee.Company = null;
         }
     }
 }

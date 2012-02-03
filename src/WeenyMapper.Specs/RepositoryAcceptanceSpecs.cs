@@ -1488,7 +1488,6 @@ namespace WeenyMapper.Specs
                     FirstName = "Steve",
                     LastName = "Smith",
                     BirthDate = new DateTime(1972, 1, 2),
-                    Company = company1
                 };
 
             var employee2 = new Employee
@@ -1496,8 +1495,10 @@ namespace WeenyMapper.Specs
                     FirstName = "John",
                     LastName = "Johnsson",
                     BirthDate = new DateTime(1954, 11, 12),
-                    Company = company1
                 };
+
+            company1.AddEmployee(employee1);
+            company1.AddEmployee(employee2);
 
             Repository.Insert(company1, company2);
             Repository.Insert(employee1, employee2);
@@ -1505,7 +1506,10 @@ namespace WeenyMapper.Specs
             employee2.BirthDate = new DateTime(1965, 1, 1);
 
             Repository.Update(employee2);
-            Repository.Update<Employee>().Set(x => x.Company, company2).Execute();
+            Repository.Update<Employee>()
+                .Set(x => x.CompanyId, company2.Id)
+                .Where(x => x.Id == employee2.Id)
+                .Execute();
 
             var allCompanies = Repository.Find<Company>()
                 .OrderBy(x => x.Name)
@@ -1516,6 +1520,13 @@ namespace WeenyMapper.Specs
                 .Where(x => x.Id == employee2.Id)
                 .Join<Company, Employee>(x => x.Employees, x => x.Company)
                 .Execute();
+
+            // Set up original entities to match the expected result
+            company1.RemoveEmployee(employee2);
+            company2.AddEmployee(employee2);
+
+            employee1.RefreshCompanyId();
+            employee2.RefreshCompanyId();
 
             Assert.AreEqual(company1, allCompanies[0]);
             Assert.AreEqual(company2, allCompanies[1]);

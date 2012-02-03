@@ -188,7 +188,7 @@ namespace WeenyMapper.Reflection
             var foreignKeyColumnNames = entityReferenceProperties.Select(GetManyToOneForeignKeyColumnName);
             var dataColumnNames = dataProperties.Select(GetColumnName);
 
-            return dataColumnNames.Concat(foreignKeyColumnNames);
+            return dataColumnNames.Concat(foreignKeyColumnNames).Distinct();
         }
 
         public PropertyInfo GetPropertyForColumn(string columnName, Type type)
