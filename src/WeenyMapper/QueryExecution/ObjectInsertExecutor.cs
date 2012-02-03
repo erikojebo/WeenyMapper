@@ -29,17 +29,7 @@ namespace WeenyMapper.QueryExecution
 
             if (_conventionReader.HasIdentityId(typeof(T)))
             {
-                var commands = new List<ScalarCommand>();
-
-                foreach (var entity in entities)
-                {
-                    var columnValues = _conventionReader.GetColumnValuesForInsertOrUpdate(entity);
-                    var tableName = _conventionReader.GetTableName<T>();
-
-                    var command = _sqlGenerator.CreateIdentityInsertCommand(tableName, columnValues);
-
-                    commands.Add(command);
-                }
+                var commands = CreateIdentityInsertCommands(entities);
 
                 var ids = _dbCommandExecutor.ExecuteScalarList<int>(commands, ConnectionString);
 
@@ -61,19 +51,24 @@ namespace WeenyMapper.QueryExecution
             TaskRunner.Run(() => Insert(entities), callback, errorCallback);
         }
 
-        private IEnumerable<DbCommand> CreateInsertCommands<T>(IEnumerable<T> entities)
+        private IEnumerable<DbCommand> CreateInsertCommands<TEntity>(IEnumerable<TEntity> entities)
         {
             return CreateInsertCommands(entities, (tableName, values) => _sqlGenerator.CreateInsertCommand(tableName, values));
         }
-
-        private IEnumerable<DbCommand> CreateInsertCommands<T>(IEnumerable<T> entities, Func<string, IDictionary<string, object>, DbCommand> f)
+        
+        private IEnumerable<ScalarCommand> CreateIdentityInsertCommands<TEntity>(IEnumerable<TEntity> entities)
         {
-            var commands = new List<DbCommand>();
+            return CreateInsertCommands(entities, (tableName, values) => _sqlGenerator.CreateIdentityInsertCommand(tableName, values));
+        }
+
+        private IEnumerable<TCommand> CreateInsertCommands<TEntity, TCommand>(IEnumerable<TEntity> entities, Func<string, IDictionary<string, object>, TCommand> f)
+        {
+            var commands = new List<TCommand>();
 
             foreach (var entity in entities)
             {
                 var columnValues = _conventionReader.GetColumnValuesForInsertOrUpdate(entity);
-                var tableName = _conventionReader.GetTableName<T>();
+                var tableName = _conventionReader.GetTableName<TEntity>();
 
                 var command = f(tableName, columnValues);
 
