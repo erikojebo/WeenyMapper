@@ -78,6 +78,8 @@
     <Compile Include="TestClasses\Entities\Blog.cs" />
     <Compile Include="TestClasses\Entities\Book.cs" />
     <Compile Include="TestClasses\Entities\Comment.cs" />
+    <Compile Include="TestClasses\Entities\Company.cs" />
+    <Compile Include="TestClasses\Entities\Employee.cs" />
     <Compile Include="TestClasses\Entities\EntityWithoutTable.cs" />
     <Compile Include="TestClasses\Entities\Movie.cs" />
     <Compile Include="TestClasses\Entities\PartialUser.cs" />

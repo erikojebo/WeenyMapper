@@ -53,3 +53,24 @@ ALTER TABLE [Comment] ADD CONSTRAINT FK_Comment_Post FOREIGN KEY (PostId) REFERE
 GO
 ALTER TABLE [Comment] ADD CONSTRAINT FK_Comment_User FOREIGN KEY (UserId) REFERENCES [User] ([Id])
 GO
+
+CREATE TABLE [Company](
+	[Id] [int] NOT NULL PRIMARY KEY IDENTITY,
+	[Name] [nvarchar](255) NULL
+)
+GO
+
+CREATE TABLE [Employee](
+	[Id] [int] NOT NULL PRIMARY KEY IDENTITY,
+	[FirstName] [nvarchar](255) NULL,
+	[LastName] [nvarchar](255) NULL,
+	[BirthDate] [datetime] NULL,
+	[ManagerId] [int] NULL,
+	[CompanyId] [int] NOT NULL
+)
+GO
+
+ALTER TABLE [Employee] ADD CONSTRAINT FK_Employee_Company FOREIGN KEY (CompanyId) REFERENCES [Company] ([Id])
+GO
+ALTER TABLE [Employee] ADD CONSTRAINT FK_Employee_Employee FOREIGN KEY (ManagerId) REFERENCES [Employee] ([Id])
+GO
