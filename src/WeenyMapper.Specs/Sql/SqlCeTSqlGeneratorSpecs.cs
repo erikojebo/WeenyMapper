@@ -33,7 +33,7 @@ namespace WeenyMapper.Specs.Sql
             propertyValues["ColumnName1"] = "value 1";
             propertyValues["ColumnName2"] = "value 2";
 
-            var scalarCommand = _generator.CreateIdentityInsertCommand2("TableName", propertyValues);
+            var scalarCommand = _generator.CreateIdentityInsertCommand("TableName", propertyValues);
             var insertCommand = scalarCommand.PreparatoryCommands.FirstOrDefault();
             var selectCommand = scalarCommand.ResultCommand;
 

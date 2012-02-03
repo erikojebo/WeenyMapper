@@ -11,7 +11,7 @@ namespace WeenyMapper.Sql
             _commandFactory = commandFactory;
         }
 
-        public override ScalarCommand CreateIdentityInsertCommand2(string tableName, IDictionary<string, object> columnValues)
+        public override ScalarCommand CreateIdentityInsertCommand(string tableName, IDictionary<string, object> columnValues)
         {
             var scalarCommand = new ScalarCommand();
 

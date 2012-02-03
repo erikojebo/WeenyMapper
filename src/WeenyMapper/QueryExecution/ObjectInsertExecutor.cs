@@ -36,7 +36,7 @@ namespace WeenyMapper.QueryExecution
                     var columnValues = _conventionReader.GetColumnValuesForInsertOrUpdate(entity);
                     var tableName = _conventionReader.GetTableName<T>();
 
-                    var command = _sqlGenerator.CreateIdentityInsertCommand2(tableName, columnValues);
+                    var command = _sqlGenerator.CreateIdentityInsertCommand(tableName, columnValues);
 
                     commands.Add(command);
                 }
@@ -64,11 +64,6 @@ namespace WeenyMapper.QueryExecution
         private IEnumerable<DbCommand> CreateInsertCommands<T>(IEnumerable<T> entities)
         {
             return CreateInsertCommands(entities, (tableName, values) => _sqlGenerator.CreateInsertCommand(tableName, values));
-        }
-
-        private IEnumerable<DbCommand> CreateIdentityInsertCommands<T>(IEnumerable<T> entities)
-        {
-            return CreateInsertCommands(entities, (tableName, values) => _sqlGenerator.CreateIdentityInsertCommand(tableName, values));
         }
 
         private IEnumerable<DbCommand> CreateInsertCommands<T>(IEnumerable<T> entities, Func<string, IDictionary<string, object>, DbCommand> f)

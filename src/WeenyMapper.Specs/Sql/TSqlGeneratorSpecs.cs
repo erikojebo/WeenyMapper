@@ -297,7 +297,7 @@ namespace WeenyMapper.Specs.Sql
             propertyValues["ColumnName1"] = "value 1";
             propertyValues["ColumnName2"] = "value 2";
 
-            var scalarCommand = _generator.CreateIdentityInsertCommand2("TableName", propertyValues);
+            var scalarCommand = _generator.CreateIdentityInsertCommand("TableName", propertyValues);
             var sqlCommand = scalarCommand.ResultCommand;
 
             var expectedSql = "INSERT INTO [TableName] ([ColumnName1], [ColumnName2]) VALUES (@ColumnName1, @ColumnName2);" +

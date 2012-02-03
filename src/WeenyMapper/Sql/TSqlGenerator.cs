@@ -215,14 +215,7 @@ namespace WeenyMapper.Sql
             return command;
         }
 
-        public DbCommand CreateIdentityInsertCommand(string tableName, IDictionary<string, object> columnValues)
-        {
-            var insertCommand = CreateInsertCommand(tableName, columnValues);
-            insertCommand.CommandText += ";SELECT CAST(@@IDENTITY AS int)";
-            return insertCommand;
-        }
-
-        public virtual ScalarCommand CreateIdentityInsertCommand2(string tableName, IDictionary<string, object> columnValues)
+        public virtual ScalarCommand CreateIdentityInsertCommand(string tableName, IDictionary<string, object> columnValues)
         {
             var scalarCommand = new ScalarCommand();
 

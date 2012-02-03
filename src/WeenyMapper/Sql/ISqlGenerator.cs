@@ -11,7 +11,6 @@ namespace WeenyMapper.Sql
         DbCommand CreateUpdateCommand(string tableName, string primaryKeyColumn, QueryExpression constraintExpression, IDictionary<string, object> columnSetters);
         DbCommand CreateCountCommand(string tableName, QueryExpression queryExpression);
         DbCommand CreateDeleteCommand(string tableName, QueryExpression queryExpression);
-        DbCommand CreateIdentityInsertCommand(string tableName, IDictionary<string, object> columnValues);
-        ScalarCommand CreateIdentityInsertCommand2(string tableName, IDictionary<string, object> columnValues);
+        ScalarCommand CreateIdentityInsertCommand(string tableName, IDictionary<string, object> columnValues);
     }
 }
