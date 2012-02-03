@@ -37,7 +37,9 @@ namespace WeenyMapper.Specs
 
                 var commandFactory = new SqlCeCommandFactory();
 
-                var commandTexts = sql.Split(new[] { "GO" }, StringSplitOptions.RemoveEmptyEntries);
+                var commandTexts = sql.Split(new[] { "GO" }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim()).Where(x => !string.IsNullOrWhiteSpace(x));
+
                 var commands = commandTexts.Select(commandFactory.CreateCommand);
 
                 var sqlCommandExecutor = new DbCommandExecutor(new NullSqlCommandLogger(), commandFactory);
