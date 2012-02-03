@@ -1431,5 +1431,95 @@ namespace WeenyMapper.Specs
             Assert.AreSame(actualComments[0].BlogPost.Blog, actualComments[2].BlogPost.Blog);
             Assert.AreSame(actualComments[0].BlogPost.Blog, actualComments[3].BlogPost.Blog);
         }
+
+        [Test]
+        public void Entities_with_relation_mapped_as_both_reference_and_foreign_key_value_can_be_written_and_read_back_again_using_single_table_query()
+        {
+            var company1 = new Company
+                {
+                    Name = "Company 1"
+                };
+
+            var employee1 = new Employee
+                {
+                    FirstName = "Steve",
+                    LastName = "Smith",
+                    BirthDate = new DateTime(1972, 1, 2),
+                    Company = company1
+                };
+
+            var employee2 = new Employee
+                {
+                    FirstName = "John",
+                    LastName = "Johnsson",
+                    BirthDate = new DateTime(1954, 11, 12),
+                    Company = company1
+                };
+
+            Repository.Insert(company1);
+            Repository.Insert(employee1, employee2);
+
+            var actualEmployees = Repository.Find<Employee>()
+                .OrderBy(x => x.BirthDate)
+                .ExecuteList();
+
+            Assert.AreEqual(2, actualEmployees);
+
+            Assert.IsNull(actualEmployees[0].Company);
+            Assert.IsNull(actualEmployees[1].Company);
+            Assert.AreEqual(company1.Id, actualEmployees[0].CompanyId);
+            Assert.AreEqual(company1.Id, actualEmployees[1].CompanyId);
+        }
+
+        [Test]
+        public void Entities_with_relation_mapped_as_both_reference_and_foreign_key_value_can_be_written_and_read_back_again_using_join()
+        {
+            var company1 = new Company
+                {
+                    Name = "Company 1"
+                };
+            var company2 = new Company
+                {
+                    Name = "Company 2"
+                };
+
+            var employee1 = new Employee
+                {
+                    FirstName = "Steve",
+                    LastName = "Smith",
+                    BirthDate = new DateTime(1972, 1, 2),
+                    Company = company1
+                };
+
+            var employee2 = new Employee
+                {
+                    FirstName = "John",
+                    LastName = "Johnsson",
+                    BirthDate = new DateTime(1954, 11, 12),
+                    Company = company1
+                };
+
+            Repository.Insert(company1, company2);
+            Repository.Insert(employee1, employee2);
+
+            employee2.BirthDate = new DateTime(1965, 1, 1);
+
+            Repository.Update(employee2);
+            Repository.Update<Employee>().Set(x => x.Company, company2).Execute();
+
+            var allCompanies = Repository.Find<Company>()
+                .OrderBy(x => x.Name)
+                .Join<Company, Employee>(x => x.Employees, x => x.Company)
+                .ExecuteList();
+
+            var actualEmployee2 = Repository.Find<Employee>()
+                .Where(x => x.Id == employee2.Id)
+                .Join<Company, Employee>(x => x.Employees, x => x.Company)
+                .Execute();
+
+            Assert.AreEqual(company1, allCompanies[0]);
+            Assert.AreEqual(company2, allCompanies[1]);
+            Assert.AreEqual(employee2, actualEmployee2);
+        }
     }
 }

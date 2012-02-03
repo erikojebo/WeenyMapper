@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using WeenyMapper.Extensions;
+using System.Linq;
 
 namespace WeenyMapper.Specs.TestClasses.Entities
 {
@@ -10,11 +12,31 @@ namespace WeenyMapper.Specs.TestClasses.Entities
         public string LastName { get; set; }
         public DateTime BirthDate { get; set; }
 
-        public int ManagerId { get; set; }
+        public int? ManagerId { get; set; }
         public int CompanyId { get; set; }
 
         public Company Company { get; set; }
         public Employee Manager { get; set; }
         public IList<Employee> Subordinates { get; set; }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as Employee;
+
+            return Id == other.Id &&
+                   FirstName == other.FirstName &&
+                   LastName == other.LastName &&
+                   BirthDate == other.BirthDate &&
+                   ManagerId == other.ManagerId &&
+                   CompanyId == other.CompanyId &&
+                   Company.NullSafeIdEquals(other.Company, x => x.Id) &&
+                   Manager.NullSafeIdEquals(other.Manager, x => x.Id) &&
+                   Subordinates.Select(x => x.Id).ElementEquals(other.Subordinates.Select(x => x.Id));
+        }
     }
 }
