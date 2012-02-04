@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using WeenyMapper.Conventions;
 using WeenyMapper.Extensions;
-using WeenyMapper.Mapping;
 
 namespace WeenyMapper.Reflection
 {
@@ -72,9 +71,30 @@ namespace WeenyMapper.Reflection
             return type.GetProperties().First(_convention.IsIdProperty);
         }
 
-        public IDictionary<string, object> GetColumnValues<T>(IDictionary<string, object> propertyValueMap)
+        public IDictionary<string, object> GetColumnValues<T>(IDictionary<PropertyInfo, object> propertyValueMap)
         {
-            return propertyValueMap.TransformKeys(x => GetColumnName(x, typeof(T)));
+            var columnValues = new Dictionary<string, object>();
+
+            foreach (var propertyValue in propertyValueMap)
+            {
+                var propertyInfo = propertyValue.Key;
+                var value = propertyValue.Value;
+
+                if (IsEntityReferenceProperty(propertyInfo))
+                {
+                    var foreignKeyColumnName = GetManyToOneForeignKeyColumnName(propertyInfo);
+                    var referencedEntityId = GetPrimaryKeyValue(value);
+
+                    columnValues[foreignKeyColumnName] = referencedEntityId;
+                }
+                else
+                {
+                    var columnName = GetColumnName(propertyInfo);
+                    columnValues[columnName] = value;
+                }
+            }
+
+            return columnValues;
         }
 
         private IDictionary<string, object> GetColumnValues(object instance)
@@ -87,7 +107,6 @@ namespace WeenyMapper.Reflection
             {
                 var columnName = GetColumnName(property);
                 var value = property.GetValue(instance, null);
-
 
                 if (IsEntityCollectionProperty(property))
                 {
@@ -146,7 +165,7 @@ namespace WeenyMapper.Reflection
         {
             return property.PropertyType.ImplementsGenericInterface(typeof(IEnumerable<>)) && property.PropertyType != typeof(string);
         }
-        
+
         private bool IsEntityReferenceProperty(PropertyInfo property)
         {
             return !IsDataProperty(property) && !IsEntityCollectionProperty(property);

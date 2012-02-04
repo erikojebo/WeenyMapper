@@ -8,7 +8,7 @@ namespace WeenyMapper.Reflection
 {
     public interface IConventionReader : IConvention
     {
-        IDictionary<string, object> GetColumnValues<T>(IDictionary<string, object> propertyValueMap);
+        IDictionary<string, object> GetColumnValues<T>(IDictionary<PropertyInfo, object> propertyValueMap);
         string GetTableName<T>();
         string GetPrimaryKeyColumnName<T>();
         string GetPrimaryKeyColumnName(Type type);

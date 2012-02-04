@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Reflection;
 using WeenyMapper.QueryParsing;
 using WeenyMapper.Reflection;
 using WeenyMapper.Sql;
@@ -35,7 +36,7 @@ namespace WeenyMapper.QueryExecution
             return _dbCommandExecutor.ExecuteNonQuery(command, ConnectionString);
         }
 
-        public int Update<T>(QueryExpression queryExpression, IDictionary<string, object> setters)
+        public int Update<T>(QueryExpression queryExpression, IDictionary<PropertyInfo, object> setters)
         {
             var tableName = _conventionReader.GetTableName<T>();
             var columnSetters = _conventionReader.GetColumnValues<T>(setters);

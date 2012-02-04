@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using WeenyMapper.Async;
 using WeenyMapper.QueryExecution;
 using WeenyMapper.QueryParsing;
+using WeenyMapper.Reflection;
 
 namespace WeenyMapper.QueryBuilding
 {
@@ -11,7 +13,7 @@ namespace WeenyMapper.QueryBuilding
     {
         private readonly IObjectUpdateExecutor _objectUpdateExecutor;
         private readonly IExpressionParser _expressionParser;
-        private readonly IDictionary<string, object> _setters = new Dictionary<string, object>();
+        private readonly IDictionary<PropertyInfo, object> _setters = new Dictionary<PropertyInfo, object>();
         private QueryExpression _queryExpression = new RootExpression();
 
         public StaticUpdateBuilder(IObjectUpdateExecutor objectUpdateExecutor, IExpressionParser expressionParser)
@@ -27,7 +29,7 @@ namespace WeenyMapper.QueryBuilding
 
         public StaticUpdateBuilder<T> Set<TValue>(Expression<Func<T, TValue>> getter, TValue value)
         {
-            StorePropertyValue(getter, value, _setters);
+            _setters.Add(Reflector<T>.GetProperty(getter), value);
             return this;
         }
 
