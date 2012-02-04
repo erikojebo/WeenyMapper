@@ -11,21 +11,35 @@ namespace WeenyMapper.Mapping
     public class EntityMapper : IEntityMapper
     {
         private readonly IConventionReader _conventionReader;
+        private readonly EntityCache _entityCache;
 
         public EntityMapper(IConventionReader conventionReader)
         {
             _conventionReader = conventionReader;
+            _entityCache = new EntityCache(_conventionReader);
         }
+
+        public bool IsEntityCachingEnabled { get; set; }
 
         public T CreateInstance<T>(IDictionary<string, object> dictionary) where T : new()
         {
             var values = dictionary.Select(x => new ColumnValue(x.Key, x.Value));
-            return (T)CreateInstance(typeof(T), new Row(values), new EntityCache(_conventionReader));
+            return (T)CreateInstance(typeof(T), new Row(values), GetEntityCache());
+        }
+
+        private EntityCache GetEntityCache()
+        {
+            if (IsEntityCachingEnabled)
+            {
+                return _entityCache;
+            }
+
+            return new EntityCache(_conventionReader);
         }
 
         public T CreateInstance<T>(Row columnValues)
         {
-            return (T)CreateInstance(typeof(T), columnValues, new EntityCache(_conventionReader));
+            return (T)CreateInstance(typeof(T), columnValues, GetEntityCache());
         }
 
         public T CreateInstanceGraph<T>(Row row, ObjectRelation relation)
@@ -35,12 +49,12 @@ namespace WeenyMapper.Mapping
 
         public T CreateInstanceGraph<T>(Row row, IEnumerable<ObjectRelation> objectRelations)
         {
-            return (T)CreateInstanceGraph(typeof(T), row, objectRelations, new EntityCache(_conventionReader));
+            return (T)CreateInstanceGraph(typeof(T), row, objectRelations, GetEntityCache());
         }
 
         public IList<T> CreateInstanceGraphs<T>(ResultSet resultSet)
         {
-            var entityCache = new EntityCache(_conventionReader);
+            var entityCache = GetEntityCache();
             var objects = new List<object>();
 
             foreach (var row in resultSet.Rows)
@@ -60,7 +74,7 @@ namespace WeenyMapper.Mapping
 
         public IList<T> CreateInstanceGraphs<T>(ResultSet resultSet, IEnumerable<ObjectRelation> parentChildRelation)
         {
-            var entityCache = new EntityCache(_conventionReader);
+            var entityCache = GetEntityCache();
             var objects = new List<object>();
 
             foreach (var row in resultSet.Rows)

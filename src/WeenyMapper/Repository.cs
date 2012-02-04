@@ -14,6 +14,8 @@ namespace WeenyMapper
 {
     public class Repository
     {
+        private EntityMapper _entityMapper;
+
         static Repository()
         {
             Convention = new DefaultConvention();
@@ -24,14 +26,17 @@ namespace WeenyMapper
         public Repository()
         {
             ConnectionString = DefaultConnectionString;
+            IsEntityCachingEnabled = IsEntityCachingEnabledByDefault;
         }
 
         public static IConvention Convention { get; set; }
         public static ISqlCommandLogger SqlLogger { get; set; }
         public static IDatabaseProvider DatabaseProvider { get; set; }
         public static string DefaultConnectionString { get; set; }
+        public static bool IsEntityCachingEnabledByDefault { get; set; }
 
         public string ConnectionString { get; set; }
+        public bool IsEntityCachingEnabled { get; set; }
 
         public void Insert<T>(params T[] entities)
         {
@@ -104,7 +109,7 @@ namespace WeenyMapper
 
         public StaticSelectBuilder<T> Find<T>() where T : new()
         {
-            var objectQueryExecutor = new ObjectQueryExecutor(CreateSqlGenerator(), CreateSqlCommandExecutor(), new EntityMapper(CreateConventionReader()), CreateConventionReader())
+            var objectQueryExecutor = new ObjectQueryExecutor(CreateSqlGenerator(), CreateSqlCommandExecutor(), CreateEntityMapper(), CreateConventionReader())
                 {
                     ConnectionString = ConnectionString
                 };
@@ -184,6 +189,19 @@ namespace WeenyMapper
         private IDbCommandFactory CreateDbCommandFactory()
         {
             return DatabaseProvider.CreateDbCommandFactory();
+        }
+
+        private EntityMapper CreateEntityMapper()
+        {
+            if (_entityMapper == null)
+            {
+                _entityMapper = new EntityMapper(CreateConventionReader())
+                    {
+                        IsEntityCachingEnabled = IsEntityCachingEnabled
+                    };
+            }
+
+            return _entityMapper;
         }
 
         private ConventionReader CreateConventionReader()

@@ -40,5 +40,11 @@ namespace WeenyMapper.Specs.TestClasses.Entities
         {
             return string.Format("Id: {0}, Username: {1}, Password: {2}", Id, Username, Password);
         }
+
+        public void AddBlogPost(BlogPost blogPost)
+        {
+            BlogPosts.Add(blogPost);
+            blogPost.Author = this;
+        }
     }
 }

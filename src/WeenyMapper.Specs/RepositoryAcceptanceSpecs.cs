@@ -1585,5 +1585,103 @@ namespace WeenyMapper.Specs
             Assert.AreEqual(company1, allCompanies[0]);
             Assert.AreEqual(company2, allCompanies[1]);
         }
+
+        [Test]
+        public void Different_relations_on_same_entity_can_be_loaded_in_separate_queries_using_caching_repository()
+        {
+            Repository.IsEntityCachingEnabled = true;
+
+            Repository.Convention = new BlogConvention();
+
+            var blog1 = new Blog
+            {
+                Name = "Blog 1",
+            };
+            
+            var blog2 = new Blog
+            {
+                Name = "Blog 2",
+            };
+
+            var post1 = new BlogPost
+            {
+                Title = "Blog post 1",
+                Content = "Post 1 content",
+                PublishDate = new DateTime(2011, 1, 1),
+            };
+
+            var post2 = new BlogPost
+            {
+                Title = "Blog post 2",
+                Content = "Post 2 content",
+                PublishDate = new DateTime(2011, 2, 2),
+            };
+
+            var comment1 = new Comment
+            {
+                Content = "Comment 1",
+                PublishDate = new DateTime(2011, 1, 5)
+            };
+
+            var comment2 = new Comment
+            {
+                Content = "Comment 2",
+                PublishDate = new DateTime(2011, 1, 6)
+            };
+
+            var comment3 = new Comment
+            {
+                Content = "Comment 2",
+                PublishDate = new DateTime(2011, 1, 6)
+            };
+
+            var user = new User
+                {
+                    Username = "Steve",
+                    Password = "password"
+                };
+
+            user.AddBlogPost(post1);
+            user.AddBlogPost(post2);
+
+            blog1.AddPost(post1);
+            blog2.AddPost(post2);
+
+            post1.AddComment(comment1);
+            post1.AddComment(comment2);
+            post2.AddComment(comment3);
+
+            Repository.Insert(user);
+            Repository.Insert(blog1, blog2);
+            Repository.Insert(post1, post2);
+            Repository.Insert(comment1, comment2, comment3);
+
+            var actualPosts = Repository.Find<BlogPost>()
+                .OrderBy(x => x.Title)
+                .Join<BlogPost, Comment>(x => x.Comments, x => x.BlogPost)
+                .ExecuteList();
+
+            var firstActualPost1 = Repository.Find<BlogPost>()
+                .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog)
+                .Where(x => x.Id == post1.Id)
+                .Execute();
+
+            var secondActualPost1 = Repository.Find<BlogPost>()
+                .Join<User, BlogPost>(x => x.BlogPosts, x => x.Author)
+                .Where(x => x.Id == post1.Id)
+                .Execute();
+
+            // Set up the original entities according to the expected result
+            post2.Author = null;
+            post2.Blog = null;
+
+            Assert.AreEqual(2, actualPosts.Count);
+
+            Assert.AreEqual(post1, actualPosts[0]);
+            Assert.AreEqual(post2, actualPosts[1]);
+
+            Assert.AreSame(firstActualPost1, actualPosts[0]);
+            Assert.AreSame(secondActualPost1, actualPosts[0]);
+        }
     }
 }
