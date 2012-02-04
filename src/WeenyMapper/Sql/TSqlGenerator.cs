@@ -33,12 +33,13 @@ namespace WeenyMapper.Sql
             var selectedColumnString = CreateColumnNameList(querySpecification.ColumnsToSelect, Escape);
             var topString = AppendTopString("", command, querySpecification.RowCountLimit);
 
-            var commandString = string.Format("SELECT{0} {1} FROM {2}", topString, selectedColumnString, Escape(querySpecification.TableName));
+            command.CommandText = string.Format("SELECT{0} {1} FROM {2}", topString, selectedColumnString, Escape(querySpecification.TableName));
 
-            commandString = AppendConstraint(commandString, command, querySpecification.QueryExpression);
-            commandString = AppendOrderBy(commandString, querySpecification.OrderByStatements);
+            var whereClause = CreateWhereClause(querySpecification.QueryExpression);
 
-            command.CommandText = commandString;
+            whereClause.AppendTo(command, _commandFactory);
+
+            command.CommandText = AppendOrderBy(command.CommandText, querySpecification.OrderByStatements);
 
             return command;
         }
@@ -250,6 +251,23 @@ namespace WeenyMapper.Sql
         {
             var escapedColumnNames = columnNames.Select(transformation);
             return string.Join(", ", escapedColumnNames);
+        }
+
+        private WhereClause CreateWhereClause(QueryExpression queryExpression, string columnNamePrefix = "", string parameterNamePrefix = "")
+        {
+            var whereClause = new WhereClause();
+
+            var commandParameterFactory = new CommandParameterFactory
+                {
+                    ParameterNamePrefix = parameterNamePrefix,
+                };
+
+            var whereExpression = TSqlExpression.Create(queryExpression, commandParameterFactory, columnNamePrefix);
+
+            whereClause.SetConstraintString(whereExpression.ConstraintCommandText);
+            whereClause.CommandParameters = whereExpression.CommandParameters;
+
+            return whereClause;
         }
 
         private string AppendConstraint(string commandString, DbCommand command, QueryExpression queryExpression, string columnNamePrefix = "", string parameterNamePrefix = "")

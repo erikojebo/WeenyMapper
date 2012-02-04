@@ -21,6 +21,11 @@ namespace WeenyMapper.Sql
             return new SqlParameter(name, value ?? DBNull.Value);
         }
 
+        public DbParameter CreateParameter(CommandParameter commandParameter)
+        {
+            return CreateParameter(commandParameter.Name, commandParameter.Value);
+        }
+
         public DbConnection CreateConnection(string connectionString)
         {
             return new SqlConnection(connectionString);
