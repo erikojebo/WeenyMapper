@@ -118,6 +118,7 @@
     <Compile Include="QueryExecution\ObjectQueryExecutor.cs" />
     <Compile Include="Sql\ObjectQueryJoinSpecification.cs" />
     <Compile Include="Sql\ObjectQuerySpecification.cs" />
+    <Compile Include="Sql\OrderByClause.cs" />
     <Compile Include="Sql\Page.cs" />
     <Compile Include="Sql\QueryOptimizer.cs" />
     <Compile Include="Sql\ScalarCommand.cs" />
