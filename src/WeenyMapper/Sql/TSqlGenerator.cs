@@ -240,11 +240,11 @@ namespace WeenyMapper.Sql
         {
             var countQuery = string.Format("SELECT COUNT(*) FROM {0}", Escape(tableName));
 
-            var command = _commandFactory.CreateCommand();
+            var command = _commandFactory.CreateCommand(countQuery);
 
-            countQuery = AppendConstraint(countQuery, command, queryExpression);
+            var whereClause = CreateWhereClause(queryExpression);
 
-            command.CommandText = countQuery;
+            whereClause.AppendTo(command, _commandFactory);
 
             return command;
         }
