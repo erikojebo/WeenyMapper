@@ -56,12 +56,13 @@ namespace WeenyMapper.Sql
                 Escape(querySpecification.TableName),
                 joinClause);
 
-            var command = _commandFactory.CreateCommand();
+            var command = _commandFactory.CreateCommand(commandText);
 
-            commandText = AppendConstraint(commandText, command, querySpecification.QueryExpression, querySpecification.TableName, querySpecification.TableName + "_");
-            commandText = AppendOrderBy(commandText, querySpecification.OrderByStatements, Escape(querySpecification.TableName));
+            var whereClause = CreateWhereClause(querySpecification.QueryExpression, querySpecification.TableName, querySpecification.TableName + "_");
 
-            command.CommandText = commandText;
+            whereClause.AppendTo(command, _commandFactory);
+
+            command.CommandText = AppendOrderBy(command.CommandText, querySpecification.OrderByStatements, Escape(querySpecification.TableName));
 
             return command;
         }
