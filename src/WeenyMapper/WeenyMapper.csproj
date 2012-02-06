@@ -123,6 +123,7 @@
     <Compile Include="Sql\QueryOptimizer.cs" />
     <Compile Include="Sql\ScalarCommand.cs" />
     <Compile Include="Sql\DbCommandExecutor.cs" />
+    <Compile Include="Sql\SqlClauseBase.cs" />
     <Compile Include="Sql\SqlQueryJoinSpecification.cs" />
     <Compile Include="Sql\SqlQuerySpecification.cs" />
     <Compile Include="Sql\SqlServerCommandFactory.cs" />

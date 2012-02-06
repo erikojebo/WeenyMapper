@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace WeenyMapper.Sql
 {
-    public class WhereClause
+    public class WhereClause : SqlClauseBase
     {
         private readonly string _constraintString;
 
@@ -13,29 +13,14 @@ namespace WeenyMapper.Sql
             _constraintString = constraintString;
         }
 
-        public string CommandString
+        public override string CommandString
         {
             get { return "WHERE " + _constraintString; }
         }
 
-        protected bool IsEmpty
+        protected override bool IsEmpty
         {
             get { return string.IsNullOrWhiteSpace(_constraintString); }
-        }
-
-        public IList<CommandParameter> CommandParameters { get; set; }
-
-        public void AppendTo(DbCommand command, IDbCommandFactory commandFactory)
-        {
-            if (IsEmpty)
-            {
-                return;
-            }
-
-            command.CommandText += " " + CommandString;
-
-            var dbParameters = CommandParameters.Select(commandFactory.CreateParameter).ToArray();
-            command.Parameters.AddRange(dbParameters);
         }
     }
 }
