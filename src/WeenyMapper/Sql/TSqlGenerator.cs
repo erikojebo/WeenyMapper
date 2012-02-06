@@ -126,20 +126,26 @@ namespace WeenyMapper.Sql
 
             var selectedColumnString = CreateColumnNameList(querySpecification.ColumnsToSelect, Escape);
 
-            var constraintString = AppendConstraint("", command, querySpecification.QueryExpression);
             var orderByString = AppendOrderBy("", querySpecification.OrderByStatements).Trim();
 
-            var commandString = string.Format(
-                "WITH [CompleteResult] AS (SELECT {0}, ROW_NUMBER() OVER ({1}) AS \"RowNumber\" FROM {2}{3}) " +
-                "SELECT {0} FROM [CompleteResult] WHERE [RowNumber] BETWEEN @LowRowLimit AND @HighRowLimit",
-                selectedColumnString, orderByString, Escape(querySpecification.TableName), constraintString);
+            command.CommandText = string.Format("SELECT {0}, ROW_NUMBER() OVER ({1}) AS \"RowNumber\" FROM {2}",
+                selectedColumnString,
+                orderByString,
+                Escape(querySpecification.TableName));
 
-            command.CommandText = commandString;
+            var whereClause = CreateWhereClause(querySpecification.QueryExpression);
+            whereClause.AppendTo(command, _commandFactory);
+
+            command.CommandText = string.Format("WITH [CompleteResult] AS ({0}) ", command.CommandText);
+
+            var selectString = string.Format(
+                "SELECT {0} FROM [CompleteResult] WHERE [RowNumber] BETWEEN @LowRowLimit AND @HighRowLimit",
+                selectedColumnString);
+
+            command.CommandText += selectString;
 
             command.Parameters.Add(_commandFactory.CreateParameter("LowRowLimit", querySpecification.Page.LowRowLimit));
             command.Parameters.Add(_commandFactory.CreateParameter("HighRowLimit", querySpecification.Page.HighRowLimit));
-
-            command.CommandText = commandString;
 
             return command;
         }
@@ -197,10 +203,10 @@ namespace WeenyMapper.Sql
             var command = _commandFactory.CreateCommand();
             command.CommandText = sql;
 
-            var commandText = AppendConstraint(sql, command, constraintExpression);
-            AddParameters(command, columnSetters);
+            var whereClause = CreateWhereClause(constraintExpression);
 
-            command.CommandText = commandText;
+            whereClause.AppendTo(command, _commandFactory);
+            AddParameters(command, columnSetters);
 
             return command;
         }
