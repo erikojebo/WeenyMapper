@@ -215,11 +215,12 @@ namespace WeenyMapper.Sql
         {
             var commandText = string.Format("DELETE FROM {0}", Escape(tableName));
 
-            var command = _commandFactory.CreateCommand();
-            command.CommandText = commandText;
-            commandText = AppendConstraint(commandText, command, queryExpression);
+            var command = _commandFactory.CreateCommand(commandText);
 
-            command.CommandText = commandText;
+            var whereClause = CreateWhereClause(queryExpression);
+
+            whereClause.AppendTo(command, _commandFactory);
+
             return command;
         }
 
