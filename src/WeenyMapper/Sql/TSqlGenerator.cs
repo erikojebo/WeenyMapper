@@ -263,41 +263,17 @@ namespace WeenyMapper.Sql
 
         private WhereClause CreateWhereClause(QueryExpression queryExpression, string columnNamePrefix = "", string parameterNamePrefix = "")
         {
-            var whereClause = new WhereClause();
-
             var commandParameterFactory = new CommandParameterFactory
                 {
                     ParameterNamePrefix = parameterNamePrefix,
                 };
 
             var whereExpression = TSqlExpression.Create(queryExpression, commandParameterFactory, columnNamePrefix);
+            var whereClause = new WhereClause(whereExpression.ConstraintCommandText);
 
-            whereClause.SetConstraintString(whereExpression.ConstraintCommandText);
             whereClause.CommandParameters = whereExpression.CommandParameters;
 
             return whereClause;
-        }
-
-        private string AppendConstraint(string commandString, DbCommand command, QueryExpression queryExpression, string columnNamePrefix = "", string parameterNamePrefix = "")
-        {
-            var newCommandString = commandString;
-
-            var commandParameterFactory = new CommandParameterFactory
-                {
-                    ParameterNamePrefix = parameterNamePrefix,
-                };
-
-            var whereExpression = TSqlExpression.Create(queryExpression, commandParameterFactory, columnNamePrefix);
-            var constraintString = whereExpression.ConstraintCommandText;
-
-            if (constraintString != "()" && !string.IsNullOrWhiteSpace(constraintString))
-            {
-                newCommandString += " WHERE " + whereExpression.ConstraintCommandText;
-            }
-
-            command.Parameters.AddRange(whereExpression.CommandParameters.Select(x => _commandFactory.CreateParameter(x.Name, x.Value)).ToArray());
-
-            return newCommandString;
         }
 
         private void AddParameters(DbCommand command, IEnumerable<KeyValuePair<string, object>> columnSetters, string parameterNameSuffix = "")

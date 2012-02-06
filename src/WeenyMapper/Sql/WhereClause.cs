@@ -6,6 +6,11 @@ namespace WeenyMapper.Sql
 {
     public class WhereClause
     {
+        public WhereClause(string constraintString)
+        {
+            SetConstraintString(constraintString);
+        }
+
         public string CommandString { get; set; }
         public IList<CommandParameter> CommandParameters { get; set; }
 
@@ -17,7 +22,7 @@ namespace WeenyMapper.Sql
             command.Parameters.AddRange(dbParameters);
         }
 
-        public void SetConstraintString(string constraintString)
+        private void SetConstraintString(string constraintString)
         {
             if (!string.IsNullOrWhiteSpace(constraintString))
             {
