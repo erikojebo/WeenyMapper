@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>WeenyMapper</id>
+    <version>0.1</version>
+    <authors>Erik Öjebo</authors>
+    <owners>Erik Öjebo</owners>
+    <projectUrl>https://github.com/erikojebo/WeenyMapper</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Configuration-less object-relational mapper for SQL Server and SQL Server CE</description>
+    <releaseNotes>Initial beta release</releaseNotes>
+    <copyright>Copyright 2011</copyright>
+    <tags>.net orm object relational mapping sql sqlserver</tags>
+  </metadata>
+</package>
