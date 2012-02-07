@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using WeenyMapper.QueryParsing;
 using System.Linq;
 

@@ -126,15 +126,15 @@ namespace WeenyMapper.Sql
 
             var selectedColumnString = CreateColumnNameList(querySpecification.ColumnsToSelect, Escape);
 
-            var orderByString = AppendOrderBy("", querySpecification.OrderByStatements).Trim();
-
-            command.CommandText = string.Format("SELECT {0}, ROW_NUMBER() OVER ({1}) AS \"RowNumber\" FROM {2}",
+            command.CommandText = string.Format("SELECT {0}, ROW_NUMBER() OVER (:orderByClause) AS \"RowNumber\" FROM {1}",
                 selectedColumnString,
-                orderByString,
                 Escape(querySpecification.TableName));
 
             var whereClause = CreateWhereClause(querySpecification.QueryExpression);
+            var orderByClause = CreateOrderByClause(querySpecification.OrderByStatements);
+
             whereClause.AppendTo(command, _commandFactory);
+            orderByClause.InsertAtMarker(command, ":orderByClause", _commandFactory);
 
             command.CommandText = string.Format("WITH [CompleteResult] AS ({0}) ", command.CommandText);
 
@@ -165,24 +165,6 @@ namespace WeenyMapper.Sql
         private OrderByClause CreateOrderByClause(IEnumerable<OrderByStatement> orderByStatements, string tableName = "")
         {
             return new OrderByClause(orderByStatements, Escape, tableName);
-        }
-
-        private string AppendOrderBy(string commandString, IEnumerable<OrderByStatement> orderByStatements, string tableName = "")
-        {
-            if (orderByStatements.IsEmpty())
-            {
-                return commandString;
-            }
-
-            return commandString + " ORDER BY " + string.Join(", ", orderByStatements.Select(x => CreateOrderByString(x, tableName)));
-        }
-
-        private static string CreateOrderByString(OrderByStatement orderByStatement, string tableName)
-        {
-            var direction = orderByStatement.Direction == OrderByDirection.Ascending ? "" : " DESC";
-            var columnName = CreateColumnNameString(orderByStatement.PropertyName, tableName);
-
-            return columnName + direction;
         }
 
         public DbCommand CreateInsertCommand(string tableName, IDictionary<string, object> propertyValues)

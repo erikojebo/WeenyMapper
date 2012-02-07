@@ -25,8 +25,20 @@ namespace WeenyMapper.Sql
 
             command.CommandText += " " + CommandString;
 
+            AppendParameters(command, commandFactory);
+        }
+
+        private void AppendParameters(DbCommand command, IDbCommandFactory commandFactory)
+        {
             var dbParameters = CommandParameters.Select(commandFactory.CreateParameter).ToArray();
             command.Parameters.AddRange(dbParameters);
+        }
+
+        public void InsertAtMarker(DbCommand command, string marker, IDbCommandFactory commandFactory)
+        {
+            command.CommandText = command.CommandText.Replace(marker, CommandString);
+
+            AppendParameters(command, commandFactory);            
         }
     }
 }
