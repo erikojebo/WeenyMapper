@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using WeenyMapper.Conventions;
+using WeenyMapper.Exceptions;
 using WeenyMapper.Logging;
 using WeenyMapper.Mapping;
 using WeenyMapper.QueryBuilding;
@@ -14,6 +15,7 @@ namespace WeenyMapper
 {
     public class Repository
     {
+        private string _connectionString;
         private EntityMapper _entityMapper;
 
         static Repository()
@@ -35,7 +37,26 @@ namespace WeenyMapper
         public static string DefaultConnectionString { get; set; }
         public static bool IsEntityCachingEnabledByDefault { get; set; }
 
-        public string ConnectionString { get; set; }
+        public string ConnectionString
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(_connectionString))
+                {
+                    var message =
+                        "The connection string has not been set. " +
+                        "Please set the ConnectionString property on the repository instance " +
+                        "or set the static Repository.DefaultConnectionString property "+
+                        "to set the connection string for all repositories created from then on.";
+
+                    throw new WeenyMapperException(message);
+                }
+
+                return _connectionString;
+            }
+            set { _connectionString = value; }
+        }
+
         public bool IsEntityCachingEnabled { get; set; }
 
         public void Insert<T>(params T[] entities)
