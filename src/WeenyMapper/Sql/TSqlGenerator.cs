@@ -36,10 +36,10 @@ namespace WeenyMapper.Sql
             command.CommandText = string.Format("SELECT{0} {1} FROM {2}", topString, selectedColumnString, Escape(querySpecification.TableName));
 
             var whereClause = CreateWhereClause(querySpecification.QueryExpression);
+            var orderByClause = CreateOrderByClause(querySpecification.OrderByStatements);
 
             whereClause.AppendTo(command, _commandFactory);
-
-            command.CommandText = AppendOrderBy(command.CommandText, querySpecification.OrderByStatements);
+            orderByClause.AppendTo(command, _commandFactory);
 
             return command;
         }
@@ -160,6 +160,11 @@ namespace WeenyMapper.Sql
             command.Parameters.Add(_commandFactory.CreateParameter("RowCountLimit", rowCountLimit));
 
             return commandText + string.Format(" TOP(@RowCountLimit)");
+        }
+
+        private OrderByClause CreateOrderByClause(IEnumerable<OrderByStatement> orderByStatements, string tableName = "")
+        {
+            return new OrderByClause(orderByStatements, Escape, tableName);
         }
 
         private string AppendOrderBy(string commandString, IEnumerable<OrderByStatement> orderByStatements, string tableName = "")

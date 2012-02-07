@@ -6,6 +6,11 @@ namespace WeenyMapper.Sql
 {
     public abstract class SqlClauseBase
     {
+        protected SqlClauseBase()
+        {
+            CommandParameters = new List<CommandParameter>();
+        }
+
         public abstract string CommandString { get; }
         protected abstract bool IsEmpty { get; }
 
