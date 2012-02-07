@@ -59,10 +59,10 @@ namespace WeenyMapper.Sql
             var command = _commandFactory.CreateCommand(commandText);
 
             var whereClause = CreateWhereClause(querySpecification.QueryExpression, querySpecification.TableName, querySpecification.TableName + "_");
+            var orderByClause = CreateOrderByClause(querySpecification.OrderByStatements, Escape(querySpecification.TableName));
 
             whereClause.AppendTo(command, _commandFactory);
-
-            command.CommandText = AppendOrderBy(command.CommandText, querySpecification.OrderByStatements, Escape(querySpecification.TableName));
+            orderByClause.AppendTo(command, _commandFactory);
 
             return command;
         }
