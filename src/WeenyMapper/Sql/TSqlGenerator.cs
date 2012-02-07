@@ -95,26 +95,6 @@ namespace WeenyMapper.Sql
                 Escape(querySpecification.JoinSpecification.ChildForeignKeyColumnName));
         }
 
-        private IEnumerable<string> CreateColumnSelectStrings(SqlQuerySpecification querySpecification)
-        {
-            var joinedColumnStrings = Enumerable.Empty<string>();
-
-            if (querySpecification.HasJoinSpecification)
-            {
-                joinedColumnStrings = CreateColumnSelectStrings(querySpecification.JoinSpecification.SqlQuerySpecification);
-            }
-
-            var stringsForCurrentTable = querySpecification.ColumnsToSelect.Select(x => CreateColumnSelectString(x, querySpecification));
-
-            return stringsForCurrentTable.Concat(joinedColumnStrings);
-        }
-
-        private string CreateColumnSelectString(string columnName, SqlQuerySpecification querySpecification)
-        {
-            var alias = string.Format("{0} {1}", querySpecification.TableName, columnName);
-            return string.Format("{0}.{1} AS \"{2}\"", Escape(querySpecification.TableName), Escape(columnName), alias);
-        }
-
         private DbCommand GeneratePagingQuery(SqlQuerySpecification querySpecification)
         {
             var command = _commandFactory.CreateCommand();
@@ -149,11 +129,6 @@ namespace WeenyMapper.Sql
             command.Parameters.Add(_commandFactory.CreateParameter("HighRowLimit", querySpecification.Page.HighRowLimit));
 
             return command;
-        }
-
-        private OrderByClause CreateOrderByClause(IEnumerable<OrderByStatement> orderByStatements, string tableName = "")
-        {
-            return new OrderByClause(orderByStatements, Escape, tableName);
         }
 
         public DbCommand CreateInsertCommand(string tableName, IDictionary<string, object> propertyValues)
@@ -225,10 +200,36 @@ namespace WeenyMapper.Sql
             return command;
         }
 
+        private string CreateColumnSelectString(string columnName, SqlQuerySpecification querySpecification)
+        {
+            var alias = string.Format("{0} {1}", querySpecification.TableName, columnName);
+            var columnReference = new ColumnReference(columnName, querySpecification.TableName, Escape);
+            return string.Format("{0} AS \"{1}\"", columnReference, alias);
+        }
+
+        private IEnumerable<string> CreateColumnSelectStrings(SqlQuerySpecification querySpecification)
+        {
+            var joinedColumnStrings = Enumerable.Empty<string>();
+
+            if (querySpecification.HasJoinSpecification)
+            {
+                joinedColumnStrings = CreateColumnSelectStrings(querySpecification.JoinSpecification.SqlQuerySpecification);
+            }
+
+            var stringsForCurrentTable = querySpecification.ColumnsToSelect.Select(x => CreateColumnSelectString(x, querySpecification));
+
+            return stringsForCurrentTable.Concat(joinedColumnStrings);
+        }
+
         private string CreateColumnNameList(IEnumerable<KeyValuePair<string, object>> propertyValues, Func<string, string> transformation)
         {
             var columnNames = propertyValues.Select(x => x.Key);
             return CreateColumnNameList(columnNames, transformation);
+        }
+
+        private OrderByClause CreateOrderByClause(IEnumerable<OrderByStatement> orderByStatements, string tableName = "")
+        {
+            return new OrderByClause(orderByStatements, Escape, tableName);
         }
 
         private string CreateColumnNameList(IEnumerable<string> columnNames, Func<string, string> transformation)
@@ -278,18 +279,6 @@ namespace WeenyMapper.Sql
         private static bool IsEscaped(string propertyName)
         {
             return propertyName.StartsWith("[") && propertyName.EndsWith("]");
-        }
-
-        private static string CreateColumnNameString(string columnName, string tableName)
-        {
-            var columnNameString = Escape(columnName);
-
-            if (!string.IsNullOrWhiteSpace(tableName))
-            {
-                columnNameString = Escape(tableName) + "." + columnNameString;
-            }
-
-            return columnNameString;
         }
 
         public class TSqlExpression : IExpressionVisitor
@@ -436,7 +425,7 @@ namespace WeenyMapper.Sql
 
             private string CreateColumnNameString(string columnName)
             {
-                return TSqlGenerator.CreateColumnNameString(columnName, _tableName);
+                return new ColumnReference(columnName, _tableName, Escape).ToString();
             }
         }
     }
