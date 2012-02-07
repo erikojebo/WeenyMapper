@@ -31,15 +31,16 @@ namespace WeenyMapper.Sql
             var command = _commandFactory.CreateCommand();
 
             var selectedColumnString = CreateColumnNameList(querySpecification.ColumnsToSelect, Escape);
-            var topString = AppendTopString("", command, querySpecification.RowCountLimit);
 
-            command.CommandText = string.Format("SELECT{0} {1} FROM {2}", topString, selectedColumnString, Escape(querySpecification.TableName));
+            command.CommandText = string.Format("SELECT:topClause {0} FROM {1}", selectedColumnString, Escape(querySpecification.TableName));
 
             var whereClause = CreateWhereClause(querySpecification.QueryExpression);
             var orderByClause = CreateOrderByClause(querySpecification.OrderByStatements);
+            var topClause = new TopClause(querySpecification.RowCountLimit, new CommandParameterFactory());
 
             whereClause.AppendTo(command, _commandFactory);
             orderByClause.AppendTo(command, _commandFactory);
+            topClause.InsertWithSpaceAtMarker(command, ":topClause", _commandFactory);
 
             return command;
         }
@@ -148,18 +149,6 @@ namespace WeenyMapper.Sql
             command.Parameters.Add(_commandFactory.CreateParameter("HighRowLimit", querySpecification.Page.HighRowLimit));
 
             return command;
-        }
-
-        private string AppendTopString(string commandText, DbCommand command, int rowCountLimit)
-        {
-            if (rowCountLimit <= 0)
-            {
-                return commandText;
-            }
-
-            command.Parameters.Add(_commandFactory.CreateParameter("RowCountLimit", rowCountLimit));
-
-            return commandText + string.Format(" TOP(@RowCountLimit)");
         }
 
         private OrderByClause CreateOrderByClause(IEnumerable<OrderByStatement> orderByStatements, string tableName = "")

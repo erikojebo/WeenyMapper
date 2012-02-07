@@ -127,6 +127,7 @@
     <Compile Include="Sql\SqlQueryJoinSpecification.cs" />
     <Compile Include="Sql\SqlQuerySpecification.cs" />
     <Compile Include="Sql\SqlServerCommandFactory.cs" />
+    <Compile Include="Sql\TopClause.cs" />
     <Compile Include="Sql\TSqlGenerator.cs" />
     <Compile Include="Sql\WhereClause.cs" />
   </ItemGroup>

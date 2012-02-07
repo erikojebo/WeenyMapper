@@ -28,17 +28,33 @@ namespace WeenyMapper.Sql
             AppendParameters(command, commandFactory);
         }
 
+        public void InsertAtMarker(DbCommand command, string marker, IDbCommandFactory commandFactory)
+        {
+            InsertAtMarker(command, marker, commandFactory, "");
+        }
+
+        public void InsertWithSpaceAtMarker(DbCommand command, string marker, IDbCommandFactory commandFactory)
+        {
+            InsertAtMarker(command, marker, commandFactory, " ");
+        }
+
+        private void InsertAtMarker(DbCommand command, string marker, IDbCommandFactory commandFactory, string prefix)
+        {
+            if (IsEmpty)
+            {
+                command.CommandText = command.CommandText.Replace(marker, "");
+                return;
+            }
+
+            command.CommandText = command.CommandText.Replace(marker, prefix + CommandString);
+
+            AppendParameters(command, commandFactory);
+        }
+
         private void AppendParameters(DbCommand command, IDbCommandFactory commandFactory)
         {
             var dbParameters = CommandParameters.Select(commandFactory.CreateParameter).ToArray();
             command.Parameters.AddRange(dbParameters);
-        }
-
-        public void InsertAtMarker(DbCommand command, string marker, IDbCommandFactory commandFactory)
-        {
-            command.CommandText = command.CommandText.Replace(marker, CommandString);
-
-            AppendParameters(command, commandFactory);            
         }
     }
 }
