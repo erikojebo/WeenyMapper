@@ -108,6 +108,7 @@
     <Compile Include="Repository.cs" />
     <Compile Include="QueryExecution\IObjectQueryExecutor.cs" />
     <Compile Include="SqlServerDatabaseProvider.cs" />
+    <Compile Include="Sql\ColumnReference.cs" />
     <Compile Include="Sql\CommandParameter.cs" />
     <Compile Include="Sql\CommandParameterFactory.cs" />
     <Compile Include="Sql\ICommandParameterFactory.cs" />

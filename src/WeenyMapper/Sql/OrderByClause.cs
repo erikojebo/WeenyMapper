@@ -9,7 +9,7 @@ namespace WeenyMapper.Sql
     public class OrderByClause : SqlClauseBase
     {
         private readonly Func<string, string> _escape;
-        private string _orderByString;
+        private readonly string _orderByString;
 
         public OrderByClause(IEnumerable<OrderByStatement> orderByStatements, Func<string, string> escape, string tableName = "")
         {
@@ -20,21 +20,9 @@ namespace WeenyMapper.Sql
         private string CreateOrderByString(OrderByStatement orderByStatement, string tableName)
         {
             var direction = orderByStatement.Direction == OrderByDirection.Ascending ? "" : " DESC";
-            var columnName = CreateColumnNameString(orderByStatement.PropertyName, tableName);
+            var columnReference = new ColumnReference(orderByStatement.PropertyName, tableName, _escape);
 
-            return columnName + direction;
-        }
-
-        private string CreateColumnNameString(string columnName, string tableName)
-        {
-            var columnNameString = _escape(columnName);
-
-            if (!string.IsNullOrWhiteSpace(tableName))
-            {
-                columnNameString = _escape(tableName) + "." + columnNameString;
-            }
-
-            return columnNameString;
+            return columnReference + direction;
         }
 
         public override string CommandString
