@@ -52,7 +52,7 @@
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="IDatabaseProvider.cs" />
     <Compile Include="Logging\ConsoleSqlCommandLogger.cs" />
-    <Compile Include="Logging\DebugSqlCommandLoggerBase.cs" />
+    <Compile Include="Logging\TraceSqlCommandLoggerBase.cs" />
     <Compile Include="Logging\ISqlCommandLogger.cs" />
     <Compile Include="Logging\NullSqlCommandLogger.cs" />
     <Compile Include="Logging\SqlCommandLoggerBase.cs" />

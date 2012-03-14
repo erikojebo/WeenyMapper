@@ -38,7 +38,7 @@ namespace WeenyMapper.ExampleSite
             RegisterGlobalFilters(GlobalFilters.Filters);
             RegisterRoutes(RouteTable.Routes);
 
-            Repository.SqlLogger = new DebugSqlCommandLogger();
+            Repository.SqlLogger = new TraceSqlCommandLogger();
             Repository.Convention = new BlogConvention();
             Repository.DefaultConnectionString = @"Data source=.\SQLEXPRESS;Initial Catalog=WeenyMapper;Trusted_Connection=true";
         }

@@ -2,11 +2,11 @@
 
 namespace WeenyMapper.Logging
 {
-    public class DebugSqlCommandLogger : SqlCommandLoggerBase 
+    public class TraceSqlCommandLogger : SqlCommandLoggerBase 
     {
         protected override void OutputLogEntry(string logEntry)
         {
-            Debug.WriteLine(logEntry);
+            Trace.WriteLine(logEntry);
         }
     }
 }
