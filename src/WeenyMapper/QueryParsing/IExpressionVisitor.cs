@@ -15,5 +15,6 @@
         void Visit(RootExpression expression);
         void Visit(LikeExpression expression);
         void Visit(EntityReferenceExpression expression);
+        void Visit(NotEqualExpression expression);
     }
 }

@@ -1185,7 +1185,7 @@ namespace WeenyMapper.Specs
                 };
 
             Repository.Insert(movie1);
-            Repository.Insert(new[] { movie2, movie3 });
+            Repository.Insert(movie2, movie3);
 
             var allMovies = Repository.Find<Movie>().OrderBy(x => x.Title).ExecuteList();
 
@@ -1700,6 +1700,78 @@ namespace WeenyMapper.Specs
 
             Assert.AreSame(firstActualPost1, actualPosts[0]);
             Assert.AreSame(secondActualPost1, actualPosts[0]);
+        }
+
+        [Test]
+        public void Not_equals_operator_can_be_used_to_filter_result()
+        {
+            var movie1 = new Movie
+            {
+                Title = "Movie 1",
+                ReleaseDate = new DateTime(2012, 1, 2)
+            };
+
+            var movie2 = new Movie
+            {
+                Title = "Movie 2",
+                ReleaseDate = new DateTime(2012, 1, 2)
+            };
+
+            var movie3 = new Movie
+            {
+                Title = "Movie 3",
+                ReleaseDate = new DateTime(2012, 1, 2)
+            };
+
+            Repository.Insert(movie1, movie2, movie3);
+
+            var allMovies = Repository.Find<Movie>().Where(x => x.Title != "Movie 2")
+                .OrderBy(x => x.Title)
+                .ExecuteList();
+
+            Assert.AreEqual(2, allMovies.Count);
+            Assert.AreEqual(allMovies[0].Id, movie1.Id);
+            Assert.AreEqual(allMovies[1].Id, movie3.Id);
+        }
+
+        [Test]
+        public void Not_operator_can_be_used_to_filter_result()
+        {
+            var movie1 = new Movie
+            {
+                Title = "Movie 1",
+                ReleaseDate = new DateTime(2012, 1, 2)
+            };
+
+            var movie2 = new Movie
+            {
+                Title = "Movie 2",
+                ReleaseDate = new DateTime(2012, 1, 3)
+            };
+ 
+            var movie2_2 = new Movie
+            {
+                Title = "Movie 2",
+                ReleaseDate = new DateTime(2012, 1, 2)
+            };
+
+            var movie3 = new Movie
+            {
+                Title = "Movie 3",
+                ReleaseDate = new DateTime(2012, 1, 3)
+            };
+
+            Repository.Insert(movie1, movie2, movie2_2, movie3);
+
+            var allMovies = Repository.Find<Movie>()
+                .Where(x => !(x.Title == "Movie 2" && x.ReleaseDate == new DateTime(2012, 1, 2)))
+                .OrderBy(x => x.Title)
+                .ExecuteList();
+
+            Assert.AreEqual(3, allMovies.Count);
+            Assert.AreEqual(allMovies[0].Id, movie1.Id);
+            Assert.AreEqual(allMovies[1].Id, movie2.Id);
+            Assert.AreEqual(allMovies[2].Id, movie3.Id);
         }
     }
 }

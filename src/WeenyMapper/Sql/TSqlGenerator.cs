@@ -410,6 +410,11 @@ namespace WeenyMapper.Sql
 
             public void Visit(EntityReferenceExpression expression) {}
 
+            public void Visit(NotEqualExpression expression)
+            {
+                VisitBinaryComparisonExpression(expression, "<>");
+            }
+
             private void VisitBinaryComparisonExpression<T>(BinaryComparisonExpression<T> expression, string operatorString)
                 where T : BinaryComparisonExpression<T>
             {

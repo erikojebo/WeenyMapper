@@ -76,6 +76,10 @@ namespace WeenyMapper.QueryParsing
             {
                 return new EqualsExpression(propertyExpression, valueExpression);
             }
+            if (expression.NodeType == ExpressionType.NotEqual)
+            {
+                return new NotEqualExpression(propertyExpression, valueExpression);
+            }
             if (expression.NodeType == ExpressionType.LessThan)
             {
                 return new LessExpression(propertyExpression, valueExpression);

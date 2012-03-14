@@ -343,6 +343,18 @@ namespace WeenyMapper.Specs.QueryParsing
             Assert.AreEqual(expectedExpression, expression);
         }
 
+        [Test]
+        public void Expression_with_not_equals_operator_yields_NotEqualsExpression()
+        {
+            var expression = _parser.Parse<User>(x => x.Username != "a username");
+
+            var expectedExpression = new NotEqualExpression(
+                new PropertyExpression("Username"), 
+                new ValueExpression("a username"));
+
+            Assert.AreEqual(expectedExpression, expression);
+        }
+
         private string GetUsername()
         {
             return "a username";

@@ -64,6 +64,7 @@
     <Compile Include="Mapping\ObjectRelation.cs" />
     <Compile Include="Mapping\ResultSet.cs" />
     <Compile Include="Mapping\Row.cs" />
+    <Compile Include="QueryParsing\NotEqualExpression.cs" />
     <Compile Include="QueryParsing\EntityReferenceExpression.cs" />
     <Compile Include="QueryParsing\LikeExpression.cs" />
     <Compile Include="QueryParsing\OrderByStatement.cs" />
