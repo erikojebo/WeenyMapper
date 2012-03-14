@@ -36,14 +36,7 @@ namespace WeenyMapper.QueryBuilding
 
         public T Execute()
         {
-            var result = ExecuteList();
-
-            if (!result.Any())
-            {
-                throw new WeenyMapperException("No rows matched the given query");
-            }
-
-            return result.First();
+            return ExecuteList().FirstOrDefault();
         }
 
         public IList<T> ExecuteList()

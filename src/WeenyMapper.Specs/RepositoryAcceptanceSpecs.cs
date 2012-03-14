@@ -26,7 +26,7 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
-        public virtual void An_object_can_be_inserted_into_the_database_and_read_back_via_a_dynamic_query_on_the_given_id()
+        public virtual void An_object_can_be_inserted_into_the_database_and_read_back_via_a_query_on_the_given_id()
         {
             var user = new User
                 {
@@ -39,6 +39,24 @@ namespace WeenyMapper.Specs
             var actualUser = Repository.Find<User>().Where(x => x.Id == user.Id).Execute();
 
             Assert.AreEqual(user, actualUser);
+        }
+
+        [Test]
+        public virtual void Query_for_single_entity_without_any_match_returns_null()
+        {
+            var user = new User
+            {
+                Id = Guid.NewGuid(),
+                Username = "a username",
+                Password = "a password"
+            };
+
+            Repository.Insert(user);
+
+            var nonExistingId = Guid.NewGuid();
+            var actualUser = Repository.Find<User>().Where(x => x.Id == nonExistingId).Execute();
+
+            Assert.IsNull(actualUser);
         }
 
         [Test]
