@@ -1,7 +1,4 @@
-﻿using System;
-using WeenyMapper.Conventions;
-
-namespace WeenyMapper.QueryParsing
+﻿namespace WeenyMapper.QueryParsing
 {
     public class ValueExpression : EquatableQueryExpression<ValueExpression>
     {

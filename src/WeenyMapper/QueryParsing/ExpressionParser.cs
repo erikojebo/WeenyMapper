@@ -16,6 +16,10 @@ namespace WeenyMapper.QueryParsing
 
         private QueryExpression Parse(Expression expression)
         {
+            if (expression is UnaryExpression)
+            {
+                return ParseUnaryExpression((UnaryExpression)expression);
+            }
             if (expression is BinaryExpression)
             {
                 return ParseBinaryExpression((BinaryExpression)expression);
@@ -38,6 +42,18 @@ namespace WeenyMapper.QueryParsing
             }
 
             throw new WeenyMapperException("Invalid query expression");
+        }
+
+        private QueryExpression ParseUnaryExpression(UnaryExpression expression)
+        {
+            var inner = Parse(expression.Operand);
+
+            if (expression.NodeType == ExpressionType.Not)
+            {
+                return new NotExpression(inner);                
+            }
+
+            throw new WeenyMapperException("Invalid expression: Invalid unary expression");
         }
 
         private QueryExpression ParseBinaryExpression(BinaryExpression expression)

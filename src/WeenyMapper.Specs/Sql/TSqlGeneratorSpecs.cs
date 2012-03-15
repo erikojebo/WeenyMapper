@@ -41,11 +41,13 @@ namespace WeenyMapper.Specs.Sql
         public void Generating_select_with_single_constraints_generates_select_with_parameterized_where_clause()
         {
             _querySpecification.ColumnsToSelect = new[] { "ColumnName" };
-            _querySpecification.QueryExpression = new EqualsExpression(new PropertyExpression("ColumnName"), new ValueExpression("value"));
+            _querySpecification.QueryExpression = new EqualsExpression(new PropertyExpression("ColumnName"),
+                                                                       new ValueExpression("value"));
 
             var sqlCommand = _generator.GenerateSelectQuery(_querySpecification);
 
-            Assert.AreEqual("SELECT [ColumnName] FROM [TableName] WHERE [ColumnName] = @ColumnNameConstraint", sqlCommand.CommandText);
+            Assert.AreEqual("SELECT [ColumnName] FROM [TableName] WHERE [ColumnName] = @ColumnNameConstraint",
+                            sqlCommand.CommandText);
 
             Assert.AreEqual(1, sqlCommand.Parameters.Count);
             Assert.AreEqual("ColumnNameConstraint", sqlCommand.Parameters[0].ParameterName);
@@ -53,7 +55,8 @@ namespace WeenyMapper.Specs.Sql
         }
 
         [Test]
-        public void Generating_select_with_multiple_constraints_generates_select_with_where_clause_containing_both_constraints()
+        public void
+            Generating_select_with_multiple_constraints_generates_select_with_where_clause_containing_both_constraints()
         {
             _querySpecification.ColumnsToSelect = new[] { "ColumnName1" };
             _querySpecification.QueryExpression =
@@ -77,68 +80,74 @@ namespace WeenyMapper.Specs.Sql
         }
 
         [Test]
-        public void Generating_join_without_constraints_generates_select_of_properties_from_both_tables_with_join_on_child_foreign_key_and_parent_id()
+        public void
+            Generating_join_without_constraints_generates_select_of_properties_from_both_tables_with_join_on_child_foreign_key_and_parent_id
+            ()
         {
             var spec2 = new SqlQuerySpecification
-                {
-                    ColumnsToSelect = new List<string> { "Table2Column1", "Table2Column2" },
-                    TableName = "TableName2"
-                };
+                        {
+                            ColumnsToSelect = new List<string> { "Table2Column1", "Table2Column2" },
+                            TableName = "TableName2"
+                        };
 
             _querySpecification.JoinSpecification = new SqlQueryJoinSpecification
-                {
-                    ParentTableName = "TableName",
-                    ChildTableName = "TableName2",
-                    ParentPrimaryKeyColumnName = "PrimaryKeyColumnName",
-                    ChildForeignKeyColumnName = "ForeignKeyColumnName",
-                    SqlQuerySpecification = spec2
-                };
+                                                    {
+                                                        ParentTableName = "TableName",
+                                                        ChildTableName = "TableName2",
+                                                        ParentPrimaryKeyColumnName = "PrimaryKeyColumnName",
+                                                        ChildForeignKeyColumnName = "ForeignKeyColumnName",
+                                                        SqlQuerySpecification = spec2
+                                                    };
 
             var query = _generator.GenerateSelectQuery(_querySpecification);
 
-            var expectedSql = "SELECT [TableName].[ColumnName1] AS \"TableName ColumnName1\", [TableName].[ColumnName2] AS \"TableName ColumnName2\", " +
-                              "[TableName2].[Table2Column1] AS \"TableName2 Table2Column1\", [TableName2].[Table2Column2] AS \"TableName2 Table2Column2\" " +
-                              "FROM [TableName] LEFT OUTER JOIN [TableName2] " +
-                              "ON [TableName].[PrimaryKeyColumnName] = [TableName2].[ForeignKeyColumnName]";
+            var expectedSql =
+                "SELECT [TableName].[ColumnName1] AS \"TableName ColumnName1\", [TableName].[ColumnName2] AS \"TableName ColumnName2\", " +
+                "[TableName2].[Table2Column1] AS \"TableName2 Table2Column1\", [TableName2].[Table2Column2] AS \"TableName2 Table2Column2\" " +
+                "FROM [TableName] LEFT OUTER JOIN [TableName2] " +
+                "ON [TableName].[PrimaryKeyColumnName] = [TableName2].[ForeignKeyColumnName]";
 
             Assert.AreEqual(expectedSql, query.CommandText);
         }
 
         [Test]
-        public void Generating_join_with_constraints_generates_join_query_with_corresponding_constraints_qualified_with_table_name()
+        public void
+            Generating_join_with_constraints_generates_join_query_with_corresponding_constraints_qualified_with_table_name
+            ()
         {
             _querySpecification.QueryExpression = QueryExpression.Create(
                 new OrExpression(
                     new EqualsExpression("ColumnName1", 123),
                     new InExpression(new PropertyExpression("ColumnName2"), new ArrayValueExpression(new[] { 1, 2 })),
                     new LikeExpression(new PropertyExpression("ColumnName2"), "likestring")
-                        {
-                            HasStartingWildCard = true, 
-                            HasEndingWildCard = true
-                        }));
+                    {
+                        HasStartingWildCard = true,
+                        HasEndingWildCard = true
+                    }));
 
             var spec2 = new SqlQuerySpecification
-                {
-                    ColumnsToSelect = new List<string> { "Table2Column1", "Table2Column2" },
-                    TableName = "TableName2"
-                };
+                        {
+                            ColumnsToSelect = new List<string> { "Table2Column1", "Table2Column2" },
+                            TableName = "TableName2"
+                        };
 
             _querySpecification.JoinSpecification = new SqlQueryJoinSpecification
-                {
-                    ParentTableName = "TableName",
-                    ChildTableName = "TableName2",
-                    ParentPrimaryKeyColumnName = "PrimaryKeyColumnName",
-                    ChildForeignKeyColumnName = "ForeignKeyColumnName",
-                    SqlQuerySpecification = spec2
-                };
+                                                    {
+                                                        ParentTableName = "TableName",
+                                                        ChildTableName = "TableName2",
+                                                        ParentPrimaryKeyColumnName = "PrimaryKeyColumnName",
+                                                        ChildForeignKeyColumnName = "ForeignKeyColumnName",
+                                                        SqlQuerySpecification = spec2
+                                                    };
 
-            var expectedSql = "SELECT [TableName].[ColumnName1] AS \"TableName ColumnName1\", [TableName].[ColumnName2] AS \"TableName ColumnName2\", " +
-                              "[TableName2].[Table2Column1] AS \"TableName2 Table2Column1\", [TableName2].[Table2Column2] AS \"TableName2 Table2Column2\" " +
-                              "FROM [TableName] LEFT OUTER JOIN [TableName2] " +
-                              "ON [TableName].[PrimaryKeyColumnName] = [TableName2].[ForeignKeyColumnName] " +
-                              "WHERE [TableName].[ColumnName1] = @TableName_ColumnName1Constraint " +
-                              "OR ([TableName].[ColumnName2] IN (@TableName_ColumnName2Constraint, @TableName_ColumnName2Constraint2)) " +
-                              "OR [TableName].[ColumnName2] LIKE @TableName_ColumnName2Constraint3";
+            var expectedSql =
+                "SELECT [TableName].[ColumnName1] AS \"TableName ColumnName1\", [TableName].[ColumnName2] AS \"TableName ColumnName2\", " +
+                "[TableName2].[Table2Column1] AS \"TableName2 Table2Column1\", [TableName2].[Table2Column2] AS \"TableName2 Table2Column2\" " +
+                "FROM [TableName] LEFT OUTER JOIN [TableName2] " +
+                "ON [TableName].[PrimaryKeyColumnName] = [TableName2].[ForeignKeyColumnName] " +
+                "WHERE [TableName].[ColumnName1] = @TableName_ColumnName1Constraint " +
+                "OR ([TableName].[ColumnName2] IN (@TableName_ColumnName2Constraint, @TableName_ColumnName2Constraint2)) " +
+                "OR [TableName].[ColumnName2] LIKE @TableName_ColumnName2Constraint3";
 
             var query = _generator.GenerateSelectQuery(_querySpecification);
             var actualParameters = query.Parameters.SortByParameterName();
@@ -161,42 +170,43 @@ namespace WeenyMapper.Specs.Sql
             _querySpecification.QueryExpression = QueryExpression.Create(new EqualsExpression("ColumnName1", 123));
 
             var spec2 = new SqlQuerySpecification
-                {
-                    ColumnsToSelect = new List<string> { "Table2Column1", "Table2Column2" },
-                    TableName = "TableName2"
-                };
+                        {
+                            ColumnsToSelect = new List<string> { "Table2Column1", "Table2Column2" },
+                            TableName = "TableName2"
+                        };
 
             var spec3 = new SqlQuerySpecification
-                {
-                    ColumnsToSelect = new List<string> { "Table3Column1" },
-                    TableName = "TableName3"
-                };
+                        {
+                            ColumnsToSelect = new List<string> { "Table3Column1" },
+                            TableName = "TableName3"
+                        };
 
             _querySpecification.JoinSpecification = new SqlQueryJoinSpecification
-                {
-                    ParentTableName = "TableName",
-                    ChildTableName = "TableName2",
-                    ParentPrimaryKeyColumnName = "PrimaryKeyColumnName",
-                    ChildForeignKeyColumnName = "ForeignKeyColumnName",
-                    SqlQuerySpecification = spec2
-                };
+                                                    {
+                                                        ParentTableName = "TableName",
+                                                        ChildTableName = "TableName2",
+                                                        ParentPrimaryKeyColumnName = "PrimaryKeyColumnName",
+                                                        ChildForeignKeyColumnName = "ForeignKeyColumnName",
+                                                        SqlQuerySpecification = spec2
+                                                    };
 
             spec2.JoinSpecification = new SqlQueryJoinSpecification
-                {
-                    ParentTableName = "TableName2",
-                    ChildTableName = "TableName3",
-                    ParentPrimaryKeyColumnName = "Table2PrimaryKey",
-                    ChildForeignKeyColumnName = "Table3ForeignKey",
-                    SqlQuerySpecification = spec3
-                };
+                                      {
+                                          ParentTableName = "TableName2",
+                                          ChildTableName = "TableName3",
+                                          ParentPrimaryKeyColumnName = "Table2PrimaryKey",
+                                          ChildForeignKeyColumnName = "Table3ForeignKey",
+                                          SqlQuerySpecification = spec3
+                                      };
 
-            var expectedSql = "SELECT [TableName].[ColumnName1] AS \"TableName ColumnName1\", [TableName].[ColumnName2] AS \"TableName ColumnName2\", " +
-                              "[TableName2].[Table2Column1] AS \"TableName2 Table2Column1\", [TableName2].[Table2Column2] AS \"TableName2 Table2Column2\", " +
-                              "[TableName3].[Table3Column1] AS \"TableName3 Table3Column1\" " +
-                              "FROM [TableName] LEFT OUTER JOIN [TableName2] " +
-                              "ON [TableName].[PrimaryKeyColumnName] = [TableName2].[ForeignKeyColumnName] " +
-                              "LEFT OUTER JOIN [TableName3] ON [TableName2].[Table2PrimaryKey] = [TableName3].[Table3ForeignKey] " +
-                              "WHERE [TableName].[ColumnName1] = @TableName_ColumnName1Constraint";
+            var expectedSql =
+                "SELECT [TableName].[ColumnName1] AS \"TableName ColumnName1\", [TableName].[ColumnName2] AS \"TableName ColumnName2\", " +
+                "[TableName2].[Table2Column1] AS \"TableName2 Table2Column1\", [TableName2].[Table2Column2] AS \"TableName2 Table2Column2\", " +
+                "[TableName3].[Table3Column1] AS \"TableName3 Table3Column1\" " +
+                "FROM [TableName] LEFT OUTER JOIN [TableName2] " +
+                "ON [TableName].[PrimaryKeyColumnName] = [TableName2].[ForeignKeyColumnName] " +
+                "LEFT OUTER JOIN [TableName3] ON [TableName2].[Table2PrimaryKey] = [TableName3].[Table3ForeignKey] " +
+                "WHERE [TableName].[ColumnName1] = @TableName_ColumnName1Constraint";
 
             var query = _generator.GenerateSelectQuery(_querySpecification);
 
@@ -204,33 +214,35 @@ namespace WeenyMapper.Specs.Sql
         }
 
         [Test]
-        public void Generating_join_with_order_by_generates_select_with_corresponding_order_by_with_qualified_column_name()
+        public void
+            Generating_join_with_order_by_generates_select_with_corresponding_order_by_with_qualified_column_name()
         {
             _querySpecification.OrderByStatements.Add(new OrderByStatement("ColumnName3"));
             _querySpecification.OrderByStatements.Add(new OrderByStatement("ColumnName4", OrderByDirection.Descending));
 
             var spec2 = new SqlQuerySpecification
-                {
-                    ColumnsToSelect = new List<string> { "Table2Column1" },
-                    TableName = "TableName2"
-                };
+                        {
+                            ColumnsToSelect = new List<string> { "Table2Column1" },
+                            TableName = "TableName2"
+                        };
 
             _querySpecification.JoinSpecification = new SqlQueryJoinSpecification
-                {
-                    ParentTableName = "TableName",
-                    ChildTableName = "TableName2",
-                    ParentPrimaryKeyColumnName = "PrimaryKeyColumnName",
-                    ChildForeignKeyColumnName = "ForeignKeyColumnName",
-                    SqlQuerySpecification = spec2
-                };
+                                                    {
+                                                        ParentTableName = "TableName",
+                                                        ChildTableName = "TableName2",
+                                                        ParentPrimaryKeyColumnName = "PrimaryKeyColumnName",
+                                                        ChildForeignKeyColumnName = "ForeignKeyColumnName",
+                                                        SqlQuerySpecification = spec2
+                                                    };
 
             var query = _generator.GenerateSelectQuery(_querySpecification);
 
-            var expectedSql = "SELECT [TableName].[ColumnName1] AS \"TableName ColumnName1\", [TableName].[ColumnName2] AS \"TableName ColumnName2\", " +
-                              "[TableName2].[Table2Column1] AS \"TableName2 Table2Column1\" " +
-                              "FROM [TableName] LEFT OUTER JOIN [TableName2] " +
-                              "ON [TableName].[PrimaryKeyColumnName] = [TableName2].[ForeignKeyColumnName] " +
-                              "ORDER BY [TableName].[ColumnName3], [TableName].[ColumnName4] DESC";
+            var expectedSql =
+                "SELECT [TableName].[ColumnName1] AS \"TableName ColumnName1\", [TableName].[ColumnName2] AS \"TableName ColumnName2\", " +
+                "[TableName2].[Table2Column1] AS \"TableName2 Table2Column1\" " +
+                "FROM [TableName] LEFT OUTER JOIN [TableName2] " +
+                "ON [TableName].[PrimaryKeyColumnName] = [TableName2].[ForeignKeyColumnName] " +
+                "ORDER BY [TableName].[ColumnName3], [TableName].[ColumnName4] DESC";
 
             Assert.AreEqual(expectedSql, query.CommandText);
         }
@@ -242,26 +254,27 @@ namespace WeenyMapper.Specs.Sql
             _querySpecification.QueryExpression = QueryExpression.Create(new EqualsExpression("ColumnName1", 123));
 
             var spec2 = new SqlQuerySpecification
-            {
-                ColumnsToSelect = new List<string> { "Table2Column1" },
-                TableName = "TableName2"
-            };
+                        {
+                            ColumnsToSelect = new List<string> { "Table2Column1" },
+                            TableName = "TableName2"
+                        };
 
             _querySpecification.JoinSpecification = new SqlQueryJoinSpecification
-            {
-                ParentTableName = "TableName",
-                ChildTableName = "TableName2",
-                ParentPrimaryKeyColumnName = "PrimaryKeyColumnName",
-                ChildForeignKeyColumnName = "ForeignKeyColumnName",
-                SqlQuerySpecification = spec2
-            };
+                                                    {
+                                                        ParentTableName = "TableName",
+                                                        ChildTableName = "TableName2",
+                                                        ParentPrimaryKeyColumnName = "PrimaryKeyColumnName",
+                                                        ChildForeignKeyColumnName = "ForeignKeyColumnName",
+                                                        SqlQuerySpecification = spec2
+                                                    };
 
-            var expectedSql = "SELECT [TableName].[ColumnName1] AS \"TableName ColumnName1\", [TableName].[ColumnName2] AS \"TableName ColumnName2\", " +
-                              "[TableName2].[Table2Column1] AS \"TableName2 Table2Column1\" " +
-                              "FROM [TableName] LEFT OUTER JOIN [TableName2] " +
-                              "ON [TableName].[PrimaryKeyColumnName] = [TableName2].[ForeignKeyColumnName] " +
-                              "WHERE [TableName].[ColumnName1] = @TableName_ColumnName1Constraint " +
-                              "ORDER BY [TableName].[ColumnName3]";
+            var expectedSql =
+                "SELECT [TableName].[ColumnName1] AS \"TableName ColumnName1\", [TableName].[ColumnName2] AS \"TableName ColumnName2\", " +
+                "[TableName2].[Table2Column1] AS \"TableName2 Table2Column1\" " +
+                "FROM [TableName] LEFT OUTER JOIN [TableName2] " +
+                "ON [TableName].[PrimaryKeyColumnName] = [TableName2].[ForeignKeyColumnName] " +
+                "WHERE [TableName].[ColumnName1] = @TableName_ColumnName1Constraint " +
+                "ORDER BY [TableName].[ColumnName3]";
 
             var query = _generator.GenerateSelectQuery(_querySpecification);
 
@@ -278,7 +291,9 @@ namespace WeenyMapper.Specs.Sql
 
             var sqlCommand = _generator.CreateInsertCommand("TableName", propertyValues);
 
-            Assert.AreEqual("INSERT INTO [TableName] ([ColumnName1], [ColumnName2]) VALUES (@ColumnName1, @ColumnName2)", sqlCommand.CommandText);
+            Assert.AreEqual(
+                "INSERT INTO [TableName] ([ColumnName1], [ColumnName2]) VALUES (@ColumnName1, @ColumnName2)",
+                sqlCommand.CommandText);
 
             Assert.AreEqual(2, sqlCommand.Parameters.Count);
 
@@ -300,8 +315,9 @@ namespace WeenyMapper.Specs.Sql
             var scalarCommand = _generator.CreateIdentityInsertCommand("TableName", propertyValues);
             var sqlCommand = scalarCommand.ResultCommand;
 
-            var expectedSql = "INSERT INTO [TableName] ([ColumnName1], [ColumnName2]) VALUES (@ColumnName1, @ColumnName2);" +
-                              "SELECT CAST(@@IDENTITY AS int)";
+            var expectedSql =
+                "INSERT INTO [TableName] ([ColumnName1], [ColumnName2]) VALUES (@ColumnName1, @ColumnName2);" +
+                "SELECT CAST(@@IDENTITY AS int)";
 
             Assert.AreEqual(expectedSql, sqlCommand.CommandText);
 
@@ -315,7 +331,9 @@ namespace WeenyMapper.Specs.Sql
         }
 
         [Test]
-        public void Update_command_for_mass_update_without_constraints_and_single_setter_creates_parameterized_sql_with_matching_set_clause()
+        public void
+            Update_command_for_mass_update_without_constraints_and_single_setter_creates_parameterized_sql_with_matching_set_clause
+            ()
         {
             var columnSetters = new Dictionary<string, object>();
 
@@ -334,7 +352,9 @@ namespace WeenyMapper.Specs.Sql
         }
 
         [Test]
-        public void Update_command_for_mass_update_with_query_constraint_and_multiple_setters_creates_parameterized_sql_with_matching_where_and_set_clauses()
+        public void
+            Update_command_for_mass_update_with_query_constraint_and_multiple_setters_creates_parameterized_sql_with_matching_where_and_set_clauses
+            ()
         {
             var columnConstraints = new Dictionary<string, object>();
             var columnSetters = new Dictionary<string, object>();
@@ -433,7 +453,8 @@ namespace WeenyMapper.Specs.Sql
 
             var sqlCommand = _generator.CreateCountCommand("TableName", queryExpression);
 
-            Assert.AreEqual("SELECT COUNT(*) FROM [TableName] WHERE [ColumnName1] = @ColumnName1Constraint", sqlCommand.CommandText);
+            Assert.AreEqual("SELECT COUNT(*) FROM [TableName] WHERE [ColumnName1] = @ColumnName1Constraint",
+                            sqlCommand.CommandText);
 
             Assert.AreEqual(1, sqlCommand.Parameters.Count);
 
@@ -442,7 +463,8 @@ namespace WeenyMapper.Specs.Sql
         }
 
         [Test]
-        public void Count_query_with_multiple_constraints_creates_parameterized_sql_query_with_corresponding_where_clause()
+        public void
+            Count_query_with_multiple_constraints_creates_parameterized_sql_query_with_corresponding_where_clause()
         {
             var columnConstraints = new Dictionary<string, object>();
 
@@ -450,8 +472,8 @@ namespace WeenyMapper.Specs.Sql
             columnConstraints["ColumnName2"] = "2";
 
             var queryExpression = QueryExpression.Create(new AndExpression(
-                new EqualsExpression("ColumnName1", 1),
-                new EqualsExpression("ColumnName2", "2")));
+                                                             new EqualsExpression("ColumnName1", 1),
+                                                             new EqualsExpression("ColumnName2", "2")));
 
             var sqlCommand = _generator.CreateCountCommand("TableName", queryExpression);
 
@@ -472,13 +494,16 @@ namespace WeenyMapper.Specs.Sql
         }
 
         [Test]
-        public void Expression_with_single_equals_comparison_creates_parameterized_sql_query_with_corresponding_where_clause()
+        public void
+            Expression_with_single_equals_comparison_creates_parameterized_sql_query_with_corresponding_where_clause()
         {
             _querySpecification.ColumnsToSelect = new[] { "ColumnName1", "ColumnName2" };
-            _querySpecification.QueryExpression = new EqualsExpression(new PropertyExpression("ColumnName"), new ValueExpression("Value"));
+            _querySpecification.QueryExpression = new EqualsExpression(new PropertyExpression("ColumnName"),
+                                                                       new ValueExpression("Value"));
             _querySpecification.TableName = "TableName";
 
-            var expectedSql = "SELECT [ColumnName1], [ColumnName2] FROM [TableName] WHERE [ColumnName] = @ColumnNameConstraint";
+            var expectedSql =
+                "SELECT [ColumnName1], [ColumnName2] FROM [TableName] WHERE [ColumnName] = @ColumnNameConstraint";
 
             var command = _generator.GenerateSelectQuery(_querySpecification);
 
@@ -577,7 +602,8 @@ namespace WeenyMapper.Specs.Sql
         {
             var values = new[] { (object)1, 2, 3 };
 
-            _querySpecification.QueryExpression = new InExpression(new PropertyExpression("PropertyName"), new ArrayValueExpression(values));
+            _querySpecification.QueryExpression = new InExpression(new PropertyExpression("PropertyName"),
+                                                                   new ArrayValueExpression(values));
 
             var expectedSql = "SELECT [ColumnName1], [ColumnName2] FROM [TableName] " +
                               "WHERE ([PropertyName] IN (@PropertyNameConstraint, @PropertyNameConstraint2, @PropertyNameConstraint3))";
@@ -642,12 +668,14 @@ namespace WeenyMapper.Specs.Sql
         }
 
         [Test]
-        public void Paging_query_without_constraints_or_ordering_is_translated_to_row_number_query_ordered_by_primary_key()
+        public void
+            Paging_query_without_constraints_or_ordering_is_translated_to_row_number_query_ordered_by_primary_key()
         {
             _querySpecification.Page = new Page(1, 2);
 
-            var expectedSql = "WITH [CompleteResult] AS (SELECT [ColumnName1], [ColumnName2], ROW_NUMBER() OVER (ORDER BY [IdColumnName]) AS \"RowNumber\" " +
-                              "FROM [TableName]) SELECT [ColumnName1], [ColumnName2] FROM [CompleteResult] WHERE [RowNumber] BETWEEN @LowRowLimit AND @HighRowLimit";
+            var expectedSql =
+                "WITH [CompleteResult] AS (SELECT [ColumnName1], [ColumnName2], ROW_NUMBER() OVER (ORDER BY [IdColumnName]) AS \"RowNumber\" " +
+                "FROM [TableName]) SELECT [ColumnName1], [ColumnName2] FROM [CompleteResult] WHERE [RowNumber] BETWEEN @LowRowLimit AND @HighRowLimit";
 
             var command = _generator.GenerateSelectQuery(_querySpecification);
             var actualParameters = command.Parameters.SortByParameterName();
@@ -669,9 +697,10 @@ namespace WeenyMapper.Specs.Sql
             _querySpecification.Page = new Page(1, 2);
             _querySpecification.QueryExpression = QueryExpression.Create(new EqualsExpression("ColumnName3", "value"));
 
-            var expectedSql = "WITH [CompleteResult] AS (SELECT [ColumnName1], [ColumnName2], ROW_NUMBER() OVER (ORDER BY [IdColumnName]) AS \"RowNumber\" " +
-                              "FROM [TableName] WHERE [ColumnName3] = @ColumnName3Constraint) " +
-                              "SELECT [ColumnName1], [ColumnName2] FROM [CompleteResult] WHERE [RowNumber] BETWEEN @LowRowLimit AND @HighRowLimit";
+            var expectedSql =
+                "WITH [CompleteResult] AS (SELECT [ColumnName1], [ColumnName2], ROW_NUMBER() OVER (ORDER BY [IdColumnName]) AS \"RowNumber\" " +
+                "FROM [TableName] WHERE [ColumnName3] = @ColumnName3Constraint) " +
+                "SELECT [ColumnName1], [ColumnName2] FROM [CompleteResult] WHERE [RowNumber] BETWEEN @LowRowLimit AND @HighRowLimit";
 
             var command = _generator.GenerateSelectQuery(_querySpecification);
             var actualParameters = command.Parameters.SortByParameterName();
@@ -709,15 +738,19 @@ namespace WeenyMapper.Specs.Sql
         }
 
         [Test]
-        public void Like_expression_with_starting_and_ending_wildcard_is_translated_into_like_query_with_starting_and_ending_wildcard()
+        public void
+            Like_expression_with_starting_and_ending_wildcard_is_translated_into_like_query_with_starting_and_ending_wildcard
+            ()
         {
-            _querySpecification.QueryExpression = QueryExpression.Create(new LikeExpression(new PropertyExpression("ColumnName1"), "substring")
-                {
-                    HasStartingWildCard = true,
-                    HasEndingWildCard = true
-                });
+            _querySpecification.QueryExpression =
+                QueryExpression.Create(new LikeExpression(new PropertyExpression("ColumnName1"), "substring")
+                                       {
+                                           HasStartingWildCard = true,
+                                           HasEndingWildCard = true
+                                       });
 
-            var expectedSql = "SELECT [ColumnName1], [ColumnName2] FROM [TableName] WHERE [ColumnName1] LIKE @ColumnName1Constraint";
+            var expectedSql =
+                "SELECT [ColumnName1], [ColumnName2] FROM [TableName] WHERE [ColumnName1] LIKE @ColumnName1Constraint";
 
             var command = _generator.GenerateSelectQuery(_querySpecification);
             var actualParameters = command.Parameters.SortByParameterName();
@@ -731,13 +764,15 @@ namespace WeenyMapper.Specs.Sql
         }
 
         [Test]
-        public void Like_expression_with_only_starting_wildcard_is_translated_into_like_query_with_only_starting_wildcard()
+        public void
+            Like_expression_with_only_starting_wildcard_is_translated_into_like_query_with_only_starting_wildcard()
         {
-            _querySpecification.QueryExpression = QueryExpression.Create(new LikeExpression(new PropertyExpression("ColumnName1"), "substring")
-                {
-                    HasStartingWildCard = true,
-                    HasEndingWildCard = false
-                });
+            _querySpecification.QueryExpression =
+                QueryExpression.Create(new LikeExpression(new PropertyExpression("ColumnName1"), "substring")
+                                       {
+                                           HasStartingWildCard = true,
+                                           HasEndingWildCard = false
+                                       });
 
             var command = _generator.GenerateSelectQuery(_querySpecification);
 
@@ -748,11 +783,12 @@ namespace WeenyMapper.Specs.Sql
         [Test]
         public void Like_expression_with_only_ending_wildcard_is_translated_into_like_query_with_only_ending_wildcard()
         {
-            _querySpecification.QueryExpression = QueryExpression.Create(new LikeExpression(new PropertyExpression("ColumnName1"), "substring")
-                {
-                    HasStartingWildCard = false,
-                    HasEndingWildCard = true
-                });
+            _querySpecification.QueryExpression =
+                QueryExpression.Create(new LikeExpression(new PropertyExpression("ColumnName1"), "substring")
+                                       {
+                                           HasStartingWildCard = false,
+                                           HasEndingWildCard = true
+                                       });
 
             var command = _generator.GenerateSelectQuery(_querySpecification);
 
@@ -766,10 +802,40 @@ namespace WeenyMapper.Specs.Sql
         {
             _querySpecification.QueryExpression = QueryExpression.Create(
                 new InExpression(
-                    new PropertyExpression("Property"), 
+                    new PropertyExpression("Property"),
                     new ArrayValueExpression(new List<object>())));
 
             _generator.GenerateSelectQuery(_querySpecification);
+        }
+
+        [Test]
+        public void Not_expression_results_in_query_with_not_operator_and_inner_expression_parenthesized()
+        {
+            _querySpecification.ColumnsToSelect = new[] { "ColumnName1" };
+            _querySpecification.QueryExpression =
+                new RootExpression(
+                    new OrExpression(
+                        new EqualsExpression("ColumnName3", "value1"),
+                        new NotExpression(
+                            new AndExpression(
+                                new EqualsExpression(new PropertyExpression("ColumnName1"), new ValueExpression("value")),
+                                new EqualsExpression(new PropertyExpression("ColumnName2"), new ValueExpression(123))))));
+
+            var sqlCommand = _generator.GenerateSelectQuery(_querySpecification);
+            var parameters = sqlCommand.Parameters.SortByParameterName();
+
+            var expectedQuery = "SELECT [ColumnName1] FROM [TableName] " +
+                                "WHERE [ColumnName3] = @ColumnName3Constraint OR NOT ([ColumnName1] = @ColumnName1Constraint AND [ColumnName2] = @ColumnName2Constraint)";
+
+            Assert.AreEqual(expectedQuery, sqlCommand.CommandText);
+
+            Assert.AreEqual(3, parameters.Count);
+            Assert.AreEqual("ColumnName1Constraint", parameters[0].ParameterName);
+            Assert.AreEqual("value", parameters[0].Value);
+            Assert.AreEqual("ColumnName2Constraint", parameters[1].ParameterName);
+            Assert.AreEqual(123, parameters[1].Value);
+            Assert.AreEqual("ColumnName3Constraint", parameters[2].ParameterName);
+            Assert.AreEqual("value1", parameters[2].Value);
         }
     }
 }

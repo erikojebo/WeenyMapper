@@ -24,7 +24,8 @@ namespace WeenyMapper.Specs.QueryParsing
         {
             var expression = _parser.Parse<User>(x => x.Username == "a username");
 
-            var expectedExpression = new EqualsExpression(new PropertyExpression("Username"), new ValueExpression("a username"));
+            var expectedExpression = new EqualsExpression(new PropertyExpression("Username"),
+                                                          new ValueExpression("a username"));
 
             Assert.AreEqual(expectedExpression, expression);
         }
@@ -35,7 +36,8 @@ namespace WeenyMapper.Specs.QueryParsing
             var localVariable = "a username";
             var expression = _parser.Parse<User>(x => x.Username == localVariable);
 
-            var expectedExpression = new EqualsExpression(new PropertyExpression("Username"), new ValueExpression("a username"));
+            var expectedExpression = new EqualsExpression(new PropertyExpression("Username"),
+                                                          new ValueExpression("a username"));
 
             Assert.AreEqual(expectedExpression, expression);
         }
@@ -45,7 +47,8 @@ namespace WeenyMapper.Specs.QueryParsing
         {
             var expression = _parser.Parse<User>(x => x.Username == GetUsername());
 
-            var expectedExpression = new EqualsExpression(new PropertyExpression("Username"), new ValueExpression("a username"));
+            var expectedExpression = new EqualsExpression(new PropertyExpression("Username"),
+                                                          new ValueExpression("a username"));
 
             Assert.AreEqual(expectedExpression, expression);
         }
@@ -57,7 +60,8 @@ namespace WeenyMapper.Specs.QueryParsing
 
             var expression = _parser.Parse<User>(x => x.Username == user.Username);
 
-            var expectedExpression = new EqualsExpression(new PropertyExpression("Username"), new ValueExpression("a username"));
+            var expectedExpression = new EqualsExpression(new PropertyExpression("Username"),
+                                                          new ValueExpression("a username"));
 
             Assert.AreEqual(expectedExpression, expression);
         }
@@ -67,7 +71,8 @@ namespace WeenyMapper.Specs.QueryParsing
         {
             var expression = _parser.Parse<Comment>(x => x.PublishDate == new DateTime(2012, 1, 2));
 
-            var expectedExpression = new EqualsExpression(new PropertyExpression("PublishDate"), new ValueExpression(new DateTime(2012, 1, 2)));
+            var expectedExpression = new EqualsExpression(new PropertyExpression("PublishDate"),
+                                                          new ValueExpression(new DateTime(2012, 1, 2)));
 
             Assert.AreEqual(expectedExpression, expression);
         }
@@ -82,7 +87,8 @@ namespace WeenyMapper.Specs.QueryParsing
         {
             var expression = _parser.Parse<User>(x => x.Username == username);
 
-            var expectedExpression = new EqualsExpression(new PropertyExpression("Username"), new ValueExpression("a username"));
+            var expectedExpression = new EqualsExpression(new PropertyExpression("Username"),
+                                                          new ValueExpression("a username"));
 
             Assert.AreEqual(expectedExpression, expression);
         }
@@ -93,26 +99,31 @@ namespace WeenyMapper.Specs.QueryParsing
             Func<string, QueryExpression> func = s => _parser.Parse<User>(x => x.Username == s);
             var expression = func("a username");
 
-            var expectedExpression = new EqualsExpression(new PropertyExpression("Username"), new ValueExpression("a username"));
+            var expectedExpression = new EqualsExpression(new PropertyExpression("Username"),
+                                                          new ValueExpression("a username"));
 
             Assert.AreEqual(expectedExpression, expression);
         }
 
         [Test]
-        public void Single_equality_comparison_with_property_acces_on_lambda_parameter_is_parsed_into_property_name_and_value()
+        public void
+            Single_equality_comparison_with_property_acces_on_lambda_parameter_is_parsed_into_property_name_and_value()
         {
             var user = new User { Username = "a username" };
 
             Func<User, QueryExpression> func = u => _parser.Parse<User>(x => x.Username == u.Username);
             var expression = func(user);
 
-            var expectedExpression = new EqualsExpression(new PropertyExpression("Username"), new ValueExpression("a username"));
+            var expectedExpression = new EqualsExpression(new PropertyExpression("Username"),
+                                                          new ValueExpression("a username"));
 
             Assert.AreEqual(expectedExpression, expression);
         }
 
         [Test]
-        public void Conjunction_of_multiple_equality_comparisons_is_parsed_into_AndExpression_with_corresponding_property_names_and_values()
+        public void
+            Conjunction_of_multiple_equality_comparisons_is_parsed_into_AndExpression_with_corresponding_property_names_and_values
+            ()
         {
             var pageCount = 123;
             var expression = _parser.Parse<Book>(
@@ -131,7 +142,9 @@ namespace WeenyMapper.Specs.QueryParsing
         }
 
         [Test]
-        public void Disjunction_of_multiple_equality_comparisons_is_parsed_into_OrExpression_with_corresponding_property_names_and_values()
+        public void
+            Disjunction_of_multiple_equality_comparisons_is_parsed_into_OrExpression_with_corresponding_property_names_and_values
+            ()
         {
             var pageCount = 123;
             var expression = _parser.Parse<Book>(
@@ -150,7 +163,9 @@ namespace WeenyMapper.Specs.QueryParsing
         }
 
         [Test]
-        public void Mixed_conjunction_and_disjunction_of_multiple_equality_comparisons_is_parsed_into_AndExpression_and_OrExpression_with_corresponding_property_names_and_values()
+        public void
+            Mixed_conjunction_and_disjunction_of_multiple_equality_comparisons_is_parsed_into_AndExpression_and_OrExpression_with_corresponding_property_names_and_values
+            ()
         {
             var pageCount = 123;
             var expression = _parser.Parse<Book>(
@@ -170,7 +185,9 @@ namespace WeenyMapper.Specs.QueryParsing
         }
 
         [Test]
-        public void Parenthesized_mixed_conjunction_and_disjunction_of_multiple_equality_comparisons_is_parsed_into_AndExpression_and_OrExpression_with_corresponding_property_names_and_values()
+        public void
+            Parenthesized_mixed_conjunction_and_disjunction_of_multiple_equality_comparisons_is_parsed_into_AndExpression_and_OrExpression_with_corresponding_property_names_and_values
+            ()
         {
             var pageCount = 123;
             var expression = _parser.Parse<Book>(
@@ -211,27 +228,32 @@ namespace WeenyMapper.Specs.QueryParsing
         }
 
         [Test]
-        public void Single_greater_or_equal_comparison_with_constant_is_parsed_into_LessExpression_with_property_name_and_value()
+        public void
+            Single_greater_or_equal_comparison_with_constant_is_parsed_into_LessExpression_with_property_name_and_value()
         {
             var expression = _parser.Parse<Book>(x => x.PageCount >= 500);
 
-            var expectedExpression = new GreaterOrEqualExpression(new PropertyExpression("PageCount"), new ValueExpression(500));
+            var expectedExpression = new GreaterOrEqualExpression(new PropertyExpression("PageCount"),
+                                                                  new ValueExpression(500));
 
             Assert.AreEqual(expectedExpression, expression);
         }
 
         [Test]
-        public void Single_less_or_equal_comparison_with_constant_is_parsed_into_LessExpression_with_property_name_and_value()
+        public void
+            Single_less_or_equal_comparison_with_constant_is_parsed_into_LessExpression_with_property_name_and_value()
         {
             var expression = _parser.Parse<Book>(x => x.PageCount <= 500);
 
-            var expectedExpression = new LessOrEqualExpression(new PropertyExpression("PageCount"), new ValueExpression(500));
+            var expectedExpression = new LessOrEqualExpression(new PropertyExpression("PageCount"),
+                                                               new ValueExpression(500));
 
             Assert.AreEqual(expectedExpression, expression);
         }
 
         [Test]
-        public void Linq_contains_call_with_ienumerable_of_string_is_parsed_into_InExpression_with_property_name_and_values()
+        public void
+            Linq_contains_call_with_ienumerable_of_string_is_parsed_into_InExpression_with_property_name_and_values()
         {
             IEnumerable<string> titles = new List<string> { "Title 1", "Title 2" };
 
@@ -245,7 +267,8 @@ namespace WeenyMapper.Specs.QueryParsing
         }
 
         [Test]
-        public void Linq_contains_call_with_ienumerable_of_int_is_parsed_into_InExpression_with_property_name_and_values()
+        public void Linq_contains_call_with_ienumerable_of_int_is_parsed_into_InExpression_with_property_name_and_values
+            ()
         {
             IEnumerable<int> pageCounts = new List<int> { 0, 1 };
 
@@ -292,10 +315,10 @@ namespace WeenyMapper.Specs.QueryParsing
             var expression = _parser.Parse<Book>(x => x.AuthorName.Contains("Steve"));
 
             var expectedExpression = new LikeExpression(new PropertyExpression("AuthorName"), "Steve")
-                {
-                    HasStartingWildCard = true,
-                    HasEndingWildCard = true
-                };
+                                     {
+                                         HasStartingWildCard = true,
+                                         HasEndingWildCard = true
+                                     };
 
             Assert.AreEqual(expectedExpression, expression);
         }
@@ -306,10 +329,10 @@ namespace WeenyMapper.Specs.QueryParsing
             var expression = _parser.Parse<Book>(x => x.AuthorName.StartsWith("Steve"));
 
             var expectedExpression = new LikeExpression(new PropertyExpression("AuthorName"), "Steve")
-                {
-                    HasStartingWildCard = false,
-                    HasEndingWildCard = true
-                };
+                                     {
+                                         HasStartingWildCard = false,
+                                         HasEndingWildCard = true
+                                     };
 
             Assert.AreEqual(expectedExpression, expression);
         }
@@ -320,16 +343,18 @@ namespace WeenyMapper.Specs.QueryParsing
             var expression = _parser.Parse<Book>(x => x.AuthorName.EndsWith("Steve"));
 
             var expectedExpression = new LikeExpression(new PropertyExpression("AuthorName"), "Steve")
-                {
-                    HasStartingWildCard = true,
-                    HasEndingWildCard = false
-                };
+                                     {
+                                         HasStartingWildCard = true,
+                                         HasEndingWildCard = false
+                                     };
 
             Assert.AreEqual(expectedExpression, expression);
         }
 
         [Test]
-        public void Equals_expression_with_constant_and_property_access_on_related_entity_yields_equals_expression_with_value_and_entity_reference_expression()
+        public void
+            Equals_expression_with_constant_and_property_access_on_related_entity_yields_equals_expression_with_value_and_entity_reference_expression
+            ()
         {
             var expression = _parser.Parse<BlogPost>(x => x.Blog.Id == 1);
 
@@ -337,7 +362,7 @@ namespace WeenyMapper.Specs.QueryParsing
             var blogIdProperty = Reflector<Blog>.GetProperty(x => x.Id);
 
             var expectedExpression = new EqualsExpression(
-                new EntityReferenceExpression(blogProperty, blogIdProperty), 
+                new EntityReferenceExpression(blogProperty, blogIdProperty),
                 new ValueExpression(1));
 
             Assert.AreEqual(expectedExpression, expression);
@@ -349,8 +374,25 @@ namespace WeenyMapper.Specs.QueryParsing
             var expression = _parser.Parse<User>(x => x.Username != "a username");
 
             var expectedExpression = new NotEqualExpression(
-                new PropertyExpression("Username"), 
+                new PropertyExpression("Username"),
                 new ValueExpression("a username"));
+
+            Assert.AreEqual(expectedExpression, expression);
+        }
+
+        [Test]
+        public void Negated_expression_yields_NotExpression()
+        {
+            var expression = _parser.Parse<User>(x => !(x.Username == "a username" && x.Password == "a password"));
+
+            var expectedExpression = new NotExpression(
+                    new AndExpression(
+                        new EqualsExpression(
+                            new PropertyExpression("Username"),
+                            new ValueExpression("a username")),
+                    new EqualsExpression(
+                        new PropertyExpression("Password"),
+                        new ValueExpression("a password"))));
 
             Assert.AreEqual(expectedExpression, expression);
         }

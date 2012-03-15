@@ -331,7 +331,7 @@ namespace WeenyMapper.Sql
 
             public void Visit(InExpression expression)
             {
-                if (expression.ArrayValueExpression.Values.Count() == 0)
+                if (expression.ArrayValueExpression.Values.IsEmpty())
                 {
                     throw new WeenyMapperException("Can not generate IN constraint from empty collection");
                 }
@@ -413,6 +413,14 @@ namespace WeenyMapper.Sql
             public void Visit(NotEqualExpression expression)
             {
                 VisitBinaryComparisonExpression(expression, "<>");
+            }
+
+            public void Visit(NotExpression expression)
+            {
+                var sqlExpression = Create(expression.Expression, _commandParameterFactory, _tableName);
+
+                CommandParameters = sqlExpression.CommandParameters;
+                ConstraintCommandText = string.Format("NOT {0}", sqlExpression.ConstraintCommandText);
             }
 
             private void VisitBinaryComparisonExpression<T>(BinaryComparisonExpression<T> expression, string operatorString)
