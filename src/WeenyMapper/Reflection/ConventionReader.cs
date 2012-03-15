@@ -158,7 +158,7 @@ namespace WeenyMapper.Reflection
             var isPrimitiveType = dataPropertyTypes.Contains(property.PropertyType);
             var isNullableType = property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>);
 
-            return isPrimitiveType || isNullableType;
+            return isPrimitiveType || isNullableType || property.PropertyType.IsEnum;
         }
 
         private bool IsEntityCollectionProperty(PropertyInfo property)

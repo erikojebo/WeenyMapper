@@ -15,7 +15,8 @@ CREATE TABLE [Movie](
 	[Id] [int] NOT NULL PRIMARY KEY IDENTITY,
 	[Title] [nvarchar](255) NOT NULL,
 	[ReleaseDate] [datetime] NOT NULL,
-	[Rating] [int] NULL)
+	[Rating] [int] NULL,
+	[Genre] [int] NULL)
 GO
 
 CREATE TABLE [Blog](

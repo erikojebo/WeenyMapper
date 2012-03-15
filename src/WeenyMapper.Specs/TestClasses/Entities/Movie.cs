@@ -7,6 +7,7 @@ namespace WeenyMapper.Specs.TestClasses.Entities
         public int Id { get; set; }
         public string Title { get; set; }
         public DateTime ReleaseDate { get; set; }
+        public MovieGenre Genre { get; set; }
 
         // Make setter private to test conventions
         public int Rating { get; private set; }
@@ -46,5 +47,10 @@ namespace WeenyMapper.Specs.TestClasses.Entities
         {
             return string.Format("Id: {0}, title: {1}, release date: {2}, rating: {3}", Id, Title, ReleaseDate, Rating);
         }
+    }
+
+    public enum MovieGenre
+    {
+        Drama, Comedy, SciFi
     }
 }
