@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using WeenyMapper.Conventions;
+using WeenyMapper.Exceptions;
 using WeenyMapper.Extensions;
 
 namespace WeenyMapper.Reflection
@@ -68,7 +69,12 @@ namespace WeenyMapper.Reflection
 
         public PropertyInfo GetIdProperty(Type type)
         {
-            return type.GetProperties().First(_convention.IsIdProperty);
+            var idProperty = type.GetProperties().FirstOrDefault(_convention.IsIdProperty);
+
+            if (idProperty == null)
+                throw new WeenyMapperException("Could not an id property in the type {0} using the convention {1}", type, _convention);
+
+            return idProperty;
         }
 
         public IDictionary<string, object> GetColumnValues<T>(IDictionary<PropertyInfo, object> propertyValueMap)
