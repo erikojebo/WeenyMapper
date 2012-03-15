@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using WeenyMapper.Exceptions;
@@ -50,8 +49,10 @@ namespace WeenyMapper.QueryParsing
 
             if (expression.NodeType == ExpressionType.Not)
             {
-                return new NotExpression(inner);                
+                return new NotExpression(inner);
             }
+            if (expression.NodeType == ExpressionType.Convert)
+                return inner;
 
             throw new WeenyMapperException("Invalid expression: Invalid unary expression");
         }
@@ -85,9 +86,10 @@ namespace WeenyMapper.QueryParsing
             }
             else
             {
-                throw new WeenyMapperException("Invalid expression: An equals expression must have one property operand and one value operand");
+                throw new WeenyMapperException(
+                    "Invalid expression: An equals expression must have one property operand and one value operand");
             }
-            
+
             if (expression.NodeType == ExpressionType.Equal)
             {
                 return new EqualsExpression(propertyExpression, valueExpression);
@@ -127,7 +129,8 @@ namespace WeenyMapper.QueryParsing
             {
                 return new ReflectedPropertyExpression((PropertyInfo)expression.Member);
             }
-            if (expression.Expression is MemberExpression && ((MemberExpression)expression.Expression).Expression is ParameterExpression)
+            if (expression.Expression is MemberExpression &&
+                ((MemberExpression)expression.Expression).Expression is ParameterExpression)
             {
                 var referencePropertyExpression = (PropertyInfo)((MemberExpression)expression.Expression).Member;
                 var dataPropertyExpression = (PropertyInfo)expression.Member;
@@ -147,7 +150,8 @@ namespace WeenyMapper.QueryParsing
         private QueryExpression ParseMethodCallExpression(MethodCallExpression expression)
         {
             if (expression.Method.DeclaringType == typeof(string) &&
-                (expression.Method.Name == "Contains" || expression.Method.Name == "StartsWith" || expression.Method.Name == "EndsWith"))
+                (expression.Method.Name == "Contains" || expression.Method.Name == "StartsWith" ||
+                 expression.Method.Name == "EndsWith"))
             {
                 return ParseLikeExpression(expression);
             }
@@ -155,10 +159,10 @@ namespace WeenyMapper.QueryParsing
             {
                 if (expression.Method.IsStatic)
                 {
-                    return ParseLinqContainsExpression(expression);                    
+                    return ParseLinqContainsExpression(expression);
                 }
 
-                return ParseNonStaticContainsExpression(expression);                    
+                return ParseNonStaticContainsExpression(expression);
             }
 
             return CreateValueExpression(expression);
@@ -192,10 +196,10 @@ namespace WeenyMapper.QueryParsing
             }
 
             return new LikeExpression(propertyExpression, searchString)
-                {
-                    HasStartingWildCard = expression.Method.Name != "StartsWith",
-                    HasEndingWildCard = expression.Method.Name != "EndsWith"
-                };
+                   {
+                       HasStartingWildCard = expression.Method.Name != "StartsWith",
+                       HasEndingWildCard = expression.Method.Name != "EndsWith"
+                   };
         }
 
         private QueryExpression CreateValueExpression(Expression expression)

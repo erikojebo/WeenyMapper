@@ -1773,5 +1773,51 @@ namespace WeenyMapper.Specs
             Assert.AreEqual(allMovies[1].Id, movie2.Id);
             Assert.AreEqual(allMovies[2].Id, movie3.Id);
         }
+
+        [Test]
+        public void Enum_values_are_stored_as_integers()
+        {
+            var movie = new Movie
+            {
+                Title = "Movie 1",
+                ReleaseDate = new DateTime(2012, 1, 2),
+                Genre = MovieGenre.Comedy
+            };
+
+            Repository.Insert(movie);
+
+            var actualMovie = Repository.Find<Movie>()
+                .Where(x => x.Id == movie.Id)
+                .Execute();
+
+            movie.Genre = MovieGenre.SciFi;
+
+            Repository.Update(movie);
+
+            var actualMovieAfterFirstUpdate = Repository.Find<Movie>()
+                .Where(x => x.Id == movie.Id)
+                .Execute();
+
+            Repository.Update<Movie>()
+                .Set(x => x.Genre, MovieGenre.Drama)
+                .Where(x => x.Genre == MovieGenre.SciFi)
+                .Execute();
+
+            var actualMovieAfterSecondUpdate = Repository.Find<Movie>()
+                .Where(x => x.Id == movie.Id)
+                .Execute();
+
+            Repository.Delete<Movie>().Where(x => x.Genre == MovieGenre.Drama).Execute();
+
+            var actualMovieAfterDelete = Repository.Find<Movie>()
+                .Where(x => x.Id == movie.Id)
+                .Execute();
+
+            Assert.AreEqual(MovieGenre.Comedy, actualMovie.Genre);
+            Assert.AreEqual(MovieGenre.SciFi, actualMovieAfterFirstUpdate.Genre);
+            Assert.AreEqual(MovieGenre.Drama, actualMovieAfterSecondUpdate.Genre);
+            Assert.IsNull(actualMovieAfterDelete);
+            
+        }
     }
 }
