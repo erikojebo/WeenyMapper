@@ -1543,8 +1543,8 @@ namespace WeenyMapper.Specs
             company1.RemoveEmployee(employee2);
             company2.AddEmployee(employee2);
 
-            employee1.RefreshCompanyId();
-            employee2.RefreshCompanyId();
+            employee1.RefreshReferencedIds();
+            employee2.RefreshReferencedIds();
 
             Assert.AreEqual(company1, allCompanies[0]);
             Assert.AreEqual(company2, allCompanies[1]);
@@ -1597,8 +1597,8 @@ namespace WeenyMapper.Specs
             company1.RemoveEmployee(employee2);
             company2.AddEmployee(employee2);
 
-            employee1.RefreshCompanyId();
-            employee2.RefreshCompanyId();
+            employee1.RefreshReferencedIds();
+            employee2.RefreshReferencedIds();
 
             Assert.AreEqual(company1, allCompanies[0]);
             Assert.AreEqual(company2, allCompanies[1]);
@@ -1817,7 +1817,71 @@ namespace WeenyMapper.Specs
             Assert.AreEqual(MovieGenre.SciFi, actualMovieAfterFirstUpdate.Genre);
             Assert.AreEqual(MovieGenre.Drama, actualMovieAfterSecondUpdate.Genre);
             Assert.IsNull(actualMovieAfterDelete);
+        }
+
+        [Test]
+        public void Entity_can_be_joined_to_itself()
+        {
+            var company = new Company
+                          {
+                              Name = "Company 1"
+                          };
+
+            var employee1 = new Employee
+                            {
+                                LastName = "Employee 1"                            };
+
+            var employee2 = new Employee
+                            {
+                                LastName = "Employee 2"
+                            };
+
+            var employee3 = new Employee
+                            {
+                                LastName = "Employee 3"
+                            };
+
+            var manager1 = new Employee
+                           {
+                               LastName = "Manager"
+                           };
+
+            var manager2 = new Employee
+                           {
+                               LastName = "Manager 2"
+                           };
+
+            Repository.Insert(company);
+
+            company.AddEmployee(employee1);
+            company.AddEmployee(employee2);
+            company.AddEmployee(employee3);
+            company.AddEmployee(manager1);
+            company.AddEmployee(manager2);
             
+            Repository.Insert(manager1, manager2);
+
+            // Add the subordinates after the managers have been saved so that the
+            // ManagerIds are set to the correct values
+            manager1.AddSubordinate(employee1);
+            manager1.AddSubordinate(employee2);
+            manager2.AddSubordinate(employee3);
+
+            Repository.Insert(employee1, employee2, employee3);
+
+            var actualManager1 = Repository.Find<Employee>().Where(x => x.Id == manager1.Id)
+                .Join<Employee, Employee>(x => x.Subordinates, x => x.Manager)
+                .Execute();
+
+            var actualEmployees = Repository.Find<Employee>()
+                .Join<Employee, Employee>(x => x.Subordinates, x => x.Manager)
+                .OrderBy(x => x.LastName)
+                .ExecuteList();
+
+            Assert.AreEqual(manager1, actualManager1);
+            Assert.AreEqual(employee1, actualEmployees[0]);
+            Assert.AreEqual(employee2, actualEmployees[1]);
+            Assert.AreEqual(employee3, actualEmployees[2]);
         }
     }
 }

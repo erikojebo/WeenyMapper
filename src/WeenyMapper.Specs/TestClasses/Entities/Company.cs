@@ -43,6 +43,8 @@ namespace WeenyMapper.Specs.TestClasses.Entities
         {
             Employees.Add(employee);
             employee.Company = this;
+
+            employee.RefreshReferencedIds();
         }
 
         public void RemoveEmployee(Employee employee)

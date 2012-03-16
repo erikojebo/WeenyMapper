@@ -10,6 +10,7 @@ namespace WeenyMapper.Specs.TestClasses.Entities
         public Employee()
         {
             Subordinates = new List<Employee>();
+            BirthDate = new DateTime(1970, 1, 1);
         }
 
         public int Id { get; set; }
@@ -49,11 +50,22 @@ namespace WeenyMapper.Specs.TestClasses.Entities
                    Subordinates.Select(x => x.Id).ElementEquals(other.Subordinates.Select(x => x.Id));
         }
 
-        public void RefreshCompanyId()
+        public void AddSubordinate(Employee subordinate)
+        {
+            Subordinates.Add(subordinate);
+            subordinate.Manager = this;
+            subordinate.RefreshReferencedIds();
+        }
+
+        public void RefreshReferencedIds()
         {
             if (Company != null)
             {
                 CompanyId = Company.Id;
+            }
+            if (Manager != null)
+            {
+                ManagerId = Manager.Id;
             }
         }
     }
