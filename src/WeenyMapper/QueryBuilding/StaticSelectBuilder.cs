@@ -30,7 +30,26 @@ namespace WeenyMapper.QueryBuilding
 
         public StaticSelectBuilder<T> Where(Expression<Func<T, bool>> queryExpression)
         {
-            _querySpecification.QueryExpression = _expressionParser.Parse(queryExpression);
+            return AndWhere(queryExpression);
+        }
+        
+        public StaticSelectBuilder<T> AndWhere(Expression<Func<T, bool>> queryExpression)
+        {
+            if (Equals(_querySpecification.QueryExpression, QueryExpression.Create()))
+                _querySpecification.QueryExpression = _expressionParser.Parse(queryExpression);
+            else
+                _querySpecification.QueryExpression = new AndExpression(_querySpecification.QueryExpression, _expressionParser.Parse(queryExpression));
+
+            return this;
+        }
+
+        public StaticSelectBuilder<T> OrWhere(Expression<Func<T, bool>> queryExpression)
+        {
+            if (Equals(_querySpecification.QueryExpression, QueryExpression.Create()))
+                _querySpecification.QueryExpression = _expressionParser.Parse(queryExpression);
+            else
+                _querySpecification.QueryExpression = new OrExpression(_querySpecification.QueryExpression, _expressionParser.Parse(queryExpression));
+
             return this;
         }
 

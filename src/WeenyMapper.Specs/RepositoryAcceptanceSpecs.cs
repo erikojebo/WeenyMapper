@@ -100,6 +100,160 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
+        public virtual void Multiple_where_clauses_can_be_combined_using_And_when_querying_for_objects()
+        {
+            Repository.Convention = new BookConvention();
+
+            var book1 = new Book
+            {
+                Isbn = "1",
+                AuthorName = "Author Name",
+                Title = "Title 1",
+                PageCount = 123,
+            };
+
+            var book2 = new Book
+            {
+                Isbn = "2",
+                AuthorName = "Author Name",
+                Title = "Title 2",
+                PageCount = 123
+            };
+
+            var book3 = new Book
+            {
+                Isbn = "3",
+                AuthorName = "Author Name",
+                Title = "Title 3",
+                PageCount = 123
+            };
+
+            Repository.Insert(book1);
+            Repository.Insert(book2);
+            Repository.Insert(book3);
+
+            Book actualBook = Repository.Find<Book>()
+                .Where(x => x.AuthorName == "Author Name")
+                .Where(x => x.Title == "Title 2")
+                .Where(x => x.PageCount == 123)
+                .Execute();
+
+            Assert.AreEqual(book2, actualBook);
+        }
+
+        [Test]
+        public virtual void Multiple_where_clauses_can_be_combined_using_Or_when_querying_for_objects()
+        {
+            Repository.Convention = new BookConvention();
+
+            var book1 = new Book
+            {
+                Isbn = "1",
+                AuthorName = "Author Name",
+                Title = "Title 1",
+                PageCount = 123,
+            };
+
+            var book2 = new Book
+            {
+                Isbn = "2",
+                AuthorName = "Author Name",
+                Title = "Title 2",
+                PageCount = 123
+            };
+
+            var book3 = new Book
+            {
+                Isbn = "3",
+                AuthorName = "Author Name",
+                Title = "Title 3",
+                PageCount = 123
+            };
+
+            Repository.Insert(book1);
+            Repository.Insert(book2);
+            Repository.Insert(book3);
+
+            var actualBooks = Repository.Find<Book>()
+                .Where(x => x.Isbn == "1")
+                .OrWhere(x => x.Title == "Title 2")
+                .OrderBy(x => x.Isbn)
+                .ExecuteList();
+
+            Assert.AreEqual(2, actualBooks.Count);
+            Assert.AreEqual(book1, actualBooks[0]);
+            Assert.AreEqual(book2, actualBooks[1]);
+        }
+
+        [Test]
+        public virtual void Multiple_where_clauses_can_be_combined_using_both_And_and_Or_when_querying_for_objects()
+        {
+            Repository.Convention = new BookConvention();
+
+            var book1 = new Book
+            {
+                Isbn = "1",
+                AuthorName = "Author Name",
+                Title = "Title 1",
+                PageCount = 123,
+            };
+
+            var book2 = new Book
+            {
+                Isbn = "2",
+                AuthorName = "Author Name",
+                Title = "Title 2",
+                PageCount = 123
+            };
+
+            var book3 = new Book
+            {
+                Isbn = "3",
+                AuthorName = "Author Name",
+                Title = "Title 3",
+                PageCount = 222
+            };
+            
+            var book4 = new Book
+            {
+                Isbn = "4",
+                AuthorName = "Author Name",
+                Title = "Title 4",
+                PageCount = 222
+            };
+            
+            var book5 = new Book
+            {
+                Isbn = "5",
+                AuthorName = "Author Name",
+                Title = "Title 5",
+                PageCount = 123
+            };
+            
+            var book6 = new Book
+            {
+                Isbn = "6",
+                AuthorName = "Another author Name",
+                Title = "Title 6",
+                PageCount = 222
+            };
+
+            Repository.Insert(book1, book2, book3, book4, book5, book6);
+
+            var actualBooks = Repository.Find<Book>()
+                .Where(x => x.Isbn == "1")
+                .OrWhere(x => x.PageCount == 222)
+                .AndWhere(x => x.AuthorName == "Author Name")
+                .OrderBy(x => x.Isbn)
+                .ExecuteList();
+
+            Assert.AreEqual(3, actualBooks.Count);
+            Assert.AreEqual(book1, actualBooks[0]);
+            Assert.AreEqual(book3, actualBooks[1]);
+            Assert.AreEqual(book4, actualBooks[2]);
+        }
+
+        [Test]
         public virtual void Updating_an_object_updates_the_database_entry_with_the_corresponding_id()
         {
             var user1 = new User
@@ -1819,6 +1973,7 @@ namespace WeenyMapper.Specs
             Assert.IsNull(actualMovieAfterDelete);
         }
 
+        [Ignore("Not implemented yet")]
         [Test]
         public void Entity_can_be_joined_to_itself()
         {
