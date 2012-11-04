@@ -64,7 +64,24 @@ namespace WeenyMapper.Mapping
                 objects.Add(instance);
             }
 
-            return objects.OfType<T>().Distinct(new IdPropertyComparer<T>(_conventionReader)).ToList();
+            var comparer = GetEqualityComparer<T>();
+
+            return objects.OfType<T>().Distinct(comparer).ToList();
+        }
+
+        private IEqualityComparer<T> GetEqualityComparer<T>()
+        {
+            return GetEqualityComparer<T>(typeof(T));
+        }
+
+        private IEqualityComparer<T> GetEqualityComparer<T>(Type type)
+        {
+            if (_conventionReader.HasIdProperty(type))
+            {
+                return new IdPropertyComparer<T>(_conventionReader);
+            }
+
+            return new EqualsEqualityComparer<T>();
         }
 
         public IList<T> CreateInstanceGraphs<T>(ResultSet resultSet, ObjectRelation parentChildRelation)
@@ -84,7 +101,9 @@ namespace WeenyMapper.Mapping
                 objects.Add(instance);
             }
 
-            return objects.OfType<T>().Distinct(new IdPropertyComparer<T>(_conventionReader)).ToList();
+            var comparer = GetEqualityComparer<T>();
+
+            return objects.OfType<T>().Distinct(comparer).ToList();
         }
 
         private object CreateInstanceGraph(Type resultType, Row row, IEnumerable<ObjectRelation> relations, EntityCache entityCache)
@@ -131,9 +150,11 @@ namespace WeenyMapper.Mapping
                 relation.ParentProperty.SetValue(parent, list, null);
             }
 
+            var comparer = GetEqualityComparer<object>(child.GetType());
+
             var parentCollectionContainsChild = parentsChildCollection
                 .OfType<object>()
-                .Contains(child, new IdPropertyComparer<object>(_conventionReader));
+                .Contains(child, comparer);
 
             if (!parentCollectionContainsChild)
             {
@@ -208,7 +229,8 @@ namespace WeenyMapper.Mapping
 
             public bool Contains(object entity)
             {
-                return GetCacheForType(entity).Contains(entity, _idPropertyComparer);
+                var comparer = GetComparer(entity);
+                return GetCacheForType(entity).Contains(entity, comparer);
             }
 
             public void Add(object entity)
@@ -218,7 +240,8 @@ namespace WeenyMapper.Mapping
 
             public object GetExisting(object entity)
             {
-                return GetCacheForType(entity).First(x => _idPropertyComparer.Equals(x, entity));
+                var comparer = GetComparer(entity);
+                return GetCacheForType(entity).First(x => comparer.Equals(x, entity));
             }
 
             private IList<object> GetCacheForType(object entity)
@@ -231,6 +254,14 @@ namespace WeenyMapper.Mapping
                 }
 
                 return _cache[entityType];
+            }
+
+            private IEqualityComparer<object> GetComparer(object entity)
+            {
+                if (_conventionReader.HasIdProperty(entity.GetType()))
+                    return _idPropertyComparer;
+
+                return new EqualsEqualityComparer<object>();
             }
         }
     }

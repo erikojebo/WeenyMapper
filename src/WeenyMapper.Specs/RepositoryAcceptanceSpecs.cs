@@ -2038,5 +2038,18 @@ namespace WeenyMapper.Specs
             Assert.AreEqual(employee2, actualEmployees[1]);
             Assert.AreEqual(employee3, actualEmployees[2]);
         }
+
+        [Test]
+        public void Entity_without_primary_key_can_be_written_and_read_back_again()
+        {
+            var @event = new Event() { AggregateId = Guid.NewGuid(), PublishDate = new DateTime(2012, 1, 2, 3, 4, 5), Data = "data" };
+
+            Repository.Insert(@event);
+
+            var actualEvent = Repository.Find<Event>().Where(x => x.AggregateId == @event.AggregateId).Execute();
+
+            Assert.AreEqual(actualEvent, @event);
+        }
+
     }
 }

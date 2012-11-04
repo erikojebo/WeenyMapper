@@ -71,6 +71,13 @@ CREATE TABLE [Employee](
 )
 GO
 
+CREATE TABLE [Event](
+	[AggregateId] [uniqueidentifier] NOT NULL,
+	[Data] [nvarchar](1024) NOT NULL,
+	[PublishDate] [datetime] NOT NULL
+)
+GO
+
 ALTER TABLE [Employee] ADD CONSTRAINT FK_Employee_Company FOREIGN KEY (CompanyId) REFERENCES [Company] ([Id])
 GO
 ALTER TABLE [Employee] ADD CONSTRAINT FK_Employee_Employee FOREIGN KEY (ManagerId) REFERENCES [Employee] ([Id])

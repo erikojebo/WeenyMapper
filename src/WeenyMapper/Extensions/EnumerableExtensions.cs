@@ -5,9 +5,9 @@ namespace WeenyMapper.Extensions
 {
     public static class EnumerableExtensions
     {
-        public static IEnumerable<T> AsList<T>(this T instance)
+        public static IList<T> AsList<T>(this T instance)
         {
-            return new[] { instance };
+            return new List<T> { instance };
         }
 
         public static bool ElementEquals<T>(this IEnumerable<T> left, IEnumerable<T> right)

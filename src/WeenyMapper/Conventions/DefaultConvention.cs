@@ -36,9 +36,9 @@ namespace WeenyMapper.Conventions
         public virtual bool HasIdentityId(Type entityType)
         {
             var dataReader = new ConventionReader(this);
-            var idProperty = dataReader.GetIdProperty(entityType);
+            var idProperty = dataReader.TryGetIdProperty(entityType);
 
-            return idProperty.PropertyType == typeof(int);
+            return idProperty != null && idProperty.PropertyType == typeof(int);
         }
 
         public virtual string GetManyToOneForeignKeyColumnName(PropertyInfo propertyInfo)

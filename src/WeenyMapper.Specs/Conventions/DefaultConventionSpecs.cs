@@ -102,6 +102,12 @@ namespace WeenyMapper.Specs.Conventions
         }
 
         [Test]
+        public void Class_without_id_property_does_not_have_identity_id()
+        {
+            Assert.IsFalse(_defaultConvention.HasIdentityId(typeof(EntityWithoutId)));
+        }
+
+        [Test]
         public void Foreign_key_name_for_many_to_one_property_is_property_type_name_followed_by_Id()
         {
             var propertyInfo = typeof(Child).GetProperty("Parent");
@@ -134,6 +140,11 @@ namespace WeenyMapper.Specs.Conventions
         private class GuidIdEntity
         {
             public Guid Id { get; set; }
+        }
+
+        private class EntityWithoutId
+        {
+            public string Name { get; set; } 
         }
 
         private class Entity

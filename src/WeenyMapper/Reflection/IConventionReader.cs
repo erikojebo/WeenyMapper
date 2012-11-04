@@ -23,5 +23,7 @@ namespace WeenyMapper.Reflection
         bool IsForeignKey(string columnName, Type type);
         bool HasProperty(string columnName, Type type);
         bool IsEntityReferenceProperty(string columnName, Type type);
+        PropertyInfo TryGetIdProperty(Type type);
+        bool HasIdProperty(Type type);
     }
 }

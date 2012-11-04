@@ -59,6 +59,7 @@
     <Compile Include="Logging\SqlCommandLoggerBase.cs" />
     <Compile Include="Mapping\ColumnValue.cs" />
     <Compile Include="Mapping\EntityMapper.cs" />
+    <Compile Include="Mapping\EqualsEqualityComparer.cs" />
     <Compile Include="Mapping\IdPropertyComparer.cs" />
     <Compile Include="Mapping\IEntityMapper.cs" />
     <Compile Include="Mapping\ObjectRelation.cs" />

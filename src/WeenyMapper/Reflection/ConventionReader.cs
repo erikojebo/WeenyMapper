@@ -67,14 +67,24 @@ namespace WeenyMapper.Reflection
             return type.GetProperties().Where(_convention.ShouldMapProperty);
         }
 
+        public PropertyInfo TryGetIdProperty(Type type)
+        {
+            return type.GetProperties().FirstOrDefault(_convention.IsIdProperty);
+        }
+
         public PropertyInfo GetIdProperty(Type type)
         {
-            var idProperty = type.GetProperties().FirstOrDefault(_convention.IsIdProperty);
+            var idProperty = TryGetIdProperty(type);
 
             if (idProperty == null)
-                throw new WeenyMapperException("Could not an id property in the type {0} using the convention {1}", type, _convention);
+                throw new WeenyMapperException("Could not find an id property in the type {0} using the convention {1}", type, _convention);
 
             return idProperty;
+        }
+
+        public bool HasIdProperty(Type type)
+        {
+            return TryGetIdProperty(type) != null;
         }
 
         public IDictionary<string, object> GetColumnValues<T>(IDictionary<PropertyInfo, object> propertyValueMap)

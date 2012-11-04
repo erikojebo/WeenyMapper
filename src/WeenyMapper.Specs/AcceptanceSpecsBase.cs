@@ -48,6 +48,7 @@ namespace WeenyMapper.Specs
             Repository.Delete<Movie>().Execute();
             Repository.Delete<Employee>().Execute();
             Repository.Delete<Company>().Execute();
+            Repository.Delete<Event>().Execute();
         }
     }
 }

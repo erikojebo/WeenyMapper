@@ -7,6 +7,7 @@ using WeenyMapper.Exceptions;
 using WeenyMapper.Mapping;
 using WeenyMapper.Reflection;
 using WeenyMapper.Specs.TestClasses.Conventions;
+using WeenyMapper.Extensions;
 
 namespace WeenyMapper.Specs.Mapping
 {
@@ -20,6 +21,7 @@ namespace WeenyMapper.Specs.Mapping
         private ObjectRelation _parentChildRelation;
         private ObjectRelation _childParentRelation;
         private ObjectRelation _childGrandChildRelation;
+        private ObjectRelation _idLessRelation;
 
         [SetUp]
         public void SetUp()
@@ -29,6 +31,7 @@ namespace WeenyMapper.Specs.Mapping
             _parentChildRelation = ObjectRelation.Create<Parent, Child>(x => x.Children, x => x.Parent, typeof(Parent));
             _childParentRelation = ObjectRelation.Create<Parent, Child>(x => x.Children, x => x.Parent, typeof(Child));
             _childGrandChildRelation = ObjectRelation.Create<Child, GrandChild>(x => x.GrandChildren, x => x.Child, typeof(Child));
+            _idLessRelation = ObjectRelation.Create<ParentWithoutId, ChildWithoutId>(x => x.Children, x => x.Parent, typeof(ParentWithoutId));
         }
 
         [Test]
@@ -371,6 +374,130 @@ namespace WeenyMapper.Specs.Mapping
             var parent = _mapper.CreateInstanceGraph<NullCollectionParent>(_row, relation);
 
             Assert.AreEqual(1, parent.Children.Count);
+        }
+
+        [Test]
+        public void Creating_instance_of_entity_without_id_sets_corresponding_properties()
+        {
+            _row.Add("FirstName", "first name");
+            _row.Add("LastName", "last name");
+
+            var actual = _mapper.CreateInstance<EntityWihtoutId>(_row);
+
+            Assert.AreEqual("first name", actual.FirstName);
+            Assert.AreEqual("last name", actual.LastName);
+        }
+
+        [Test]
+        public void Creating_instance_graph_for_single_row_of_entity_without_id_yields_single_entity_with_properties_set()
+        {
+            _row.Add("FirstName", "first name");
+            _row.Add("LastName", "last name");
+
+            var actualEntities = _mapper.CreateInstanceGraphs<EntityWihtoutId>(new ResultSet(){ Rows = _row.AsList()});
+
+            Assert.AreEqual(1, actualEntities.Count);
+            Assert.AreEqual("first name", actualEntities[0].FirstName);
+            Assert.AreEqual("last name", actualEntities[0].LastName);
+        }
+
+        [Test]
+        public void Two_rows_for_entity_without_id_sharing_no_entities_are_mapped_to_two_separate_hierachies()
+        {
+            var resultSet = new ResultSet();
+
+            resultSet.AddRow(new ColumnValue("Parent Id", _guid1), new ColumnValue("Child Id", 1), new ColumnValue("GrandChild Id", 2));
+            resultSet.AddRow(new ColumnValue("Parent Id", _guid2), new ColumnValue("Child Id", 3), new ColumnValue("GrandChild Id", 4));
+
+            var parents = _mapper.CreateInstanceGraphs<Parent>(resultSet, new[] { _parentChildRelation, _childGrandChildRelation });
+
+            Assert.AreEqual(2, parents.Count);
+
+            var firstParent = parents.First();
+            var secondParent = parents.Last();
+            var firstChild = firstParent.Children.FirstOrDefault();
+            var secondChild = secondParent.Children.FirstOrDefault();
+
+            Assert.AreEqual(1, firstParent.Children.Count);
+            Assert.AreEqual(1, firstChild.GrandChildren.Count);
+
+            Assert.AreEqual(_guid1, firstParent.Id);
+            Assert.AreEqual(1, firstChild.Id);
+            Assert.AreEqual(2, firstChild.GrandChildren.First().Id);
+
+            Assert.AreEqual(_guid2, secondParent.Id);
+            Assert.AreEqual(3, secondChild.Id);
+            Assert.AreEqual(4, secondChild.GrandChildren.First().Id);
+        }
+
+        [Test]
+        public void Two_rows_for_entity_without_id_sharing_some_entities_are_mapped_to_two_hierachies_sharing_instances()
+        {
+            var resultSet = new ResultSet();
+
+            resultSet.AddRow(new ColumnValue("ParentWithoutId Name", "First name"), new ColumnValue("ChildWithoutId Name", "child name 0"));
+            resultSet.AddRow(new ColumnValue("ParentWithoutId Name", "Another first name"), new ColumnValue("ChildWithoutId Name", "child name 1"));
+            resultSet.AddRow(new ColumnValue("ParentWithoutId Name", "First name"), new ColumnValue("ChildWithoutId Name", "child name 2"));
+
+            var parents = _mapper.CreateInstanceGraphs<ParentWithoutId>(resultSet, new[] { _idLessRelation });
+
+            Assert.AreEqual(2, parents.Count);
+
+            Assert.AreEqual(2, parents[0].Children.Count);
+            Assert.AreEqual(1, parents[1].Children.Count);
+
+            Assert.AreEqual("First name", parents[0].Name);
+            Assert.AreEqual("Another first name", parents[1].Name);
+
+            Assert.AreEqual("child name 0", parents[0].Children[0].Name);
+            Assert.AreEqual("child name 1", parents[1].Children[0].Name);
+            Assert.AreEqual("child name 2", parents[0].Children[1].Name);
+
+            Assert.AreEqual(parents[0], parents[0].Children[0].Parent);
+            Assert.AreEqual(parents[1], parents[1].Children[0].Parent);
+        }
+
+        private class EntityWihtoutId
+        {
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+        }
+
+        private class ParentWithoutId
+        {
+            public ParentWithoutId()
+            {
+                Children = new List<ChildWithoutId>();
+            }
+
+            public string Name { get; set; }
+            public IList<ChildWithoutId> Children { get; set; }
+
+            public override int GetHashCode()
+            {
+                return Name.GetHashCode();
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is ParentWithoutId && ((ParentWithoutId)obj).Name == Name;
+            }
+        }
+
+        private class ChildWithoutId
+        {
+            public string Name { get; set; }
+            public ParentWithoutId Parent { get; set; }
+
+            public override int GetHashCode()
+            {
+                return Name.GetHashCode();
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is ChildWithoutId && ((ChildWithoutId)obj).Name == Name;
+            }
         }
 
         private class ClassWithoutDefaultConstructor
