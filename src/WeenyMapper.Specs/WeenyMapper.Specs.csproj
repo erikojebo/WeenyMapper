@@ -62,6 +62,7 @@
     <Compile Include="QueryParsing\ExpressionParserSpecs.cs" />
     <Compile Include="QueryParsing\PropertyExpressionSpecs.cs" />
     <Compile Include="Reflection\PropertyReaderSpecs.cs" />
+    <Compile Include="RepositorySpecs.cs" />
     <Compile Include="SqlCeRepositoryAcceptanceSpecs.cs" />
     <Compile Include="SqlRepositoryAcceptanceTests.cs" />
     <Compile Include="Sql\CommandParameterFactorySpecs.cs" />
