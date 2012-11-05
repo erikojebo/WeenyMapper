@@ -17,10 +17,11 @@ namespace WeenyMapper
     {
         private string _connectionString;
         private EntityMapper _entityMapper;
+        private IConvention _convention;
 
         static Repository()
         {
-            Convention = new DefaultConvention();
+            DefaultConvention = new DefaultConvention();
             SqlLogger = new NullSqlCommandLogger();
             DatabaseProvider = new SqlServerDatabaseProvider();
         }
@@ -31,7 +32,7 @@ namespace WeenyMapper
             IsEntityCachingEnabled = IsEntityCachingEnabledByDefault;
         }
 
-        public static IConvention Convention { get; set; }
+        public static IConvention DefaultConvention { get; set; }
         public static ISqlCommandLogger SqlLogger { get; set; }
         public static IDatabaseProvider DatabaseProvider { get; set; }
         public static string DefaultConnectionString { get; set; }
@@ -58,6 +59,12 @@ namespace WeenyMapper
         }
 
         public bool IsEntityCachingEnabled { get; set; }
+
+        public IConvention Convention
+        {
+            get { return _convention ?? DefaultConvention; }
+            set { _convention = value; }
+        }
 
         public void Insert<T>(params T[] entities)
         {

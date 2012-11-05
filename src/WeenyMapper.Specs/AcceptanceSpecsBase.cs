@@ -12,9 +12,10 @@ namespace WeenyMapper.Specs
         [SetUp]
         public void SetUp()
         {
-            Repository = new Repository { ConnectionString = TestConnectionString };
+            Repository.DefaultConnectionString = TestConnectionString;
+            Repository = new Repository();
 
-            Repository.Convention = new DefaultConvention();
+            Repository.DefaultConvention = new DefaultConvention();
             Repository.EnableSqlConsoleLogging();
 
             PerformSetUp();
@@ -29,21 +30,21 @@ namespace WeenyMapper.Specs
 
         protected void DeleteAllExistingTestData()
         {
-            Repository.Convention = new BlogConvention();
+            Repository.DefaultConvention = new BlogConvention();
 
             Repository.Delete<Comment>().Execute();
             Repository.Delete<BlogPost>().Execute();
             Repository.Delete<Blog>().Execute();
 
-            Repository.Convention = new UserConvention();
+            Repository.DefaultConvention = new UserConvention();
 
             Repository.Delete<User>().Execute();
 
-            Repository.Convention = new BookConvention();
+            Repository.DefaultConvention = new BookConvention();
 
             Repository.Delete<Book>().Execute();
 
-            Repository.Convention = new DefaultConvention();
+            Repository.DefaultConvention = new DefaultConvention();
 
             Repository.Delete<Movie>().Execute();
             Repository.Delete<Employee>().Execute();

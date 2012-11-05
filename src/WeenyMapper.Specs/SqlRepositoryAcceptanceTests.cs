@@ -23,7 +23,7 @@ namespace WeenyMapper.Specs
         [Test]
         public void Single_entity_can_be_read_by_custom_sql_query()
         {
-            Repository.Convention = new BookConvention();
+            Repository.DefaultConvention = new BookConvention();
 
             var book1 = new Book
                 {
@@ -70,7 +70,7 @@ namespace WeenyMapper.Specs
         [Test]
         public void Multiple_entities_can_be_read_by_custom_sql_query()
         {
-            Repository.Convention = new BookConvention();
+            Repository.DefaultConvention = new BookConvention();
 
             var book1 = new Book
                 {
@@ -122,7 +122,7 @@ namespace WeenyMapper.Specs
         [Test]
         public void Scalar_value_can_be_read_by_custom_sql_query()
         {
-            Repository.Convention = new BookConvention();
+            Repository.DefaultConvention = new BookConvention();
 
             var book1 = new Book
                 {
@@ -153,7 +153,7 @@ namespace WeenyMapper.Specs
         [Test]
         public void Scalar_values_from_multiple_entities_can_be_read_by_custom_sql_query()
         {
-            Repository.Convention = new BookConvention();
+            Repository.DefaultConvention = new BookConvention();
 
             var book1 = new Book
                 {
