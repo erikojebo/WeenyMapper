@@ -691,6 +691,16 @@ namespace WeenyMapper.Specs.Sql
         }
 
         [Test]
+        [ExpectedException(typeof(WeenyMapperException))]
+        public void Paging_query_for_entity_without_primary_key_and_without_ordering_throws_exception()
+        {
+            _querySpecification.PrimaryKeyColumnName = null;
+            _querySpecification.Page = new Page(1, 2);
+
+            _generator.GenerateSelectQuery(_querySpecification);
+        }
+
+        [Test]
         public void Paging_query_with_constraints_creates_row_number_query_with_constraint_in_aliased_select()
         {
             _querySpecification.Page = new Page(1, 2);

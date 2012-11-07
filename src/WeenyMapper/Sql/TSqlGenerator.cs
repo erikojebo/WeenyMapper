@@ -99,6 +99,9 @@ namespace WeenyMapper.Sql
         {
             var command = _commandFactory.CreateCommand();
 
+            if (querySpecification.OrderByStatements.IsEmpty() && string.IsNullOrEmpty(querySpecification.PrimaryKeyColumnName))
+                throw new WeenyMapperException("You have to specify an order by clause for paging queries");
+
             if (querySpecification.OrderByStatements.IsEmpty())
             {
                 var orderByPrimaryKeyStatement = OrderByStatement.Create(querySpecification.PrimaryKeyColumnName, OrderByDirection.Ascending);
