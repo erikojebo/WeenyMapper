@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="AcceptanceSpecsBase.cs" />
     <Compile Include="AsyncRepositoryAcceptanceSpecs.cs" />
+    <Compile Include="Builders\ConnectionStringSpecs.cs" />
     <Compile Include="Conventions\DefaultConventionSpecs.cs" />
     <Compile Include="Extensions\DictionaryExtensionsSpecs.cs" />
     <Compile Include="Extensions\EnumerableExtensionsSpecs.cs" />
