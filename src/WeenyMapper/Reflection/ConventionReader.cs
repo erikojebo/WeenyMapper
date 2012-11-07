@@ -87,6 +87,14 @@ namespace WeenyMapper.Reflection
             return TryGetIdProperty(type) != null;
         }
 
+        public string TryGetPrimaryKeyColumnName(Type type)
+        {
+            if (HasIdProperty(type))
+                return GetPrimaryKeyColumnName(type);
+
+            return null;
+        }
+
         public IDictionary<string, object> GetColumnValues<T>(IDictionary<PropertyInfo, object> propertyValueMap)
         {
             var columnValues = new Dictionary<string, object>();

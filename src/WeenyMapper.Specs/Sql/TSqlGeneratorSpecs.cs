@@ -668,8 +668,7 @@ namespace WeenyMapper.Specs.Sql
         }
 
         [Test]
-        public void
-            Paging_query_without_constraints_or_ordering_is_translated_to_row_number_query_ordered_by_primary_key()
+        public void Paging_query_without_constraints_or_ordering_is_translated_to_row_number_query_ordered_by_primary_key()
         {
             _querySpecification.Page = new Page(1, 2);
 

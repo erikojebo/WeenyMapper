@@ -78,7 +78,8 @@ namespace WeenyMapper.QueryExecution
                     TableName = tableName,
                     OrderByStatements = translatedOrderByStatements.ToList(),
                     RowCountLimit = querySpecification.RowCountLimit,
-                    Page = querySpecification.Page
+                    Page = querySpecification.Page,
+                    PrimaryKeyColumnName = _conventionReader.TryGetPrimaryKeyColumnName(querySpecification.ResultType)
                 };
 
             if (querySpecification.HasJoinSpecification)

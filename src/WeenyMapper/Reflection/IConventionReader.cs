@@ -25,5 +25,6 @@ namespace WeenyMapper.Reflection
         bool IsEntityReferenceProperty(string columnName, Type type);
         PropertyInfo TryGetIdProperty(Type type);
         bool HasIdProperty(Type type);
+        string TryGetPrimaryKeyColumnName(Type type);
     }
 }

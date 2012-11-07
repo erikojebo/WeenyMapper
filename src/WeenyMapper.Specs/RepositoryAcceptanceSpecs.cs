@@ -1190,6 +1190,53 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
+        public virtual void Paging_query_without_explicit_ordering_orders_by_primary_key()
+        {
+            Repository.DefaultConvention = new BookConvention();
+
+            var book1 = new Book
+                            {
+                                Isbn = "1",
+                                AuthorName = "Author Name",
+                                Title = "Title 1",
+                                PageCount = 100,
+                            };
+
+            var book2 = new Book
+                            {
+                                Isbn = "2",
+                                AuthorName = "Another Author Name",
+                                Title = "Title 2",
+                                PageCount = 200
+                            };
+
+            var book3 = new Book
+                            {
+                                Isbn = "3",
+                                AuthorName = "Another Author Name",
+                                Title = "Title 3",
+                                PageCount = 75
+                            };
+
+            var book4 = new Book
+                            {
+                                Isbn = "4",
+                                AuthorName = "Another Author Name",
+                                Title = "Title 4",
+                                PageCount = 150
+                            };
+
+            Repository.Insert(book1, book2, book3, book4);
+
+            var actualBooks = Repository.Find<Book>()
+                .Page(1, 2)
+                .ExecuteList();
+
+            Assert.AreEqual(2, actualBooks.Count);
+            CollectionAssert.AreEqual(new[] { book3, book4 }, actualBooks);
+        }
+
+        [Test]
         public virtual void String_contains_call_can_be_used_to_execute_like_query()
         {
             Repository.DefaultConvention = new BookConvention();
@@ -2043,7 +2090,7 @@ namespace WeenyMapper.Specs
         [Test]
         public void Entity_without_primary_key_can_be_written_and_read_back_again()
         {
-            var @event = new Event() { AggregateId = Guid.NewGuid(), PublishDate = new DateTime(2012, 1, 2, 3, 4, 5), Data = "data" };
+            var @event = new Event { AggregateId = Guid.NewGuid(), PublishDate = new DateTime(2012, 1, 2, 3, 4, 5), Data = "data" };
 
             Repository.Insert(@event);
 

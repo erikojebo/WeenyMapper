@@ -23,7 +23,15 @@ namespace WeenyMapper.Specs
 
         [Test]
         [Ignore("Not supported")]
-        public override void Part_of_the_result_can_be_returned_from_find_query_by_specifying_page_number_and_size() {}
+        public override void Part_of_the_result_can_be_returned_from_find_query_by_specifying_page_number_and_size()
+        {
+        }
+
+        [Test]
+        [Ignore("Not supported")]
+        public override void Paging_query_without_explicit_ordering_orders_by_primary_key()
+        {
+        }
 
         private void WriteDatabaseSchema()
         {
@@ -55,7 +63,9 @@ namespace WeenyMapper.Specs
                 {
                     File.Delete(DatabasePath);
                 }
-                catch {}
+                catch
+                {
+                }
             }
 
             new SqlCeEngine(TestConnectionString).CreateDatabase();
