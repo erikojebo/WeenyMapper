@@ -2,13 +2,13 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>WeenyMapper</id>
-    <version>0.2.3</version>
+    <version>0.2.5</version>
     <authors>Erik Öjebo</authors>
     <owners>Erik Öjebo</owners>
     <projectUrl>https://github.com/erikojebo/WeenyMapper</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Configuration-less object-relational mapper for SQL Server and SQL Server CE</description>
-    <releaseNotes>Added support for per-repository conventions</releaseNotes>
+    <releaseNotes>Fixed bug for paging queries on entities without primary key</releaseNotes>
     <copyright>Copyright 2012</copyright>
     <tags>.net orm object relational mapping sql sqlserver</tags>
   </metadata>

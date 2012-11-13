@@ -12,3 +12,39 @@ var repository = new Repository();
 // default one, you can do this on your repository instance
 repository.ConnectionString = @"Data source=.\SQLEXPRESS;Initial Catalog=some_other_database_name;Trusted_Connection=true"
 ```
+
+```c#
+public class User
+{
+    public Guid Id { get; set; }
+    public string Username { get; set; }
+    public string Password { get; set; }
+}
+
+
+
+var user1 = new User
+               {
+                   Id = Guid.NewGuid(),
+                   Username = "User1",
+                   Password = "a password"
+               };
+
+var user2 = new User
+               {
+                   Id = Guid.NewGuid(),
+                   Username = "User1",
+                   Password = "a password"
+               };
+
+var users = new [] { user1, user2 };
+
+// You can insert a single object
+Repository.Insert(user1);
+
+// ... or a fixed number of objects
+
+
+// ... or a collection of objects
+Repository.InsertCollection(users);
+```
