@@ -185,12 +185,17 @@ namespace WeenyMapper
             return new StaticCountBuilder<T>(objectCountExecutor, new ExpressionParser());
         }
 
-        public void EnableSqlConsoleLogging()
+        public static void EnableSqlConsoleLogging()
         {
             SqlLogger = new ConsoleSqlCommandLogger();
         }
 
-        public void DisableSqlConsoleLogging()
+        public static void EnableSqlTraceLogging()
+        {
+            SqlLogger = new TraceSqlCommandLogger();
+        }
+
+        public static void DisableSqlLogging()
         {
             SqlLogger = new NullSqlCommandLogger();
         }
