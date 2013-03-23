@@ -6,6 +6,7 @@ namespace WeenyMapper.Specs.TestClasses.Entities
         public string Title { get; set; }
         public string AuthorName { get; set; }
         public int PageCount { get; set; }
+        public bool IsPublicDomain { get; set; }
 
         public override int GetHashCode()
         {

@@ -8,6 +8,7 @@ CREATE TABLE [t_Books](
 	[c_ISBN] [nvarchar](255) NOT NULL PRIMARY KEY,
 	[c_TITLE] [nvarchar](255) NOT NULL,
 	[c_AUTHORNAME] [nvarchar](255) NOT NULL,
+  [c_ISPUBLICDOMAIN] [bit] NOT NULL,
 	[c_PAGECOUNT] [int] NOT NULL)
 GO
 

@@ -28,6 +28,7 @@ namespace WeenyMapper.Specs.Reflection
             Assert.AreEqual(expectedProperty, actualProperty);
         }
 
+        [Ignore("Don't remember what the deal is. Look this up later.")]
         [Test]
         public void Fact()
         {

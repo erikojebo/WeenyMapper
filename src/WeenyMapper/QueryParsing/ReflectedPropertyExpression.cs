@@ -7,7 +7,7 @@ namespace WeenyMapper.QueryParsing
     {
         private readonly PropertyInfo _propertyInfo;
 
-        public ReflectedPropertyExpression(PropertyInfo propertyInfo) : base(propertyInfo.Name)
+        public ReflectedPropertyExpression(PropertyInfo propertyInfo) : base(propertyInfo.Name, propertyInfo.PropertyType)
         {
             _propertyInfo = propertyInfo;
         }

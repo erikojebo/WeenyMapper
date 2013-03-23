@@ -29,11 +29,11 @@ namespace WeenyMapper.Specs
         public virtual void An_object_can_be_inserted_into_the_database_and_read_back_via_a_query_on_the_given_id()
         {
             var user = new User
-                           {
-                               Id = Guid.NewGuid(),
-                               Username = "a username",
-                               Password = "a password"
-                           };
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "a username",
+                    Password = "a password"
+                };
 
             Repository.Insert(user);
             var actualUser = Repository.Find<User>().Where(x => x.Id == user.Id).Execute();
@@ -45,11 +45,11 @@ namespace WeenyMapper.Specs
         public virtual void Query_for_single_entity_without_any_match_returns_null()
         {
             var user = new User
-                           {
-                               Id = Guid.NewGuid(),
-                               Username = "a username",
-                               Password = "a password"
-                           };
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "a username",
+                    Password = "a password"
+                };
 
             Repository.Insert(user);
 
@@ -65,36 +65,36 @@ namespace WeenyMapper.Specs
             Repository.DefaultConvention = new BookConvention();
 
             var book1 = new Book
-                            {
-                                Isbn = "1",
-                                AuthorName = "Author Name",
-                                Title = "Title 1",
-                                PageCount = 123,
-                            };
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 123,
+                };
 
             var book2 = new Book
-                            {
-                                Isbn = "2",
-                                AuthorName = "Author Name",
-                                Title = "Title 2",
-                                PageCount = 123
-                            };
+                {
+                    Isbn = "2",
+                    AuthorName = "Author Name",
+                    Title = "Title 2",
+                    PageCount = 123
+                };
 
             var book3 = new Book
-                            {
-                                Isbn = "3",
-                                AuthorName = "Author Name",
-                                Title = "Title 3",
-                                PageCount = 123
-                            };
+                {
+                    Isbn = "3",
+                    AuthorName = "Author Name",
+                    Title = "Title 3",
+                    PageCount = 123
+                };
 
             Repository.Insert(book1);
             Repository.Insert(book2);
             Repository.Insert(book3);
 
             Book actualBook = Repository.Find<Book>()
-                .Where(x => x.AuthorName == "Author Name" && x.Title == "Title 2" && x.PageCount == 123)
-                .Execute();
+                                        .Where(x => x.AuthorName == "Author Name" && x.Title == "Title 2" && x.PageCount == 123)
+                                        .Execute();
 
             Assert.AreEqual(book2, actualBook);
         }
@@ -105,38 +105,38 @@ namespace WeenyMapper.Specs
             Repository.DefaultConvention = new BookConvention();
 
             var book1 = new Book
-                            {
-                                Isbn = "1",
-                                AuthorName = "Author Name",
-                                Title = "Title 1",
-                                PageCount = 123,
-                            };
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 123,
+                };
 
             var book2 = new Book
-                            {
-                                Isbn = "2",
-                                AuthorName = "Author Name",
-                                Title = "Title 2",
-                                PageCount = 123
-                            };
+                {
+                    Isbn = "2",
+                    AuthorName = "Author Name",
+                    Title = "Title 2",
+                    PageCount = 123
+                };
 
             var book3 = new Book
-                            {
-                                Isbn = "3",
-                                AuthorName = "Author Name",
-                                Title = "Title 3",
-                                PageCount = 123
-                            };
+                {
+                    Isbn = "3",
+                    AuthorName = "Author Name",
+                    Title = "Title 3",
+                    PageCount = 123
+                };
 
             Repository.Insert(book1);
             Repository.Insert(book2);
             Repository.Insert(book3);
 
             Book actualBook = Repository.Find<Book>()
-                .Where(x => x.AuthorName == "Author Name")
-                .Where(x => x.Title == "Title 2")
-                .Where(x => x.PageCount == 123)
-                .Execute();
+                                        .Where(x => x.AuthorName == "Author Name")
+                                        .Where(x => x.Title == "Title 2")
+                                        .Where(x => x.PageCount == 123)
+                                        .Execute();
 
             Assert.AreEqual(book2, actualBook);
         }
@@ -147,38 +147,38 @@ namespace WeenyMapper.Specs
             Repository.DefaultConvention = new BookConvention();
 
             var book1 = new Book
-                            {
-                                Isbn = "1",
-                                AuthorName = "Author Name",
-                                Title = "Title 1",
-                                PageCount = 123,
-                            };
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 123,
+                };
 
             var book2 = new Book
-                            {
-                                Isbn = "2",
-                                AuthorName = "Author Name",
-                                Title = "Title 2",
-                                PageCount = 123
-                            };
+                {
+                    Isbn = "2",
+                    AuthorName = "Author Name",
+                    Title = "Title 2",
+                    PageCount = 123
+                };
 
             var book3 = new Book
-                            {
-                                Isbn = "3",
-                                AuthorName = "Author Name",
-                                Title = "Title 3",
-                                PageCount = 123
-                            };
+                {
+                    Isbn = "3",
+                    AuthorName = "Author Name",
+                    Title = "Title 3",
+                    PageCount = 123
+                };
 
             Repository.Insert(book1);
             Repository.Insert(book2);
             Repository.Insert(book3);
 
             var actualBooks = Repository.Find<Book>()
-                .Where(x => x.Isbn == "1")
-                .OrWhere(x => x.Title == "Title 2")
-                .OrderBy(x => x.Isbn)
-                .ExecuteList();
+                                        .Where(x => x.Isbn == "1")
+                                        .OrWhere(x => x.Title == "Title 2")
+                                        .OrderBy(x => x.Isbn)
+                                        .ExecuteList();
 
             Assert.AreEqual(2, actualBooks.Count);
             Assert.AreEqual(book1, actualBooks[0]);
@@ -191,61 +191,61 @@ namespace WeenyMapper.Specs
             Repository.DefaultConvention = new BookConvention();
 
             var book1 = new Book
-                            {
-                                Isbn = "1",
-                                AuthorName = "Author Name",
-                                Title = "Title 1",
-                                PageCount = 123,
-                            };
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 123,
+                };
 
             var book2 = new Book
-                            {
-                                Isbn = "2",
-                                AuthorName = "Author Name",
-                                Title = "Title 2",
-                                PageCount = 123
-                            };
+                {
+                    Isbn = "2",
+                    AuthorName = "Author Name",
+                    Title = "Title 2",
+                    PageCount = 123
+                };
 
             var book3 = new Book
-                            {
-                                Isbn = "3",
-                                AuthorName = "Author Name",
-                                Title = "Title 3",
-                                PageCount = 222
-                            };
+                {
+                    Isbn = "3",
+                    AuthorName = "Author Name",
+                    Title = "Title 3",
+                    PageCount = 222
+                };
 
             var book4 = new Book
-                            {
-                                Isbn = "4",
-                                AuthorName = "Author Name",
-                                Title = "Title 4",
-                                PageCount = 222
-                            };
+                {
+                    Isbn = "4",
+                    AuthorName = "Author Name",
+                    Title = "Title 4",
+                    PageCount = 222
+                };
 
             var book5 = new Book
-                            {
-                                Isbn = "5",
-                                AuthorName = "Author Name",
-                                Title = "Title 5",
-                                PageCount = 123
-                            };
+                {
+                    Isbn = "5",
+                    AuthorName = "Author Name",
+                    Title = "Title 5",
+                    PageCount = 123
+                };
 
             var book6 = new Book
-                            {
-                                Isbn = "6",
-                                AuthorName = "Another author Name",
-                                Title = "Title 6",
-                                PageCount = 222
-                            };
+                {
+                    Isbn = "6",
+                    AuthorName = "Another author Name",
+                    Title = "Title 6",
+                    PageCount = 222
+                };
 
             Repository.Insert(book1, book2, book3, book4, book5, book6);
 
             var actualBooks = Repository.Find<Book>()
-                .Where(x => x.Isbn == "1")
-                .OrWhere(x => x.PageCount == 222)
-                .AndWhere(x => x.AuthorName == "Author Name")
-                .OrderBy(x => x.Isbn)
-                .ExecuteList();
+                                        .Where(x => x.Isbn == "1")
+                                        .OrWhere(x => x.PageCount == 222)
+                                        .AndWhere(x => x.AuthorName == "Author Name")
+                                        .OrderBy(x => x.Isbn)
+                                        .ExecuteList();
 
             Assert.AreEqual(3, actualBooks.Count);
             Assert.AreEqual(book1, actualBooks[0]);
@@ -257,27 +257,27 @@ namespace WeenyMapper.Specs
         public virtual void Updating_an_object_updates_the_database_entry_with_the_corresponding_id()
         {
             var user1 = new User
-                            {
-                                Id = Guid.NewGuid(),
-                                Username = "username1",
-                                Password = "a password"
-                            };
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "username1",
+                    Password = "a password"
+                };
             var user2 = new User
-                            {
-                                Id = Guid.NewGuid(),
-                                Username = "username2",
-                                Password = "a password"
-                            };
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "username2",
+                    Password = "a password"
+                };
 
             Repository.Insert(user1);
             Repository.Insert(user2);
 
             var updatedUser2 = new User
-                                   {
-                                       Id = user2.Id,
-                                       Username = "updated username",
-                                       Password = "updated password"
-                                   };
+                {
+                    Id = user2.Id,
+                    Username = "updated username",
+                    Password = "updated password"
+                };
 
             Repository.Update(updatedUser2);
 
@@ -292,11 +292,11 @@ namespace WeenyMapper.Specs
             Repository.DefaultConvention = new UserConvention();
 
             var user = new User
-                           {
-                               Id = Guid.NewGuid(),
-                               Username = "a username",
-                               Password = "a password"
-                           };
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "a username",
+                    Password = "a password"
+                };
 
             Repository.Insert(user);
             var actualUser = Repository.Find<PartialUser>().Where(x => x.Id == user.Id).Execute();
@@ -311,36 +311,36 @@ namespace WeenyMapper.Specs
             Repository.DefaultConvention = new BookConvention();
 
             var book1 = new Book
-                            {
-                                Isbn = "1",
-                                Title = "Book title 1",
-                                AuthorName = "Author Name",
-                                PageCount = 123
-                            };
+                {
+                    Isbn = "1",
+                    Title = "Book title 1",
+                    AuthorName = "Author Name",
+                    PageCount = 123
+                };
 
             var book2 = new Book
-                            {
-                                Isbn = "2",
-                                Title = "Book title 2",
-                                AuthorName = "Author Name 2",
-                                PageCount = 123
-                            };
+                {
+                    Isbn = "2",
+                    Title = "Book title 2",
+                    AuthorName = "Author Name 2",
+                    PageCount = 123
+                };
 
             var book3 = new Book
-                            {
-                                Isbn = "3",
-                                Title = "Book title 3",
-                                AuthorName = "Author Name 2",
-                                PageCount = 123
-                            };
+                {
+                    Isbn = "3",
+                    Title = "Book title 3",
+                    AuthorName = "Author Name 2",
+                    PageCount = 123
+                };
 
             var book4 = new Book
-                            {
-                                Isbn = "4",
-                                Title = "Book title 4",
-                                AuthorName = "Author Name",
-                                PageCount = 123
-                            };
+                {
+                    Isbn = "4",
+                    Title = "Book title 4",
+                    AuthorName = "Author Name",
+                    PageCount = 123
+                };
 
             Repository.Insert(book1);
             Repository.Insert(book2);
@@ -355,21 +355,21 @@ namespace WeenyMapper.Specs
             Repository.Update(readBook);
 
             var readUpdatedBook = Repository.Find<Book>()
-                .Where(x => x.Title == "Updated book title")
-                .Where(x => x.AuthorName == "Updated author name")
-                .Execute();
+                                            .Where(x => x.Title == "Updated book title")
+                                            .Where(x => x.AuthorName == "Updated author name")
+                                            .Execute();
 
             var updatedRowCount = Repository.Update<Book>().Where(x => x.AuthorName == "Author Name 2")
-                .Set(x => x.PageCount, 456)
-                .Execute();
+                                            .Set(x => x.PageCount, 456)
+                                            .Execute();
 
             var updatedBooks = Repository.Find<Book>()
-                .Where(x => x.PageCount == 456)
-                .ExecuteList();
+                                         .Where(x => x.PageCount == 456)
+                                         .ExecuteList();
 
             var deletedRowCount = Repository.Delete<Book>()
-                .Where(x => x.PageCount == 456)
-                .Execute();
+                                            .Where(x => x.PageCount == 456)
+                                            .Execute();
 
             Repository.Delete(book1);
 
@@ -388,36 +388,36 @@ namespace WeenyMapper.Specs
             Repository.DefaultConvention = new BookConvention();
 
             var book1 = new Book
-                            {
-                                Isbn = "1",
-                                AuthorName = "Author Name",
-                                Title = "Title 1",
-                                PageCount = 123,
-                            };
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 123,
+                };
 
             var book2 = new Book
-                            {
-                                Isbn = "2",
-                                AuthorName = "Author Name 2",
-                                Title = "Title 2",
-                                PageCount = 123
-                            };
+                {
+                    Isbn = "2",
+                    AuthorName = "Author Name 2",
+                    Title = "Title 2",
+                    PageCount = 123
+                };
 
             var book3 = new Book
-                            {
-                                Isbn = "3",
-                                AuthorName = "Author Name 2",
-                                Title = "Title 3",
-                                PageCount = 123
-                            };
+                {
+                    Isbn = "3",
+                    AuthorName = "Author Name 2",
+                    Title = "Title 3",
+                    PageCount = 123
+                };
 
             var book4 = new Book
-                            {
-                                Isbn = "4",
-                                AuthorName = "Author Name 2",
-                                Title = "Title 4",
-                                PageCount = 321
-                            };
+                {
+                    Isbn = "4",
+                    AuthorName = "Author Name 2",
+                    Title = "Title 4",
+                    PageCount = 321
+                };
 
             Repository.Insert(book1);
             Repository.Insert(book2);
@@ -425,8 +425,8 @@ namespace WeenyMapper.Specs
             Repository.Insert(book4);
 
             var actualBooks = Repository.Find<Book>()
-                .Where(x => x.AuthorName == "Author Name 2" && x.PageCount == 123)
-                .ExecuteList();
+                                        .Where(x => x.AuthorName == "Author Name 2" && x.PageCount == 123)
+                                        .ExecuteList();
 
             Assert.AreEqual(2, actualBooks.Count);
 
@@ -440,36 +440,36 @@ namespace WeenyMapper.Specs
             Repository.DefaultConvention = new BookConvention();
 
             var book1 = new Book
-                            {
-                                Isbn = "1",
-                                AuthorName = "Author Name",
-                                Title = "Title 1",
-                                PageCount = 123,
-                            };
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 123,
+                };
 
             var book2 = new Book
-                            {
-                                Isbn = "2",
-                                AuthorName = "Author Name 2",
-                                Title = "Title 2",
-                                PageCount = 123
-                            };
+                {
+                    Isbn = "2",
+                    AuthorName = "Author Name 2",
+                    Title = "Title 2",
+                    PageCount = 123
+                };
 
             var book3 = new Book
-                            {
-                                Isbn = "3",
-                                AuthorName = "Author Name 2",
-                                Title = "Title 3",
-                                PageCount = 123
-                            };
+                {
+                    Isbn = "3",
+                    AuthorName = "Author Name 2",
+                    Title = "Title 3",
+                    PageCount = 123
+                };
 
             var book4 = new Book
-                            {
-                                Isbn = "4",
-                                AuthorName = "Author Name 2",
-                                Title = "Title 4",
-                                PageCount = 321
-                            };
+                {
+                    Isbn = "4",
+                    AuthorName = "Author Name 2",
+                    Title = "Title 4",
+                    PageCount = 321
+                };
 
             Repository.Insert(book1);
             Repository.Insert(book2);
@@ -477,14 +477,14 @@ namespace WeenyMapper.Specs
             Repository.Insert(book4);
 
             Repository.Update<Book>()
-                .Where(x => x.AuthorName == "Author Name 2" && x.PageCount == 123)
-                .Set(x => x.PageCount, 456)
-                .Set(x => x.Title, "new title")
-                .Execute();
+                      .Where(x => x.AuthorName == "Author Name 2" && x.PageCount == 123)
+                      .Set(x => x.PageCount, 456)
+                      .Set(x => x.Title, "new title")
+                      .Execute();
 
             var actualBooks = Repository.Find<Book>()
-                .Where(x => x.PageCount == 456 && x.Title == "new title")
-                .ExecuteList();
+                                        .Where(x => x.PageCount == 456 && x.Title == "new title")
+                                        .ExecuteList();
 
             Assert.AreEqual(2, actualBooks.Count);
 
@@ -496,17 +496,17 @@ namespace WeenyMapper.Specs
         public virtual void Deleting_an_entity_deletes_the_corresponding_row_and_no_other_row()
         {
             var user1 = new User
-                            {
-                                Id = Guid.NewGuid(),
-                                Username = "username1",
-                                Password = "a password"
-                            };
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "username1",
+                    Password = "a password"
+                };
             var user2 = new User
-                            {
-                                Id = Guid.NewGuid(),
-                                Username = "username2",
-                                Password = "a password"
-                            };
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "username2",
+                    Password = "a password"
+                };
 
             Repository.Insert(user1);
             Repository.Insert(user2);
@@ -525,36 +525,36 @@ namespace WeenyMapper.Specs
             Repository.DefaultConvention = new BookConvention();
 
             var book1 = new Book
-                            {
-                                Isbn = "1",
-                                AuthorName = "Author Name",
-                                Title = "Title 1",
-                                PageCount = 123,
-                            };
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 123,
+                };
 
             var book2 = new Book
-                            {
-                                Isbn = "2",
-                                AuthorName = "Author Name 2",
-                                Title = "Title 2",
-                                PageCount = 123
-                            };
+                {
+                    Isbn = "2",
+                    AuthorName = "Author Name 2",
+                    Title = "Title 2",
+                    PageCount = 123
+                };
 
             var book3 = new Book
-                            {
-                                Isbn = "3",
-                                AuthorName = "Author Name 2",
-                                Title = "Title 3",
-                                PageCount = 123
-                            };
+                {
+                    Isbn = "3",
+                    AuthorName = "Author Name 2",
+                    Title = "Title 3",
+                    PageCount = 123
+                };
 
             var book4 = new Book
-                            {
-                                Isbn = "4",
-                                AuthorName = "Author Name 2",
-                                Title = "Title 4",
-                                PageCount = 321
-                            };
+                {
+                    Isbn = "4",
+                    AuthorName = "Author Name 2",
+                    Title = "Title 4",
+                    PageCount = 321
+                };
 
             Repository.Insert(book1);
             Repository.Insert(book2);
@@ -562,8 +562,8 @@ namespace WeenyMapper.Specs
             Repository.Insert(book4);
 
             Repository.Delete<Book>()
-                .Where(x => x.AuthorName == "Author Name 2" && x.PageCount == 123)
-                .Execute();
+                      .Where(x => x.AuthorName == "Author Name 2" && x.PageCount == 123)
+                      .Execute();
 
             var allBooks = Repository.Find<Book>().ExecuteList();
 
@@ -579,20 +579,20 @@ namespace WeenyMapper.Specs
             Repository.DefaultConvention = new BookConvention();
 
             var book1 = new Book
-                            {
-                                Isbn = "1",
-                                AuthorName = "Author Name",
-                                Title = "Title 1",
-                                PageCount = 123,
-                            };
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 123,
+                };
 
             var book2 = new Book
-                            {
-                                Isbn = "2",
-                                AuthorName = "Author Name",
-                                Title = "Title 2",
-                                PageCount = 123
-                            };
+                {
+                    Isbn = "2",
+                    AuthorName = "Author Name",
+                    Title = "Title 2",
+                    PageCount = 123
+                };
 
             Repository.Insert(new[] { book1, book2 });
 
@@ -609,42 +609,42 @@ namespace WeenyMapper.Specs
             Repository.DefaultConvention = new BookConvention();
 
             var book1 = new Book
-                            {
-                                Isbn = "1",
-                                AuthorName = "Author Name",
-                                Title = "Title 1",
-                                PageCount = 123,
-                            };
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 123,
+                };
 
             var book2 = new Book
-                            {
-                                Isbn = "2",
-                                AuthorName = "Author Name 2",
-                                Title = "Title 2",
-                                PageCount = 123
-                            };
+                {
+                    Isbn = "2",
+                    AuthorName = "Author Name 2",
+                    Title = "Title 2",
+                    PageCount = 123
+                };
 
             var book3 = new Book
-                            {
-                                Isbn = "3",
-                                AuthorName = "Author Name 2",
-                                Title = "Title 3",
-                                PageCount = 123
-                            };
+                {
+                    Isbn = "3",
+                    AuthorName = "Author Name 2",
+                    Title = "Title 3",
+                    PageCount = 123
+                };
 
             var book4 = new Book
-                            {
-                                Isbn = "4",
-                                AuthorName = "Author Name 2",
-                                Title = "Title 4",
-                                PageCount = 321
-                            };
+                {
+                    Isbn = "4",
+                    AuthorName = "Author Name 2",
+                    Title = "Title 4",
+                    PageCount = 321
+                };
 
             Repository.Insert(book1, book2, book3, book4);
 
             int count = Repository.Count<Book>()
-                .Where(x => x.AuthorName == "Author Name 2" && x.PageCount == 123)
-                .Execute();
+                                  .Where(x => x.AuthorName == "Author Name 2" && x.PageCount == 123)
+                                  .Execute();
 
             Assert.AreEqual(2, count);
         }
@@ -655,20 +655,20 @@ namespace WeenyMapper.Specs
             Repository.DefaultConvention = new BookConvention();
 
             var book1 = new Book
-                            {
-                                Isbn = "1",
-                                AuthorName = "Author Name",
-                                Title = "Title 1",
-                                PageCount = 123,
-                            };
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 123,
+                };
 
             Repository.Insert(book1);
 
             var partialBook = Repository.Find<Book>()
-                .Where(x => x.Isbn == "1")
-                .Select(x => x.Isbn)
-                .Select(x => x.Title)
-                .Execute();
+                                        .Where(x => x.Isbn == "1")
+                                        .Select(x => x.Isbn)
+                                        .Select(x => x.Title)
+                                        .Execute();
 
             Assert.AreEqual("1", partialBook.Isbn);
             Assert.AreEqual("Title 1", partialBook.Title);
@@ -682,37 +682,37 @@ namespace WeenyMapper.Specs
             Repository.DefaultConvention = new BookConvention();
 
             var book1 = new Book
-                            {
-                                Isbn = "1",
-                                AuthorName = "Author Name",
-                                Title = "Title 1",
-                                PageCount = 123,
-                            };
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 123,
+                };
 
             var book2 = new Book
-                            {
-                                Isbn = "2",
-                                AuthorName = "Author Name 2",
-                                Title = "Title 2",
-                                PageCount = 123
-                            };
+                {
+                    Isbn = "2",
+                    AuthorName = "Author Name 2",
+                    Title = "Title 2",
+                    PageCount = 123
+                };
 
             var book3 = new Book
-                            {
-                                Isbn = "3",
-                                AuthorName = "Author Name 2",
-                                Title = "Title 3",
-                                PageCount = 123
-                            };
+                {
+                    Isbn = "3",
+                    AuthorName = "Author Name 2",
+                    Title = "Title 3",
+                    PageCount = 123
+                };
 
             Repository.Insert(book1, book2, book3);
 
             var partialBooks = Repository.Find<Book>()
-                .Where(x => x.AuthorName == "Author Name 2")
-                .Select(x => x.Isbn)
-                .Select(x => x.Title)
-                .ExecuteList()
-                .OrderBy(x => x.Isbn).ToList();
+                                         .Where(x => x.AuthorName == "Author Name 2")
+                                         .Select(x => x.Isbn)
+                                         .Select(x => x.Title)
+                                         .ExecuteList()
+                                         .OrderBy(x => x.Isbn).ToList();
 
             Assert.AreEqual(2, partialBooks.Count);
 
@@ -731,25 +731,25 @@ namespace WeenyMapper.Specs
         public virtual void Find_query_can_be_evaluated_to_a_single_scalar_value()
         {
             var user1 = new User
-                            {
-                                Id = Guid.NewGuid(),
-                                Username = "username1",
-                                Password = "a password"
-                            };
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "username1",
+                    Password = "a password"
+                };
 
             var user2 = new User
-                            {
-                                Id = Guid.NewGuid(),
-                                Username = "username2",
-                                Password = "another password"
-                            };
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "username2",
+                    Password = "another password"
+                };
 
             Repository.Insert(user1, user2);
 
             var actualUsername = Repository.Find<User>()
-                .Where(x => x.Id == user2.Id)
-                .Select(x => x.Username)
-                .ExecuteScalar<string>();
+                                           .Where(x => x.Id == user2.Id)
+                                           .Select(x => x.Username)
+                                           .ExecuteScalar<string>();
 
             Assert.AreEqual("username2", actualUsername);
         }
@@ -758,32 +758,32 @@ namespace WeenyMapper.Specs
         public virtual void Scalar_values_can_be_returned_for_find_query_matching_multiple_entities()
         {
             var user1 = new User
-                            {
-                                Id = Guid.NewGuid(),
-                                Username = "username1",
-                                Password = "a password"
-                            };
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "username1",
+                    Password = "a password"
+                };
 
             var user2 = new User
-                            {
-                                Id = Guid.NewGuid(),
-                                Username = "username2",
-                                Password = "another password"
-                            };
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "username2",
+                    Password = "another password"
+                };
 
             var user3 = new User
-                            {
-                                Id = Guid.NewGuid(),
-                                Username = "username3",
-                                Password = "a password"
-                            };
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "username3",
+                    Password = "a password"
+                };
 
             Repository.Insert(user1, user2, user3);
 
             var usernames = Repository.Find<User>()
-                .Where(x => x.Password == "a password")
-                .Select(x => x.Username)
-                .ExecuteScalarList<string>();
+                                      .Where(x => x.Password == "a password")
+                                      .Select(x => x.Username)
+                                      .ExecuteScalarList<string>();
 
             Assert.AreEqual(2, usernames.Count);
             CollectionAssert.Contains(usernames, "username1");
@@ -796,58 +796,58 @@ namespace WeenyMapper.Specs
             Repository.DefaultConvention = new BookConvention();
 
             var book1 = new Book
-                            {
-                                Isbn = "1",
-                                AuthorName = "Author Name",
-                                Title = "Title 1",
-                                PageCount = 100,
-                            };
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 100,
+                };
 
             var book2 = new Book
-                            {
-                                Isbn = "2",
-                                AuthorName = "Another Author Name",
-                                Title = "Title 2",
-                                PageCount = 200
-                            };
+                {
+                    Isbn = "2",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 2",
+                    PageCount = 200
+                };
 
             var book3 = new Book
-                            {
-                                Isbn = "3",
-                                AuthorName = "Another Author Name",
-                                Title = "Title 3",
-                                PageCount = 150
-                            };
+                {
+                    Isbn = "3",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 3",
+                    PageCount = 150
+                };
 
             var book4 = new Book
-                            {
-                                Isbn = "4",
-                                AuthorName = "Another Author Name",
-                                Title = "Title 4",
-                                PageCount = 75
-                            };
+                {
+                    Isbn = "4",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 4",
+                    PageCount = 75
+                };
 
             var book5 = new Book
-                            {
-                                Isbn = "5",
-                                AuthorName = "Author Name",
-                                Title = "Title 5",
-                                PageCount = 75
-                            };
+                {
+                    Isbn = "5",
+                    AuthorName = "Author Name",
+                    Title = "Title 5",
+                    PageCount = 75
+                };
 
             var book6 = new Book
-                            {
-                                Isbn = "6",
-                                AuthorName = "Author Name",
-                                Title = "Title 6",
-                                PageCount = 50
-                            };
+                {
+                    Isbn = "6",
+                    AuthorName = "Author Name",
+                    Title = "Title 6",
+                    PageCount = 50
+                };
 
             Repository.Insert(book1, book2, book3, book4, book5, book6);
 
             var actualBooks = Repository.Find<Book>()
-                .Where(x => x.Isbn == "6" || (x.PageCount == 75 && x.AuthorName == "Another Author Name"))
-                .ExecuteList();
+                                        .Where(x => x.Isbn == "6" || (x.PageCount == 75 && x.AuthorName == "Another Author Name"))
+                                        .ExecuteList();
 
             Assert.AreEqual(2, actualBooks.Count);
             CollectionAssert.Contains(actualBooks, book4);
@@ -860,60 +860,60 @@ namespace WeenyMapper.Specs
             Repository.DefaultConvention = new BookConvention();
 
             var book1 = new Book
-                            {
-                                Isbn = "1",
-                                AuthorName = "Author Name",
-                                Title = "Title 1",
-                                PageCount = 100,
-                            };
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 100,
+                };
 
             var book2 = new Book
-                            {
-                                Isbn = "2",
-                                AuthorName = "Another Author Name",
-                                Title = "Title 2",
-                                PageCount = 200
-                            };
+                {
+                    Isbn = "2",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 2",
+                    PageCount = 200
+                };
 
             var book3 = new Book
-                            {
-                                Isbn = "3",
-                                AuthorName = "Another Author Name",
-                                Title = "Title 3",
-                                PageCount = 150
-                            };
+                {
+                    Isbn = "3",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 3",
+                    PageCount = 150
+                };
 
             var book4 = new Book
-                            {
-                                Isbn = "4",
-                                AuthorName = "Another Author Name",
-                                Title = "Title 4",
-                                PageCount = 75
-                            };
+                {
+                    Isbn = "4",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 4",
+                    PageCount = 75
+                };
 
             var book5 = new Book
-                            {
-                                Isbn = "5",
-                                AuthorName = "Author Name",
-                                Title = "Title 5",
-                                PageCount = 75
-                            };
+                {
+                    Isbn = "5",
+                    AuthorName = "Author Name",
+                    Title = "Title 5",
+                    PageCount = 75
+                };
 
             var book6 = new Book
-                            {
-                                Isbn = "6",
-                                AuthorName = "Author Name",
-                                Title = "Title 6",
-                                PageCount = 50
-                            };
+                {
+                    Isbn = "6",
+                    AuthorName = "Author Name",
+                    Title = "Title 6",
+                    PageCount = 50
+                };
 
             Repository.Insert(book1, book2, book3, book4, book5, book6);
 
             var titles = new[] { "Title 4", "Title 5", "Title 6" };
 
             var actualBooks = Repository.Find<Book>()
-                .Where(x => titles.Contains(x.Title) && x.AuthorName == "Author Name")
-                .ExecuteList();
+                                        .Where(x => titles.Contains(x.Title) && x.AuthorName == "Author Name")
+                                        .ExecuteList();
 
             Assert.AreEqual(2, actualBooks.Count);
             CollectionAssert.Contains(actualBooks, book5);
@@ -926,28 +926,28 @@ namespace WeenyMapper.Specs
             Repository.DefaultConvention = new UserWithExtraPropertiesConvention();
 
             var user1 = new UserWithExtraProperties
-                            {
-                                Id = Guid.NewGuid(),
-                                Username = "Extra user 1",
-                                Password = "Password",
-                                PublicExtraProperty = "Extra property value"
-                            };
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "Extra user 1",
+                    Password = "Password",
+                    PublicExtraProperty = "Extra property value"
+                };
 
             var user2 = new UserWithExtraProperties
-                            {
-                                Id = Guid.NewGuid(),
-                                Username = "Extra user 2",
-                                Password = "Password",
-                                PublicExtraProperty = "Extra property value"
-                            };
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "Extra user 2",
+                    Password = "Password",
+                    PublicExtraProperty = "Extra property value"
+                };
 
             var user3 = new UserWithExtraProperties
-                            {
-                                Id = Guid.NewGuid(),
-                                Username = "Extra user 3",
-                                Password = "Password",
-                                PublicExtraProperty = "Extra property value"
-                            };
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "Extra user 3",
+                    Password = "Password",
+                    PublicExtraProperty = "Extra property value"
+                };
 
             Repository.Insert(user1);
             Repository.Insert(user2, user3);
@@ -958,7 +958,7 @@ namespace WeenyMapper.Specs
             Repository.Update<User>().Where(x => x.Password == "Password").Set(x => x.Password, "Another updated password").Execute();
 
             var batchUpdatedUsers = Repository.Find<User>().Where(x => x.Password == "Another updated password").ExecuteList()
-                .OrderBy(x => x.Username).ToList();
+                                              .OrderBy(x => x.Username).ToList();
 
             Repository.Delete(user3);
             Repository.Delete<UserWithExtraProperties>().Where(x => x.Username == "Extra user 2").Execute();
@@ -981,10 +981,10 @@ namespace WeenyMapper.Specs
             Repository.DefaultConvention = new DefaultConvention();
 
             var movie = new Movie
-                            {
-                                Title = "Movie title",
-                                ReleaseDate = new DateTime(2012, 01, 18)
-                            };
+                {
+                    Title = "Movie title",
+                    ReleaseDate = new DateTime(2012, 01, 18)
+                };
 
             movie.SetRating(4);
 
@@ -1003,59 +1003,59 @@ namespace WeenyMapper.Specs
             Repository.DefaultConvention = new BookConvention();
 
             var book1 = new Book
-                            {
-                                Isbn = "1",
-                                AuthorName = "Author Name",
-                                Title = "Title 1",
-                                PageCount = 100,
-                            };
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 100,
+                };
 
             var book2 = new Book
-                            {
-                                Isbn = "2",
-                                AuthorName = "Another Author Name",
-                                Title = "Title 2",
-                                PageCount = 200
-                            };
+                {
+                    Isbn = "2",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 2",
+                    PageCount = 200
+                };
 
             var book3 = new Book
-                            {
-                                Isbn = "3",
-                                AuthorName = "Another Author Name",
-                                Title = "Title 3",
-                                PageCount = 75
-                            };
+                {
+                    Isbn = "3",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 3",
+                    PageCount = 75
+                };
 
             var book4 = new Book
-                            {
-                                Isbn = "4",
-                                AuthorName = "Another Author Name",
-                                Title = "Title 4",
-                                PageCount = 150
-                            };
+                {
+                    Isbn = "4",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 4",
+                    PageCount = 150
+                };
 
             var book5 = new Book
-                            {
-                                Isbn = "5",
-                                AuthorName = "Author Name",
-                                Title = "Title 5",
-                                PageCount = 75
-                            };
+                {
+                    Isbn = "5",
+                    AuthorName = "Author Name",
+                    Title = "Title 5",
+                    PageCount = 75
+                };
 
             var book6 = new Book
-                            {
-                                Isbn = "6",
-                                AuthorName = "Author Name",
-                                Title = "Title 6",
-                                PageCount = 75
-                            };
+                {
+                    Isbn = "6",
+                    AuthorName = "Author Name",
+                    Title = "Title 6",
+                    PageCount = 75
+                };
 
             Repository.Insert(book1, book2, book3, book4, book5, book6);
 
             var actualBooks = Repository.Find<Book>()
-                .OrderBy(x => x.AuthorName)
-                .OrderByDescending(x => x.PageCount, x => x.Title)
-                .ExecuteList();
+                                        .OrderBy(x => x.AuthorName)
+                                        .OrderByDescending(x => x.PageCount, x => x.Title)
+                                        .ExecuteList();
 
             Assert.AreEqual(6, actualBooks.Count);
             CollectionAssert.AreEqual(new[] { book2, book4, book3, book1, book6, book5 }, actualBooks);
@@ -1067,59 +1067,59 @@ namespace WeenyMapper.Specs
             Repository.DefaultConvention = new BookConvention();
 
             var book1 = new Book
-                            {
-                                Isbn = "1",
-                                AuthorName = "Author Name",
-                                Title = "Title 1",
-                                PageCount = 100,
-                            };
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 100,
+                };
 
             var book2 = new Book
-                            {
-                                Isbn = "2",
-                                AuthorName = "Another Author Name",
-                                Title = "Title 2",
-                                PageCount = 200
-                            };
+                {
+                    Isbn = "2",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 2",
+                    PageCount = 200
+                };
 
             var book3 = new Book
-                            {
-                                Isbn = "3",
-                                AuthorName = "Another Author Name",
-                                Title = "Title 3",
-                                PageCount = 75
-                            };
+                {
+                    Isbn = "3",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 3",
+                    PageCount = 75
+                };
 
             var book4 = new Book
-                            {
-                                Isbn = "4",
-                                AuthorName = "Another Author Name",
-                                Title = "Title 4",
-                                PageCount = 150
-                            };
+                {
+                    Isbn = "4",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 4",
+                    PageCount = 150
+                };
 
             var book5 = new Book
-                            {
-                                Isbn = "5",
-                                AuthorName = "Author Name",
-                                Title = "Title 5",
-                                PageCount = 75
-                            };
+                {
+                    Isbn = "5",
+                    AuthorName = "Author Name",
+                    Title = "Title 5",
+                    PageCount = 75
+                };
 
             var book6 = new Book
-                            {
-                                Isbn = "6",
-                                AuthorName = "Author Name",
-                                Title = "Title 6",
-                                PageCount = 75
-                            };
+                {
+                    Isbn = "6",
+                    AuthorName = "Author Name",
+                    Title = "Title 6",
+                    PageCount = 75
+                };
 
             Repository.Insert(book1, book2, book3, book4, book5, book6);
 
             var actualBooks = Repository.Find<Book>()
-                .OrderByDescending(x => x.Isbn)
-                .Top(3)
-                .ExecuteList();
+                                        .OrderByDescending(x => x.Isbn)
+                                        .Top(3)
+                                        .ExecuteList();
 
             Assert.AreEqual(3, actualBooks.Count);
             CollectionAssert.AreEqual(new[] { book6, book5, book4 }, actualBooks);
@@ -1131,59 +1131,59 @@ namespace WeenyMapper.Specs
             Repository.DefaultConvention = new BookConvention();
 
             var book1 = new Book
-                            {
-                                Isbn = "1",
-                                AuthorName = "Author Name",
-                                Title = "Title 1",
-                                PageCount = 100,
-                            };
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 100,
+                };
 
             var book2 = new Book
-                            {
-                                Isbn = "2",
-                                AuthorName = "Another Author Name",
-                                Title = "Title 2",
-                                PageCount = 200
-                            };
+                {
+                    Isbn = "2",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 2",
+                    PageCount = 200
+                };
 
             var book3 = new Book
-                            {
-                                Isbn = "3",
-                                AuthorName = "Another Author Name",
-                                Title = "Title 3",
-                                PageCount = 75
-                            };
+                {
+                    Isbn = "3",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 3",
+                    PageCount = 75
+                };
 
             var book4 = new Book
-                            {
-                                Isbn = "4",
-                                AuthorName = "Another Author Name",
-                                Title = "Title 4",
-                                PageCount = 150
-                            };
+                {
+                    Isbn = "4",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 4",
+                    PageCount = 150
+                };
 
             var book5 = new Book
-                            {
-                                Isbn = "5",
-                                AuthorName = "Author Name",
-                                Title = "Title 5",
-                                PageCount = 75
-                            };
+                {
+                    Isbn = "5",
+                    AuthorName = "Author Name",
+                    Title = "Title 5",
+                    PageCount = 75
+                };
 
             var book6 = new Book
-                            {
-                                Isbn = "6",
-                                AuthorName = "Author Name",
-                                Title = "Title 6",
-                                PageCount = 75
-                            };
+                {
+                    Isbn = "6",
+                    AuthorName = "Author Name",
+                    Title = "Title 6",
+                    PageCount = 75
+                };
 
             Repository.Insert(book1, book2, book3, book4, book5, book6);
 
             var actualBooks = Repository.Find<Book>()
-                .OrderByDescending(x => x.Isbn)
-                .Page(1, 2)
-                .ExecuteList();
+                                        .OrderByDescending(x => x.Isbn)
+                                        .Page(1, 2)
+                                        .ExecuteList();
 
             Assert.AreEqual(2, actualBooks.Count);
             CollectionAssert.AreEqual(new[] { book4, book3 }, actualBooks);
@@ -1195,42 +1195,42 @@ namespace WeenyMapper.Specs
             Repository.DefaultConvention = new BookConvention();
 
             var book1 = new Book
-                            {
-                                Isbn = "1",
-                                AuthorName = "Author Name",
-                                Title = "Title 1",
-                                PageCount = 100,
-                            };
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 100,
+                };
 
             var book2 = new Book
-                            {
-                                Isbn = "2",
-                                AuthorName = "Another Author Name",
-                                Title = "Title 2",
-                                PageCount = 200
-                            };
+                {
+                    Isbn = "2",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 2",
+                    PageCount = 200
+                };
 
             var book3 = new Book
-                            {
-                                Isbn = "3",
-                                AuthorName = "Another Author Name",
-                                Title = "Title 3",
-                                PageCount = 75
-                            };
+                {
+                    Isbn = "3",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 3",
+                    PageCount = 75
+                };
 
             var book4 = new Book
-                            {
-                                Isbn = "4",
-                                AuthorName = "Another Author Name",
-                                Title = "Title 4",
-                                PageCount = 150
-                            };
+                {
+                    Isbn = "4",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 4",
+                    PageCount = 150
+                };
 
             Repository.Insert(book1, book2, book3, book4);
 
             var actualBooks = Repository.Find<Book>()
-                .Page(1, 2)
-                .ExecuteList();
+                                        .Page(1, 2)
+                                        .ExecuteList();
 
             Assert.AreEqual(2, actualBooks.Count);
             CollectionAssert.AreEqual(new[] { book3, book4 }, actualBooks);
@@ -1242,59 +1242,59 @@ namespace WeenyMapper.Specs
             Repository.DefaultConvention = new BookConvention();
 
             var book1 = new Book
-                            {
-                                Isbn = "1",
-                                AuthorName = "Author Name",
-                                Title = "Title 1",
-                                PageCount = 100,
-                            };
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 100,
+                };
 
             var book2 = new Book
-                            {
-                                Isbn = "2",
-                                AuthorName = "Steven Smith",
-                                Title = "Title 2",
-                                PageCount = 200
-                            };
+                {
+                    Isbn = "2",
+                    AuthorName = "Steven Smith",
+                    Title = "Title 2",
+                    PageCount = 200
+                };
 
             var book3 = new Book
-                            {
-                                Isbn = "3",
-                                AuthorName = "Smith Stevenson",
-                                Title = "Title 3",
-                                PageCount = 75
-                            };
+                {
+                    Isbn = "3",
+                    AuthorName = "Smith Stevenson",
+                    Title = "Title 3",
+                    PageCount = 75
+                };
 
             var book4 = new Book
-                            {
-                                Isbn = "4",
-                                AuthorName = "Another Author Name",
-                                Title = "Title 4",
-                                PageCount = 150
-                            };
+                {
+                    Isbn = "4",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 4",
+                    PageCount = 150
+                };
 
             var book5 = new Book
-                            {
-                                Isbn = "5",
-                                AuthorName = "Author Name",
-                                Title = "Title 5",
-                                PageCount = 75
-                            };
+                {
+                    Isbn = "5",
+                    AuthorName = "Author Name",
+                    Title = "Title 5",
+                    PageCount = 75
+                };
 
             var book6 = new Book
-                            {
-                                Isbn = "6",
-                                AuthorName = "Fred-Steve Smith",
-                                Title = "Title 6",
-                                PageCount = 75
-                            };
+                {
+                    Isbn = "6",
+                    AuthorName = "Fred-Steve Smith",
+                    Title = "Title 6",
+                    PageCount = 75
+                };
 
             Repository.Insert(book1, book2, book3, book4, book5, book6);
 
             var actualBooks = Repository.Find<Book>()
-                .Where(x => x.AuthorName.Contains("Steve"))
-                .OrderBy(x => x.Isbn)
-                .ExecuteList();
+                                        .Where(x => x.AuthorName.Contains("Steve"))
+                                        .OrderBy(x => x.Isbn)
+                                        .ExecuteList();
 
             Assert.AreEqual(3, actualBooks.Count);
             CollectionAssert.AreEqual(new[] { book2, book3, book6 }, actualBooks);
@@ -1306,59 +1306,59 @@ namespace WeenyMapper.Specs
             Repository.DefaultConvention = new BookConvention();
 
             var book1 = new Book
-                            {
-                                Isbn = "1",
-                                AuthorName = "Author Name",
-                                Title = "Title 1",
-                                PageCount = 100,
-                            };
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 100,
+                };
 
             var book2 = new Book
-                            {
-                                Isbn = "2",
-                                AuthorName = "Steven Smith",
-                                Title = "Title 2",
-                                PageCount = 200
-                            };
+                {
+                    Isbn = "2",
+                    AuthorName = "Steven Smith",
+                    Title = "Title 2",
+                    PageCount = 200
+                };
 
             var book3 = new Book
-                            {
-                                Isbn = "3",
-                                AuthorName = "Smith Stevenson",
-                                Title = "Title 3",
-                                PageCount = 75
-                            };
+                {
+                    Isbn = "3",
+                    AuthorName = "Smith Stevenson",
+                    Title = "Title 3",
+                    PageCount = 75
+                };
 
             var book4 = new Book
-                            {
-                                Isbn = "4",
-                                AuthorName = "Another Author Name",
-                                Title = "Title 4",
-                                PageCount = 150
-                            };
+                {
+                    Isbn = "4",
+                    AuthorName = "Another Author Name",
+                    Title = "Title 4",
+                    PageCount = 150
+                };
 
             var book5 = new Book
-                            {
-                                Isbn = "5",
-                                AuthorName = "Author Name",
-                                Title = "Title 5",
-                                PageCount = 75
-                            };
+                {
+                    Isbn = "5",
+                    AuthorName = "Author Name",
+                    Title = "Title 5",
+                    PageCount = 75
+                };
 
             var book6 = new Book
-                            {
-                                Isbn = "6",
-                                AuthorName = "Fred-Steve Smith",
-                                Title = "Title 6",
-                                PageCount = 75
-                            };
+                {
+                    Isbn = "6",
+                    AuthorName = "Fred-Steve Smith",
+                    Title = "Title 6",
+                    PageCount = 75
+                };
 
             Repository.Insert(book1, book2, book3, book4, book5, book6);
 
             var actualBooks = Repository.Find<Book>()
-                .Where(x => x.AuthorName.StartsWith("Smith") || (x.AuthorName.EndsWith("Smith") && x.Title.EndsWith("6")))
-                .OrderBy(x => x.Isbn)
-                .ExecuteList();
+                                        .Where(x => x.AuthorName.StartsWith("Smith") || (x.AuthorName.EndsWith("Smith") && x.Title.EndsWith("6")))
+                                        .OrderBy(x => x.Isbn)
+                                        .ExecuteList();
 
             Assert.AreEqual(2, actualBooks.Count);
             CollectionAssert.AreEqual(new[] { book3, book6 }, actualBooks);
@@ -1368,22 +1368,22 @@ namespace WeenyMapper.Specs
         public virtual void Entities_with_identity_generated_ids_gets_assigned_id_written_to_id_property_after_insert()
         {
             var movie1 = new Movie
-                             {
-                                 Title = "Movie 1",
-                                 ReleaseDate = new DateTime(2012, 1, 2)
-                             };
+                {
+                    Title = "Movie 1",
+                    ReleaseDate = new DateTime(2012, 1, 2)
+                };
 
             var movie2 = new Movie
-                             {
-                                 Title = "Movie 2",
-                                 ReleaseDate = new DateTime(2012, 1, 2)
-                             };
+                {
+                    Title = "Movie 2",
+                    ReleaseDate = new DateTime(2012, 1, 2)
+                };
 
             var movie3 = new Movie
-                             {
-                                 Title = "Movie 3",
-                                 ReleaseDate = new DateTime(2012, 1, 2)
-                             };
+                {
+                    Title = "Movie 3",
+                    ReleaseDate = new DateTime(2012, 1, 2)
+                };
 
             Repository.Insert(movie1);
             Repository.Insert(movie2, movie3);
@@ -1402,35 +1402,35 @@ namespace WeenyMapper.Specs
             Repository.DefaultConvention = new BlogConvention();
 
             var blog1 = new Blog
-                            {
-                                Name = "Blog 1",
-                            };
+                {
+                    Name = "Blog 1",
+                };
 
             var blog2 = new Blog
-                            {
-                                Name = "Blog 2",
-                            };
+                {
+                    Name = "Blog 2",
+                };
 
             var post1 = new BlogPost
-                            {
-                                Title = "Blog post 1",
-                                Content = "Post 1 content",
-                                PublishDate = new DateTime(2011, 1, 1),
-                            };
+                {
+                    Title = "Blog post 1",
+                    Content = "Post 1 content",
+                    PublishDate = new DateTime(2011, 1, 1),
+                };
 
             var post2 = new BlogPost
-                            {
-                                Title = "Blog post 2",
-                                Content = "Post 2 content",
-                                PublishDate = new DateTime(2011, 1, 2)
-                            };
+                {
+                    Title = "Blog post 2",
+                    Content = "Post 2 content",
+                    PublishDate = new DateTime(2011, 1, 2)
+                };
 
             var post3 = new BlogPost
-                            {
-                                Title = "Blog post 3",
-                                Content = "Post 3 content",
-                                PublishDate = new DateTime(2011, 1, 3)
-                            };
+                {
+                    Title = "Blog post 3",
+                    Content = "Post 3 content",
+                    PublishDate = new DateTime(2011, 1, 3)
+                };
 
             blog1.AddPost(post1);
             blog1.AddPost(post2);
@@ -1450,70 +1450,70 @@ namespace WeenyMapper.Specs
             Repository.DefaultConvention = new BlogConvention();
 
             var blog1 = new Blog
-                            {
-                                Name = "Blog 1",
-                            };
+                {
+                    Name = "Blog 1",
+                };
 
             var blog2 = new Blog
-                            {
-                                Name = "Blog 2",
-                            };
+                {
+                    Name = "Blog 2",
+                };
 
             var blog3 = new Blog
-                            {
-                                Name = "Blog 3",
-                            };
+                {
+                    Name = "Blog 3",
+                };
 
             var blog4 = new Blog
-                            {
-                                Name = "Blog 4",
-                            };
+                {
+                    Name = "Blog 4",
+                };
 
             var post1 = new BlogPost
-                            {
-                                Title = "Blog post 1",
-                                Content = "Post 1 content",
-                                PublishDate = new DateTime(2011, 1, 1),
-                            };
+                {
+                    Title = "Blog post 1",
+                    Content = "Post 1 content",
+                    PublishDate = new DateTime(2011, 1, 1),
+                };
 
             var post2 = new BlogPost
-                            {
-                                Title = "Blog post 2",
-                                Content = "Post 2 content",
-                                PublishDate = new DateTime(2011, 1, 2)
-                            };
+                {
+                    Title = "Blog post 2",
+                    Content = "Post 2 content",
+                    PublishDate = new DateTime(2011, 1, 2)
+                };
 
             var post3 = new BlogPost
-                            {
-                                Title = "Blog post 3",
-                                Content = "Post 3 content",
-                                PublishDate = new DateTime(2011, 1, 3)
-                            };
+                {
+                    Title = "Blog post 3",
+                    Content = "Post 3 content",
+                    PublishDate = new DateTime(2011, 1, 3)
+                };
 
             var post4 = new BlogPost
-                            {
-                                Title = "Blog post 4",
-                                Content = "Post 4 content",
-                                PublishDate = new DateTime(2011, 1, 4)
-                            };
+                {
+                    Title = "Blog post 4",
+                    Content = "Post 4 content",
+                    PublishDate = new DateTime(2011, 1, 4)
+                };
 
             var comment1 = new Comment
-                               {
-                                   Content = "Comment 1",
-                                   PublishDate = new DateTime(2011, 1, 5)
-                               };
+                {
+                    Content = "Comment 1",
+                    PublishDate = new DateTime(2011, 1, 5)
+                };
 
             var comment2 = new Comment
-                               {
-                                   Content = "Comment 2",
-                                   PublishDate = new DateTime(2011, 1, 6)
-                               };
+                {
+                    Content = "Comment 2",
+                    PublishDate = new DateTime(2011, 1, 6)
+                };
 
             var comment3 = new Comment
-                               {
-                                   Content = "Comment 3",
-                                   PublishDate = new DateTime(2011, 1, 7)
-                               };
+                {
+                    Content = "Comment 3",
+                    PublishDate = new DateTime(2011, 1, 7)
+                };
 
             blog1.AddPost(post1);
             blog1.AddPost(post2);
@@ -1529,10 +1529,10 @@ namespace WeenyMapper.Specs
             Repository.Insert(comment1, comment2, comment3);
 
             var actualBlogs = Repository.Find<Blog>().Where(x => x.Name == "Blog 1" || x.Name.EndsWith("3"))
-                .OrderBy(x => x.Name)
-                .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog)
-                .Join<BlogPost, Comment>(x => x.Comments, x => x.BlogPost)
-                .ExecuteList();
+                                        .OrderBy(x => x.Name)
+                                        .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog)
+                                        .Join<BlogPost, Comment>(x => x.Comments, x => x.BlogPost)
+                                        .ExecuteList();
 
             Assert.AreEqual(2, actualBlogs.Count);
 
@@ -1546,65 +1546,65 @@ namespace WeenyMapper.Specs
             Repository.DefaultConvention = new BlogConvention();
 
             var blog1 = new Blog
-                            {
-                                Name = "Blog 1",
-                            };
+                {
+                    Name = "Blog 1",
+                };
 
             var blog2 = new Blog
-                            {
-                                Name = "Blog 2",
-                            };
+                {
+                    Name = "Blog 2",
+                };
 
             var post1 = new BlogPost
-                            {
-                                Title = "Blog post 1",
-                                Content = "Post 1 content",
-                                PublishDate = new DateTime(2011, 1, 1),
-                            };
+                {
+                    Title = "Blog post 1",
+                    Content = "Post 1 content",
+                    PublishDate = new DateTime(2011, 1, 1),
+                };
 
             var post2 = new BlogPost
-                            {
-                                Title = "Blog post 2",
-                                Content = "Post 2 content",
-                                PublishDate = new DateTime(2011, 1, 2)
-                            };
+                {
+                    Title = "Blog post 2",
+                    Content = "Post 2 content",
+                    PublishDate = new DateTime(2011, 1, 2)
+                };
 
             var post3 = new BlogPost
-                            {
-                                Title = "Blog post 3",
-                                Content = "Post 3 content",
-                                PublishDate = new DateTime(2011, 1, 3)
-                            };
+                {
+                    Title = "Blog post 3",
+                    Content = "Post 3 content",
+                    PublishDate = new DateTime(2011, 1, 3)
+                };
 
             var comment1 = new Comment
-                               {
-                                   Content = "Comment 1",
-                                   PublishDate = new DateTime(2011, 1, 5)
-                               };
+                {
+                    Content = "Comment 1",
+                    PublishDate = new DateTime(2011, 1, 5)
+                };
 
             var comment2 = new Comment
-                               {
-                                   Content = "Comment 2",
-                                   PublishDate = new DateTime(2011, 1, 6)
-                               };
+                {
+                    Content = "Comment 2",
+                    PublishDate = new DateTime(2011, 1, 6)
+                };
 
             var comment3 = new Comment
-                               {
-                                   Content = "Comment 3",
-                                   PublishDate = new DateTime(2011, 1, 7)
-                               };
+                {
+                    Content = "Comment 3",
+                    PublishDate = new DateTime(2011, 1, 7)
+                };
 
             var comment4 = new Comment
-                               {
-                                   Content = "Comment 4",
-                                   PublishDate = new DateTime(2011, 1, 8)
-                               };
+                {
+                    Content = "Comment 4",
+                    PublishDate = new DateTime(2011, 1, 8)
+                };
 
             var comment5 = new Comment
-                               {
-                                   Content = "Comment 5",
-                                   PublishDate = new DateTime(2011, 1, 9)
-                               };
+                {
+                    Content = "Comment 5",
+                    PublishDate = new DateTime(2011, 1, 9)
+                };
 
             blog1.AddPost(post1);
             blog1.AddPost(post2);
@@ -1621,10 +1621,10 @@ namespace WeenyMapper.Specs
             Repository.Insert(comment1, comment2, comment3, comment4, comment5);
 
             var actualComments = Repository.Find<Comment>().Where(x => x.PublishDate >= new DateTime(2011, 1, 6))
-                .OrderBy(x => x.PublishDate)
-                .Join<BlogPost, Comment>(x => x.Comments, x => x.BlogPost)
-                .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog)
-                .ExecuteList();
+                                           .OrderBy(x => x.PublishDate)
+                                           .Join<BlogPost, Comment>(x => x.Comments, x => x.BlogPost)
+                                           .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog)
+                                           .ExecuteList();
 
             // Since comment1 has a PublishDate before 2011-01-06 it will not be returned by the query.
             // Because of this the instance of post1 returned will not have comment1 in its Comments collection.
@@ -1655,32 +1655,32 @@ namespace WeenyMapper.Specs
         public void Entities_with_relation_mapped_as_both_reference_and_foreign_key_value_can_be_written_and_read_back_again_using_single_table_query()
         {
             var company1 = new Company
-                               {
-                                   Name = "Company 1"
-                               };
+                {
+                    Name = "Company 1"
+                };
 
             var employee1 = new Employee
-                                {
-                                    FirstName = "Steve",
-                                    LastName = "Smith",
-                                    BirthDate = new DateTime(1972, 1, 2),
-                                    Company = company1
-                                };
+                {
+                    FirstName = "Steve",
+                    LastName = "Smith",
+                    BirthDate = new DateTime(1972, 1, 2),
+                    Company = company1
+                };
 
             var employee2 = new Employee
-                                {
-                                    FirstName = "John",
-                                    LastName = "Johnsson",
-                                    BirthDate = new DateTime(1954, 11, 12),
-                                    Company = company1
-                                };
+                {
+                    FirstName = "John",
+                    LastName = "Johnsson",
+                    BirthDate = new DateTime(1954, 11, 12),
+                    Company = company1
+                };
 
             Repository.Insert(company1);
             Repository.Insert(employee1, employee2);
 
             var actualEmployees = Repository.Find<Employee>()
-                .OrderBy(x => x.BirthDate)
-                .ExecuteList();
+                                            .OrderBy(x => x.BirthDate)
+                                            .ExecuteList();
 
             Assert.AreEqual(2, actualEmployees.Count);
 
@@ -1694,27 +1694,27 @@ namespace WeenyMapper.Specs
         public void Entities_with_relation_mapped_as_both_reference_and_foreign_key_value_can_be_written_and_read_back_again_using_join()
         {
             var company1 = new Company
-                               {
-                                   Name = "Company 1"
-                               };
+                {
+                    Name = "Company 1"
+                };
             var company2 = new Company
-                               {
-                                   Name = "Company 2"
-                               };
+                {
+                    Name = "Company 2"
+                };
 
             var employee1 = new Employee
-                                {
-                                    FirstName = "Steve",
-                                    LastName = "Smith",
-                                    BirthDate = new DateTime(1972, 1, 2),
-                                };
+                {
+                    FirstName = "Steve",
+                    LastName = "Smith",
+                    BirthDate = new DateTime(1972, 1, 2),
+                };
 
             var employee2 = new Employee
-                                {
-                                    FirstName = "John",
-                                    LastName = "Johnsson",
-                                    BirthDate = new DateTime(1954, 11, 12),
-                                };
+                {
+                    FirstName = "John",
+                    LastName = "Johnsson",
+                    BirthDate = new DateTime(1954, 11, 12),
+                };
 
             company1.AddEmployee(employee1);
             company1.AddEmployee(employee2);
@@ -1726,19 +1726,19 @@ namespace WeenyMapper.Specs
 
             Repository.Update(employee2);
             Repository.Update<Employee>()
-                .Set(x => x.CompanyId, company2.Id)
-                .Where(x => x.Id == employee2.Id)
-                .Execute();
+                      .Set(x => x.CompanyId, company2.Id)
+                      .Where(x => x.Id == employee2.Id)
+                      .Execute();
 
             var allCompanies = Repository.Find<Company>()
-                .OrderBy(x => x.Name)
-                .Join<Company, Employee>(x => x.Employees, x => x.Company)
-                .ExecuteList();
+                                         .OrderBy(x => x.Name)
+                                         .Join<Company, Employee>(x => x.Employees, x => x.Company)
+                                         .ExecuteList();
 
             var actualEmployee2 = Repository.Find<Employee>()
-                .Where(x => x.Id == employee2.Id)
-                .Join<Company, Employee>(x => x.Employees, x => x.Company)
-                .Execute();
+                                            .Where(x => x.Id == employee2.Id)
+                                            .Join<Company, Employee>(x => x.Employees, x => x.Company)
+                                            .Execute();
 
             // Set up original entities to match the expected result
             company1.RemoveEmployee(employee2);
@@ -1756,27 +1756,27 @@ namespace WeenyMapper.Specs
         public void Update_can_be_performed_by_setting_a_reference_property_to_another_entity()
         {
             var company1 = new Company
-                               {
-                                   Name = "Company 1"
-                               };
+                {
+                    Name = "Company 1"
+                };
             var company2 = new Company
-                               {
-                                   Name = "Company 2"
-                               };
+                {
+                    Name = "Company 2"
+                };
 
             var employee1 = new Employee
-                                {
-                                    FirstName = "Steve",
-                                    LastName = "Smith",
-                                    BirthDate = new DateTime(1972, 1, 2),
-                                };
+                {
+                    FirstName = "Steve",
+                    LastName = "Smith",
+                    BirthDate = new DateTime(1972, 1, 2),
+                };
 
             var employee2 = new Employee
-                                {
-                                    FirstName = "John",
-                                    LastName = "Johnsson",
-                                    BirthDate = new DateTime(1954, 11, 12),
-                                };
+                {
+                    FirstName = "John",
+                    LastName = "Johnsson",
+                    BirthDate = new DateTime(1954, 11, 12),
+                };
 
             company1.AddEmployee(employee1);
             company1.AddEmployee(employee2);
@@ -1785,14 +1785,14 @@ namespace WeenyMapper.Specs
             Repository.Insert(employee1, employee2);
 
             Repository.Update<Employee>()
-                .Set(x => x.Company, company2)
-                .Where(x => x.Id == employee2.Id)
-                .Execute();
+                      .Set(x => x.Company, company2)
+                      .Where(x => x.Id == employee2.Id)
+                      .Execute();
 
             var allCompanies = Repository.Find<Company>()
-                .OrderBy(x => x.Name)
-                .Join<Company, Employee>(x => x.Employees, x => x.Company)
-                .ExecuteList();
+                                         .OrderBy(x => x.Name)
+                                         .Join<Company, Employee>(x => x.Employees, x => x.Company)
+                                         .ExecuteList();
 
             // Set up original entities to match the expected result
             company1.RemoveEmployee(employee2);
@@ -1813,52 +1813,52 @@ namespace WeenyMapper.Specs
             Repository.DefaultConvention = new BlogConvention();
 
             var blog1 = new Blog
-                            {
-                                Name = "Blog 1",
-                            };
+                {
+                    Name = "Blog 1",
+                };
 
             var blog2 = new Blog
-                            {
-                                Name = "Blog 2",
-                            };
+                {
+                    Name = "Blog 2",
+                };
 
             var post1 = new BlogPost
-                            {
-                                Title = "Blog post 1",
-                                Content = "Post 1 content",
-                                PublishDate = new DateTime(2011, 1, 1),
-                            };
+                {
+                    Title = "Blog post 1",
+                    Content = "Post 1 content",
+                    PublishDate = new DateTime(2011, 1, 1),
+                };
 
             var post2 = new BlogPost
-                            {
-                                Title = "Blog post 2",
-                                Content = "Post 2 content",
-                                PublishDate = new DateTime(2011, 2, 2),
-                            };
+                {
+                    Title = "Blog post 2",
+                    Content = "Post 2 content",
+                    PublishDate = new DateTime(2011, 2, 2),
+                };
 
             var comment1 = new Comment
-                               {
-                                   Content = "Comment 1",
-                                   PublishDate = new DateTime(2011, 1, 5)
-                               };
+                {
+                    Content = "Comment 1",
+                    PublishDate = new DateTime(2011, 1, 5)
+                };
 
             var comment2 = new Comment
-                               {
-                                   Content = "Comment 2",
-                                   PublishDate = new DateTime(2011, 1, 6)
-                               };
+                {
+                    Content = "Comment 2",
+                    PublishDate = new DateTime(2011, 1, 6)
+                };
 
             var comment3 = new Comment
-                               {
-                                   Content = "Comment 2",
-                                   PublishDate = new DateTime(2011, 1, 6)
-                               };
+                {
+                    Content = "Comment 2",
+                    PublishDate = new DateTime(2011, 1, 6)
+                };
 
             var user = new User
-                           {
-                               Username = "Steve",
-                               Password = "password"
-                           };
+                {
+                    Username = "Steve",
+                    Password = "password"
+                };
 
             user.AddBlogPost(post1);
             user.AddBlogPost(post2);
@@ -1876,19 +1876,19 @@ namespace WeenyMapper.Specs
             Repository.Insert(comment1, comment2, comment3);
 
             var actualPosts = Repository.Find<BlogPost>()
-                .OrderBy(x => x.Title)
-                .Join<BlogPost, Comment>(x => x.Comments, x => x.BlogPost)
-                .ExecuteList();
+                                        .OrderBy(x => x.Title)
+                                        .Join<BlogPost, Comment>(x => x.Comments, x => x.BlogPost)
+                                        .ExecuteList();
 
             var firstActualPost1 = Repository.Find<BlogPost>()
-                .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog)
-                .Where(x => x.Id == post1.Id)
-                .Execute();
+                                             .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog)
+                                             .Where(x => x.Id == post1.Id)
+                                             .Execute();
 
             var secondActualPost1 = Repository.Find<BlogPost>()
-                .Join<User, BlogPost>(x => x.BlogPosts, x => x.Author)
-                .Where(x => x.Id == post1.Id)
-                .Execute();
+                                              .Join<User, BlogPost>(x => x.BlogPosts, x => x.Author)
+                                              .Where(x => x.Id == post1.Id)
+                                              .Execute();
 
             // Set up the original entities according to the expected result
             post2.Author = null;
@@ -1907,28 +1907,28 @@ namespace WeenyMapper.Specs
         public void Not_equals_operator_can_be_used_to_filter_result()
         {
             var movie1 = new Movie
-                             {
-                                 Title = "Movie 1",
-                                 ReleaseDate = new DateTime(2012, 1, 2)
-                             };
+                {
+                    Title = "Movie 1",
+                    ReleaseDate = new DateTime(2012, 1, 2)
+                };
 
             var movie2 = new Movie
-                             {
-                                 Title = "Movie 2",
-                                 ReleaseDate = new DateTime(2012, 1, 2)
-                             };
+                {
+                    Title = "Movie 2",
+                    ReleaseDate = new DateTime(2012, 1, 2)
+                };
 
             var movie3 = new Movie
-                             {
-                                 Title = "Movie 3",
-                                 ReleaseDate = new DateTime(2012, 1, 2)
-                             };
+                {
+                    Title = "Movie 3",
+                    ReleaseDate = new DateTime(2012, 1, 2)
+                };
 
             Repository.Insert(movie1, movie2, movie3);
 
             var allMovies = Repository.Find<Movie>().Where(x => x.Title != "Movie 2")
-                .OrderBy(x => x.Title)
-                .ExecuteList();
+                                      .OrderBy(x => x.Title)
+                                      .ExecuteList();
 
             Assert.AreEqual(2, allMovies.Count);
             Assert.AreEqual(allMovies[0].Id, movie1.Id);
@@ -1939,35 +1939,35 @@ namespace WeenyMapper.Specs
         public void Not_operator_can_be_used_to_filter_result()
         {
             var movie1 = new Movie
-                             {
-                                 Title = "Movie 1",
-                                 ReleaseDate = new DateTime(2012, 1, 2)
-                             };
+                {
+                    Title = "Movie 1",
+                    ReleaseDate = new DateTime(2012, 1, 2)
+                };
 
             var movie2 = new Movie
-                             {
-                                 Title = "Movie 2",
-                                 ReleaseDate = new DateTime(2012, 1, 3)
-                             };
+                {
+                    Title = "Movie 2",
+                    ReleaseDate = new DateTime(2012, 1, 3)
+                };
 
             var movie2_2 = new Movie
-                               {
-                                   Title = "Movie 2",
-                                   ReleaseDate = new DateTime(2012, 1, 2)
-                               };
+                {
+                    Title = "Movie 2",
+                    ReleaseDate = new DateTime(2012, 1, 2)
+                };
 
             var movie3 = new Movie
-                             {
-                                 Title = "Movie 3",
-                                 ReleaseDate = new DateTime(2012, 1, 3)
-                             };
+                {
+                    Title = "Movie 3",
+                    ReleaseDate = new DateTime(2012, 1, 3)
+                };
 
             Repository.Insert(movie1, movie2, movie2_2, movie3);
 
             var allMovies = Repository.Find<Movie>()
-                .Where(x => !(x.Title == "Movie 2" && x.ReleaseDate == new DateTime(2012, 1, 2)))
-                .OrderBy(x => x.Title)
-                .ExecuteList();
+                                      .Where(x => !(x.Title == "Movie 2" && x.ReleaseDate == new DateTime(2012, 1, 2)))
+                                      .OrderBy(x => x.Title)
+                                      .ExecuteList();
 
             Assert.AreEqual(3, allMovies.Count);
             Assert.AreEqual(allMovies[0].Id, movie1.Id);
@@ -1979,40 +1979,40 @@ namespace WeenyMapper.Specs
         public void Enum_values_are_stored_as_integers()
         {
             var movie = new Movie
-                            {
-                                Title = "Movie 1",
-                                ReleaseDate = new DateTime(2012, 1, 2),
-                                Genre = MovieGenre.Comedy
-                            };
+                {
+                    Title = "Movie 1",
+                    ReleaseDate = new DateTime(2012, 1, 2),
+                    Genre = MovieGenre.Comedy
+                };
 
             Repository.Insert(movie);
 
             var actualMovie = Repository.Find<Movie>()
-                .Where(x => x.Id == movie.Id)
-                .Execute();
+                                        .Where(x => x.Id == movie.Id)
+                                        .Execute();
 
             movie.Genre = MovieGenre.SciFi;
 
             Repository.Update(movie);
 
             var actualMovieAfterFirstUpdate = Repository.Find<Movie>()
-                .Where(x => x.Id == movie.Id)
-                .Execute();
+                                                        .Where(x => x.Id == movie.Id)
+                                                        .Execute();
 
             Repository.Update<Movie>()
-                .Set(x => x.Genre, MovieGenre.Drama)
-                .Where(x => x.Genre == MovieGenre.SciFi)
-                .Execute();
+                      .Set(x => x.Genre, MovieGenre.Drama)
+                      .Where(x => x.Genre == MovieGenre.SciFi)
+                      .Execute();
 
             var actualMovieAfterSecondUpdate = Repository.Find<Movie>()
-                .Where(x => x.Id == movie.Id)
-                .Execute();
+                                                         .Where(x => x.Id == movie.Id)
+                                                         .Execute();
 
             Repository.Delete<Movie>().Where(x => x.Genre == MovieGenre.Drama).Execute();
 
             var actualMovieAfterDelete = Repository.Find<Movie>()
-                .Where(x => x.Id == movie.Id)
-                .Execute();
+                                                   .Where(x => x.Id == movie.Id)
+                                                   .Execute();
 
             Assert.AreEqual(MovieGenre.Comedy, actualMovie.Genre);
             Assert.AreEqual(MovieGenre.SciFi, actualMovieAfterFirstUpdate.Genre);
@@ -2025,34 +2025,34 @@ namespace WeenyMapper.Specs
         public void Entity_can_be_joined_to_itself()
         {
             var company = new Company
-                              {
-                                  Name = "Company 1"
-                              };
+                {
+                    Name = "Company 1"
+                };
 
             var employee1 = new Employee
-                                {
-                                    LastName = "Employee 1"
-                                };
+                {
+                    LastName = "Employee 1"
+                };
 
             var employee2 = new Employee
-                                {
-                                    LastName = "Employee 2"
-                                };
+                {
+                    LastName = "Employee 2"
+                };
 
             var employee3 = new Employee
-                                {
-                                    LastName = "Employee 3"
-                                };
+                {
+                    LastName = "Employee 3"
+                };
 
             var manager1 = new Employee
-                               {
-                                   LastName = "Manager"
-                               };
+                {
+                    LastName = "Manager"
+                };
 
             var manager2 = new Employee
-                               {
-                                   LastName = "Manager 2"
-                               };
+                {
+                    LastName = "Manager 2"
+                };
 
             Repository.Insert(company);
 
@@ -2073,13 +2073,13 @@ namespace WeenyMapper.Specs
             Repository.Insert(employee1, employee2, employee3);
 
             var actualManager1 = Repository.Find<Employee>().Where(x => x.Id == manager1.Id)
-                .Join<Employee, Employee>(x => x.Subordinates, x => x.Manager)
-                .Execute();
+                                           .Join<Employee, Employee>(x => x.Subordinates, x => x.Manager)
+                                           .Execute();
 
             var actualEmployees = Repository.Find<Employee>()
-                .Join<Employee, Employee>(x => x.Subordinates, x => x.Manager)
-                .OrderBy(x => x.LastName)
-                .ExecuteList();
+                                            .Join<Employee, Employee>(x => x.Subordinates, x => x.Manager)
+                                            .OrderBy(x => x.LastName)
+                                            .ExecuteList();
 
             Assert.AreEqual(manager1, actualManager1);
             Assert.AreEqual(employee1, actualEmployees[0]);
@@ -2106,28 +2106,28 @@ namespace WeenyMapper.Specs
             var blogRepository = new Repository { Convention = new BlogConvention() };
 
             var book = new Book
-                           {
-                               Isbn = "1",
-                               AuthorName = "Author Name",
-                               Title = "Title 1",
-                               PageCount = 100,
-                           };
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 100,
+                };
 
             var user = new User
-                           {
-                               Id = Guid.NewGuid(),
-                               Username = "a username",
-                               Password = "a password"
-                           };
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "a username",
+                    Password = "a password"
+                };
 
             var blog = new Blog { Name = "Blog" };
             var post = new BlogPost
-                           {
-                               Title = "Blog post 1",
-                               Content = "Post 1 content",
-                               PublishDate = new DateTime(2011, 1, 1),
-                           };
-            
+                {
+                    Title = "Blog post 1",
+                    Content = "Post 1 content",
+                    PublishDate = new DateTime(2011, 1, 1),
+                };
+
             blog.AddPost(post);
 
             blogRepository.Insert(blog);
@@ -2142,6 +2142,56 @@ namespace WeenyMapper.Specs
             Assert.AreEqual(book, actualBook);
             Assert.AreEqual(post.Id, actualPost.Id); // Only check id to avoid equals comparison of Blog
             Assert.AreEqual(user, actualUser);
+        }
+
+        [Test]
+        public void Bool_properties_can_be_used_in_queries_without_explicit_comparison_to_true_or_false()
+        {
+            Repository.DefaultConvention = new BookConvention();
+
+            var book1 = new Book
+                {
+                    Isbn = "1",
+                    Title = "Book title 1",
+                    AuthorName = "Author Name",
+                    PageCount = 123,
+                    IsPublicDomain = true
+                };
+
+            var book2 = new Book
+                {
+                    Isbn = "2",
+                    Title = "Book title 2",
+                    AuthorName = "Author Name 2",
+                    PageCount = 123,
+                    IsPublicDomain = false
+                };
+
+            var book3 = new Book
+                {
+                    Isbn = "3",
+                    Title = "Book title 3",
+                    AuthorName = "Author Name 2",
+                    PageCount = 123,
+                    IsPublicDomain = true
+                };
+
+            var book4 = new Book
+                {
+                    Isbn = "4",
+                    Title = "Book title 4",
+                    AuthorName = "Author Name",
+                    PageCount = 123,
+                    IsPublicDomain = false
+                };
+
+            Repository.Insert(book1, book2, book3, book4);
+
+            var actualPublicDomainBooks = Repository.Find<Book>().Where(x => x.IsPublicDomain).ExecuteList();
+            var actualNonPublicDomainBooks = Repository.Find<Book>().Where(x => !x.IsPublicDomain).ExecuteList();
+
+            CollectionAssert.AreEquivalent(new[] { book1, book3 }, actualPublicDomainBooks);
+            CollectionAssert.AreEquivalent(new[] { book2, book4 }, actualNonPublicDomainBooks);
         }
     }
 }

@@ -846,5 +846,5 @@ namespace WeenyMapper.Specs.Sql
             Assert.AreEqual("ColumnName3Constraint", parameters[2].ParameterName);
             Assert.AreEqual("value1", parameters[2].Value);
         }
-    }
+            }
 }
