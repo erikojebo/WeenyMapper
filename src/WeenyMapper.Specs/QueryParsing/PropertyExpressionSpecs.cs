@@ -16,7 +16,7 @@ namespace WeenyMapper.Specs.QueryParsing
         {
             var expression = new ReflectedPropertyExpression(typeof(User).GetProperty("Username"));
 
-            var expectedExpression = new PropertyExpression("USERNAME");
+            var expectedExpression = new PropertyExpression("USERNAME", typeof(string));
             var actualExpression = expression.Translate(new UpperCaseConvention());
 
             Assert.AreEqual(expectedExpression, actualExpression);
