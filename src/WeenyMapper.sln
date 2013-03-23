@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeenyMapper", "WeenyMapper\WeenyMapper.csproj", "{6BC51EA5-9F01-4C23-A075-6F263F880AF3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeenyMapper.Specs", "WeenyMapper.Specs\WeenyMapper.Specs.csproj", "{C9DFD275-3D5B-45B3-A910-99CF25C61E85}"

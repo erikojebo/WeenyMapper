@@ -51,14 +51,21 @@
   <ItemGroup>
     <Compile Include="Book.cs" />
     <Compile Include="Convention.cs" />
+    <Compile Include="Entities\LineItem.cs" />
+    <Compile Include="Entities\Product.cs" />
+    <Compile Include="Entities\ShoppingCart.cs" />
     <Compile Include="Examples.cs" />
     <Compile Include="MiniBook.cs" />
     <Compile Include="Movie.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ShoppingCartConvention.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Schema.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

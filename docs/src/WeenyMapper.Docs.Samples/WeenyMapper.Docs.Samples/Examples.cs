@@ -4,6 +4,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using NUnit.Framework;
 using WeenyMapper.Builders;
+using WeenyMapper.Docs.Samples.Entities;
 using WeenyMapper.Logging;
 
 namespace WeenyMapper.Docs.Samples
@@ -125,6 +126,42 @@ namespace WeenyMapper.Docs.Samples
             Assert.IsInstanceOf<TraceSqlCommandLogger>(Repository.SqlLogger);
         }
 
+        [Test]
+        public void Can_read_and_write_entities_using_convention()
+        {
+            repository.Convention = new ShoppingCartConvention();
+
+            var product1 = new Product
+                               {
+                                   Price = 123
+                               };
+            var product2 = new Product
+                               {
+                                   Price = 234
+                               };
+
+            repository.Insert(product1, product2);
+
+            var cart = new ShoppingCart
+                           {
+                               UserId = 1
+                           };
+
+            var lineItem1 = new LineItem
+                                {
+                                    Quantity = 1,
+                                    ProductId = product1.ProductId,
+                                    ShoppingCart = cart
+                                };
+            var lineItem2 = new LineItem
+                                {
+                                    Quantity = 2,
+                                    ProductId = product2.ProductId,
+                                    ShoppingCart = cart
+                                };
+            repository.Insert(cart);
+            repository.Insert(lineItem1, lineItem2);
+        }
 
         private void CreateTestData()
         {
