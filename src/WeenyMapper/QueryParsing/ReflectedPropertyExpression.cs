@@ -15,7 +15,7 @@ namespace WeenyMapper.QueryParsing
         public override QueryExpression Translate(IConvention convention)
         {
             var columnName = convention.GetColumnName(_propertyInfo);
-            return new PropertyExpression(columnName);
+            return new PropertyExpression(columnName, PropertyType);
         }
     }
 }

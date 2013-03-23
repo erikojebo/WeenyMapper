@@ -330,7 +330,15 @@ namespace WeenyMapper.Sql
 
             public void Visit(ValueExpression expression) {}
 
-            public void Visit(PropertyExpression expression) {}
+            public void Visit(PropertyExpression expression)
+            {
+                if (expression.PropertyType == typeof(bool))
+                {
+                    var columnName = expression.PropertyName;
+                    var columnReference = new ColumnReference(columnName, Escape);
+                    ConstraintCommandText = string.Format("{0} = 1", columnReference);
+                }
+            }
 
             public void Visit(InExpression expression)
             {
