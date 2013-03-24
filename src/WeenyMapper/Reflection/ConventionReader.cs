@@ -123,7 +123,7 @@ namespace WeenyMapper.Reflection
 
         private IDictionary<string, object> GetColumnValues(object instance)
         {
-            var properties = GetMappedProperties(instance.GetType());
+            var properties = GetMappedProperties(instance.GetType()).ToList();
 
             var propertyValues = new Dictionary<string, object>();
 
@@ -140,20 +140,39 @@ namespace WeenyMapper.Reflection
                 {
                     columnName = _convention.GetManyToOneForeignKeyColumnName(property);
 
-                    if (value != null)
-                    {
-                        value = GetPrimaryKeyValue(value);
-                    }
-                    else
-                    {
-                        value = DBNull.Value;
-                    }
+                    value = GetForeignKeyValue(instance, properties, columnName, value);
                 }
 
                 propertyValues[columnName] = value;
             }
 
             return propertyValues;
+        }
+
+        private object GetForeignKeyValue(object instance, List<PropertyInfo> properties, string columnName, object value)
+        {
+            var foreignKeyIdProperty = properties.FirstOrDefault(x => GetColumnName(x) == columnName);
+            var foreignKeyIdPropertyValue = foreignKeyIdProperty != null ? foreignKeyIdProperty.GetValue(instance, null) : null;
+
+            // The property is a navigation property so the value is another entity instance. Hence, the foreign key value
+            // is then actually the primary key of the other entity.
+            // TODO: The statement above is not necessarily true. The foreign key could reference another column than the primary key
+            if (value != null)
+            {
+                value = GetPrimaryKeyValue(value);
+            }
+            // If the navigation property is null, check if there is an explicit property for the foreign key id. If so,
+            // use that value instead.
+            else if (foreignKeyIdPropertyValue != null)
+            {
+                value = foreignKeyIdPropertyValue;
+            }
+            // If neither navigation property or explicit id property is set to something, then write a null to the database
+            else
+            {
+                value = DBNull.Value;
+            }
+            return value;
         }
 
         private bool IsDataProperty(PropertyInfo property)

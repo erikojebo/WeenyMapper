@@ -1805,6 +1805,50 @@ namespace WeenyMapper.Specs
             Assert.AreEqual(company2, allCompanies[1]);
         }
 
+        // You should be able to change the relationship of an entity without loading the new related object,
+        // even though you have a navigation property. You could do it by newing up a related object and setting
+        // the id, but that feels a bit wonky. You should be able to just set the foreign key property to some
+        // new id and that should take precedence if the navigation property is null. If both are null the value
+        // should be set to null in the database. If both are set but to different values the navigation property
+        // should take precedence.
+        [Test]
+        public void Relationship_for_entity_with_both_foreign_key_id_property_and_navigation_property_can_be_changed_by_setting_the_foreign_key_id_even_though_the_navigation_property_is_null()
+        {
+            var company1 = new Company
+            {
+                Name = "Company 1"
+            };
+            var company2 = new Company
+            {
+                Name = "Company 2"
+            };
+
+            var employee1 = new Employee
+            {
+                FirstName = "Steve",
+                LastName = "Smith",
+                BirthDate = new DateTime(1972, 1, 2),
+            };
+
+            Repository.Insert(company1, company2);
+
+            employee1.Company = company1;
+
+            Repository.Insert(employee1);
+
+            var readEmployeeBeforeUpdate = Repository.Find<Employee>().Where(x => x.Id == employee1.Id).Execute();
+
+            Assert.AreEqual(company1.Id, readEmployeeBeforeUpdate.CompanyId);
+
+            readEmployeeBeforeUpdate.CompanyId = company2.Id;
+
+            Repository.Update(readEmployeeBeforeUpdate);
+
+            var readEmployeeAfterUpdate = Repository.Find<Employee>().Where(x => x.Id == employee1.Id).Execute();
+
+            Assert.AreEqual(company2.Id, readEmployeeAfterUpdate.CompanyId);
+        }
+
         [Test]
         public void Different_relations_on_same_entity_can_be_loaded_in_separate_queries_using_caching_repository()
         {
