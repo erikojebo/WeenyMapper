@@ -1850,6 +1850,37 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
+        public void Navigation_property_id_value_takes_precedence_over_explicit_foreign_key_id_property_value_when_both_are_set()
+        {
+            var company1 = new Company
+            {
+                Name = "Company 1"
+            };
+            var company2 = new Company
+            {
+                Name = "Company 2"
+            };
+
+            var employee1 = new Employee
+            {
+                FirstName = "Steve",
+                LastName = "Smith",
+                BirthDate = new DateTime(1972, 1, 2),
+            };
+
+            Repository.Insert(company1, company2);
+
+            employee1.Company = company1;
+            employee1.CompanyId = company2.Id;
+
+            Repository.Insert(employee1);
+
+            var actualEmployee = Repository.Find<Employee>().Where(x => x.Id == employee1.Id).Execute();
+
+            Assert.AreEqual(company1.Id, actualEmployee.CompanyId);
+        }
+
+        [Test]
         public void Different_relations_on_same_entity_can_be_loaded_in_separate_queries_using_caching_repository()
         {
             Repository.IsEntityCachingEnabled = true;
