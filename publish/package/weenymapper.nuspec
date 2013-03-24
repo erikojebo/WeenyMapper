@@ -2,13 +2,13 @@
 <package >
   <metadata>
     <id>WeenyMapper</id>
-    <version>0.2.6</version>
+    <version>0.2.7</version>
     <authors>Erik Öjebo</authors>
     <owners>Erik Öjebo</owners>
     <projectUrl>https://github.com/erikojebo/WeenyMapper</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Configuration-less object-relational mapper for SQL Server and SQL Server CE</description>
-    <releaseNotes>Fixed bug with querying for bools requiring an explicit comparison to true/false to work</releaseNotes>
+    <releaseNotes>Improved support for combining navigation properties and explicit foreign key id properties</releaseNotes>
     <copyright>Copyright 2012</copyright>
     <tags>.net orm object relational mapping sql sqlserver</tags>
   </metadata>

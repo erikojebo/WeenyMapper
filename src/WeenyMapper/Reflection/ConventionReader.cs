@@ -156,7 +156,6 @@ namespace WeenyMapper.Reflection
 
             // The property is a navigation property so the value is another entity instance. Hence, the foreign key value
             // is then actually the primary key of the other entity.
-            // TODO: The statement above is not necessarily true. The foreign key could reference another column than the primary key
             if (value != null)
             {
                 value = GetPrimaryKeyValue(value);
