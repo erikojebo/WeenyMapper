@@ -10,15 +10,5 @@ namespace WeenyMapper.Extensions
         {
             return type.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == genericInterfaceType);
         }
-
-        public static bool HasProperty(this object o, string name)
-        {
-            return o.GetProperty(name) != null;
-        }
-
-        public static PropertyInfo GetProperty(this object o, string name)
-        {
-            return o.GetType().GetProperty(name);
-        }
     }
 }
