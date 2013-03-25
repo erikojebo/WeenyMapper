@@ -44,6 +44,10 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="WeenyMapper, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\WeenyMapper.0.2.7\lib\net40\WeenyMapper.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -57,10 +61,6 @@
     <ProjectReference Include="..\WeenyMapper.SqlCe4\WeenyMapper.SqlCe4.csproj">
       <Project>{f035609c-b423-469e-9b00-e16e500be8a0}</Project>
       <Name>WeenyMapper.SqlCe4</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\WeenyMapper\WeenyMapper.csproj">
-      <Project>{6bc51ea5-9f01-4c23-a075-6f263f880af3}</Project>
-      <Name>WeenyMapper</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

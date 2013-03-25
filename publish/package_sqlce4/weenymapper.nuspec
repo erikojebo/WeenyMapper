@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>WeenyMapper.SqlCE</id>
+    <version>0.2.8</version>
+    <authors>Erik Öjebo</authors>
+    <owners>Erik Öjebo</owners>
+    <projectUrl>https://github.com/erikojebo/WeenyMapper</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Configuration-less object-relational mapper for SQL Server and SQL Server CE / SQL Server CE 4.0</description>
+    <releaseNotes>First release of SQL Server CE 4.0 support for WeenyMapper</releaseNotes>
+    <copyright>Copyright 2012</copyright>
+	<dependencies>
+	  <dependency id="WeenyMapper" version="0.2.7" />
+	</dependencies>
+    <tags>.net orm object relational mapping sql sqlserver</tags>
+  </metadata>
+</package>

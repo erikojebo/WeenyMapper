@@ -1,0 +1,1 @@
+cp ../../src/WeenyMapper.SqlCe4/bin/Release/WeenyMapper.SqlCe4.dll lib/net40/
