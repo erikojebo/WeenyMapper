@@ -92,11 +92,20 @@ namespace WeenyMapper.QueryExecution
 
         private SqlQueryJoinSpecification CreateSqlQueryJoinSpecification(ObjectQueryJoinSpecification joinSpecification)
         {
+            string manyToOneForeignKeyColumnName;
+
+            Här håller jag på o implementerar stöd för att kunna joina utan att peka ut navigation properties åt båda hållen.
+            Borde räcka med ena hållet
+            if (joinSpecification.HasChildProperty)
+                manyToOneForeignKeyColumnName = _conventionReader.GetManyToOneForeignKeyColumnName(joinSpecification.ChildProperty);
+            else
+                manyToOneForeignKeyColumnName = _conventionReader.GetManyToOneForeignKeyColumnName(joinSpecification.ChildType);
+
             return new SqlQueryJoinSpecification
                 {
                     ChildTableName = _conventionReader.GetTableName(joinSpecification.ChildProperty.DeclaringType),
                     ParentTableName = _conventionReader.GetTableName(joinSpecification.ParentProperty.DeclaringType),
-                    ChildForeignKeyColumnName = _conventionReader.GetManyToOneForeignKeyColumnName(joinSpecification.ChildProperty),
+                    ChildForeignKeyColumnName = manyToOneForeignKeyColumnName,
                     ParentPrimaryKeyColumnName = _conventionReader.GetPrimaryKeyColumnName(joinSpecification.ParentProperty.DeclaringType),
                     SqlQuerySpecification = CreateSqlQuerySpecification(joinSpecification.ObjectQuerySpecification)
                 };

@@ -146,10 +146,11 @@ namespace WeenyMapper.QueryBuilding
                 nextType = typeof(TParent);
             }
 
-            _latestQuerySpecification.JoinSpecification = new ObjectQueryJoinSpecification
+            var parentPropertyInfo = Reflector<TParent>.GetProperty(parentProperty);
+            var childPropertyInfo = Reflector<TChild>.GetProperty(childProperty);
+
+            _latestQuerySpecification.JoinSpecification = new ObjectQueryJoinSpecification(parentPropertyInfo, childPropertyInfo)
                 {
-                    ParentProperty = Reflector<TParent>.GetProperty(parentProperty),
-                    ChildProperty = Reflector<TChild>.GetProperty(childProperty),
                     ObjectQuerySpecification = new ObjectQuerySpecification(nextType)
                 };
 
