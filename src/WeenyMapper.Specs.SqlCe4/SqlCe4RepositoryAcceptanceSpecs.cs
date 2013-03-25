@@ -2,21 +2,21 @@
 using System.Data.SqlServerCe;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using NUnit.Framework;
 using WeenyMapper.Logging;
 using WeenyMapper.Specs.SqlScripts;
 using WeenyMapper.Sql;
-using WeenyMapper.SqlCe;
+using WeenyMapper.SqlCe4;
+using WeenyMapper.SqlCe4.Sql;
 
 namespace WeenyMapper.Specs
 {
     [TestFixture]
-    public class SqlCeRepositoryAcceptanceSpecs : RepositoryAcceptanceSpecs
+    public class SqlCe4RepositoryAcceptanceSpecs : RepositoryAcceptanceSpecs
     {
         protected override void PerformSetUp()
         {
-            Repository.DatabaseProvider = new SqlCeDatabaseProvider();
+            Repository.DatabaseProvider = new SqlCe4DatabaseProvider();
 
             CreateDatabaseFile();
             WriteDatabaseSchema();
@@ -36,7 +36,7 @@ namespace WeenyMapper.Specs
 
         private void WriteDatabaseSchema()
         {
-            TestDatabase.Create(TestConnectionString, new SqlCeCommandFactory());
+            TestDatabase.Create(TestConnectionString, new SqlCe4CommandFactory());
         }
 
         private void CreateDatabaseFile()
@@ -62,7 +62,7 @@ namespace WeenyMapper.Specs
 
         private string DatabasePath
         {
-            get { return Path.Combine(Path.GetTempPath(), "WeenyMapper.sdf"); }
+            get { return Path.Combine(Path.GetTempPath(), "WeenyMapperCE4.sdf"); }
         }
     }
 }
