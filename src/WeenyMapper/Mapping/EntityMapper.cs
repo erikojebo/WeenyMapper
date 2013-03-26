@@ -122,8 +122,8 @@ namespace WeenyMapper.Mapping
 
         private object CreateInstanceGraph(Type resultType, Row row, ObjectRelation relation, EntityCache entityCache)
         {
-            var childType = relation.ChildProperty.DeclaringType;
-            var parentType = relation.ParentProperty.DeclaringType;
+            var childType = relation.ChildType;
+            var parentType = relation.ParentType;
 
             var child = CreateInstance(childType, row, entityCache);
             var parent = CreateInstance(parentType, row, entityCache);
@@ -140,7 +140,21 @@ namespace WeenyMapper.Mapping
                 return;
             }
 
+            MapParentPropertyForChild(relation, child, parent);
+
+            if (relation.HasParentProperty)
+            {
+                MapChildCollectionForParent(relation, child, parent);
+            }
+        }
+
+        private static void MapParentPropertyForChild(ObjectRelation relation, object child, object parent)
+        {
             relation.ChildProperty.SetValue(child, parent, null);
+        }
+
+        private void MapChildCollectionForParent(ObjectRelation relation, object child, object parent)
+        {
             var parentsChildCollection = (IList)relation.ParentProperty.GetValue(parent, null);
 
             if (parentsChildCollection == null)

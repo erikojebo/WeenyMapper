@@ -94,8 +94,7 @@ namespace WeenyMapper.QueryExecution
         {
             string manyToOneForeignKeyColumnName;
 
-            Här håller jag på o implementerar stöd för att kunna joina utan att peka ut navigation properties åt båda hållen.
-            Borde räcka med ena hållet
+            // TODO: Implement support for joining with a one-sided navigation property
             if (joinSpecification.HasChildProperty)
                 manyToOneForeignKeyColumnName = _conventionReader.GetManyToOneForeignKeyColumnName(joinSpecification.ChildProperty);
             else
@@ -103,10 +102,10 @@ namespace WeenyMapper.QueryExecution
 
             return new SqlQueryJoinSpecification
                 {
-                    ChildTableName = _conventionReader.GetTableName(joinSpecification.ChildProperty.DeclaringType),
-                    ParentTableName = _conventionReader.GetTableName(joinSpecification.ParentProperty.DeclaringType),
+                    ChildTableName = _conventionReader.GetTableName(joinSpecification.ChildType),
+                    ParentTableName = _conventionReader.GetTableName(joinSpecification.ParentType),
                     ChildForeignKeyColumnName = manyToOneForeignKeyColumnName,
-                    ParentPrimaryKeyColumnName = _conventionReader.GetPrimaryKeyColumnName(joinSpecification.ParentProperty.DeclaringType),
+                    ParentPrimaryKeyColumnName = _conventionReader.GetPrimaryKeyColumnName(joinSpecification.ParentType),
                     SqlQuerySpecification = CreateSqlQuerySpecification(joinSpecification.ObjectQuerySpecification)
                 };
         }
@@ -134,10 +133,7 @@ namespace WeenyMapper.QueryExecution
             {
                 var primaryType = currentQuerySpecification.ResultType;
 
-                var objectRelation = new ObjectRelation(
-                    currentQuerySpecification.JoinSpecification.ParentProperty,
-                    currentQuerySpecification.JoinSpecification.ChildProperty,
-                    primaryType);
+                var objectRelation = ObjectRelation.Create(currentQuerySpecification.JoinSpecification, primaryType);
 
                 objectRelations.Add(objectRelation);
 

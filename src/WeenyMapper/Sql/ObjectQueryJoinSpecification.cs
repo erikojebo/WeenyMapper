@@ -5,13 +5,41 @@ namespace WeenyMapper.Sql
 {
     public class ObjectQueryJoinSpecification
     {
-        public ObjectQueryJoinSpecification(PropertyInfo parentProperty, PropertyInfo childProperty)
+        private ObjectQueryJoinSpecification()
         {
-            ParentProperty = parentProperty;
-            ChildProperty = childProperty;
+        }
 
-            ChildType = childProperty.DeclaringType;
-            ParentType = parentProperty.DeclaringType;
+        public static ObjectQueryJoinSpecification CreateTwoWay(PropertyInfo parentProperty, PropertyInfo childProperty)
+        {
+            return new ObjectQueryJoinSpecification
+                {
+                    ParentProperty = parentProperty,
+                    ChildProperty = childProperty,
+                    ChildType = childProperty.DeclaringType,
+                    ParentType = parentProperty.DeclaringType,
+                };
+        }
+
+        public static ObjectQueryJoinSpecification CreateParentToChild(PropertyInfo parentProperty, Type childType)
+        {
+            return new ObjectQueryJoinSpecification
+                {
+                    ParentProperty = parentProperty,
+                    ChildType = childType,
+                    ParentType = parentProperty.DeclaringType,
+                    ObjectQuerySpecification = new ObjectQuerySpecification(childType)
+                };
+        }
+
+        public static ObjectQueryJoinSpecification CreateChildToParent(PropertyInfo childProperty, Type parentType)
+        {
+            return new ObjectQueryJoinSpecification
+                {
+                    ChildProperty = childProperty,
+                    ChildType = childProperty.DeclaringType,
+                    ParentType = parentType,
+                    ObjectQuerySpecification = new ObjectQuerySpecification(parentType)
+                };
         }
 
         public ObjectQuerySpecification ObjectQuerySpecification { get; set; }
@@ -25,6 +53,9 @@ namespace WeenyMapper.Sql
             get { return ChildProperty != null; }
         }
 
-
+        public bool HasParentProperty
+        {
+            get { return ParentProperty != null; }
+        }
     }
 }
