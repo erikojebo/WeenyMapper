@@ -95,6 +95,11 @@ namespace WeenyMapper.Reflection
             return null;
         }
 
+        public string GetManyToOneForeignKeyColumnName(Type propertyInfo)
+        {
+            throw new NotImplementedException();
+        }
+
         public IDictionary<string, object> GetColumnValues<T>(IDictionary<PropertyInfo, object> propertyValueMap)
         {
             var columnValues = new Dictionary<string, object>();

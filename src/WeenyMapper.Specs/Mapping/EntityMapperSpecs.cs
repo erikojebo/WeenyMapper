@@ -28,10 +28,10 @@ namespace WeenyMapper.Specs.Mapping
         {
             _row = new Row();
             _mapper = new EntityMapper(new ConventionReader(new DefaultConvention()));
-            _parentChildRelation = ObjectRelation.Create<Parent, Child>(x => x.Children, x => x.Parent, typeof(Parent));
-            _childParentRelation = ObjectRelation.Create<Parent, Child>(x => x.Children, x => x.Parent, typeof(Child));
-            _childGrandChildRelation = ObjectRelation.Create<Child, GrandChild>(x => x.GrandChildren, x => x.Child, typeof(Child));
-            _idLessRelation = ObjectRelation.Create<ParentWithoutId, ChildWithoutId>(x => x.Children, x => x.Parent, typeof(ParentWithoutId));
+            _parentChildRelation = ObjectRelation.CreateTwoWay<Parent, Child>(x => x.Children, x => x.Parent, typeof(Parent));
+            _childParentRelation = ObjectRelation.CreateTwoWay<Parent, Child>(x => x.Children, x => x.Parent, typeof(Child));
+            _childGrandChildRelation = ObjectRelation.CreateTwoWay<Child, GrandChild>(x => x.GrandChildren, x => x.Child, typeof(Child));
+            _idLessRelation = ObjectRelation.CreateTwoWay<ParentWithoutId, ChildWithoutId>(x => x.Children, x => x.Parent, typeof(ParentWithoutId));
         }
 
         [Test]
@@ -355,7 +355,7 @@ namespace WeenyMapper.Specs.Mapping
             _row.Add("ChildWithForeignKeyColumn ParentId", 2);
             _row.Add("ParentToChildWithForeignKeyColumn Id", 3);
 
-            var relation = ObjectRelation.Create<ParentToChildWithForeignKeyColumn, ChildWithForeignKeyColumn>(x => x.Children, x => x.Parent, typeof(ChildWithForeignKeyColumn));
+            var relation = ObjectRelation.CreateTwoWay<ParentToChildWithForeignKeyColumn, ChildWithForeignKeyColumn>(x => x.Children, x => x.Parent, typeof(ChildWithForeignKeyColumn));
             var child = _mapper.CreateInstanceGraph<ChildWithForeignKeyColumn>(_row, relation);
 
             Assert.AreEqual(1, child.Id);
@@ -369,7 +369,7 @@ namespace WeenyMapper.Specs.Mapping
             _row.Add("Child Id", 1);
             _row.Add("Parent Id", 2);
 
-            var relation = ObjectRelation.Create<NullCollectionParent, ChildWithNullCollectionParent>(x => x.Children, x => x.Parent, typeof(NullCollectionParent));
+            var relation = ObjectRelation.CreateTwoWay<NullCollectionParent, ChildWithNullCollectionParent>(x => x.Children, x => x.Parent, typeof(NullCollectionParent));
 
             var parent = _mapper.CreateInstanceGraph<NullCollectionParent>(_row, relation);
 

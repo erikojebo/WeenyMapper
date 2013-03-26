@@ -25,6 +25,11 @@ namespace WeenyMapper.Mapping
         {
             get { return Alias.Substring(Alias.IndexOf(Separator) + 1); }
         }
+        
+        public string TableName
+        {
+            get { return Alias.Substring(0, Alias.IndexOf(Separator)); }
+        }
 
         public bool HasTableQualifiedAlias
         {
@@ -33,7 +38,7 @@ namespace WeenyMapper.Mapping
 
         public bool IsForType(Type type, IConvention convention)
         {
-            return !HasTableQualifiedAlias || Alias.StartsWith(convention.GetTableName(type));
+            return !HasTableQualifiedAlias || TableName == convention.GetTableName(type);
         }
 
         public override string ToString()

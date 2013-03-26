@@ -50,6 +50,10 @@ namespace WeenyMapper.Specs
             Repository.Delete<Employee>().Execute();
             Repository.Delete<Company>().Execute();
             Repository.Delete<Event>().Execute();
+
+            Repository.Delete<AlbumReview>().Execute();
+            Repository.Delete<Track>().Execute();
+            Repository.Delete<Album>().Execute();
         }
     }
 }

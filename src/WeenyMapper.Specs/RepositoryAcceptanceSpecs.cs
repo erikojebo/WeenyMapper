@@ -1815,20 +1815,20 @@ namespace WeenyMapper.Specs
         public void Relationship_for_entity_with_both_foreign_key_id_property_and_navigation_property_can_be_changed_by_setting_the_foreign_key_id_even_though_the_navigation_property_is_null()
         {
             var company1 = new Company
-            {
-                Name = "Company 1"
-            };
+                {
+                    Name = "Company 1"
+                };
             var company2 = new Company
-            {
-                Name = "Company 2"
-            };
+                {
+                    Name = "Company 2"
+                };
 
             var employee1 = new Employee
-            {
-                FirstName = "Steve",
-                LastName = "Smith",
-                BirthDate = new DateTime(1972, 1, 2),
-            };
+                {
+                    FirstName = "Steve",
+                    LastName = "Smith",
+                    BirthDate = new DateTime(1972, 1, 2),
+                };
 
             Repository.Insert(company1, company2);
 
@@ -1853,20 +1853,20 @@ namespace WeenyMapper.Specs
         public void Navigation_property_id_value_takes_precedence_over_explicit_foreign_key_id_property_value_when_both_are_set()
         {
             var company1 = new Company
-            {
-                Name = "Company 1"
-            };
+                {
+                    Name = "Company 1"
+                };
             var company2 = new Company
-            {
-                Name = "Company 2"
-            };
+                {
+                    Name = "Company 2"
+                };
 
             var employee1 = new Employee
-            {
-                FirstName = "Steve",
-                LastName = "Smith",
-                BirthDate = new DateTime(1972, 1, 2),
-            };
+                {
+                    FirstName = "Steve",
+                    LastName = "Smith",
+                    BirthDate = new DateTime(1972, 1, 2),
+                };
 
             Repository.Insert(company1, company2);
 
@@ -2267,6 +2267,53 @@ namespace WeenyMapper.Specs
 
             CollectionAssert.AreEquivalent(new[] { book1, book3 }, actualPublicDomainBooks);
             CollectionAssert.AreEquivalent(new[] { book2, book4 }, actualNonPublicDomainBooks);
+        }
+
+        [Ignore("Not implemented")]
+        [Test]
+        public void Parent_entity_with_collection_navigation_property_can_be_joined_to_child_entity_without_navigation_property()
+        {
+            var album1 = new Album { Title = "Album 1" };
+            var album2 = new Album { Title = "Album 2" };
+
+            var track1 = new Track { Title = "Track 1" };
+            var track2 = new Track { Title = "Track 2" };
+            var track3 = new Track { Title = "Track 3" };
+
+            // TODO: How to insert parent with children, so that WeenyMapper understands which ids to write to the foreign key?
+            // Repository.Insert(...);
+
+            album1.Tracks.Add(track1);
+            album1.Tracks.Add(track3);
+
+            album2.Tracks.Add(track2);
+
+            var actualAlbum = Repository
+                .Find<Album>()
+                .Join<Track>(x => x.Tracks)
+                .Where(x => x.Title == "Album 1").Execute();
+
+            Assert.AreEqual(album1, actualAlbum);
+        }
+
+        [Test]
+        public void Entity_with_navigation_property_cah_be_joined_to_entity_without_collection_property()
+        {
+            var review1 = new AlbumReview { Title = "Title 1" };
+            var review2 = new AlbumReview { Title = "Title 2" };
+
+            var album1 = new Album { Title = "Album 1" };
+            var album2 = new Album { Title = "Album 2" };
+
+            review1.Album = album1;
+            review2.Album = album2;
+
+            Repository.Insert(album1, album2);
+            Repository.Insert(review1, review2);
+
+            var actualReview = Repository.Find<AlbumReview>().Join<Album>(x => x.Album).Where(x => x.Title == "Title 1").Execute();
+
+            Assert.AreEqual(review1, actualReview);
         }
     }
 }

@@ -56,6 +56,33 @@ GO
 ALTER TABLE [Comment] ADD CONSTRAINT FK_Comment_User FOREIGN KEY (UserId) REFERENCES [User] ([Id])
 GO
 
+CREATE TABLE [Album](
+	[Id] [int] NOT NULL PRIMARY KEY IDENTITY,
+	[Title] [nvarchar](255) NOT NULL
+)
+GO
+
+CREATE TABLE [Track](
+	[Id] [int] NOT NULL PRIMARY KEY IDENTITY,
+	[Title] [nvarchar](255) NOT NULL,
+	[AlbumId] [int] NOT NULL
+)
+GO
+
+ALTER TABLE [Track] ADD CONSTRAINT FK_Track_Album FOREIGN KEY (AlbumId) REFERENCES [Album] ([Id])
+GO
+
+CREATE TABLE [AlbumReview](
+	[Id] [int] NOT NULL PRIMARY KEY IDENTITY,
+	[Title] [nvarchar](255) NOT NULL,
+	[Body] [nvarchar](4000),
+	[AlbumId] [int] NOT NULL
+)
+GO	
+
+ALTER TABLE [AlbumReview] ADD CONSTRAINT FK_AlbumReview_Album FOREIGN KEY (AlbumId) REFERENCES [Album] ([Id])
+GO
+
 CREATE TABLE [Company](
 	[Id] [int] NOT NULL PRIMARY KEY IDENTITY,
 	[Name] [nvarchar](255) NULL

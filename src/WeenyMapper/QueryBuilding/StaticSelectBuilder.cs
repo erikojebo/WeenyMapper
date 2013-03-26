@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using WeenyMapper.Async;
-using WeenyMapper.Exceptions;
 using WeenyMapper.Extensions;
 using WeenyMapper.QueryExecution;
 using WeenyMapper.QueryParsing;
@@ -32,7 +31,7 @@ namespace WeenyMapper.QueryBuilding
         {
             return AndWhere(queryExpression);
         }
-        
+
         public StaticSelectBuilder<T> AndWhere(Expression<Func<T, bool>> queryExpression)
         {
             if (Equals(_querySpecification.QueryExpression, QueryExpression.Create()))
@@ -84,7 +83,7 @@ namespace WeenyMapper.QueryBuilding
 
         public void ExecuteScalarAsync<TScalar>(Action<TScalar> callback, Action<Exception> errorCallback = null)
         {
-            TaskRunner.Run(ExecuteScalar<TScalar>, callback, errorCallback);
+            TaskRunner.Run<TScalar>(ExecuteScalar<TScalar>, callback, errorCallback);
         }
 
         public TScalar ExecuteScalar<TScalar>()
@@ -94,7 +93,7 @@ namespace WeenyMapper.QueryBuilding
 
         public void ExecuteScalarListAsync<TScalar>(Action<IList<TScalar>> callback, Action<Exception> errorCallback = null)
         {
-            TaskRunner.Run(ExecuteScalarList<TScalar>, callback, errorCallback);
+            TaskRunner.Run<IList<TScalar>>(ExecuteScalarList<TScalar>, callback, errorCallback);
         }
 
         public IList<TScalar> ExecuteScalarList<TScalar>()
@@ -135,6 +134,24 @@ namespace WeenyMapper.QueryBuilding
             return this;
         }
 
+        public StaticSelectBuilder<T> Join<TChild>(Expression<Func<T, IList<TChild>>> parentProperty)
+        {
+            var parentPropertyInfo = Reflector<T>.GetProperty(parentProperty);
+
+            _latestQuerySpecification.JoinSpecification = ObjectQueryJoinSpecification.CreateParentToChild(parentPropertyInfo, typeof(TChild));
+
+            return this;
+        }
+
+        public StaticSelectBuilder<T> Join<TParent>(Expression<Func<T, TParent>> childProperty)
+        {
+            var childPropertyInfo = Reflector<T>.GetProperty(childProperty);
+
+            _latestQuerySpecification.JoinSpecification = ObjectQueryJoinSpecification.CreateChildToParent(childPropertyInfo, typeof(TParent));
+
+            return this;
+        }
+
         public StaticSelectBuilder<T> Join<TParent, TChild>(
             Expression<Func<TParent, IList<TChild>>> parentProperty,
             Expression<Func<TChild, TParent>> childProperty)
@@ -146,12 +163,11 @@ namespace WeenyMapper.QueryBuilding
                 nextType = typeof(TParent);
             }
 
-            _latestQuerySpecification.JoinSpecification = new ObjectQueryJoinSpecification
-                {
-                    ParentProperty = Reflector<TParent>.GetProperty(parentProperty),
-                    ChildProperty = Reflector<TChild>.GetProperty(childProperty),
-                    ObjectQuerySpecification = new ObjectQuerySpecification(nextType)
-                };
+            var parentPropertyInfo = Reflector<TParent>.GetProperty(parentProperty);
+            var childPropertyInfo = Reflector<TChild>.GetProperty(childProperty);
+
+            _latestQuerySpecification.JoinSpecification = ObjectQueryJoinSpecification.CreateTwoWay(parentPropertyInfo, childPropertyInfo);
+            _latestQuerySpecification.JoinSpecification.ObjectQuerySpecification = new ObjectQuerySpecification(nextType);
 
             _latestQuerySpecification = _latestQuerySpecification.JoinSpecification.ObjectQuerySpecification;
 

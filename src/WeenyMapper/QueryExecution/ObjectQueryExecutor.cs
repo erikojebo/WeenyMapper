@@ -92,12 +92,20 @@ namespace WeenyMapper.QueryExecution
 
         private SqlQueryJoinSpecification CreateSqlQueryJoinSpecification(ObjectQueryJoinSpecification joinSpecification)
         {
+            string manyToOneForeignKeyColumnName;
+
+            // TODO: Implement support for joining with a one-sided navigation property
+            if (joinSpecification.HasChildProperty)
+                manyToOneForeignKeyColumnName = _conventionReader.GetManyToOneForeignKeyColumnName(joinSpecification.ChildProperty);
+            else
+                manyToOneForeignKeyColumnName = _conventionReader.GetManyToOneForeignKeyColumnName(joinSpecification.ChildType);
+
             return new SqlQueryJoinSpecification
                 {
-                    ChildTableName = _conventionReader.GetTableName(joinSpecification.ChildProperty.DeclaringType),
-                    ParentTableName = _conventionReader.GetTableName(joinSpecification.ParentProperty.DeclaringType),
-                    ChildForeignKeyColumnName = _conventionReader.GetManyToOneForeignKeyColumnName(joinSpecification.ChildProperty),
-                    ParentPrimaryKeyColumnName = _conventionReader.GetPrimaryKeyColumnName(joinSpecification.ParentProperty.DeclaringType),
+                    ChildTableName = _conventionReader.GetTableName(joinSpecification.ChildType),
+                    ParentTableName = _conventionReader.GetTableName(joinSpecification.ParentType),
+                    ChildForeignKeyColumnName = manyToOneForeignKeyColumnName,
+                    ParentPrimaryKeyColumnName = _conventionReader.GetPrimaryKeyColumnName(joinSpecification.ParentType),
                     SqlQuerySpecification = CreateSqlQuerySpecification(joinSpecification.ObjectQuerySpecification)
                 };
         }
@@ -125,10 +133,7 @@ namespace WeenyMapper.QueryExecution
             {
                 var primaryType = currentQuerySpecification.ResultType;
 
-                var objectRelation = new ObjectRelation(
-                    currentQuerySpecification.JoinSpecification.ParentProperty,
-                    currentQuerySpecification.JoinSpecification.ChildProperty,
-                    primaryType);
+                var objectRelation = ObjectRelation.Create(currentQuerySpecification.JoinSpecification, primaryType);
 
                 objectRelations.Add(objectRelation);
 
