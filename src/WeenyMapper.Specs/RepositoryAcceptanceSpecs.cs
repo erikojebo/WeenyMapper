@@ -2269,9 +2269,8 @@ namespace WeenyMapper.Specs
             CollectionAssert.AreEquivalent(new[] { book2, book4 }, actualNonPublicDomainBooks);
         }
 
-        [Ignore("Not implemented")]
         [Test]
-        public void Parent_entity_with_collection_navigation_property_can_be_joined_to_child_entity_without_navigation_property()
+        public void Parent_entity_with_collection_navigation_property_can_be_joined_to_child_entity_without_navigation_property_but_with_foreign_key_property()
         {
             var album1 = new Album { Title = "Album 1" };
             var album2 = new Album { Title = "Album 2" };
@@ -2280,17 +2279,22 @@ namespace WeenyMapper.Specs
             var track2 = new Track { Title = "Track 2" };
             var track3 = new Track { Title = "Track 3" };
 
-            // TODO: How to insert parent with children, so that WeenyMapper understands which ids to write to the foreign key?
-            // Repository.Insert(...);
-
             album1.Tracks.Add(track1);
             album1.Tracks.Add(track3);
 
             album2.Tracks.Add(track2);
 
+            Repository.Insert(album1, album2);
+
+            track1.AlbumId = album1.Id;
+            track3.AlbumId = album1.Id;
+            track2.AlbumId = album2.Id;
+
+            Repository.Insert(track1, track2, track3);
+
             var actualAlbum = Repository
                 .Find<Album>()
-                .Join<Track>(x => x.Tracks)
+                .Join<Track>(x => x.Tracks, x => x.AlbumId)
                 .Where(x => x.Title == "Album 1").Execute();
 
             Assert.AreEqual(album1, actualAlbum);

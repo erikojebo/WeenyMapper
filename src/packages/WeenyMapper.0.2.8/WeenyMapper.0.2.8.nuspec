@@ -2,13 +2,13 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>WeenyMapper</id>
-    <version>0.2.7</version>
+    <version>0.2.8</version>
     <authors>Erik Öjebo</authors>
     <owners>Erik Öjebo</owners>
     <projectUrl>https://github.com/erikojebo/WeenyMapper</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Configuration-less object-relational mapper for SQL Server and SQL Server CE</description>
-    <releaseNotes>Improved support for combining navigation properties and explicit foreign key id properties</releaseNotes>
+    <releaseNotes>Added support for joining entities which do not have navigation properties going both ways</releaseNotes>
     <copyright>Copyright 2012</copyright>
     <tags>.net orm object relational mapping sql sqlserver</tags>
     <references>

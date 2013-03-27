@@ -46,7 +46,7 @@
     <Reference Include="System.Xml" />
     <Reference Include="WeenyMapper, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\WeenyMapper.0.2.7\lib\net40\WeenyMapper.dll</HintPath>
+      <HintPath>..\packages\WeenyMapper.0.2.8\lib\net40\WeenyMapper.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

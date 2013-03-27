@@ -39,7 +39,7 @@ namespace WeenyMapper.Specs.TestClasses.Entities
         {
             var tracks = string.Join(", ", Tracks.Select(x => x.ToString()));
 
-            return string.Format("Id: {0}, Title: {1}, Tracks: ({2})", Id, Title, tracks);
+            return string.Format("Album Id: {0}, Title: {1}, Tracks: ({2})", Id, Title, tracks);
         }
     }
 }

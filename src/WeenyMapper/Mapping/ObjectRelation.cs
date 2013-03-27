@@ -70,7 +70,7 @@ namespace WeenyMapper.Mapping
 
         public bool HasChildProperty
         {
-            get { return ChildProperty == null; }
+            get { return ChildProperty != null; }
         }
 
         public static ObjectRelation Create(ObjectQueryJoinSpecification joinSpecification, Type primaryType)

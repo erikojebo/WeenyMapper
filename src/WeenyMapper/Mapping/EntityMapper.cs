@@ -136,16 +136,13 @@ namespace WeenyMapper.Mapping
         private void ConnectEntities(ObjectRelation relation, object child, object parent)
         {
             if (child == null || parent == null)
-            {
                 return;
-            }
 
-            MapParentPropertyForChild(relation, child, parent);
+            if (relation.HasChildProperty)
+                MapParentPropertyForChild(relation, child, parent);
 
             if (relation.HasParentProperty)
-            {
                 MapChildCollectionForParent(relation, child, parent);
-            }
         }
 
         private static void MapParentPropertyForChild(ObjectRelation relation, object child, object parent)
@@ -181,8 +178,8 @@ namespace WeenyMapper.Mapping
             var instance = CreateInstance(type);
 
             var columnValuesForCurrentType = row.GetColumnValuesForType(type, _conventionReader)
-                .Where(x => !_conventionReader.IsEntityReferenceProperty(x.ColumnName, type))
-                .ToList();
+                                                .Where(x => !_conventionReader.IsEntityReferenceProperty(x.ColumnName, type))
+                                                .ToList();
 
             if (columnValuesForCurrentType.Any() && columnValuesForCurrentType.All(x => x.Value == null))
             {

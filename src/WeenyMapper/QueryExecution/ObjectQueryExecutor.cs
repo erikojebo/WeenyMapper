@@ -94,11 +94,10 @@ namespace WeenyMapper.QueryExecution
         {
             string manyToOneForeignKeyColumnName;
 
-            // TODO: Implement support for joining with a one-sided navigation property
             if (joinSpecification.HasChildProperty)
                 manyToOneForeignKeyColumnName = _conventionReader.GetManyToOneForeignKeyColumnName(joinSpecification.ChildProperty);
             else
-                manyToOneForeignKeyColumnName = _conventionReader.GetManyToOneForeignKeyColumnName(joinSpecification.ChildType);
+                manyToOneForeignKeyColumnName = _conventionReader.GetColumnName(joinSpecification.ChildToParentForeignKeyProperty);
 
             return new SqlQueryJoinSpecification
                 {

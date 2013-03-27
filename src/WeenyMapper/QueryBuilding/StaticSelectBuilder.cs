@@ -134,11 +134,12 @@ namespace WeenyMapper.QueryBuilding
             return this;
         }
 
-        public StaticSelectBuilder<T> Join<TChild>(Expression<Func<T, IList<TChild>>> parentProperty)
+        public StaticSelectBuilder<T> Join<TChild>(Expression<Func<T, IList<TChild>>> parentProperty, Expression<Func<TChild, object>> foreignKeyProperty)
         {
             var parentPropertyInfo = Reflector<T>.GetProperty(parentProperty);
+            var foreignKeyPropertyInfo = Reflector<TChild>.GetProperty(foreignKeyProperty);
 
-            _latestQuerySpecification.JoinSpecification = ObjectQueryJoinSpecification.CreateParentToChild(parentPropertyInfo, typeof(TChild));
+            _latestQuerySpecification.JoinSpecification = ObjectQueryJoinSpecification.CreateParentToChild(parentPropertyInfo, foreignKeyPropertyInfo);
 
             return this;
         }

@@ -20,14 +20,15 @@ namespace WeenyMapper.Sql
                 };
         }
 
-        public static ObjectQueryJoinSpecification CreateParentToChild(PropertyInfo parentProperty, Type childType)
+        public static ObjectQueryJoinSpecification CreateParentToChild(PropertyInfo parentProperty, PropertyInfo foreignKeyProperty)
         {
             return new ObjectQueryJoinSpecification
                 {
                     ParentProperty = parentProperty,
-                    ChildType = childType,
+                    ChildToParentForeignKeyProperty = foreignKeyProperty,
+                    ChildType = foreignKeyProperty.DeclaringType,
                     ParentType = parentProperty.DeclaringType,
-                    ObjectQuerySpecification = new ObjectQuerySpecification(childType)
+                    ObjectQuerySpecification = new ObjectQuerySpecification(foreignKeyProperty.DeclaringType)
                 };
         }
 
@@ -45,6 +46,7 @@ namespace WeenyMapper.Sql
         public ObjectQuerySpecification ObjectQuerySpecification { get; set; }
         public PropertyInfo ParentProperty { get; private set; }
         public PropertyInfo ChildProperty { get; private set; }
+        public PropertyInfo ChildToParentForeignKeyProperty { get; private set; }
         public Type ChildType { get; private set; }
         public Type ParentType { get; private set; }
 
