@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using WeenyMapper.Exceptions;
+using WeenyMapper.Extensions;
 using WeenyMapper.Reflection;
 
 namespace WeenyMapper.Mapping
@@ -55,19 +56,47 @@ namespace WeenyMapper.Mapping
         public IList<T> CreateInstanceGraphs<T>(ResultSet resultSet)
         {
             var entityCache = GetEntityCache();
-            var objects = new List<object>();
 
-            foreach (var row in resultSet.Rows)
+            var objects = resultSet.Rows.Select(row => CreateInstance(typeof(T), row, entityCache)).ToList();
+
+            return GetDistinctResult<T>(resultSet, objects);
+        }
+
+        private IList<T> GetDistinctResult<T>(ResultSet resultSet, IEnumerable<object> objects)
+        {
+            var queryIncludesPrimaryKeyColumn = QueryIncludesPrimaryKeyColumn(typeof(T), resultSet);
+
+            // If the query does not include the primary key column all entities will have the default
+            // value as id value, so trying to make the result set distinct on the id value would
+            // always just return one single entity.
+            if (queryIncludesPrimaryKeyColumn)
             {
-                var instance = CreateInstance(typeof(T), row, entityCache);
+                var comparer = GetEqualityComparer<T>();
 
-                objects.Add(instance);
+                return objects.OfType<T>().Distinct(comparer).ToList();
             }
 
-            var comparer = GetEqualityComparer<T>();
-
-            return objects.OfType<T>().Distinct(comparer).ToList();
+            return objects.OfType<T>().ToList();
         }
+
+        private bool QueryIncludesPrimaryKeyColumn(Type type, ResultSet resultSet)
+        {
+            if (resultSet.Rows.IsEmpty())
+                return false;
+
+            return QueryIncludesPrimaryKeyColumn(type, resultSet.Rows.First());
+        }
+
+        private bool QueryIncludesPrimaryKeyColumn(Type type, Row row)
+        {
+            var primaryKeyColumnName = _conventionReader.TryGetPrimaryKeyColumnName(type);
+
+            var typeHasIdProperty = primaryKeyColumnName != null;
+            var resultIncludesPrimaryKeyColumn = row.GetColumnValuesForType(type, _conventionReader).Any(x => x.ColumnName == primaryKeyColumnName);
+
+            return typeHasIdProperty && resultIncludesPrimaryKeyColumn;
+        }
+
 
         private IEqualityComparer<T> GetEqualityComparer<T>()
         {
@@ -101,9 +130,7 @@ namespace WeenyMapper.Mapping
                 objects.Add(instance);
             }
 
-            var comparer = GetEqualityComparer<T>();
-
-            return objects.OfType<T>().Distinct(comparer).ToList();
+            return GetDistinctResult<T>(resultSet, objects);
         }
 
         private object CreateInstanceGraph(Type resultType, Row row, IEnumerable<ObjectRelation> relations, EntityCache entityCache)
@@ -192,7 +219,14 @@ namespace WeenyMapper.Mapping
                 property.SetValue(instance, columnValue.Value, null);
             }
 
-            if (entityCache.Contains(instance))
+            var includesPrimaryKeyColumn = QueryIncludesPrimaryKeyColumn(type, row);
+
+            // If the query does not include the primary key column we can't know if 
+            // the cache already contains the entity or not, since we do not have anything
+            // unique to match the entities on. So, treat all rows as different to make sure
+            // no rows are incorrectly merged into one, which would be the case if we assumed
+            // that they represented the same entity.
+            if (entityCache.Contains(instance) && includesPrimaryKeyColumn)
             {
                 return entityCache.GetExisting(instance);
             }

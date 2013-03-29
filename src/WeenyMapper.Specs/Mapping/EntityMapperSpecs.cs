@@ -431,7 +431,7 @@ namespace WeenyMapper.Specs.Mapping
         }
 
         [Test]
-        public void Two_rows_for_entity_without_id_sharing_some_entities_are_mapped_to_two_hierachies_sharing_instances()
+        public void Rows_in_result_set_without_id_column_values_are_mapped_to_separate_entities_even_though_columns_values_match()
         {
             var resultSet = new ResultSet();
 
@@ -441,20 +441,23 @@ namespace WeenyMapper.Specs.Mapping
 
             var parents = _mapper.CreateInstanceGraphs<ParentWithoutId>(resultSet, new[] { _idLessRelation });
 
-            Assert.AreEqual(2, parents.Count);
+            Assert.AreEqual(3, parents.Count);
 
-            Assert.AreEqual(2, parents[0].Children.Count);
+            Assert.AreEqual(1, parents[0].Children.Count);
             Assert.AreEqual(1, parents[1].Children.Count);
+            Assert.AreEqual(1, parents[2].Children.Count);
 
             Assert.AreEqual("First name", parents[0].Name);
             Assert.AreEqual("Another first name", parents[1].Name);
+            Assert.AreEqual("First name", parents[2].Name);
 
             Assert.AreEqual("child name 0", parents[0].Children[0].Name);
             Assert.AreEqual("child name 1", parents[1].Children[0].Name);
-            Assert.AreEqual("child name 2", parents[0].Children[1].Name);
+            Assert.AreEqual("child name 2", parents[2].Children[0].Name);
 
             Assert.AreEqual(parents[0], parents[0].Children[0].Parent);
             Assert.AreEqual(parents[1], parents[1].Children[0].Parent);
+            Assert.AreEqual(parents[2], parents[2].Children[0].Parent);
         }
 
         private class EntityWihtoutId

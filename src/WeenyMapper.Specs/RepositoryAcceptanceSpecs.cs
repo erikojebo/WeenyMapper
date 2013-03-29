@@ -2352,5 +2352,41 @@ namespace WeenyMapper.Specs
 
             CollectionAssert.AreEquivalent(new[] { book2, book4 }, actualCompanies);
         }
+
+        [Test]
+        public void Id_column_does_not_have_to_be_included_in_partial_select_for_entity_with_string_id()
+        {
+            Repository.Convention = new BookConvention();
+
+            var book1 = new Book { Isbn = "1", Title = "Title1", AuthorName = "Author name 1" };
+            var book2 = new Book { Isbn = "2", Title = "Title2", AuthorName = "Author name 2" };
+
+            Repository.Insert(book1, book2);
+
+            var expectedBook1 = new Book { Isbn = null, Title = "Title1", AuthorName = "Author name 1" };
+            var expectedBook2 = new Book { Isbn = null, Title = "Title2", AuthorName = "Author name 2" };
+
+            var actualBooks = Repository.Find<Book>().Select(x => x.Title).Select(x => x.AuthorName).ExecuteList();
+
+            Assert.AreEqual(2, actualBooks.Count);
+            CollectionAssert.AreEquivalent(new[] { expectedBook1, expectedBook2 }, actualBooks);
+        }
+
+        [Test]
+        public void Id_column_does_not_have_to_be_included_in_partial_select_for_entity_with_int_id()
+        {
+            var blog1 = new Blog { Name = "Blog1" };
+            var blog2 = new Blog { Name = "Blog2" };
+
+            Repository.Insert(blog1, blog2);
+
+            var expectedBlog1 = new Blog { Id = default(int), Name = "Blog1" };
+            var expectedBlog2 = new Blog { Id = default(int), Name = "Blog2" };
+
+            var actualBlogs = Repository.Find<Blog>().Select(x => x.Name).ExecuteList();
+
+            Assert.AreEqual(2, actualBlogs.Count);
+            CollectionAssert.AreEquivalent(new[] { expectedBlog1, expectedBlog2 }, actualBlogs);
+        }
     }
 }
