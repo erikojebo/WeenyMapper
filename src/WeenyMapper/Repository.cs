@@ -175,7 +175,7 @@ namespace WeenyMapper
                 };
         }
 
-        protected virtual ObjectInsertExecutor CreateObjectInsertExecutor<T>()
+        protected virtual IObjectInsertExecutor CreateObjectInsertExecutor<T>()
         {
             return new ObjectInsertExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
                 {
@@ -183,16 +183,15 @@ namespace WeenyMapper
                 };
         }
 
-        protected virtual ObjectUpdateExecutor CreateObjectUpdateExecutor<T>()
+        protected virtual IObjectUpdateExecutor CreateObjectUpdateExecutor<T>()
         {
-            var objectUpdateExecutor = new ObjectUpdateExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
+            return new ObjectUpdateExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
                 {
                     ConnectionString = ConnectionString
                 };
-            return objectUpdateExecutor;
         }
 
-        protected virtual ObjectQueryExecutor CreateObjectQueryExecutor<T>() where T : new()
+        protected virtual IObjectQueryExecutor CreateObjectQueryExecutor<T>() where T : new()
         {
             return new ObjectQueryExecutor(CreateSqlGenerator(), CreateSqlCommandExecutor(), CreateEntityMapper(), CreateConventionReader())
                 {
@@ -200,7 +199,7 @@ namespace WeenyMapper
                 };
         }
 
-        protected virtual ObjectDeleteExecutor CreateObjectDeleteExecutor<T>()
+        protected virtual IObjectDeleteExecutor CreateObjectDeleteExecutor<T>()
         {
             return new ObjectDeleteExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
                 {
@@ -208,7 +207,7 @@ namespace WeenyMapper
                 };
         }
 
-        protected virtual ObjectCountExecutor CreateObjectCountExecutor<T>()
+        protected virtual IObjectCountExecutor CreateObjectCountExecutor<T>()
         {
             return new ObjectCountExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
                 {

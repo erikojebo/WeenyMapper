@@ -67,6 +67,7 @@
     <Compile Include="Mapping\ObjectRelation.cs" />
     <Compile Include="Mapping\ResultSet.cs" />
     <Compile Include="Mapping\Row.cs" />
+    <Compile Include="QueryExecution\IObjectInsertExecutor.cs" />
     <Compile Include="QueryParsing\NotExpression.cs" />
     <Compile Include="QueryParsing\NotEqualExpression.cs" />
     <Compile Include="QueryParsing\EntityReferenceExpression.cs" />

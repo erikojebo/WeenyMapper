@@ -8,11 +8,11 @@ namespace WeenyMapper.QueryBuilding
 {
     public class StaticCountBuilder<T> : StaticCommandBuilderBase<T>
     {
-        private readonly ObjectCountExecutor _objectCountExecutor;
+        private readonly IObjectCountExecutor _objectCountExecutor;
         private readonly IExpressionParser _expressionParser;
         private QueryExpression _queryExpression = new RootExpression();
 
-        public StaticCountBuilder(ObjectCountExecutor objectCountExecutor, IExpressionParser expressionParser)
+        public StaticCountBuilder(IObjectCountExecutor objectCountExecutor, IExpressionParser expressionParser)
         {
             _objectCountExecutor = objectCountExecutor;
             _expressionParser = expressionParser;

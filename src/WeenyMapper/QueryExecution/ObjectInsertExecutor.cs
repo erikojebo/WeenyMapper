@@ -8,7 +8,7 @@ using WeenyMapper.Sql;
 
 namespace WeenyMapper.QueryExecution
 {
-    public class ObjectInsertExecutor
+    public class ObjectInsertExecutor : IObjectInsertExecutor
     {
         private readonly ISqlGenerator _sqlGenerator;
         private readonly IConventionReader _conventionReader;

@@ -9,11 +9,11 @@ namespace WeenyMapper.QueryBuilding
 {
     public class StaticDeleteBuilder<T> : StaticCommandBuilderBase<T>
     {
-        private readonly ObjectDeleteExecutor _objectDeleteExecutor;
+        private readonly IObjectDeleteExecutor _objectDeleteExecutor;
         private readonly ExpressionParser _expressionParser;
         private QueryExpression _queryExpression = new RootExpression();
 
-        public StaticDeleteBuilder(ObjectDeleteExecutor objectDeleteExecutor, ExpressionParser expressionParser)
+        public StaticDeleteBuilder(IObjectDeleteExecutor objectDeleteExecutor, ExpressionParser expressionParser)
         {
             _objectDeleteExecutor = objectDeleteExecutor;
             _expressionParser = expressionParser;
