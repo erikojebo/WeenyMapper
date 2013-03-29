@@ -73,40 +73,28 @@ namespace WeenyMapper
 
         public void InsertCollection<T>(IEnumerable<T> entities)
         {
-            var objectInsertExecutor = new ObjectInsertExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
-                {
-                    ConnectionString = ConnectionString
-                };
+            var objectInsertExecutor = CreateObjectInsertExecutor<T>();
 
             objectInsertExecutor.Insert(entities);
         }
 
         public void InsertAsync<T>(T entity, Action callback, Action<Exception> errorCallback = null)
         {
-            var objectInsertExecutor = new ObjectInsertExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
-                {
-                    ConnectionString = ConnectionString
-                };
+            var objectInsertExecutor = CreateObjectInsertExecutor<T>();
 
             objectInsertExecutor.InsertAsync(new[] { entity }, callback, errorCallback);
         }
 
         public void InsertCollectionAsync<T>(IEnumerable<T> entities, Action callback, Action<Exception> errorCallback = null)
         {
-            var objectInsertExecutor = new ObjectInsertExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
-                {
-                    ConnectionString = ConnectionString
-                };
+            var objectInsertExecutor = CreateObjectInsertExecutor<T>();
 
             objectInsertExecutor.InsertAsync(entities, callback, errorCallback);
         }
 
         public int Update<T>(T entity)
         {
-            var objectUpdateExecutor = new ObjectUpdateExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
-                {
-                    ConnectionString = ConnectionString
-                };
+            var objectUpdateExecutor = CreateObjectUpdateExecutor<T>();
 
             var builder = new StaticUpdateBuilder<T>(objectUpdateExecutor, new ExpressionParser());
 
@@ -115,11 +103,7 @@ namespace WeenyMapper
 
         public void UpdateAsync<T>(T entity, Action callback, Action<Exception> errorCallback = null)
         {
-            var objectUpdateExecutor = new ObjectUpdateExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
-                {
-                    ConnectionString = ConnectionString
-                };
-
+            var objectUpdateExecutor = CreateObjectUpdateExecutor<T>();
             var builder = new StaticUpdateBuilder<T>(objectUpdateExecutor, new ExpressionParser());
 
             builder.UpdateAsync(entity, callback, errorCallback);
@@ -127,60 +111,42 @@ namespace WeenyMapper
 
         public StaticUpdateBuilder<T> Update<T>()
         {
-            var objectUpdateExecutor = new ObjectUpdateExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
-                {
-                    ConnectionString = ConnectionString
-                };
+            var objectUpdateExecutor = CreateObjectUpdateExecutor<T>();
 
             return new StaticUpdateBuilder<T>(objectUpdateExecutor, new ExpressionParser());
         }
 
         public StaticSelectBuilder<T> Find<T>() where T : new()
         {
-            var objectQueryExecutor = new ObjectQueryExecutor(CreateSqlGenerator(), CreateSqlCommandExecutor(), CreateEntityMapper(), CreateConventionReader())
-                {
-                    ConnectionString = ConnectionString
-                };
+            var objectQueryExecutor = CreateObjectQueryExecutor<T>();
 
             return new StaticSelectBuilder<T>(objectQueryExecutor, new ExpressionParser());
         }
 
         public int Delete<T>(T entity)
         {
-            var objectDeleteExecutor = new ObjectDeleteExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
-                {
-                    ConnectionString = ConnectionString
-                };
+            var objectDeleteExecutor = CreateObjectDeleteExecutor<T>();
 
             return objectDeleteExecutor.Delete(entity);
         }
 
         public void DeleteAsync<T>(T entity, Action callback, Action<Exception> errorCallback = null)
         {
-            var objectDeleteExecutor = new ObjectDeleteExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
-                {
-                    ConnectionString = ConnectionString
-                };
+            var objectDeleteExecutor = CreateObjectDeleteExecutor<T>();
 
             objectDeleteExecutor.DeleteAsync(entity, callback, errorCallback);
         }
 
         public StaticDeleteBuilder<T> Delete<T>()
         {
-            var objectDeleteExecutor = new ObjectDeleteExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
-                {
-                    ConnectionString = ConnectionString
-                };
+            var objectDeleteExecutor = CreateObjectDeleteExecutor<T>();
 
             return new StaticDeleteBuilder<T>(objectDeleteExecutor, new ExpressionParser());
         }
 
         public StaticCountBuilder<T> Count<T>()
         {
-            var objectCountExecutor = new ObjectCountExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
-                {
-                    ConnectionString = ConnectionString
-                };
+            var objectCountExecutor = CreateObjectCountExecutor<T>();
 
             return new StaticCountBuilder<T>(objectCountExecutor, new ExpressionParser());
         }
@@ -200,12 +166,53 @@ namespace WeenyMapper
             SqlLogger = new NullSqlCommandLogger();
         }
 
-        public CustomSqlQueryExecutor<T> FindBySql<T>(DbCommand dbCommand) where T : new()
+        public virtual CustomSqlQueryExecutor<T> FindBySql<T>(DbCommand dbCommand) where T : new()
         {
             return new CustomSqlQueryExecutor<T>(CreateSqlCommandExecutor(), new EntityMapper(CreateConventionReader()))
                 {
                     ConnectionString = ConnectionString,
                     Command = dbCommand
+                };
+        }
+
+        protected virtual ObjectInsertExecutor CreateObjectInsertExecutor<T>()
+        {
+            return new ObjectInsertExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
+                {
+                    ConnectionString = ConnectionString
+                };
+        }
+
+        protected virtual ObjectUpdateExecutor CreateObjectUpdateExecutor<T>()
+        {
+            var objectUpdateExecutor = new ObjectUpdateExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
+                {
+                    ConnectionString = ConnectionString
+                };
+            return objectUpdateExecutor;
+        }
+
+        protected virtual ObjectQueryExecutor CreateObjectQueryExecutor<T>() where T : new()
+        {
+            return new ObjectQueryExecutor(CreateSqlGenerator(), CreateSqlCommandExecutor(), CreateEntityMapper(), CreateConventionReader())
+                {
+                    ConnectionString = ConnectionString
+                };
+        }
+
+        protected virtual ObjectDeleteExecutor CreateObjectDeleteExecutor<T>()
+        {
+            return new ObjectDeleteExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
+                {
+                    ConnectionString = ConnectionString
+                };
+        }
+
+        protected virtual ObjectCountExecutor CreateObjectCountExecutor<T>()
+        {
+            return new ObjectCountExecutor(CreateSqlGenerator(), CreateConventionReader(), CreateSqlCommandExecutor())
+                {
+                    ConnectionString = ConnectionString
                 };
         }
 
