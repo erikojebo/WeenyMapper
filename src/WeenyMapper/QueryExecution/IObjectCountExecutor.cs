@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using WeenyMapper.QueryParsing;
+﻿using WeenyMapper.QueryParsing;
 
 namespace WeenyMapper.QueryExecution
 {
