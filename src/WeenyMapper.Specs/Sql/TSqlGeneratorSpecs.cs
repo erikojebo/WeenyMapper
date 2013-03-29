@@ -845,5 +845,18 @@ namespace WeenyMapper.Specs.Sql
 
             Assert.AreEqual(0, sqlCommand.Parameters.Count);
         }
+
+        [Test]
+        public void Equals_expression_comparing_something_to_null_generates_IS_NULL_query()
+        {
+            _querySpecification.ColumnsToSelect = new[] { "ColumnName" };
+            _querySpecification.QueryExpression = new EqualsExpression(new PropertyExpression("ColumnName", typeof(string)), new ValueExpression(null));
+
+            var sqlCommand = _generator.GenerateSelectQuery(_querySpecification);
+
+            Assert.AreEqual("SELECT [ColumnName] FROM [TableName] WHERE [ColumnName] IS NULL", sqlCommand.CommandText);
+
+            Assert.AreEqual(0, sqlCommand.Parameters.Count);
+        }
     }
 }

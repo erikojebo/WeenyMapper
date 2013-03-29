@@ -2319,5 +2319,38 @@ namespace WeenyMapper.Specs
 
             Assert.AreEqual(review1, actualReview);
         }
+
+        [Test]
+        public void Query_with_filter_on_explicit_null_value_generates_an_IS_NULL_condition_in_the_query()
+        {
+            var company1 = new Company { Name = "Company1" };
+            var company2 = new Company { Name = null };
+            var company3 = new Company { Name = "Company2" };
+            var company4 = new Company { Name = null };
+
+            Repository.Insert(company1, company2, company3, company4);
+
+            var actualCompanies = Repository.Find<Company>().Where(x => x.Name == (string)null).ExecuteList();
+
+            CollectionAssert.AreEquivalent(new[] { company2, company4 }, actualCompanies);
+        }
+
+        [Test]
+        public void Query_with_value_comparison_to_variable_that_is_null_generates_an_IS_NULL_condition_in_the_query()
+        {
+            Repository.Convention = new BookConvention();
+
+            var book1 = new Book { Isbn = "1", Title = "Title1", AuthorName = "Author name 1" };
+            var book2 = new Book { Isbn = "2", Title = "Title2", AuthorName = null };
+            var book3 = new Book { Isbn = "3", Title = "Title3", AuthorName = "Author name 3" };
+            var book4 = new Book { Isbn = "4", Title = "Title4", AuthorName = null };
+
+            Repository.Insert(book1, book2, book3, book4);
+
+            string expectedName = null;
+            var actualCompanies = Repository.Find<Book>().Where(x => x.AuthorName == expectedName).ExecuteList();
+
+            CollectionAssert.AreEquivalent(new[] { book2, book4 }, actualCompanies);
+        }
     }
 }

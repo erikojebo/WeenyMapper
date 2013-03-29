@@ -365,7 +365,16 @@ namespace WeenyMapper.Sql
 
             public void Visit(EqualsExpression expression)
             {
-                VisitBinaryComparisonExpression(expression, "=");
+                if (expression.ValueExpression.Value == null)
+                {
+                    var columnName = expression.PropertyExpression.PropertyName;
+                    var columnReference = new ColumnReference(columnName, Escape);
+                    ConstraintCommandText = string.Format("{0} IS NULL", columnReference);
+                }
+                else
+                {
+                    VisitBinaryComparisonExpression(expression, "=");    
+                }
             }
 
             public void Visit(LessOrEqualExpression expression)
