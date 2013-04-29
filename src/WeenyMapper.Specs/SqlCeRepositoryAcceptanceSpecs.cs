@@ -1,10 +1,6 @@
-﻿using System;
-using System.Data.SqlServerCe;
+﻿using System.Data.SqlServerCe;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using NUnit.Framework;
-using WeenyMapper.Logging;
 using WeenyMapper.Specs.SqlScripts;
 using WeenyMapper.Sql;
 using WeenyMapper.SqlCe;

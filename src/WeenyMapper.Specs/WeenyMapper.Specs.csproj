@@ -51,6 +51,7 @@
     <Compile Include="Conventions\DefaultConventionSpecs.cs" />
     <Compile Include="Extensions\DictionaryExtensionsSpecs.cs" />
     <Compile Include="Extensions\EnumerableExtensionsSpecs.cs" />
+    <Compile Include="InMemoryRepositoryAcceptanceSpecs.cs" />
     <Compile Include="Mapping\ColumnValueSpecs.cs" />
     <Compile Include="Mapping\EntityMapperSpecs.cs" />
     <Compile Include="Mapping\IdPropertyComparerSpecs.cs" />

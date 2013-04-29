@@ -6,6 +6,13 @@ namespace WeenyMapper.QueryExecution
 {
     public class InMemoryObjectUpdateExecutor : IObjectUpdateExecutor
     {
+        private readonly InMemoryDatabase _inMemoryDatabase;
+
+        public InMemoryObjectUpdateExecutor(InMemoryDatabase inMemoryDatabase)
+        {
+            _inMemoryDatabase = inMemoryDatabase;
+        }
+
         public string ConnectionString { get; set; }
 
         public int Update<T>(T instance)

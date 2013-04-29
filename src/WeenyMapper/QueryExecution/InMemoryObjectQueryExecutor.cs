@@ -5,11 +5,18 @@ namespace WeenyMapper.QueryExecution
 {
     public class InMemoryObjectQueryExecutor : IObjectQueryExecutor
     {
+        private readonly InMemoryDatabase _inMemoryDatabase;
+
+        public InMemoryObjectQueryExecutor(InMemoryDatabase inMemoryDatabase)
+        {
+            _inMemoryDatabase = inMemoryDatabase;
+        }
+
         public string ConnectionString { get; set; }
 
         public IList<T> Find<T>(ObjectQuerySpecification querySpecification) where T : new()
         {
-            throw new System.NotImplementedException();
+            querySpecification.QueryExpression
         }
 
         public TScalar FindScalar<T, TScalar>(ObjectQuerySpecification querySpecification)

@@ -67,6 +67,7 @@
     <Compile Include="Mapping\ObjectRelation.cs" />
     <Compile Include="Mapping\ResultSet.cs" />
     <Compile Include="Mapping\Row.cs" />
+    <Compile Include="QueryExecution\InMemoryDatabase.cs" />
     <Compile Include="QueryExecution\InMemoryObjectCountExecutor.cs" />
     <Compile Include="QueryExecution\InMemoryObjectDeleteExecutor.cs" />
     <Compile Include="QueryExecution\InMemoryObjectInsertExecutor.cs" />
