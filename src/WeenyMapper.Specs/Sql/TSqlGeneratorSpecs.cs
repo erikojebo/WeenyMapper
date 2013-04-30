@@ -209,6 +209,59 @@ namespace WeenyMapper.Specs.Sql
         }
 
         [Test]
+        public void Generating_multi_table_join_from_the_middle_outwards_generates_join_query_with_each_table_only_referenced_once()
+        {
+            _querySpecification = new SqlQuerySpecification
+                {
+                    ColumnsToSelect = new[] { "Name" },
+                    TableName = "Posts",
+                    PrimaryKeyColumnName = "Id"
+                };
+
+            var spec2 = new SqlQuerySpecification
+                {
+                    ColumnsToSelect = new List<string> { "Name" },
+                    TableName = "Comments"
+                };
+
+            var spec3 = new SqlQuerySpecification
+                {
+                    ColumnsToSelect = new List<string> { "Name" },
+                    TableName = "Blogs"
+                };
+
+            _querySpecification.JoinSpecification = new SqlQueryJoinSpecification
+                {
+                    ParentTableName = "Posts",
+                    ChildTableName = "Comments",
+                    ParentPrimaryKeyColumnName = "Id",
+                    ChildForeignKeyColumnName = "PostId",
+                    SqlQuerySpecification = spec2
+                };
+
+            spec2.JoinSpecification = new SqlQueryJoinSpecification
+                {
+                    ParentTableName = "Blogs",
+                    ChildTableName = "Posts",
+                    ParentPrimaryKeyColumnName = "Id",
+                    ChildForeignKeyColumnName = "BlogId",
+                    SqlQuerySpecification = spec3
+                };
+
+            var expectedSql =
+                "SELECT [Posts].[Name] AS \"Posts Name\", " +
+                "[Comments].[Name] AS \"Comments Name\", " +
+                "[Blogs].[Name] AS \"Blogs Name\" " +
+                "FROM [Posts] LEFT OUTER JOIN [Comments] " +
+                "ON [Posts].[Id] = [Comments].[PostId] " +
+                "LEFT OUTER JOIN [Blogs] ON [Blogs].[Id] = [Posts].[BlogId]";
+
+            var query = _generator.GenerateSelectQuery(_querySpecification);
+
+            Assert.AreEqual(expectedSql, query.CommandText);
+        }
+
+        [Test]
         public void Generating_join_with_order_by_generates_select_with_corresponding_order_by_with_qualified_column_name()
         {
             _querySpecification.OrderByStatements.Add(new OrderByStatement("ColumnName3"));

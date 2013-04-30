@@ -159,7 +159,7 @@ namespace WeenyMapper.QueryBuilding
         {
             var nextType = typeof(TChild);
 
-            if (nextType == _latestQuerySpecification.ResultType)
+            if (TypesInQuery.Contains(typeof(TChild)))
             {
                 nextType = typeof(TParent);
             }
@@ -173,6 +173,23 @@ namespace WeenyMapper.QueryBuilding
             _latestQuerySpecification = _latestQuerySpecification.JoinSpecification.ObjectQuerySpecification;
 
             return this;
+        }
+
+        private IEnumerable<Type> TypesInQuery
+        {
+            get
+            {
+                var querySpecification = _querySpecification;
+
+                yield return querySpecification.ResultType;
+
+                while (querySpecification.HasJoinSpecification)
+                {
+                    querySpecification = querySpecification.JoinSpecification.ObjectQuerySpecification;
+
+                    yield return querySpecification.ResultType;
+                } 
+            }
         }
     }
 }
