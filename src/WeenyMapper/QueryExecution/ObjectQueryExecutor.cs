@@ -62,7 +62,15 @@ namespace WeenyMapper.QueryExecution
         {
             var sqlQuery = new SqlQuery();
 
-            AddSqlQuerySpecification(query.SubQueries.First(), sqlQuery);
+            foreach (var objectSubQuery in query.SubQueries)
+            {
+                AddSqlQuerySpecification(objectSubQuery, sqlQuery);
+            }
+
+            foreach (var objectSubQueryJoin in query.Joins)
+            {
+                AddSqlQueryJoinSpecification(objectSubQueryJoin, sqlQuery);                
+            }
 
             return sqlQuery;
         }
@@ -93,18 +101,9 @@ namespace WeenyMapper.QueryExecution
                 };
 
             sqlQuery.SubQueries.Add(spec);
-
-            if (subQuery.HasJoinSpecification)
-            {
-                var joinSpecification = CreateSqlQueryJoinSpecification(subQuery.JoinSpecification, sqlQuery);
-
-                sqlQuery.Joins.Add(joinSpecification);
-            }
-
-            return;
         }
 
-        private SqlSubQueryJoin CreateSqlQueryJoinSpecification(ObjectSubQueryJoin joinSpecification, SqlQuery query)
+        private void AddSqlQueryJoinSpecification(ObjectSubQueryJoin joinSpecification, SqlQuery query)
         {
             string manyToOneForeignKeyColumnName;
 
@@ -121,9 +120,7 @@ namespace WeenyMapper.QueryExecution
                     ParentPrimaryKeyColumnName = _conventionReader.GetPrimaryKeyColumnName(joinSpecification.ParentType),
                 };
 
-            AddSqlQuerySpecification(joinSpecification.AliasedObjectSubQuery, query);
-
-            return joinSpec;
+            query.Joins.Add(joinSpec);
         }
 
         private IList<T> ReadEntities<T>(DbCommand command, AliasedObjectSubQuery subQuery) where T : new()
