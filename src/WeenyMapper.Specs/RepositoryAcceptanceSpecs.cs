@@ -1645,14 +1645,14 @@ namespace WeenyMapper.Specs
 
             Assert.AreSame(actualComments[0].BlogPost, actualComments[1].BlogPost);
             Assert.AreSame(actualComments[2].BlogPost, actualComments[3].BlogPost);
-            
+
             Assert.AreSame(actualComments[0].BlogPost.Blog, actualComments[1].BlogPost.Blog);
             Assert.AreSame(actualComments[0].BlogPost.Blog, actualComments[2].BlogPost.Blog);
             Assert.AreSame(actualComments[0].BlogPost.Blog, actualComments[3].BlogPost.Blog);
         }
 
         [Test]
-        public virtual void Multi_level_relationship_directed_from_middle_level_out_to_parent_and_to_child_can_be_written_and_read_back_in_single_query()
+        public virtual void Multi_level_relationship_directed_from_middle_level_out_to_parent_and_to_child_can_be_read_with_two_way_relations()
         {
             Repository.DefaultConvention = new BlogConvention();
 
@@ -1732,10 +1732,10 @@ namespace WeenyMapper.Specs
             Repository.Insert(comment1, comment2, comment3, comment4, comment5);
 
             var actualBlogPosts = Repository.Find<BlogPost>().Where(x => x.PublishDate >= new DateTime(2011, 1, 2))
-                                           .OrderBy(x => x.PublishDate)
-                                           .Join<BlogPost, Comment>(x => x.Comments, x => x.BlogPost)
-                                           .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog)
-                                           .ExecuteList();
+                                            .OrderBy(x => x.PublishDate)
+                                            .Join<BlogPost, Comment>(x => x.Comments, x => x.BlogPost)
+                                            .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog)
+                                            .ExecuteList();
 
             Assert.AreEqual(2, actualBlogPosts.Count);
 
@@ -1756,11 +1756,88 @@ namespace WeenyMapper.Specs
             Assert.AreEqual(1, actualBlog1.Posts.Count);
             Assert.AreEqual(1, actualBlog2.Posts.Count);
 
-            Assert.AreSame(actualBlogPosts[0], actualBlog1.Posts.First());            
+            Assert.AreSame(actualBlogPosts[0], actualBlog1.Posts.First());
             Assert.AreSame(actualBlogPosts[1], actualBlog2.Posts.First());
 
             actualBlogPosts[0].Comments.ToList().ForEach(x => Assert.AreSame(actualBlogPosts[0], x.BlogPost));
             actualBlogPosts[1].Comments.ToList().ForEach(x => Assert.AreSame(actualBlogPosts[1], x.BlogPost));
+        }
+
+        [Ignore("Not implemented yet")]
+        [Test]
+        public virtual void Object_can_join_two_child_collections_using_only_parent_to_child_relation()
+        {
+            var company1 = new Company
+                {
+                    Name = "Company 1"
+                };
+
+            var employee1 = new Employee
+                {
+                    FirstName = "Steve",
+                    LastName = "Smith",
+                    BirthDate = new DateTime(1972, 1, 2),
+                    Company = company1
+                };
+
+            var employee2 = new Employee
+                {
+                    FirstName = "Lisa",
+                    LastName = "Johnsson",
+                    BirthDate = new DateTime(1954, 11, 12),
+                    Company = company1
+                };
+
+            var employee3 = new Employee
+                {
+                    FirstName = "Nisse",
+                    LastName = "Karlsson",
+                    BirthDate = new DateTime(1972, 1, 3),
+                    Company = company1
+                };
+
+            var employee4 = new Employee
+                {
+                    FirstName = "Kalle",
+                    LastName = "Svensson",
+                    BirthDate = new DateTime(1954, 11, 13),
+                    Company = company1
+                };
+
+            var employee5 = new Employee
+                {
+                    FirstName = "Pelle",
+                    LastName = "Persson",
+                    BirthDate = new DateTime(1954, 11, 14),
+                    Company = company1
+                };
+
+            var employee6 = new Employee
+                {
+                    FirstName = "Sture",
+                    LastName = "Karlsson",
+                    BirthDate = new DateTime(1954, 11, 14),
+                    Company = company1
+                };
+
+            employee1.AddMentee(employee2);
+            employee1.AddMentee(employee3);
+
+            employee1.AddSubordinate(employee4);
+            employee1.AddSubordinate(employee5);
+
+            Repository.Insert(company1);
+            Repository.Insert(employee1); // Insert employee1 first since all the others reference that one
+            Repository.Insert(employee2, employee3, employee4, employee5, employee6);
+
+            var actualEmployee1 = Repository.Find<Employee>()
+                                            .Join(x => x.Subordinates, x => x.ManagerId)
+                                            .Join(x => x.Mentees, x => x.MentorId)
+                                            .Execute();
+
+            Assert.AreEqual(employee1, actualEmployee1);
+            CollectionAssert.AreEquivalent(employee1.Subordinates, actualEmployee1.Subordinates);
+            CollectionAssert.AreEquivalent(employee1.Mentees, actualEmployee1.Mentees);
         }
 
         [Test]

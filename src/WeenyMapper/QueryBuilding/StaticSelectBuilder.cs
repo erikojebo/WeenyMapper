@@ -155,11 +155,7 @@ namespace WeenyMapper.QueryBuilding
 
             var joinSpecification = ObjectSubQueryJoin.CreateParentToChild(parentPropertyInfo, foreignKeyPropertyInfo);
 
-            _query.AddJoin<T, TChild>(joinSpecification);
-            
-            _query.Joins.Add(joinSpecification);
-
-            _latestSubQuery.JoinSpecification = joinSpecification;
+            Join<T, TChild>(joinSpecification);
 
             return this;
         }
@@ -170,9 +166,7 @@ namespace WeenyMapper.QueryBuilding
 
             var joinSpecification = ObjectSubQueryJoin.CreateChildToParent(childPropertyInfo, typeof(TParent));
 
-            _query.AddJoin<TParent, T>(joinSpecification);
-
-            _latestSubQuery.JoinSpecification = joinSpecification;
+            Join<TParent, T>(joinSpecification);
 
             return this;
         }
@@ -181,17 +175,24 @@ namespace WeenyMapper.QueryBuilding
             Expression<Func<TParent, IList<TChild>>> parentProperty,
             Expression<Func<TChild, TParent>> childProperty)
         {
+            var parentPropertyInfo = Reflector<TParent>.GetProperty(parentProperty);
+            var childPropertyInfo = Reflector<TChild>.GetProperty(childProperty);
+
+            var joinSpecification = ObjectSubQueryJoin.CreateTwoWay(parentPropertyInfo, childPropertyInfo);
+
+            Join<TParent, TChild>(joinSpecification);
+
+            return this;
+        }
+
+        private void Join<TParent, TChild>(ObjectSubQueryJoin joinSpecification)
+        {
             var nextType = typeof(TChild);
 
             if (TypesInQuery.Contains(typeof(TChild)))
             {
                 nextType = typeof(TParent);
             }
-
-            var parentPropertyInfo = Reflector<TParent>.GetProperty(parentProperty);
-            var childPropertyInfo = Reflector<TChild>.GetProperty(childProperty);
-
-            var joinSpecification = ObjectSubQueryJoin.CreateTwoWay(parentPropertyInfo, childPropertyInfo);
 
             _query.AddJoin<TParent, TChild>(joinSpecification);
 
@@ -202,8 +203,6 @@ namespace WeenyMapper.QueryBuilding
             _latestSubQuery.JoinSpecification.AliasedObjectSubQuery = nextSubQuery;
 
             _latestSubQuery = nextSubQuery;
-
-            return this;
         }
 
         private IEnumerable<Type> TypesInQuery

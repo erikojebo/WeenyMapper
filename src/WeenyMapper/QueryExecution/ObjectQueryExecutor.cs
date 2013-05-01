@@ -92,22 +92,22 @@ namespace WeenyMapper.QueryExecution
             return spec;
         }
 
-        private SqlQueryJoinSpecification CreateSqlQueryJoinSpecification(ObjectSubQueryJoin @join)
+        private SqlQueryJoinSpecification CreateSqlQueryJoinSpecification(ObjectSubQueryJoin joinSpecification)
         {
             string manyToOneForeignKeyColumnName;
 
-            if (@join.HasChildProperty)
-                manyToOneForeignKeyColumnName = _conventionReader.GetManyToOneForeignKeyColumnName(@join.ChildProperty);
+            if (joinSpecification.HasChildProperty)
+                manyToOneForeignKeyColumnName = _conventionReader.GetManyToOneForeignKeyColumnName(joinSpecification.ChildProperty);
             else
-                manyToOneForeignKeyColumnName = _conventionReader.GetColumnName(@join.ChildToParentForeignKeyProperty);
+                manyToOneForeignKeyColumnName = _conventionReader.GetColumnName(joinSpecification.ChildToParentForeignKeyProperty);
 
             return new SqlQueryJoinSpecification
                 {
-                    ChildTableName = _conventionReader.GetTableName(@join.ChildType),
-                    ParentTableName = _conventionReader.GetTableName(@join.ParentType),
+                    ChildTableName = _conventionReader.GetTableName(joinSpecification.ChildType),
+                    ParentTableName = _conventionReader.GetTableName(joinSpecification.ParentType),
                     ChildForeignKeyColumnName = manyToOneForeignKeyColumnName,
-                    ParentPrimaryKeyColumnName = _conventionReader.GetPrimaryKeyColumnName(@join.ParentType),
-                    SqlQuerySpecification = CreateSqlQuerySpecification(@join.AliasedObjectSubQuery)
+                    ParentPrimaryKeyColumnName = _conventionReader.GetPrimaryKeyColumnName(joinSpecification.ParentType),
+                    SqlQuerySpecification = CreateSqlQuerySpecification(joinSpecification.AliasedObjectSubQuery)
                 };
         }
 

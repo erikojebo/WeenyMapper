@@ -10,6 +10,7 @@ namespace WeenyMapper.Specs.TestClasses.Entities
         public Employee()
         {
             Subordinates = new List<Employee>();
+            Mentees = new List<Employee>();
             BirthDate = new DateTime(1970, 1, 1);
         }
 
@@ -20,10 +21,13 @@ namespace WeenyMapper.Specs.TestClasses.Entities
 
         public int? ManagerId { get; set; }
         public int CompanyId { get; set; }
+        public int? MentorId { get; set; }
 
         public Company Company { get; set; }
         public Employee Manager { get; set; }
+        public Employee Mentor { get; set; }
         public IList<Employee> Subordinates { get; set; }
+        public IList<Employee> Mentees { get; set; }
 
         public override int GetHashCode()
         {
@@ -47,7 +51,9 @@ namespace WeenyMapper.Specs.TestClasses.Entities
                    CompanyId == other.CompanyId &&
                    Company.NullSafeIdEquals(other.Company, x => x.Id) &&
                    Manager.NullSafeIdEquals(other.Manager, x => x.Id) &&
-                   Subordinates.Select(x => x.Id).ElementEquals(other.Subordinates.Select(x => x.Id));
+                   Mentor.NullSafeIdEquals(other.Manager, x => x.Id) &&
+                   Subordinates.Select(x => x.Id).ElementEquals(other.Subordinates.Select(x => x.Id)) &&
+                   Mentees.Select(x => x.Id).ElementEquals(other.Mentees.Select(x => x.Id));
         }
 
         public void AddSubordinate(Employee subordinate)
@@ -55,6 +61,13 @@ namespace WeenyMapper.Specs.TestClasses.Entities
             Subordinates.Add(subordinate);
             subordinate.Manager = this;
             subordinate.RefreshReferencedIds();
+        }
+
+        public void AddMentee(Employee mentee)
+        {
+            Mentees.Add(mentee);
+            mentee.Manager = this;
+            mentee.RefreshReferencedIds();
         }
 
         public void RefreshReferencedIds()
@@ -66,6 +79,10 @@ namespace WeenyMapper.Specs.TestClasses.Entities
             if (Manager != null)
             {
                 ManagerId = Manager.Id;
+            }
+            if (Mentor != null)
+            {
+                MentorId = Mentor.Id;
             }
         }
     }
