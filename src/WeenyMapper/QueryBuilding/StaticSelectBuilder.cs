@@ -16,7 +16,6 @@ namespace WeenyMapper.QueryBuilding
         private readonly IObjectQueryExecutor _objectQueryExecutor;
         private readonly IExpressionParser _expressionParser;
         private readonly ObjectQuery _query = new ObjectQuery();
-        private readonly AliasedObjectSubQuery _subQuery;
         private AliasedObjectSubQuery _latestSubQuery;
 
         public StaticSelectBuilder(IObjectQueryExecutor objectQueryExecutor, IExpressionParser expressionParser)
@@ -24,10 +23,10 @@ namespace WeenyMapper.QueryBuilding
             _objectQueryExecutor = objectQueryExecutor;
             _expressionParser = expressionParser;
 
-            _subQuery = new AliasedObjectSubQuery(typeof(T));
-            _latestSubQuery = _subQuery;
+            var subQuery = new AliasedObjectSubQuery(typeof(T));
+            _latestSubQuery = subQuery;
 
-            _query.SubQueries.Add(_subQuery);
+            _query.SubQueries.Add(subQuery);
         }
 
         public StaticSelectBuilder<T> Where(Expression<Func<T, bool>> queryExpression)
@@ -37,20 +36,24 @@ namespace WeenyMapper.QueryBuilding
 
         public StaticSelectBuilder<T> AndWhere(Expression<Func<T, bool>> queryExpression)
         {
-            if (Equals(_subQuery.QueryExpression, QueryExpression.Create()))
-                _subQuery.QueryExpression = _expressionParser.Parse(queryExpression);
+            var subQuery = _query.GetSubQuery<T>();
+
+            if (Equals(subQuery.QueryExpression, QueryExpression.Create()))
+                subQuery.QueryExpression = _expressionParser.Parse(queryExpression);
             else
-                _subQuery.QueryExpression = new AndExpression(_subQuery.QueryExpression, _expressionParser.Parse(queryExpression));
+                subQuery.QueryExpression = new AndExpression(subQuery.QueryExpression, _expressionParser.Parse(queryExpression));
 
             return this;
         }
 
         public StaticSelectBuilder<T> OrWhere(Expression<Func<T, bool>> queryExpression)
         {
-            if (Equals(_subQuery.QueryExpression, QueryExpression.Create()))
-                _subQuery.QueryExpression = _expressionParser.Parse(queryExpression);
+            var subQuery = _query.GetSubQuery<T>();
+
+            if (Equals(subQuery.QueryExpression, QueryExpression.Create()))
+                subQuery.QueryExpression = _expressionParser.Parse(queryExpression);
             else
-                _subQuery.QueryExpression = new OrExpression(_subQuery.QueryExpression, _expressionParser.Parse(queryExpression));
+                subQuery.QueryExpression = new OrExpression(subQuery.QueryExpression, _expressionParser.Parse(queryExpression));
 
             return this;
         }
@@ -67,9 +70,11 @@ namespace WeenyMapper.QueryBuilding
 
         public StaticSelectBuilder<T> Select<TValue>(Expression<Func<T, TValue>> propertySelector)
         {
+            var subQuery = _query.GetSubQuery<T>();
+
             string propertyName = GetPropertyName(propertySelector);
 
-            _subQuery.PropertiesToSelect.Add(propertyName);
+            subQuery.PropertiesToSelect.Add(propertyName);
 
             return this;
         }
@@ -118,22 +123,28 @@ namespace WeenyMapper.QueryBuilding
 
         private void AddOrderByStatements(IEnumerable<Expression<Func<T, object>>> getters, OrderByDirection orderByDirection)
         {
+            var subQuery = _query.GetSubQuery<T>();
+
             var orderByStatements = getters
                 .Select(GetPropertyName)
                 .Select(x => OrderByStatement.Create(x, orderByDirection));
 
-            _subQuery.OrderByStatements.AddRange(orderByStatements);
+            subQuery.OrderByStatements.AddRange(orderByStatements);
         }
 
         public StaticSelectBuilder<T> Top(int rowCount)
         {
-            _subQuery.RowCountLimit = rowCount;
+            var subQuery = _query.GetSubQuery<T>();
+
+            subQuery.RowCountLimit = rowCount;
             return this;
         }
 
         public StaticSelectBuilder<T> Page(int pageIndex, int pageSize)
         {
-            _subQuery.Page = new Page { PageIndex = pageIndex, PageSize = pageSize };
+            var subQuery = _query.GetSubQuery<T>();
+
+            subQuery.Page = new Page { PageIndex = pageIndex, PageSize = pageSize };
             return this;
         }
 
@@ -182,7 +193,9 @@ namespace WeenyMapper.QueryBuilding
         {
             get
             {
-                var querySpecification = _subQuery;
+                var subQuery = _query.GetSubQuery<T>();
+
+                var querySpecification = subQuery;
 
                 yield return querySpecification.ResultType;
 
