@@ -15,16 +15,19 @@ namespace WeenyMapper.QueryBuilding
     {
         private readonly IObjectQueryExecutor _objectQueryExecutor;
         private readonly IExpressionParser _expressionParser;
-        private readonly ObjectQuerySpecification _querySpecification;
-        private ObjectQuerySpecification _latestQuerySpecification;
+        private readonly ObjectQuery _query = new ObjectQuery();
+        private readonly AliasedObjectSubQuery _subQuery;
+        private AliasedObjectSubQuery _latestSubQuery;
 
         public StaticSelectBuilder(IObjectQueryExecutor objectQueryExecutor, IExpressionParser expressionParser)
         {
             _objectQueryExecutor = objectQueryExecutor;
             _expressionParser = expressionParser;
 
-            _querySpecification = new ObjectQuerySpecification(typeof(T));
-            _latestQuerySpecification = _querySpecification;
+            _subQuery = new AliasedObjectSubQuery(typeof(T));
+            _latestSubQuery = _subQuery;
+
+            _query.SubQueries.Add(_subQuery);
         }
 
         public StaticSelectBuilder<T> Where(Expression<Func<T, bool>> queryExpression)
@@ -34,20 +37,20 @@ namespace WeenyMapper.QueryBuilding
 
         public StaticSelectBuilder<T> AndWhere(Expression<Func<T, bool>> queryExpression)
         {
-            if (Equals(_querySpecification.QueryExpression, QueryExpression.Create()))
-                _querySpecification.QueryExpression = _expressionParser.Parse(queryExpression);
+            if (Equals(_subQuery.QueryExpression, QueryExpression.Create()))
+                _subQuery.QueryExpression = _expressionParser.Parse(queryExpression);
             else
-                _querySpecification.QueryExpression = new AndExpression(_querySpecification.QueryExpression, _expressionParser.Parse(queryExpression));
+                _subQuery.QueryExpression = new AndExpression(_subQuery.QueryExpression, _expressionParser.Parse(queryExpression));
 
             return this;
         }
 
         public StaticSelectBuilder<T> OrWhere(Expression<Func<T, bool>> queryExpression)
         {
-            if (Equals(_querySpecification.QueryExpression, QueryExpression.Create()))
-                _querySpecification.QueryExpression = _expressionParser.Parse(queryExpression);
+            if (Equals(_subQuery.QueryExpression, QueryExpression.Create()))
+                _subQuery.QueryExpression = _expressionParser.Parse(queryExpression);
             else
-                _querySpecification.QueryExpression = new OrExpression(_querySpecification.QueryExpression, _expressionParser.Parse(queryExpression));
+                _subQuery.QueryExpression = new OrExpression(_subQuery.QueryExpression, _expressionParser.Parse(queryExpression));
 
             return this;
         }
@@ -59,14 +62,14 @@ namespace WeenyMapper.QueryBuilding
 
         public IList<T> ExecuteList()
         {
-            return _objectQueryExecutor.Find<T>(_querySpecification);
+            return _objectQueryExecutor.Find<T>(_query);
         }
 
         public StaticSelectBuilder<T> Select<TValue>(Expression<Func<T, TValue>> propertySelector)
         {
             string propertyName = GetPropertyName(propertySelector);
 
-            _querySpecification.PropertiesToSelect.Add(propertyName);
+            _subQuery.PropertiesToSelect.Add(propertyName);
 
             return this;
         }
@@ -83,22 +86,22 @@ namespace WeenyMapper.QueryBuilding
 
         public void ExecuteScalarAsync<TScalar>(Action<TScalar> callback, Action<Exception> errorCallback = null)
         {
-            TaskRunner.Run<TScalar>(ExecuteScalar<TScalar>, callback, errorCallback);
+            TaskRunner.Run(ExecuteScalar<TScalar>, callback, errorCallback);
         }
 
         public TScalar ExecuteScalar<TScalar>()
         {
-            return _objectQueryExecutor.FindScalar<T, TScalar>(_querySpecification);
+            return _objectQueryExecutor.FindScalar<T, TScalar>(_subQuery);
         }
 
         public void ExecuteScalarListAsync<TScalar>(Action<IList<TScalar>> callback, Action<Exception> errorCallback = null)
         {
-            TaskRunner.Run<IList<TScalar>>(ExecuteScalarList<TScalar>, callback, errorCallback);
+            TaskRunner.Run(ExecuteScalarList<TScalar>, callback, errorCallback);
         }
 
         public IList<TScalar> ExecuteScalarList<TScalar>()
         {
-            return _objectQueryExecutor.FindScalarList<T, TScalar>(_querySpecification);
+            return _objectQueryExecutor.FindScalarList<T, TScalar>(_subQuery);
         }
 
         public StaticSelectBuilder<T> OrderBy(params Expression<Func<T, object>>[] getters)
@@ -119,18 +122,18 @@ namespace WeenyMapper.QueryBuilding
                 .Select(GetPropertyName)
                 .Select(x => OrderByStatement.Create(x, orderByDirection));
 
-            _querySpecification.OrderByStatements.AddRange(orderByStatements);
+            _subQuery.OrderByStatements.AddRange(orderByStatements);
         }
 
         public StaticSelectBuilder<T> Top(int rowCount)
         {
-            _querySpecification.RowCountLimit = rowCount;
+            _subQuery.RowCountLimit = rowCount;
             return this;
         }
 
         public StaticSelectBuilder<T> Page(int pageIndex, int pageSize)
         {
-            _querySpecification.Page = new Page { PageIndex = pageIndex, PageSize = pageSize };
+            _subQuery.Page = new Page { PageIndex = pageIndex, PageSize = pageSize };
             return this;
         }
 
@@ -139,7 +142,7 @@ namespace WeenyMapper.QueryBuilding
             var parentPropertyInfo = Reflector<T>.GetProperty(parentProperty);
             var foreignKeyPropertyInfo = Reflector<TChild>.GetProperty(foreignKeyProperty);
 
-            _latestQuerySpecification.JoinSpecification = ObjectQueryJoinSpecification.CreateParentToChild(parentPropertyInfo, foreignKeyPropertyInfo);
+            _latestSubQuery.JoinSpecification = ObjectSubQueryJoin.CreateParentToChild(parentPropertyInfo, foreignKeyPropertyInfo);
 
             return this;
         }
@@ -148,7 +151,7 @@ namespace WeenyMapper.QueryBuilding
         {
             var childPropertyInfo = Reflector<T>.GetProperty(childProperty);
 
-            _latestQuerySpecification.JoinSpecification = ObjectQueryJoinSpecification.CreateChildToParent(childPropertyInfo, typeof(TParent));
+            _latestSubQuery.JoinSpecification = ObjectSubQueryJoin.CreateChildToParent(childPropertyInfo, typeof(TParent));
 
             return this;
         }
@@ -167,10 +170,10 @@ namespace WeenyMapper.QueryBuilding
             var parentPropertyInfo = Reflector<TParent>.GetProperty(parentProperty);
             var childPropertyInfo = Reflector<TChild>.GetProperty(childProperty);
 
-            _latestQuerySpecification.JoinSpecification = ObjectQueryJoinSpecification.CreateTwoWay(parentPropertyInfo, childPropertyInfo);
-            _latestQuerySpecification.JoinSpecification.ObjectQuerySpecification = new ObjectQuerySpecification(nextType);
+            _latestSubQuery.JoinSpecification = ObjectSubQueryJoin.CreateTwoWay(parentPropertyInfo, childPropertyInfo);
+            _latestSubQuery.JoinSpecification.AliasedObjectSubQuery = new AliasedObjectSubQuery(nextType);
 
-            _latestQuerySpecification = _latestQuerySpecification.JoinSpecification.ObjectQuerySpecification;
+            _latestSubQuery = _latestSubQuery.JoinSpecification.AliasedObjectSubQuery;
 
             return this;
         }
@@ -179,13 +182,13 @@ namespace WeenyMapper.QueryBuilding
         {
             get
             {
-                var querySpecification = _querySpecification;
+                var querySpecification = _subQuery;
 
                 yield return querySpecification.ResultType;
 
                 while (querySpecification.HasJoinSpecification)
                 {
-                    querySpecification = querySpecification.JoinSpecification.ObjectQuerySpecification;
+                    querySpecification = querySpecification.JoinSpecification.AliasedObjectSubQuery;
 
                     yield return querySpecification.ResultType;
                 } 

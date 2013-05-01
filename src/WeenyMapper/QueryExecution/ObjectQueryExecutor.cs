@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using WeenyMapper.Mapping;
@@ -29,91 +28,92 @@ namespace WeenyMapper.QueryExecution
 
         public string ConnectionString { get; set; }
 
-        public TScalar FindScalar<T, TScalar>(ObjectQuerySpecification querySpecification)
+        public TScalar FindScalar<T, TScalar>(AliasedObjectSubQuery subQuery)
         {
-            var command = CreateCommand(querySpecification);
+            var command = CreateCommand(subQuery);
 
             return _dbCommandExecutor.ExecuteScalar<TScalar>(command, ConnectionString);
         }
 
-        public IList<TScalar> FindScalarList<T, TScalar>(ObjectQuerySpecification querySpecification)
+        public IList<TScalar> FindScalarList<T, TScalar>(AliasedObjectSubQuery subQuery)
         {
-            var command = CreateCommand(querySpecification);
+            var command = CreateCommand(subQuery);
 
             return _dbCommandExecutor.ExecuteScalarList<TScalar>(command, ConnectionString);
         }
 
-        public IList<T> Find<T>(ObjectQuerySpecification querySpecification) where T : new()
+        public IList<T> Find<T>(ObjectQuery query) where T : new()
         {
-            var command = CreateCommand(querySpecification);
+            var subQuery = query.SubQueries.FirstOrDefault();
+            var command = CreateCommand(subQuery);
 
-            return ReadEntities<T>(command, querySpecification);
+            return ReadEntities<T>(command, subQuery);
         }
 
-        private DbCommand CreateCommand(ObjectQuerySpecification querySpecification)
+        private DbCommand CreateCommand(AliasedObjectSubQuery subQuery)
         {
-            var sqlQuerySpecification = CreateSqlQuerySpecification(querySpecification);
+            var sqlQuerySpecification = CreateSqlQuerySpecification(subQuery);
 
             return _sqlGenerator.GenerateSelectQuery(sqlQuerySpecification);
         }
 
-        private SqlQuerySpecification CreateSqlQuerySpecification(ObjectQuerySpecification querySpecification)
+        private SqlQuerySpecification CreateSqlQuerySpecification(AliasedObjectSubQuery subQuery)
         {
-            var resultType = querySpecification.ResultType;
+            var resultType = subQuery.ResultType;
 
-            var columnNamesToSelect = querySpecification.PropertiesToSelect.Select(x => _conventionReader.GetColumnName(x, resultType));
+            var columnNamesToSelect = subQuery.PropertiesToSelect.Select(x => _conventionReader.GetColumnName(x, resultType));
 
-            if (!querySpecification.PropertiesToSelect.Any())
+            if (!subQuery.PropertiesToSelect.Any())
             {
                 columnNamesToSelect = _conventionReader.GetSelectableColumNames(resultType);
             }
 
-            var translatedOrderByStatements = querySpecification.OrderByStatements.Select(x => x.Translate(_conventionReader, resultType));
+            var translatedOrderByStatements = subQuery.OrderByStatements.Select(x => x.Translate(_conventionReader, resultType));
             var tableName = _conventionReader.GetTableName(resultType);
 
             var spec = new SqlQuerySpecification
                 {
                     ColumnsToSelect = columnNamesToSelect.ToList(),
-                    QueryExpression = querySpecification.QueryExpression.Translate(_conventionReader),
+                    QueryExpression = subQuery.QueryExpression.Translate(_conventionReader),
                     TableName = tableName,
                     OrderByStatements = translatedOrderByStatements.ToList(),
-                    RowCountLimit = querySpecification.RowCountLimit,
-                    Page = querySpecification.Page,
-                    PrimaryKeyColumnName = _conventionReader.TryGetPrimaryKeyColumnName(querySpecification.ResultType)
+                    RowCountLimit = subQuery.RowCountLimit,
+                    Page = subQuery.Page,
+                    PrimaryKeyColumnName = _conventionReader.TryGetPrimaryKeyColumnName(subQuery.ResultType)
                 };
 
-            if (querySpecification.HasJoinSpecification)
+            if (subQuery.HasJoinSpecification)
             {
-                spec.JoinSpecification = CreateSqlQueryJoinSpecification(querySpecification.JoinSpecification);
+                spec.JoinSpecification = CreateSqlQueryJoinSpecification(subQuery.JoinSpecification);
             }
 
             return spec;
         }
 
-        private SqlQueryJoinSpecification CreateSqlQueryJoinSpecification(ObjectQueryJoinSpecification joinSpecification)
+        private SqlQueryJoinSpecification CreateSqlQueryJoinSpecification(ObjectSubQueryJoin @join)
         {
             string manyToOneForeignKeyColumnName;
 
-            if (joinSpecification.HasChildProperty)
-                manyToOneForeignKeyColumnName = _conventionReader.GetManyToOneForeignKeyColumnName(joinSpecification.ChildProperty);
+            if (@join.HasChildProperty)
+                manyToOneForeignKeyColumnName = _conventionReader.GetManyToOneForeignKeyColumnName(@join.ChildProperty);
             else
-                manyToOneForeignKeyColumnName = _conventionReader.GetColumnName(joinSpecification.ChildToParentForeignKeyProperty);
+                manyToOneForeignKeyColumnName = _conventionReader.GetColumnName(@join.ChildToParentForeignKeyProperty);
 
             return new SqlQueryJoinSpecification
                 {
-                    ChildTableName = _conventionReader.GetTableName(joinSpecification.ChildType),
-                    ParentTableName = _conventionReader.GetTableName(joinSpecification.ParentType),
+                    ChildTableName = _conventionReader.GetTableName(@join.ChildType),
+                    ParentTableName = _conventionReader.GetTableName(@join.ParentType),
                     ChildForeignKeyColumnName = manyToOneForeignKeyColumnName,
-                    ParentPrimaryKeyColumnName = _conventionReader.GetPrimaryKeyColumnName(joinSpecification.ParentType),
-                    SqlQuerySpecification = CreateSqlQuerySpecification(joinSpecification.ObjectQuerySpecification)
+                    ParentPrimaryKeyColumnName = _conventionReader.GetPrimaryKeyColumnName(@join.ParentType),
+                    SqlQuerySpecification = CreateSqlQuerySpecification(@join.AliasedObjectSubQuery)
                 };
         }
 
-        private IList<T> ReadEntities<T>(DbCommand command, ObjectQuerySpecification querySpecification) where T : new()
+        private IList<T> ReadEntities<T>(DbCommand command, AliasedObjectSubQuery subQuery) where T : new()
         {
             var resultSet = _dbCommandExecutor.ExecuteQuery(command, ConnectionString);
 
-            var objectRelations = GetObjectRelations(querySpecification);
+            var objectRelations = GetObjectRelations(subQuery);
 
             if (objectRelations.Any())
             {
@@ -123,10 +123,10 @@ namespace WeenyMapper.QueryExecution
             return _entityMapper.CreateInstanceGraphs<T>(resultSet);
         }
 
-        private IEnumerable<ObjectRelation> GetObjectRelations(ObjectQuerySpecification querySpecification)
+        private IEnumerable<ObjectRelation> GetObjectRelations(AliasedObjectSubQuery subQuery)
         {
             var objectRelations = new List<ObjectRelation>();
-            var currentQuerySpecification = querySpecification;
+            var currentQuerySpecification = subQuery;
 
             while (currentQuerySpecification.HasJoinSpecification)
             {
@@ -136,7 +136,7 @@ namespace WeenyMapper.QueryExecution
 
                 objectRelations.Add(objectRelation);
 
-                currentQuerySpecification = currentQuerySpecification.JoinSpecification.ObjectQuerySpecification;
+                currentQuerySpecification = currentQuerySpecification.JoinSpecification.AliasedObjectSubQuery;
             }
             return objectRelations;
         }

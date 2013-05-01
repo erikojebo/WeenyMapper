@@ -122,8 +122,9 @@
     <Compile Include="Sql\IDbCommandFactory.cs" />
     <Compile Include="Sql\ISqlGenerator.cs" />
     <Compile Include="QueryExecution\ObjectQueryExecutor.cs" />
-    <Compile Include="Sql\ObjectQueryJoinSpecification.cs" />
-    <Compile Include="Sql\ObjectQuerySpecification.cs" />
+    <Compile Include="Sql\ObjectQuery.cs" />
+    <Compile Include="Sql\ObjectSubQueryJoin.cs" />
+    <Compile Include="Sql\AliasedObjectSubQuery.cs" />
     <Compile Include="Sql\OrderByClause.cs" />
     <Compile Include="Sql\Page.cs" />
     <Compile Include="Sql\QueryOptimizer.cs" />

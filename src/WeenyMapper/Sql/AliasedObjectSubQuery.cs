@@ -4,9 +4,9 @@ using WeenyMapper.QueryParsing;
 
 namespace WeenyMapper.Sql
 {
-    public class ObjectQuerySpecification
+    public class AliasedObjectSubQuery
     {
-        public ObjectQuerySpecification(Type resultType)
+        public AliasedObjectSubQuery(Type resultType)
         {
             PropertiesToSelect = new List<string>();
             OrderByStatements = new List<OrderByStatement>();
@@ -26,7 +26,7 @@ namespace WeenyMapper.Sql
             get { return Page != null && Page.PageSize > 0; }
         }
 
-        public ObjectQueryJoinSpecification JoinSpecification { get; set; }
+        public ObjectSubQueryJoin JoinSpecification { get; set; }
 
         public bool HasJoinSpecification
         {
