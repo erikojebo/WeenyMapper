@@ -62,14 +62,12 @@ namespace WeenyMapper.QueryExecution
         {
             var sqlQuery = new SqlQuery();
 
-            
-
             AddSqlQuerySpecification(query.SubQueries.First(), sqlQuery);
 
             return sqlQuery;
         }
 
-        private AliasedSqlSubQuery AddSqlQuerySpecification(AliasedObjectSubQuery subQuery, SqlQuery sqlQuery)
+        private void AddSqlQuerySpecification(AliasedObjectSubQuery subQuery, SqlQuery sqlQuery)
         {
             var resultType = subQuery.ResultType;
 
@@ -105,7 +103,7 @@ namespace WeenyMapper.QueryExecution
                 sqlQuery.Joins.Add(joinSpecification);
             }
 
-            return spec;
+            return;
         }
 
         private SqlSubQueryJoin CreateSqlQueryJoinSpecification(ObjectSubQueryJoin joinSpecification, SqlQuery query)
