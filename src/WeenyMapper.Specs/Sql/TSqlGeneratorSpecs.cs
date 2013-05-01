@@ -97,7 +97,6 @@ namespace WeenyMapper.Specs.Sql
                     ChildTableName = "TableName2",
                     ParentPrimaryKeyColumnName = "PrimaryKeyColumnName",
                     ChildForeignKeyColumnName = "ForeignKeyColumnName",
-                    AliasedSqlSubQuery = spec2
                 };
 
             _sqlQuery.Joins.Add(_subQuery.JoinSpecification);
@@ -139,7 +138,6 @@ namespace WeenyMapper.Specs.Sql
                     ChildTableName = "TableName2",
                     ParentPrimaryKeyColumnName = "PrimaryKeyColumnName",
                     ChildForeignKeyColumnName = "ForeignKeyColumnName",
-                    AliasedSqlSubQuery = spec2
                 };
 
             _sqlQuery.Joins.Add(_subQuery.JoinSpecification);
@@ -192,7 +190,6 @@ namespace WeenyMapper.Specs.Sql
                     ChildTableName = "TableName2",
                     ParentPrimaryKeyColumnName = "PrimaryKeyColumnName",
                     ChildForeignKeyColumnName = "ForeignKeyColumnName",
-                    AliasedSqlSubQuery = spec2
                 };
 
             spec2.JoinSpecification = new SqlSubQueryJoin
@@ -201,7 +198,6 @@ namespace WeenyMapper.Specs.Sql
                     ChildTableName = "TableName3",
                     ParentPrimaryKeyColumnName = "Table2PrimaryKey",
                     ChildForeignKeyColumnName = "Table3ForeignKey",
-                    AliasedSqlSubQuery = spec3
                 };
 
             _sqlQuery.Joins.Add(_subQuery.JoinSpecification);
@@ -253,7 +249,6 @@ namespace WeenyMapper.Specs.Sql
                     ChildTableName = "Comments",
                     ParentPrimaryKeyColumnName = "Id",
                     ChildForeignKeyColumnName = "PostId",
-                    AliasedSqlSubQuery = spec2
                 };
 
             spec2.JoinSpecification = new SqlSubQueryJoin
@@ -262,7 +257,6 @@ namespace WeenyMapper.Specs.Sql
                     ChildTableName = "Posts",
                     ParentPrimaryKeyColumnName = "Id",
                     ChildForeignKeyColumnName = "BlogId",
-                    AliasedSqlSubQuery = spec3
                 };
 
             _sqlQuery.SubQueries.Add(_subQuery);
@@ -318,7 +312,6 @@ namespace WeenyMapper.Specs.Sql
                     ChildTableName = "Comments",
                     ParentPrimaryKeyColumnName = "Id",
                     ChildForeignKeyColumnName = "PostId",
-                    AliasedSqlSubQuery = spec2
                 };
 
             spec2.JoinSpecification = new SqlSubQueryJoin
@@ -327,7 +320,6 @@ namespace WeenyMapper.Specs.Sql
                     ChildTableName = "Posts",
                     ParentPrimaryKeyColumnName = "Id",
                     ChildForeignKeyColumnName = "BlogId",
-                    AliasedSqlSubQuery = spec3
                 };
 
             _sqlQuery.SubQueries.Add(_subQuery);
@@ -366,7 +358,6 @@ namespace WeenyMapper.Specs.Sql
                     ChildTableName = "TableName2",
                     ParentPrimaryKeyColumnName = "PrimaryKeyColumnName",
                     ChildForeignKeyColumnName = "ForeignKeyColumnName",
-                    AliasedSqlSubQuery = spec2
                 };
 
             _sqlQuery.Joins.Add(_subQuery.JoinSpecification);
@@ -402,7 +393,6 @@ namespace WeenyMapper.Specs.Sql
                     ChildTableName = "TableName2",
                     ParentPrimaryKeyColumnName = "PrimaryKeyColumnName",
                     ChildForeignKeyColumnName = "ForeignKeyColumnName",
-                    AliasedSqlSubQuery = spec2
                 };
 
             _sqlQuery.Joins.Add(_subQuery.JoinSpecification);
