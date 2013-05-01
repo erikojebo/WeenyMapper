@@ -100,6 +100,9 @@ namespace WeenyMapper.Specs.Sql
                     AliasedSqlSubQuery = spec2
                 };
 
+            _sqlQuery.Joins.Add(_subQuery.JoinSpecification);
+            _sqlQuery.SubQueries.Add(spec2);
+
             var query = _generator.GenerateSelectQuery(_sqlQuery);
 
             var expectedSql =
@@ -138,6 +141,9 @@ namespace WeenyMapper.Specs.Sql
                     ChildForeignKeyColumnName = "ForeignKeyColumnName",
                     AliasedSqlSubQuery = spec2
                 };
+
+            _sqlQuery.Joins.Add(_subQuery.JoinSpecification);
+            _sqlQuery.SubQueries.Add(spec2);
 
             var expectedSql =
                 "SELECT [TableName].[ColumnName1] AS \"TableName ColumnName1\", [TableName].[ColumnName2] AS \"TableName ColumnName2\", " +
@@ -198,6 +204,11 @@ namespace WeenyMapper.Specs.Sql
                     AliasedSqlSubQuery = spec3
                 };
 
+            _sqlQuery.Joins.Add(_subQuery.JoinSpecification);
+            _sqlQuery.Joins.Add(spec2.JoinSpecification);
+            _sqlQuery.SubQueries.Add(spec2);
+            _sqlQuery.SubQueries.Add(spec3);
+
             var expectedSql =
                 "SELECT [TableName].[ColumnName1] AS \"TableName ColumnName1\", [TableName].[ColumnName2] AS \"TableName ColumnName2\", " +
                 "[TableName2].[Table2Column1] AS \"TableName2 Table2Column1\", [TableName2].[Table2Column2] AS \"TableName2 Table2Column2\", " +
@@ -223,8 +234,6 @@ namespace WeenyMapper.Specs.Sql
                     TableName = "Posts",
                     PrimaryKeyColumnName = "Id"
                 };
-
-            _sqlQuery.SubQueries.Add(_subQuery);
 
             var spec2 = new AliasedSqlSubQuery
                 {
@@ -255,6 +264,12 @@ namespace WeenyMapper.Specs.Sql
                     ChildForeignKeyColumnName = "BlogId",
                     AliasedSqlSubQuery = spec3
                 };
+
+            _sqlQuery.SubQueries.Add(_subQuery);
+            _sqlQuery.Joins.Add(_subQuery.JoinSpecification);
+            _sqlQuery.Joins.Add(spec2.JoinSpecification);
+            _sqlQuery.SubQueries.Add(spec2);
+            _sqlQuery.SubQueries.Add(spec3);
 
             var expectedSql =
                 "SELECT [Posts].[Name] AS \"Posts Name\", " +

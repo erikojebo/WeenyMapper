@@ -99,6 +99,8 @@ namespace WeenyMapper.QueryExecution
                 var joinSpecification = CreateSqlQueryJoinSpecification(subQuery.JoinSpecification, sqlQuery);
 
                 spec.JoinSpecification = joinSpecification;
+
+                sqlQuery.Joins.Add(joinSpecification);
             }
 
             return spec;
