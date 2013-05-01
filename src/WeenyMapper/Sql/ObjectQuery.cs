@@ -18,10 +18,15 @@ namespace WeenyMapper.Sql
 
         public AliasedObjectSubQuery GetSubQuery<T>()
         {
-            if (!HasSubQuery(typeof(T)))
-                throw new WeenyMapperException("No sub query has been defined for the type '{0}'. Did you forget a Join?", typeof(T).FullName);
+            return GetSubQuery(typeof(T));
+        }
 
-            return SubQueries.First(x => x.ResultType == typeof(T));
+        public AliasedObjectSubQuery GetSubQuery(Type type)
+        {
+            if (!HasSubQuery(type))
+                throw new WeenyMapperException("No sub query has been defined for the type '{0}'. Did you forget a Join?", type.FullName);
+
+            return SubQueries.First(x => x.ResultType == type);
         }
 
         private bool HasSubQuery(Type type)

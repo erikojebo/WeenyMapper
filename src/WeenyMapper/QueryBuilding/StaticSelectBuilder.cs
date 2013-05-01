@@ -196,9 +196,12 @@ namespace WeenyMapper.QueryBuilding
             _query.AddJoin<TParent, TChild>(joinSpecification);
 
             _latestSubQuery.JoinSpecification = joinSpecification;
-            _latestSubQuery.JoinSpecification.AliasedObjectSubQuery = new AliasedObjectSubQuery(nextType);
 
-            _latestSubQuery = _latestSubQuery.JoinSpecification.AliasedObjectSubQuery;
+            var nextSubQuery = _query.GetSubQuery(nextType);
+
+            _latestSubQuery.JoinSpecification.AliasedObjectSubQuery = nextSubQuery;
+
+            _latestSubQuery = nextSubQuery;
 
             return this;
         }
