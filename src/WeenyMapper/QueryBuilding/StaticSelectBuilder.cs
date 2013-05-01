@@ -187,46 +187,7 @@ namespace WeenyMapper.QueryBuilding
 
         private void Join<TParent, TChild>(ObjectSubQueryJoin joinSpecification)
         {
-            var newType = typeof(TChild);
-            var existingType = typeof(TParent);
-
-            if (TypesInQuery.Contains(typeof(TChild)))
-            {
-                newType = typeof(TParent);
-                existingType = typeof(TChild);
-            }
-
             _query.AddJoin<TParent, TChild>(joinSpecification);
-
-            //var _latestSubQuery = _query.GetSubQuery(typeof())
-            // TODO: Remove _latestSubQuery. Should not be used, but is required now to avoid overwriting JoinSpec 
-            //       for a given subquery if you do multiple joins from that table to other tables
-            _latestSubQuery.JoinSpecification = joinSpecification;
-
-            var nextSubQuery = _query.GetSubQuery(newType);
-
-            _latestSubQuery.JoinSpecification.AliasedObjectSubQuery = nextSubQuery;
-
-            _latestSubQuery = nextSubQuery;
-        }
-
-        private IEnumerable<Type> TypesInQuery
-        {
-            get
-            {
-                var subQuery = _query.GetSubQuery<T>();
-
-                var querySpecification = subQuery;
-
-                yield return querySpecification.ResultType;
-
-                while (querySpecification.HasJoinSpecification)
-                {
-                    querySpecification = querySpecification.JoinSpecification.AliasedObjectSubQuery;
-
-                    yield return querySpecification.ResultType;
-                } 
-            }
         }
     }
 }
