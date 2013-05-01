@@ -45,6 +45,11 @@ namespace WeenyMapper.Sql
             return command;
         }
 
+        public DbCommand GenerateSelectQuery(SqlQuery sqlQuery)
+        {
+            return GenerateSelectQuery(sqlQuery.SubQueries.First());
+        }
+
         private DbCommand GenerateJoinQuery(AliasedSqlSubQuery subQuery)
         {
             var columnSelectStrings = CreateColumnSelectStrings(subQuery);

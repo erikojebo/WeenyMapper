@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using WeenyMapper.Mapping;
@@ -31,35 +32,42 @@ namespace WeenyMapper.QueryExecution
         public IList<T> Find<T>(ObjectQuery query) where T : new()
         {
             var subQuery = query.SubQueries.FirstOrDefault();
-            var command = CreateCommand(subQuery);
+            var command = CreateCommand(query);
 
             return ReadEntities<T>(command, subQuery);
         }
 
         public TScalar FindScalar<T, TScalar>(ObjectQuery query)
         {
-            var subQuery = query.SubQueries.FirstOrDefault();
-            var command = CreateCommand(subQuery);
+            var command = CreateCommand(query);
 
             return _dbCommandExecutor.ExecuteScalar<TScalar>(command, ConnectionString);
         }
 
         public IList<TScalar> FindScalarList<T, TScalar>(ObjectQuery query)
         {
-            var subQuery = query.SubQueries.First();
-            var command = CreateCommand(subQuery);
+            var command = CreateCommand(query);
 
             return _dbCommandExecutor.ExecuteScalarList<TScalar>(command, ConnectionString);
         }
 
-        private DbCommand CreateCommand(AliasedObjectSubQuery subQuery)
+        private DbCommand CreateCommand(ObjectQuery query)
         {
-            var sqlQuerySpecification = CreateSqlQuerySpecification(subQuery);
+            var sqlQuerySpecification = CreateSqlQuery(query);
 
             return _sqlGenerator.GenerateSelectQuery(sqlQuerySpecification);
         }
 
-        private AliasedSqlSubQuery CreateSqlQuerySpecification(AliasedObjectSubQuery subQuery)
+        private SqlQuery CreateSqlQuery(ObjectQuery query)
+        {
+            var sqlQuery = new SqlQuery();
+
+            CreateSqlQuerySpecification(query.SubQueries.First(), sqlQuery);
+
+            return sqlQuery;
+        }
+
+        private AliasedSqlSubQuery CreateSqlQuerySpecification(AliasedObjectSubQuery subQuery, SqlQuery sqlQuery)
         {
             var resultType = subQuery.ResultType;
 
@@ -84,15 +92,19 @@ namespace WeenyMapper.QueryExecution
                     PrimaryKeyColumnName = _conventionReader.TryGetPrimaryKeyColumnName(subQuery.ResultType)
                 };
 
+            sqlQuery.SubQueries.Add(spec);
+
             if (subQuery.HasJoinSpecification)
             {
-                spec.JoinSpecification = CreateSqlQueryJoinSpecification(subQuery.JoinSpecification);
+                var joinSpecification = CreateSqlQueryJoinSpecification(subQuery.JoinSpecification, sqlQuery);
+
+                spec.JoinSpecification = joinSpecification;
             }
 
             return spec;
         }
 
-        private SqlSubQueryJoin CreateSqlQueryJoinSpecification(ObjectSubQueryJoin joinSpecification)
+        private SqlSubQueryJoin CreateSqlQueryJoinSpecification(ObjectSubQueryJoin joinSpecification, SqlQuery query)
         {
             string manyToOneForeignKeyColumnName;
 
@@ -107,7 +119,7 @@ namespace WeenyMapper.QueryExecution
                     ParentTableName = _conventionReader.GetTableName(joinSpecification.ParentType),
                     ChildForeignKeyColumnName = manyToOneForeignKeyColumnName,
                     ParentPrimaryKeyColumnName = _conventionReader.GetPrimaryKeyColumnName(joinSpecification.ParentType),
-                    AliasedSqlSubQuery = CreateSqlQuerySpecification(joinSpecification.AliasedObjectSubQuery)
+                    AliasedSqlSubQuery = CreateSqlQuerySpecification(joinSpecification.AliasedObjectSubQuery, query)
                 };
         }
 
