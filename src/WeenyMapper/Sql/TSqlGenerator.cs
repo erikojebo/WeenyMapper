@@ -19,14 +19,11 @@ namespace WeenyMapper.Sql
 
         public DbCommand GenerateSelectQuery(SqlQuery sqlQuery)
         {
-            return GenerateSelectQuery(sqlQuery.SubQueries.First());
-        }
+            var subQuery = sqlQuery.SubQueries.First();
 
-        private DbCommand GenerateSelectQuery(AliasedSqlSubQuery subQuery)
-        {
             if (subQuery.HasJoinSpecification)
             {
-                return GenerateJoinQuery(subQuery);
+                return GenerateJoinQuery(sqlQuery);
             }
             if (subQuery.IsPagingQuery)
             {
@@ -50,8 +47,10 @@ namespace WeenyMapper.Sql
             return command;
         }
 
-        private DbCommand GenerateJoinQuery(AliasedSqlSubQuery subQuery)
+        private DbCommand GenerateJoinQuery(SqlQuery sqlQuery)
         {
+            var subQuery = sqlQuery.SubQueries.First();
+
             var columnSelectStrings = CreateColumnSelectStrings(subQuery);
             var columnSelectString = string.Join(", ", columnSelectStrings);
 
