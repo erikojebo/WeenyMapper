@@ -115,14 +115,17 @@ namespace WeenyMapper.QueryExecution
             else
                 manyToOneForeignKeyColumnName = _conventionReader.GetColumnName(joinSpecification.ChildToParentForeignKeyProperty);
 
-            return new SqlSubQueryJoin
+            var joinSpec = new SqlSubQueryJoin
                 {
                     ChildTableName = _conventionReader.GetTableName(joinSpecification.ChildType),
                     ParentTableName = _conventionReader.GetTableName(joinSpecification.ParentType),
                     ChildForeignKeyColumnName = manyToOneForeignKeyColumnName,
                     ParentPrimaryKeyColumnName = _conventionReader.GetPrimaryKeyColumnName(joinSpecification.ParentType),
-                    AliasedSqlSubQuery = CreateSqlQuerySpecification(joinSpecification.AliasedObjectSubQuery, query)
                 };
+
+            CreateSqlQuerySpecification(joinSpecification.AliasedObjectSubQuery, query);
+
+            return joinSpec;
         }
 
         private IList<T> ReadEntities<T>(DbCommand command, AliasedObjectSubQuery subQuery) where T : new()

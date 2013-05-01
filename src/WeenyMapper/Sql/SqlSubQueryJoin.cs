@@ -6,7 +6,5 @@
         public string ChildTableName { get; set; }
         public string ParentPrimaryKeyColumnName { get; set; }
         public string ChildForeignKeyColumnName { get; set; }
-
-        public AliasedSqlSubQuery AliasedSqlSubQuery { get; set; }
     }
 }
