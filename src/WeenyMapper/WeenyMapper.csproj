@@ -131,8 +131,8 @@
     <Compile Include="Sql\ScalarCommand.cs" />
     <Compile Include="Sql\DbCommandExecutor.cs" />
     <Compile Include="Sql\SqlClauseBase.cs" />
-    <Compile Include="Sql\SqlQueryJoinSpecification.cs" />
-    <Compile Include="Sql\SqlQuerySpecification.cs" />
+    <Compile Include="Sql\SqlSubQueryJoin.cs" />
+    <Compile Include="Sql\AliasedSqlSubQuery.cs" />
     <Compile Include="Sql\SqlServerCommandFactory.cs" />
     <Compile Include="Sql\TopClause.cs" />
     <Compile Include="Sql\TSqlGenerator.cs" />

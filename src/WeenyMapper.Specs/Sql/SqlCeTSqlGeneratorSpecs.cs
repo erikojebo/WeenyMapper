@@ -9,7 +9,7 @@ namespace WeenyMapper.Specs.Sql
     public class SqlCeTSqlGeneratorSpecs
     {
         private TSqlGenerator _generator;
-        private SqlQuerySpecification _querySpecification;
+        private AliasedSqlSubQuery _subQuery;
 
         [SetUp]
         public void SetUp()
@@ -18,11 +18,11 @@ namespace WeenyMapper.Specs.Sql
 
             _generator = new SqlCeTSqlGenerator(sqlServerCommandFactory);
 
-            _querySpecification = new SqlQuerySpecification();
+            _subQuery = new AliasedSqlSubQuery();
 
-            _querySpecification.ColumnsToSelect = new[] { "ColumnName1", "ColumnName2" };
-            _querySpecification.TableName = "TableName";
-            _querySpecification.PrimaryKeyColumnName = "IdColumnName";
+            _subQuery.ColumnsToSelect = new[] { "ColumnName1", "ColumnName2" };
+            _subQuery.TableName = "TableName";
+            _subQuery.PrimaryKeyColumnName = "IdColumnName";
         }
 
         [Test]

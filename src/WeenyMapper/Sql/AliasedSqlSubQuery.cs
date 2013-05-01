@@ -4,9 +4,9 @@ using WeenyMapper.QueryParsing;
 
 namespace WeenyMapper.Sql
 {
-    public class SqlQuerySpecification
+    public class AliasedSqlSubQuery
     {
-        public SqlQuerySpecification()
+        public AliasedSqlSubQuery()
         {
             ColumnsToSelect = new List<string>();
             OrderByStatements = new List<OrderByStatement>();
@@ -26,16 +26,16 @@ namespace WeenyMapper.Sql
             get { return Page != null && Page.PageSize > 0; }
         }
 
-        public SqlQueryJoinSpecification JoinSpecification { get; set; }
+        public SqlSubQueryJoin JoinSpecification { get; set; }
 
         public bool HasJoinSpecification
         {
             get { return JoinSpecification != null; }
         }
 
-        public static SqlQuerySpecification CreateFor<T>()
+        public static AliasedSqlSubQuery CreateFor<T>()
         {
-            return new SqlQuerySpecification
+            return new AliasedSqlSubQuery
                 {
                     TableName = typeof(T).Name,
                 };

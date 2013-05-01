@@ -59,7 +59,7 @@ namespace WeenyMapper.QueryExecution
             return _sqlGenerator.GenerateSelectQuery(sqlQuerySpecification);
         }
 
-        private SqlQuerySpecification CreateSqlQuerySpecification(AliasedObjectSubQuery subQuery)
+        private AliasedSqlSubQuery CreateSqlQuerySpecification(AliasedObjectSubQuery subQuery)
         {
             var resultType = subQuery.ResultType;
 
@@ -73,7 +73,7 @@ namespace WeenyMapper.QueryExecution
             var translatedOrderByStatements = subQuery.OrderByStatements.Select(x => x.Translate(_conventionReader, resultType));
             var tableName = _conventionReader.GetTableName(resultType);
 
-            var spec = new SqlQuerySpecification
+            var spec = new AliasedSqlSubQuery
                 {
                     ColumnsToSelect = columnNamesToSelect.ToList(),
                     QueryExpression = subQuery.QueryExpression.Translate(_conventionReader),
@@ -92,7 +92,7 @@ namespace WeenyMapper.QueryExecution
             return spec;
         }
 
-        private SqlQueryJoinSpecification CreateSqlQueryJoinSpecification(ObjectSubQueryJoin joinSpecification)
+        private SqlSubQueryJoin CreateSqlQueryJoinSpecification(ObjectSubQueryJoin joinSpecification)
         {
             string manyToOneForeignKeyColumnName;
 
@@ -101,13 +101,13 @@ namespace WeenyMapper.QueryExecution
             else
                 manyToOneForeignKeyColumnName = _conventionReader.GetColumnName(joinSpecification.ChildToParentForeignKeyProperty);
 
-            return new SqlQueryJoinSpecification
+            return new SqlSubQueryJoin
                 {
                     ChildTableName = _conventionReader.GetTableName(joinSpecification.ChildType),
                     ParentTableName = _conventionReader.GetTableName(joinSpecification.ParentType),
                     ChildForeignKeyColumnName = manyToOneForeignKeyColumnName,
                     ParentPrimaryKeyColumnName = _conventionReader.GetPrimaryKeyColumnName(joinSpecification.ParentType),
-                    SqlQuerySpecification = CreateSqlQuerySpecification(joinSpecification.AliasedObjectSubQuery)
+                    AliasedSqlSubQuery = CreateSqlQuerySpecification(joinSpecification.AliasedObjectSubQuery)
                 };
         }
 

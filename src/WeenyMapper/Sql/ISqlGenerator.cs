@@ -6,7 +6,7 @@ namespace WeenyMapper.Sql
 {
     public interface ISqlGenerator
     {
-        DbCommand GenerateSelectQuery(SqlQuerySpecification querySpecification);
+        DbCommand GenerateSelectQuery(AliasedSqlSubQuery subQuery);
         DbCommand CreateInsertCommand(string tableName, IDictionary<string, object> propertyValues);
         DbCommand CreateUpdateCommand(string tableName, string primaryKeyColumn, QueryExpression constraintExpression, IDictionary<string, object> columnSetters);
         DbCommand CreateCountCommand(string tableName, QueryExpression queryExpression);
