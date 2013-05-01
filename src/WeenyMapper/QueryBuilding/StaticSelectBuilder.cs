@@ -91,7 +91,7 @@ namespace WeenyMapper.QueryBuilding
 
         public TScalar ExecuteScalar<TScalar>()
         {
-            return _objectQueryExecutor.FindScalar<T, TScalar>(_subQuery);
+            return _objectQueryExecutor.FindScalar<T, TScalar>(_query);
         }
 
         public void ExecuteScalarListAsync<TScalar>(Action<IList<TScalar>> callback, Action<Exception> errorCallback = null)
@@ -101,7 +101,7 @@ namespace WeenyMapper.QueryBuilding
 
         public IList<TScalar> ExecuteScalarList<TScalar>()
         {
-            return _objectQueryExecutor.FindScalarList<T, TScalar>(_subQuery);
+            return _objectQueryExecutor.FindScalarList<T, TScalar>(_query);
         }
 
         public StaticSelectBuilder<T> OrderBy(params Expression<Func<T, object>>[] getters)

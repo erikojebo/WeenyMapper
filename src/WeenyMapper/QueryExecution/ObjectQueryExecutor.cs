@@ -28,26 +28,28 @@ namespace WeenyMapper.QueryExecution
 
         public string ConnectionString { get; set; }
 
-        public TScalar FindScalar<T, TScalar>(AliasedObjectSubQuery subQuery)
-        {
-            var command = CreateCommand(subQuery);
-
-            return _dbCommandExecutor.ExecuteScalar<TScalar>(command, ConnectionString);
-        }
-
-        public IList<TScalar> FindScalarList<T, TScalar>(AliasedObjectSubQuery subQuery)
-        {
-            var command = CreateCommand(subQuery);
-
-            return _dbCommandExecutor.ExecuteScalarList<TScalar>(command, ConnectionString);
-        }
-
         public IList<T> Find<T>(ObjectQuery query) where T : new()
         {
             var subQuery = query.SubQueries.FirstOrDefault();
             var command = CreateCommand(subQuery);
 
             return ReadEntities<T>(command, subQuery);
+        }
+
+        public TScalar FindScalar<T, TScalar>(ObjectQuery query)
+        {
+            var subQuery = query.SubQueries.FirstOrDefault();
+            var command = CreateCommand(subQuery);
+
+            return _dbCommandExecutor.ExecuteScalar<TScalar>(command, ConnectionString);
+        }
+
+        public IList<TScalar> FindScalarList<T, TScalar>(ObjectQuery query)
+        {
+            var subQuery = query.SubQueries.First();
+            var command = CreateCommand(subQuery);
+
+            return _dbCommandExecutor.ExecuteScalarList<TScalar>(command, ConnectionString);
         }
 
         private DbCommand CreateCommand(AliasedObjectSubQuery subQuery)
