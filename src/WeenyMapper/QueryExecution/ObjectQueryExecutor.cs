@@ -31,10 +31,9 @@ namespace WeenyMapper.QueryExecution
 
         public IList<T> Find<T>(ObjectQuery query) where T : new()
         {
-            var subQuery = query.SubQueries.FirstOrDefault();
             var command = CreateCommand(query);
 
-            return ReadEntities<T>(command, subQuery);
+            return ReadEntities<T>(command, query);
         }
 
         public TScalar FindScalar<T, TScalar>(ObjectQuery query)
@@ -123,11 +122,11 @@ namespace WeenyMapper.QueryExecution
             query.Joins.Add(joinSpec);
         }
 
-        private IList<T> ReadEntities<T>(DbCommand command, AliasedObjectSubQuery subQuery) where T : new()
+        private IList<T> ReadEntities<T>(DbCommand command, ObjectQuery objectQuery) where T : new()
         {
             var resultSet = _dbCommandExecutor.ExecuteQuery(command, ConnectionString);
 
-            var objectRelations = GetObjectRelations(subQuery);
+            var objectRelations = objectQuery.Joins.Select(ObjectRelation.Create).ToList();
 
             if (objectRelations.Any())
             {
@@ -135,24 +134,6 @@ namespace WeenyMapper.QueryExecution
             }
 
             return _entityMapper.CreateInstanceGraphs<T>(resultSet);
-        }
-
-        private IEnumerable<ObjectRelation> GetObjectRelations(AliasedObjectSubQuery subQuery)
-        {
-            var objectRelations = new List<ObjectRelation>();
-            var currentQuerySpecification = subQuery;
-
-            while (currentQuerySpecification.HasJoinSpecification)
-            {
-                var primaryType = currentQuerySpecification.ResultType;
-
-                var objectRelation = ObjectRelation.Create(currentQuerySpecification.JoinSpecification, primaryType);
-
-                objectRelations.Add(objectRelation);
-
-                currentQuerySpecification = currentQuerySpecification.JoinSpecification.AliasedObjectSubQuery;
-            }
-            return objectRelations;
         }
     }
 }

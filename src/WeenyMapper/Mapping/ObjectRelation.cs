@@ -13,24 +13,21 @@ namespace WeenyMapper.Mapping
         {
         }
 
-        private ObjectRelation(PropertyInfo parentProperty, PropertyInfo childProperty, Type primaryType)
+        private ObjectRelation(PropertyInfo parentProperty, PropertyInfo childProperty)
         {
             ParentProperty = parentProperty;
             ChildProperty = childProperty;
-            PrimaryType = primaryType;
             ChildType = childProperty.DeclaringType;
             ParentType = parentProperty.DeclaringType;
         }
 
         public static ObjectRelation CreateTwoWay<TParent, TChild>(
             Expression<Func<TParent, object>> parentProperty,
-            Expression<Func<TChild, TParent>> childProperty,
-            Type primaryType)
+            Expression<Func<TChild, TParent>> childProperty)
         {
             return new ObjectRelation(
                 Reflector<TParent>.GetProperty(parentProperty),
-                Reflector<TChild>.GetProperty(childProperty),
-                primaryType);
+                Reflector<TChild>.GetProperty(childProperty));
         }
 
         public static ObjectRelation CreateParentToChild<TParent, TChild>(
@@ -41,7 +38,6 @@ namespace WeenyMapper.Mapping
                     ParentProperty = Reflector<TParent>.GetProperty(parentProperty),
                     ChildType = typeof(TChild),
                     ParentType = typeof(TParent),
-                    PrimaryType = typeof(TParent)
                 };
         }
 
@@ -53,13 +49,11 @@ namespace WeenyMapper.Mapping
                     ChildProperty = Reflector<TParent>.GetProperty(childProperty),
                     ChildType = typeof(TChild),
                     ParentType = typeof(TParent),
-                    PrimaryType = typeof(TChild)
                 };
         }
 
         public PropertyInfo ParentProperty { get; private set; }
         public PropertyInfo ChildProperty { get; private set; }
-        public Type PrimaryType { get; private set; }
         public Type ChildType { get; private set; }
         public Type ParentType { get; private set; }
 
@@ -73,7 +67,7 @@ namespace WeenyMapper.Mapping
             get { return ChildProperty != null; }
         }
 
-        public static ObjectRelation Create(ObjectSubQueryJoin @join, Type primaryType)
+        public static ObjectRelation Create(ObjectSubQueryJoin @join)
         {
             return new ObjectRelation
                 {
@@ -81,7 +75,6 @@ namespace WeenyMapper.Mapping
                     ParentProperty = @join.ParentProperty,
                     ChildType = @join.ChildType,
                     ParentType = @join.ParentType,
-                    PrimaryType = primaryType
                 };
         }
     }
