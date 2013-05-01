@@ -62,12 +62,14 @@ namespace WeenyMapper.QueryExecution
         {
             var sqlQuery = new SqlQuery();
 
-            CreateSqlQuerySpecification(query.SubQueries.First(), sqlQuery);
+            
+
+            AddSqlQuerySpecification(query.SubQueries.First(), sqlQuery);
 
             return sqlQuery;
         }
 
-        private AliasedSqlSubQuery CreateSqlQuerySpecification(AliasedObjectSubQuery subQuery, SqlQuery sqlQuery)
+        private AliasedSqlSubQuery AddSqlQuerySpecification(AliasedObjectSubQuery subQuery, SqlQuery sqlQuery)
         {
             var resultType = subQuery.ResultType;
 
@@ -123,7 +125,7 @@ namespace WeenyMapper.QueryExecution
                     ParentPrimaryKeyColumnName = _conventionReader.GetPrimaryKeyColumnName(joinSpecification.ParentType),
                 };
 
-            CreateSqlQuerySpecification(joinSpecification.AliasedObjectSubQuery, query);
+            AddSqlQuerySpecification(joinSpecification.AliasedObjectSubQuery, query);
 
             return joinSpec;
         }
