@@ -25,12 +25,5 @@ namespace WeenyMapper.Sql
         {
             get { return Page != null && Page.PageSize > 0; }
         }
-
-        public ObjectSubQueryJoin JoinSpecification { get; set; }
-
-        public bool HasJoinSpecification
-        {
-            get { return JoinSpecification != null; }
-        }
     }
 }
