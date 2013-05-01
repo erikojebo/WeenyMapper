@@ -46,7 +46,7 @@ namespace WeenyMapper.Specs.Sql
         {
             _subQuery.ColumnsToSelect = new[] { "ColumnName" };
             _subQuery.QueryExpression = new EqualsExpression(new PropertyExpression("ColumnName"),
-                                                                       new ValueExpression("value"));
+                                                             new ValueExpression("value"));
 
             var sqlCommand = _generator.GenerateSelectQuery(_sqlQuery);
 
@@ -68,7 +68,7 @@ namespace WeenyMapper.Specs.Sql
                         new EqualsExpression(new PropertyExpression("ColumnName1"), new ValueExpression("value")),
                         new EqualsExpression(new PropertyExpression("ColumnName2"), new ValueExpression(123))));
 
-        var sqlCommand = _generator.GenerateSelectQuery(_sqlQuery);
+            var sqlCommand = _generator.GenerateSelectQuery(_sqlQuery);
 
             var expectedQuery = "SELECT [ColumnName1] FROM [TableName] " +
                                 "WHERE [ColumnName1] = @ColumnName1Constraint AND [ColumnName2] = @ColumnName2Constraint";
@@ -285,6 +285,70 @@ namespace WeenyMapper.Specs.Sql
         }
 
         [Test]
+        public void Joins_in_a_multi_level_join_are_ordered_so_that_columns_are_not_referenced_before_the_table_has_been_joined()
+        {
+            _sqlQuery = new SqlQuery();
+
+            _subQuery = new AliasedSqlSubQuery
+                {
+                    ColumnsToSelect = new List<string> { "Name" },
+                    TableName = "Blogs"
+                };
+
+            var spec2 = new AliasedSqlSubQuery
+                {
+                    ColumnsToSelect = new[] { "Name" },
+                    TableName = "Posts",
+                    PrimaryKeyColumnName = "Id"
+                };
+
+            var spec3 = new AliasedSqlSubQuery
+                {
+                    ColumnsToSelect = new List<string> { "Name" },
+                    TableName = "Comments"
+                };
+
+            // The join between Posts and Comments is added before the join
+            // between Posts and Blogs, so the join would fail since not both
+            // the Posts table and the Comments table are "available" to join with
+            // before the Posts and Blogs join has been done
+            _subQuery.JoinSpecification = new SqlSubQueryJoin
+                {
+                    ParentTableName = "Posts",
+                    ChildTableName = "Comments",
+                    ParentPrimaryKeyColumnName = "Id",
+                    ChildForeignKeyColumnName = "PostId",
+                    AliasedSqlSubQuery = spec2
+                };
+
+            spec2.JoinSpecification = new SqlSubQueryJoin
+                {
+                    ParentTableName = "Blogs",
+                    ChildTableName = "Posts",
+                    ParentPrimaryKeyColumnName = "Id",
+                    ChildForeignKeyColumnName = "BlogId",
+                    AliasedSqlSubQuery = spec3
+                };
+
+            _sqlQuery.SubQueries.Add(_subQuery);
+            _sqlQuery.Joins.Add(_subQuery.JoinSpecification);
+            _sqlQuery.Joins.Add(spec2.JoinSpecification);
+            _sqlQuery.SubQueries.Add(spec2);
+            _sqlQuery.SubQueries.Add(spec3);
+
+            var expectedSql =
+                "SELECT [Blogs].[Name] AS \"Blogs Name\", " +
+                "[Posts].[Name] AS \"Posts Name\", " +
+                "[Comments].[Name] AS \"Comments Name\" " +
+                "FROM [Blogs] LEFT OUTER JOIN [Posts] ON [Blogs].[Id] = [Posts].[BlogId] " +
+                "LEFT OUTER JOIN [Comments] ON [Posts].[Id] = [Comments].[PostId]";
+
+            var query = _generator.GenerateSelectQuery(_sqlQuery);
+
+            Assert.AreEqual(expectedSql, query.CommandText);
+        }
+
+        [Test]
         public void Generating_join_with_order_by_generates_select_with_corresponding_order_by_with_qualified_column_name()
         {
             _subQuery.OrderByStatements.Add(new OrderByStatement("ColumnName3"));
@@ -304,6 +368,9 @@ namespace WeenyMapper.Specs.Sql
                     ChildForeignKeyColumnName = "ForeignKeyColumnName",
                     AliasedSqlSubQuery = spec2
                 };
+
+            _sqlQuery.Joins.Add(_subQuery.JoinSpecification);
+            _sqlQuery.SubQueries.Add(spec2);
 
             var query = _generator.GenerateSelectQuery(_sqlQuery);
 
@@ -337,6 +404,9 @@ namespace WeenyMapper.Specs.Sql
                     ChildForeignKeyColumnName = "ForeignKeyColumnName",
                     AliasedSqlSubQuery = spec2
                 };
+
+            _sqlQuery.Joins.Add(_subQuery.JoinSpecification);
+            _sqlQuery.SubQueries.Add(spec2);
 
             var expectedSql =
                 "SELECT [TableName].[ColumnName1] AS \"TableName ColumnName1\", [TableName].[ColumnName2] AS \"TableName ColumnName2\", " +
@@ -563,7 +633,7 @@ namespace WeenyMapper.Specs.Sql
         {
             _subQuery.ColumnsToSelect = new[] { "ColumnName1", "ColumnName2" };
             _subQuery.QueryExpression = new EqualsExpression(new PropertyExpression("ColumnName"),
-                                                                       new ValueExpression("Value"));
+                                                             new ValueExpression("Value"));
             _subQuery.TableName = "TableName";
 
             var expectedSql =
@@ -667,7 +737,7 @@ namespace WeenyMapper.Specs.Sql
             var values = new[] { (object)1, 2, 3 };
 
             _subQuery.QueryExpression = new InExpression(new PropertyExpression("PropertyName"),
-                                                                   new ArrayValueExpression(values));
+                                                         new ArrayValueExpression(values));
 
             var expectedSql = "SELECT [ColumnName1], [ColumnName2] FROM [TableName] " +
                               "WHERE ([PropertyName] IN (@PropertyNameConstraint, @PropertyNameConstraint2, @PropertyNameConstraint3))";
@@ -719,7 +789,7 @@ namespace WeenyMapper.Specs.Sql
             _subQuery.OrderByStatements.Add(new OrderByStatement("ColumnName3"));
             _subQuery.OrderByStatements.Add(new OrderByStatement("ColumnName2"));
 
-        var sqlCommand = _generator.GenerateSelectQuery(_sqlQuery);
+            var sqlCommand = _generator.GenerateSelectQuery(_sqlQuery);
 
             var expectedQuery = "SELECT [ColumnName1], [ColumnName2] FROM [TableName] " +
                                 "WHERE [ColumnName1] = @ColumnName1Constraint ORDER BY [ColumnName1] DESC, [ColumnName3], [ColumnName2]";
@@ -891,7 +961,7 @@ namespace WeenyMapper.Specs.Sql
                                 new EqualsExpression(new PropertyExpression("ColumnName1"), new ValueExpression("value")),
                                 new EqualsExpression(new PropertyExpression("ColumnName2"), new ValueExpression(123))))));
 
-        var sqlCommand = _generator.GenerateSelectQuery(_sqlQuery);
+            var sqlCommand = _generator.GenerateSelectQuery(_sqlQuery);
             var parameters = sqlCommand.Parameters.SortByParameterName();
 
             var expectedQuery = "SELECT [ColumnName1] FROM [TableName] " +
@@ -914,7 +984,7 @@ namespace WeenyMapper.Specs.Sql
             _subQuery.ColumnsToSelect = new[] { "ColumnName" };
             _subQuery.QueryExpression = new PropertyExpression("ColumnName", typeof(bool));
 
-        var sqlCommand = _generator.GenerateSelectQuery(_sqlQuery);
+            var sqlCommand = _generator.GenerateSelectQuery(_sqlQuery);
 
             Assert.AreEqual("SELECT [ColumnName] FROM [TableName] WHERE [ColumnName] = 1",
                             sqlCommand.CommandText);
@@ -928,7 +998,7 @@ namespace WeenyMapper.Specs.Sql
             _subQuery.ColumnsToSelect = new[] { "ColumnName" };
             _subQuery.QueryExpression = new EqualsExpression(new PropertyExpression("ColumnName", typeof(string)), new ValueExpression(null));
 
-        var sqlCommand = _generator.GenerateSelectQuery(_sqlQuery);
+            var sqlCommand = _generator.GenerateSelectQuery(_sqlQuery);
 
             Assert.AreEqual("SELECT [ColumnName] FROM [TableName] WHERE [ColumnName] IS NULL", sqlCommand.CommandText);
 

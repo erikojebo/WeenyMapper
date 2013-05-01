@@ -54,12 +54,12 @@ namespace WeenyMapper.Sql
             var columnSelectStrings = CreateColumnSelectStrings(subQuery);
             var columnSelectString = string.Join(", ", columnSelectStrings);
 
-            var joinClause = CreateJoinClauses(subQuery);
+            var joinClause = CreateJoinClauses(sqlQuery);
 
             var commandText = string.Format("SELECT {0} FROM {1} {2}",
-                columnSelectString,
-                Escape(subQuery.TableName),
-                joinClause);
+                                            columnSelectString,
+                                            Escape(subQuery.TableName),
+                                            joinClause);
 
             var command = _commandFactory.CreateCommand(commandText);
 
@@ -72,31 +72,47 @@ namespace WeenyMapper.Sql
             return command;
         }
 
-        private string CreateJoinClauses(AliasedSqlSubQuery subQuery)
+        private string CreateJoinClauses(SqlQuery sqlQuery)
         {
             var joinClauses = new List<string>();
+            var availableTables = new List<string> { sqlQuery.SubQueries.First().TableName };
+            var addedJoins = new HashSet<SqlSubQueryJoin>();
 
-            var currentQuerySpecification = subQuery;
-
-            while (currentQuerySpecification.HasJoinSpecification)
+            while (addedJoins.Count < sqlQuery.Joins.Count)
             {
-                var joinClause = CreateJoinClause(currentQuerySpecification);
-                joinClauses.Add(joinClause);
+                foreach (var remainingJoin in sqlQuery.Joins.Except(addedJoins).ToList())
+                {
+                    string newTable = null;
 
-                currentQuerySpecification = currentQuerySpecification.JoinSpecification.AliasedSqlSubQuery;
+                    if (availableTables.Contains(remainingJoin.ChildTableName))
+                        newTable = remainingJoin.ParentTableName;
+                    else if (availableTables.Contains(remainingJoin.ParentTableName))
+                        newTable = remainingJoin.ChildTableName;
+
+                    if (newTable == null)
+                        continue;
+
+                    var joinClause = CreateJoinClause(remainingJoin, newTable);
+
+                    joinClauses.Add(joinClause);
+                    addedJoins.Add(remainingJoin);
+
+                    availableTables.Add(remainingJoin.ChildTableName);
+                    availableTables.Add(remainingJoin.ParentTableName);
+                }
             }
 
             return string.Join(" ", joinClauses);
         }
 
-        private string CreateJoinClause(AliasedSqlSubQuery subQuery)
+        private string CreateJoinClause(SqlSubQueryJoin joinSpec, string newTable)
         {
             return string.Format("LEFT OUTER JOIN {0} ON {1}.{2} = {3}.{4}",
-                Escape(subQuery.JoinSpecification.AliasedSqlSubQuery.TableName),
-                Escape(subQuery.JoinSpecification.ParentTableName),
-                Escape(subQuery.JoinSpecification.ParentPrimaryKeyColumnName),
-                Escape(subQuery.JoinSpecification.ChildTableName),
-                Escape(subQuery.JoinSpecification.ChildForeignKeyColumnName));
+                                 Escape(newTable),
+                                 Escape(joinSpec.ParentTableName),
+                                 Escape(joinSpec.ParentPrimaryKeyColumnName),
+                                 Escape(joinSpec.ChildTableName),
+                                 Escape(joinSpec.ChildForeignKeyColumnName));
         }
 
         private DbCommand GeneratePagingQuery(AliasedSqlSubQuery subQuery)
@@ -115,8 +131,8 @@ namespace WeenyMapper.Sql
             var selectedColumnString = CreateColumnNameList(subQuery.ColumnsToSelect, Escape);
 
             command.CommandText = string.Format("SELECT {0}, ROW_NUMBER() OVER (:orderByClause) AS \"RowNumber\" FROM {1}",
-                selectedColumnString,
-                Escape(subQuery.TableName));
+                                                selectedColumnString,
+                                                Escape(subQuery.TableName));
 
             var whereClause = CreateWhereClause(subQuery.QueryExpression);
             var orderByClause = CreateOrderByClause(subQuery.OrderByStatements);
@@ -332,7 +348,9 @@ namespace WeenyMapper.Sql
                 ConstraintCommandText = string.Format("({0})", commandText);
             }
 
-            public void Visit(ValueExpression expression) {}
+            public void Visit(ValueExpression expression)
+            {
+            }
 
             public void Visit(PropertyExpression expression)
             {
@@ -377,7 +395,7 @@ namespace WeenyMapper.Sql
                 }
                 else
                 {
-                    VisitBinaryComparisonExpression(expression, "=");    
+                    VisitBinaryComparisonExpression(expression, "=");
                 }
             }
 
@@ -432,7 +450,9 @@ namespace WeenyMapper.Sql
                 ConstraintCommandText = string.Format("{0} LIKE {1}", CreateColumnNameString(propertyName), commandParameter.ReferenceName);
             }
 
-            public void Visit(EntityReferenceExpression expression) {}
+            public void Visit(EntityReferenceExpression expression)
+            {
+            }
 
             public void Visit(NotEqualExpression expression)
             {
