@@ -21,7 +21,7 @@ namespace WeenyMapper.Sql
         {
             var subQuery = sqlQuery.SubQueries.First();
 
-            if (subQuery.HasJoinSpecification)
+            if (sqlQuery.IsJoinQuery)
             {
                 return GenerateJoinQuery(sqlQuery);
             }

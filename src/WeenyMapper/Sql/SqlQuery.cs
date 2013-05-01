@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace WeenyMapper.Sql
 {
@@ -12,5 +13,10 @@ namespace WeenyMapper.Sql
 
         public List<AliasedSqlSubQuery> SubQueries { get; set; }
         public List<SqlSubQueryJoin> Joins { get; set; }
+
+        public bool IsJoinQuery
+        {
+            get { return Joins.Any(); }
+        }
     }
 }

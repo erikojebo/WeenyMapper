@@ -91,7 +91,7 @@ namespace WeenyMapper.Specs.Sql
                     TableName = "TableName2"
                 };
 
-            _subQuery.JoinSpecification = new SqlSubQueryJoin
+            var join = new SqlSubQueryJoin
                 {
                     ParentTableName = "TableName",
                     ChildTableName = "TableName2",
@@ -99,7 +99,7 @@ namespace WeenyMapper.Specs.Sql
                     ChildForeignKeyColumnName = "ForeignKeyColumnName",
                 };
 
-            _sqlQuery.Joins.Add(_subQuery.JoinSpecification);
+            _sqlQuery.Joins.Add(join);
             _sqlQuery.SubQueries.Add(spec2);
 
             var query = _generator.GenerateSelectQuery(_sqlQuery);
@@ -132,7 +132,7 @@ namespace WeenyMapper.Specs.Sql
                     TableName = "TableName2"
                 };
 
-            _subQuery.JoinSpecification = new SqlSubQueryJoin
+            var join = new SqlSubQueryJoin
                 {
                     ParentTableName = "TableName",
                     ChildTableName = "TableName2",
@@ -140,7 +140,7 @@ namespace WeenyMapper.Specs.Sql
                     ChildForeignKeyColumnName = "ForeignKeyColumnName",
                 };
 
-            _sqlQuery.Joins.Add(_subQuery.JoinSpecification);
+            _sqlQuery.Joins.Add(join);
             _sqlQuery.SubQueries.Add(spec2);
 
             var expectedSql =
@@ -184,7 +184,7 @@ namespace WeenyMapper.Specs.Sql
                     TableName = "TableName3"
                 };
 
-            _subQuery.JoinSpecification = new SqlSubQueryJoin
+            var join1 = new SqlSubQueryJoin
                 {
                     ParentTableName = "TableName",
                     ChildTableName = "TableName2",
@@ -192,7 +192,7 @@ namespace WeenyMapper.Specs.Sql
                     ChildForeignKeyColumnName = "ForeignKeyColumnName",
                 };
 
-            spec2.JoinSpecification = new SqlSubQueryJoin
+            var join2 = new SqlSubQueryJoin
                 {
                     ParentTableName = "TableName2",
                     ChildTableName = "TableName3",
@@ -200,8 +200,8 @@ namespace WeenyMapper.Specs.Sql
                     ChildForeignKeyColumnName = "Table3ForeignKey",
                 };
 
-            _sqlQuery.Joins.Add(_subQuery.JoinSpecification);
-            _sqlQuery.Joins.Add(spec2.JoinSpecification);
+            _sqlQuery.Joins.Add(join1);
+            _sqlQuery.Joins.Add(join2);
             _sqlQuery.SubQueries.Add(spec2);
             _sqlQuery.SubQueries.Add(spec3);
 
@@ -243,7 +243,7 @@ namespace WeenyMapper.Specs.Sql
                     TableName = "Blogs"
                 };
 
-            _subQuery.JoinSpecification = new SqlSubQueryJoin
+            var join1 = new SqlSubQueryJoin
                 {
                     ParentTableName = "Posts",
                     ChildTableName = "Comments",
@@ -251,7 +251,7 @@ namespace WeenyMapper.Specs.Sql
                     ChildForeignKeyColumnName = "PostId",
                 };
 
-            spec2.JoinSpecification = new SqlSubQueryJoin
+            var join2 = new SqlSubQueryJoin
                 {
                     ParentTableName = "Blogs",
                     ChildTableName = "Posts",
@@ -260,8 +260,8 @@ namespace WeenyMapper.Specs.Sql
                 };
 
             _sqlQuery.SubQueries.Add(_subQuery);
-            _sqlQuery.Joins.Add(_subQuery.JoinSpecification);
-            _sqlQuery.Joins.Add(spec2.JoinSpecification);
+            _sqlQuery.Joins.Add(join1);
+            _sqlQuery.Joins.Add(join2);
             _sqlQuery.SubQueries.Add(spec2);
             _sqlQuery.SubQueries.Add(spec3);
 
@@ -306,7 +306,7 @@ namespace WeenyMapper.Specs.Sql
             // between Posts and Blogs, so the join would fail since not both
             // the Posts table and the Comments table are "available" to join with
             // before the Posts and Blogs join has been done
-            _subQuery.JoinSpecification = new SqlSubQueryJoin
+            var join1 = new SqlSubQueryJoin
                 {
                     ParentTableName = "Posts",
                     ChildTableName = "Comments",
@@ -314,7 +314,7 @@ namespace WeenyMapper.Specs.Sql
                     ChildForeignKeyColumnName = "PostId",
                 };
 
-            spec2.JoinSpecification = new SqlSubQueryJoin
+            var join2 = new SqlSubQueryJoin
                 {
                     ParentTableName = "Blogs",
                     ChildTableName = "Posts",
@@ -323,8 +323,8 @@ namespace WeenyMapper.Specs.Sql
                 };
 
             _sqlQuery.SubQueries.Add(_subQuery);
-            _sqlQuery.Joins.Add(_subQuery.JoinSpecification);
-            _sqlQuery.Joins.Add(spec2.JoinSpecification);
+            _sqlQuery.Joins.Add(join1);
+            _sqlQuery.Joins.Add(join2);
             _sqlQuery.SubQueries.Add(spec2);
             _sqlQuery.SubQueries.Add(spec3);
 
@@ -352,7 +352,7 @@ namespace WeenyMapper.Specs.Sql
                     TableName = "TableName2"
                 };
 
-            _subQuery.JoinSpecification = new SqlSubQueryJoin
+            var join = new SqlSubQueryJoin
                 {
                     ParentTableName = "TableName",
                     ChildTableName = "TableName2",
@@ -360,7 +360,7 @@ namespace WeenyMapper.Specs.Sql
                     ChildForeignKeyColumnName = "ForeignKeyColumnName",
                 };
 
-            _sqlQuery.Joins.Add(_subQuery.JoinSpecification);
+            _sqlQuery.Joins.Add(join);
             _sqlQuery.SubQueries.Add(spec2);
 
             var query = _generator.GenerateSelectQuery(_sqlQuery);
@@ -387,7 +387,7 @@ namespace WeenyMapper.Specs.Sql
                     TableName = "TableName2"
                 };
 
-            _subQuery.JoinSpecification = new SqlSubQueryJoin
+            var join = new SqlSubQueryJoin
                 {
                     ParentTableName = "TableName",
                     ChildTableName = "TableName2",
@@ -395,7 +395,7 @@ namespace WeenyMapper.Specs.Sql
                     ChildForeignKeyColumnName = "ForeignKeyColumnName",
                 };
 
-            _sqlQuery.Joins.Add(_subQuery.JoinSpecification);
+            _sqlQuery.Joins.Add(join);
             _sqlQuery.SubQueries.Add(spec2);
 
             var expectedSql =

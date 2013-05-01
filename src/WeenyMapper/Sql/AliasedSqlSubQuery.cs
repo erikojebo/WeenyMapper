@@ -26,13 +26,6 @@ namespace WeenyMapper.Sql
             get { return Page != null && Page.PageSize > 0; }
         }
 
-        public SqlSubQueryJoin JoinSpecification { get; set; }
-
-        public bool HasJoinSpecification
-        {
-            get { return JoinSpecification != null; }
-        }
-
         public static AliasedSqlSubQuery CreateFor<T>()
         {
             return new AliasedSqlSubQuery
