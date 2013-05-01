@@ -51,7 +51,7 @@ namespace WeenyMapper.Sql
         {
             var subQuery = sqlQuery.SubQueries.First();
 
-            var columnSelectStrings = CreateColumnSelectStrings(subQuery);
+            var columnSelectStrings = CreateColumnSelectStrings(sqlQuery);
             var columnSelectString = string.Join(", ", columnSelectStrings);
 
             var joinClause = CreateJoinClauses(sqlQuery);
@@ -223,25 +223,25 @@ namespace WeenyMapper.Sql
             return command;
         }
 
+        private IEnumerable<string> CreateColumnSelectStrings(SqlQuery sqlQuery)
+        {
+            var joinedColumnStrings = new List<string>();
+            
+            foreach (var subQuery in sqlQuery.SubQueries)
+            {
+                var stringsForCurrentTable = subQuery.ColumnsToSelect.Select(x => CreateColumnSelectString(x, subQuery));
+
+                joinedColumnStrings.AddRange(stringsForCurrentTable);
+            }
+
+            return joinedColumnStrings;
+        }
+
         private string CreateColumnSelectString(string columnName, AliasedSqlSubQuery subQuery)
         {
             var alias = string.Format("{0} {1}", subQuery.TableName, columnName);
             var columnReference = new ColumnReference(columnName, subQuery.TableName, Escape);
             return string.Format("{0} AS \"{1}\"", columnReference, alias);
-        }
-
-        private IEnumerable<string> CreateColumnSelectStrings(AliasedSqlSubQuery subQuery)
-        {
-            var joinedColumnStrings = Enumerable.Empty<string>();
-
-            if (subQuery.HasJoinSpecification)
-            {
-                joinedColumnStrings = CreateColumnSelectStrings(subQuery.JoinSpecification.AliasedSqlSubQuery);
-            }
-
-            var stringsForCurrentTable = subQuery.ColumnsToSelect.Select(x => CreateColumnSelectString(x, subQuery));
-
-            return stringsForCurrentTable.Concat(joinedColumnStrings);
         }
 
         private string CreateColumnNameList(IEnumerable<KeyValuePair<string, object>> propertyValues, Func<string, string> transformation)
