@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using WeenyMapper.Exceptions;
 
@@ -17,12 +18,39 @@ namespace WeenyMapper.Sql
 
         public AliasedObjectSubQuery GetSubQuery<T>()
         {
-            var subQuery = SubQueries.FirstOrDefault(x => x.ResultType == typeof(T));
-
-            if (subQuery == null)
+            if (!HasSubQuery(typeof(T)))
                 throw new WeenyMapperException("No sub query has been defined for the type '{0}'. Did you forget a Join?", typeof(T).FullName);
 
-            return subQuery;
+            return SubQueries.First(x => x.ResultType == typeof(T));
+        }
+
+        private bool HasSubQuery(Type type)
+        {
+            return SubQueries.Any(x => x.ResultType == type);
+        }
+
+        public void AddJoin<TParent, TChild>(ObjectSubQueryJoin joinSpecification)
+        {
+            EnsureSubQuery<TParent>();
+            EnsureSubQuery<TChild>();
+
+            joinSpecification.ParentSubQuery = GetSubQuery<TParent>();
+            joinSpecification.ChildSubQuery = GetSubQuery<TChild>();
+
+            Joins.Add(joinSpecification);
+        }
+
+        private void EnsureSubQuery<TParent>()
+        {
+            if (!HasSubQuery(typeof(TParent)))
+                CreateSubQuery<TParent>();
+        }
+
+        private void CreateSubQuery<T>()
+        {
+            var subQuery = new AliasedObjectSubQuery(typeof(T));
+
+            SubQueries.Add(subQuery);
         }
     }
 }

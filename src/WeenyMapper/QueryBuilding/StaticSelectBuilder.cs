@@ -153,7 +153,13 @@ namespace WeenyMapper.QueryBuilding
             var parentPropertyInfo = Reflector<T>.GetProperty(parentProperty);
             var foreignKeyPropertyInfo = Reflector<TChild>.GetProperty(foreignKeyProperty);
 
-            _latestSubQuery.JoinSpecification = ObjectSubQueryJoin.CreateParentToChild(parentPropertyInfo, foreignKeyPropertyInfo);
+            var joinSpecification = ObjectSubQueryJoin.CreateParentToChild(parentPropertyInfo, foreignKeyPropertyInfo);
+
+            _query.AddJoin<T, TChild>(joinSpecification);
+            
+            _query.Joins.Add(joinSpecification);
+
+            _latestSubQuery.JoinSpecification = joinSpecification;
 
             return this;
         }
@@ -162,7 +168,11 @@ namespace WeenyMapper.QueryBuilding
         {
             var childPropertyInfo = Reflector<T>.GetProperty(childProperty);
 
-            _latestSubQuery.JoinSpecification = ObjectSubQueryJoin.CreateChildToParent(childPropertyInfo, typeof(TParent));
+            var joinSpecification = ObjectSubQueryJoin.CreateChildToParent(childPropertyInfo, typeof(TParent));
+
+            _query.AddJoin<TParent, T>(joinSpecification);
+
+            _latestSubQuery.JoinSpecification = joinSpecification;
 
             return this;
         }
@@ -181,7 +191,11 @@ namespace WeenyMapper.QueryBuilding
             var parentPropertyInfo = Reflector<TParent>.GetProperty(parentProperty);
             var childPropertyInfo = Reflector<TChild>.GetProperty(childProperty);
 
-            _latestSubQuery.JoinSpecification = ObjectSubQueryJoin.CreateTwoWay(parentPropertyInfo, childPropertyInfo);
+            var joinSpecification = ObjectSubQueryJoin.CreateTwoWay(parentPropertyInfo, childPropertyInfo);
+
+            _query.AddJoin<TParent, TChild>(joinSpecification);
+
+            _latestSubQuery.JoinSpecification = joinSpecification;
             _latestSubQuery.JoinSpecification.AliasedObjectSubQuery = new AliasedObjectSubQuery(nextType);
 
             _latestSubQuery = _latestSubQuery.JoinSpecification.AliasedObjectSubQuery;
