@@ -53,9 +53,9 @@ namespace WeenyMapper.QueryExecution
 
         private DbCommand CreateCommand(ObjectQuery query)
         {
-            var sqlQuerySpecification = CreateSqlQuery(query);
+            var sqlQuery = CreateSqlQuery(query);
 
-            return _sqlGenerator.GenerateSelectQuery(sqlQuerySpecification);
+            return _sqlGenerator.GenerateSelectQuery(sqlQuery);
         }
 
         private SqlQuery CreateSqlQuery(ObjectQuery query)

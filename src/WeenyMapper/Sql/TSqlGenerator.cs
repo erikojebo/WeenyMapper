@@ -17,7 +17,12 @@ namespace WeenyMapper.Sql
             _commandFactory = commandFactory;
         }
 
-        public DbCommand GenerateSelectQuery(AliasedSqlSubQuery subQuery)
+        public DbCommand GenerateSelectQuery(SqlQuery sqlQuery)
+        {
+            return GenerateSelectQuery(sqlQuery.SubQueries.First());
+        }
+
+        private DbCommand GenerateSelectQuery(AliasedSqlSubQuery subQuery)
         {
             if (subQuery.HasJoinSpecification)
             {
@@ -43,11 +48,6 @@ namespace WeenyMapper.Sql
             topClause.InsertWithSpaceAtMarker(command, ":topClause", _commandFactory);
 
             return command;
-        }
-
-        public DbCommand GenerateSelectQuery(SqlQuery sqlQuery)
-        {
-            return GenerateSelectQuery(sqlQuery.SubQueries.First());
         }
 
         private DbCommand GenerateJoinQuery(AliasedSqlSubQuery subQuery)
