@@ -2336,11 +2336,11 @@ namespace WeenyMapper.Specs
             Repository.Insert(employee1, employee2, employee3);
 
             var actualManager1 = Repository.Find<Employee>().Where(x => x.Id == manager1.Id)
-                                           .Join<Employee, Employee>(x => x.Subordinates, x => x.Manager, "Employee", "Manager")
+                                           .Join<Employee, Employee>(x => x.Subordinates, x => x.Manager, null, "Manager")
                                            .Execute();
 
             var actualEmployees = Repository.Find<Employee>()
-                                            .Join<Employee, Employee>(x => x.Subordinates, x => x.Manager, "Employee", "Manager")
+                                            .Join<Employee, Employee>(x => x.Subordinates, x => x.Manager, null, "Manager")
                                             .OrderBy(x => x.LastName)
                                             .ExecuteList();
 

@@ -96,7 +96,8 @@ namespace WeenyMapper.QueryExecution
                     OrderByStatements = translatedOrderByStatements.ToList(),
                     RowCountLimit = subQuery.RowCountLimit,
                     Page = subQuery.Page,
-                    PrimaryKeyColumnName = _conventionReader.TryGetPrimaryKeyColumnName(subQuery.ResultType)
+                    PrimaryKeyColumnName = _conventionReader.TryGetPrimaryKeyColumnName(subQuery.ResultType),
+                    Alias = subQuery.Alias
                 };
 
             sqlQuery.SubQueries.Add(spec);
@@ -119,7 +120,7 @@ namespace WeenyMapper.QueryExecution
                     ParentPrimaryKeyColumnName = _conventionReader.GetPrimaryKeyColumnName(joinSpecification.ParentType),
                 };
 
-            query.AddJoin(joinSpec);
+            query.AddJoin(joinSpec, joinSpecification.ChildSubQuery.Alias, joinSpecification.ParentSubQuery.Alias);
         }
 
         private IList<T> ReadEntities<T>(DbCommand command, ObjectQuery objectQuery) where T : new()

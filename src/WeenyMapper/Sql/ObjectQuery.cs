@@ -16,31 +16,33 @@ namespace WeenyMapper.Sql
         public IList<AliasedObjectSubQuery> SubQueries { get; set; }
         public IList<ObjectSubQueryJoin> Joins { get; set; }
 
-        public AliasedObjectSubQuery GetSubQuery<T>()
+        public AliasedObjectSubQuery GetSubQuery<T>(string alias = null)
         {
-            return GetSubQuery(typeof(T));
+            return GetSubQuery(typeof(T), alias);
         }
 
-        public AliasedObjectSubQuery GetSubQuery(Type type)
+        public AliasedObjectSubQuery GetSubQuery(Type type, string alias = null)
         {
             if (!HasSubQuery(type))
                 throw new WeenyMapperException("No sub query has been defined for the type '{0}'. Did you forget a Join?", type.FullName);
 
-            return SubQueries.First(x => x.ResultType == type);
+            return SubQueries.First(x => x.ResultType == type && x.Alias == alias);
         }
 
-        private bool HasSubQuery(Type type)
+        private bool HasSubQuery(Type type, string alias = null)
         {
-            return SubQueries.Any(x => x.ResultType == type);
+            var subQueriesForType = SubQueries.Where(x => x.ResultType == type);
+
+            return subQueriesForType.Any(x => x.Alias == alias);
         }
 
         public void AddJoin<TParent, TChild>(ObjectSubQueryJoin joinSpecification, string childAlias, string parentAlias)
         {
-            EnsureSubQuery<TParent>();
-            EnsureSubQuery<TChild>();
+            EnsureSubQuery<TParent>(parentAlias);
+            EnsureSubQuery<TChild>(childAlias);
 
-            joinSpecification.ParentSubQuery = GetSubQuery<TParent>();
-            joinSpecification.ChildSubQuery = GetSubQuery<TChild>();
+            joinSpecification.ParentSubQuery = GetSubQuery<TParent>(parentAlias);
+            joinSpecification.ChildSubQuery = GetSubQuery<TChild>(childAlias);
 
             joinSpecification.ChildSubQuery.Alias = childAlias;
             joinSpecification.ParentSubQuery.Alias = parentAlias;
@@ -48,15 +50,18 @@ namespace WeenyMapper.Sql
             Joins.Add(joinSpecification);
         }
 
-        private void EnsureSubQuery<TParent>()
+        private void EnsureSubQuery<T>(string alias)
         {
-            if (!HasSubQuery(typeof(TParent)))
-                CreateSubQuery<TParent>();
+            if (!HasSubQuery(typeof(T), alias))
+                CreateSubQuery<T>(alias);
         }
 
-        private void CreateSubQuery<T>()
+        private void CreateSubQuery<T>(string alias)
         {
-            var subQuery = new AliasedObjectSubQuery(typeof(T));
+            var subQuery = new AliasedObjectSubQuery(typeof(T))
+                {
+                    Alias = alias
+                };
 
             SubQueries.Add(subQuery);
         }

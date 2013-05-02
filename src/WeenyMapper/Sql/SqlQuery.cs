@@ -19,16 +19,19 @@ namespace WeenyMapper.Sql
             get { return Joins.Any(); }
         }
 
-        public void AddJoin(SqlSubQueryJoin joinSpec)
+        public void AddJoin(SqlSubQueryJoin joinSpec, string childAlias, string parentAlias)
         {
-            joinSpec.ParentSubQuery = GetSubQuery(joinSpec.ParentTableName);
-            joinSpec.ChildSubQuery = GetSubQuery(joinSpec.ChildTableName);
+            joinSpec.ParentSubQuery = GetSubQuery(joinSpec.ParentTableName, parentAlias);
+            joinSpec.ChildSubQuery = GetSubQuery(joinSpec.ChildTableName, childAlias);
 
             Joins.Add(joinSpec);
         }
 
-        private AliasedSqlSubQuery GetSubQuery(string tableName)
+        private AliasedSqlSubQuery GetSubQuery(string tableName, string alias)
         {
+            if (!string.IsNullOrWhiteSpace(alias))
+                return SubQueries.FirstOrDefault(x => x.Alias == alias);
+
             return SubQueries.FirstOrDefault(x => x.TableName == tableName);
         }
     }
