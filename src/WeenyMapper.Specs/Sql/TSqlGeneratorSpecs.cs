@@ -50,11 +50,11 @@ namespace WeenyMapper.Specs.Sql
 
             var sqlCommand = _generator.GenerateSelectQuery(_sqlQuery);
 
-            Assert.AreEqual("SELECT [ColumnName] FROM [TableName] WHERE [ColumnName] = @ColumnNameConstraint",
+            Assert.AreEqual("SELECT [ColumnName] FROM [TableName] WHERE [TableName].[ColumnName] = @TableName_ColumnNameConstraint",
                             sqlCommand.CommandText);
 
             Assert.AreEqual(1, sqlCommand.Parameters.Count);
-            Assert.AreEqual("ColumnNameConstraint", sqlCommand.Parameters[0].ParameterName);
+            Assert.AreEqual("TableName_ColumnNameConstraint", sqlCommand.Parameters[0].ParameterName);
             Assert.AreEqual("value", sqlCommand.Parameters[0].Value);
         }
 
@@ -71,14 +71,14 @@ namespace WeenyMapper.Specs.Sql
             var sqlCommand = _generator.GenerateSelectQuery(_sqlQuery);
 
             var expectedQuery = "SELECT [ColumnName1] FROM [TableName] " +
-                                "WHERE [ColumnName1] = @ColumnName1Constraint AND [ColumnName2] = @ColumnName2Constraint";
+                                "WHERE [TableName].[ColumnName1] = @TableName_ColumnName1Constraint AND [TableName].[ColumnName2] = @TableName_ColumnName2Constraint";
 
             Assert.AreEqual(expectedQuery, sqlCommand.CommandText);
 
             Assert.AreEqual(2, sqlCommand.Parameters.Count);
-            Assert.AreEqual("ColumnName1Constraint", sqlCommand.Parameters[0].ParameterName);
+            Assert.AreEqual("TableName_ColumnName1Constraint", sqlCommand.Parameters[0].ParameterName);
             Assert.AreEqual("value", sqlCommand.Parameters[0].Value);
-            Assert.AreEqual("ColumnName2Constraint", sqlCommand.Parameters[1].ParameterName);
+            Assert.AreEqual("TableName_ColumnName2Constraint", sqlCommand.Parameters[1].ParameterName);
             Assert.AreEqual(123, sqlCommand.Parameters[1].Value);
         }
 
@@ -713,14 +713,14 @@ namespace WeenyMapper.Specs.Sql
             _subQuery.TableName = "TableName";
 
             var expectedSql =
-                "SELECT [ColumnName1], [ColumnName2] FROM [TableName] WHERE [ColumnName] = @ColumnNameConstraint";
+                "SELECT [ColumnName1], [ColumnName2] FROM [TableName] WHERE [TableName].[ColumnName] = @TableName_ColumnNameConstraint";
 
             var command = _generator.GenerateSelectQuery(_sqlQuery);
 
             Assert.AreEqual(expectedSql, command.CommandText);
 
             Assert.AreEqual(1, command.Parameters.Count);
-            Assert.AreEqual("ColumnNameConstraint", command.Parameters[0].ParameterName);
+            Assert.AreEqual("TableName_ColumnNameConstraint", command.Parameters[0].ParameterName);
             Assert.AreEqual("Value", command.Parameters[0].Value);
         }
 
@@ -732,7 +732,7 @@ namespace WeenyMapper.Specs.Sql
                 new EqualsExpression(new PropertyExpression("ColumnName2"), new ValueExpression(2)));
 
             var expectedSql = "SELECT [ColumnName1], [ColumnName2] FROM [TableName] " +
-                              "WHERE ([ColumnName1] = @ColumnName1Constraint AND [ColumnName2] = @ColumnName2Constraint)";
+                              "WHERE ([TableName].[ColumnName1] = @TableName_ColumnName1Constraint AND [TableName].[ColumnName2] = @TableName_ColumnName2Constraint)";
 
             var command = _generator.GenerateSelectQuery(_sqlQuery);
             var actualParameters = command.Parameters.SortByParameterName();
@@ -740,9 +740,9 @@ namespace WeenyMapper.Specs.Sql
             Assert.AreEqual(expectedSql, command.CommandText);
 
             Assert.AreEqual(2, actualParameters.Count);
-            Assert.AreEqual("ColumnName1Constraint", actualParameters[0].ParameterName);
+            Assert.AreEqual("TableName_ColumnName1Constraint", actualParameters[0].ParameterName);
             Assert.AreEqual(1, actualParameters[0].Value);
-            Assert.AreEqual("ColumnName2Constraint", actualParameters[1].ParameterName);
+            Assert.AreEqual("TableName_ColumnName2Constraint", actualParameters[1].ParameterName);
             Assert.AreEqual(2, actualParameters[1].Value);
         }
 
@@ -754,7 +754,7 @@ namespace WeenyMapper.Specs.Sql
                 new EqualsExpression(new PropertyExpression("ColumnName2"), new ValueExpression(2)));
 
             var expectedSql = "SELECT [ColumnName1], [ColumnName2] FROM [TableName] " +
-                              "WHERE ([ColumnName1] = @ColumnName1Constraint OR [ColumnName2] = @ColumnName2Constraint)";
+                              "WHERE ([TableName].[ColumnName1] = @TableName_ColumnName1Constraint OR [TableName].[ColumnName2] = @TableName_ColumnName2Constraint)";
 
             var command = _generator.GenerateSelectQuery(_sqlQuery);
             var actualParameters = command.Parameters.SortByParameterName();
@@ -762,9 +762,9 @@ namespace WeenyMapper.Specs.Sql
             Assert.AreEqual(expectedSql, command.CommandText);
 
             Assert.AreEqual(2, actualParameters.Count);
-            Assert.AreEqual("ColumnName1Constraint", actualParameters[0].ParameterName);
+            Assert.AreEqual("TableName_ColumnName1Constraint", actualParameters[0].ParameterName);
             Assert.AreEqual(1, actualParameters[0].Value);
-            Assert.AreEqual("ColumnName2Constraint", actualParameters[1].ParameterName);
+            Assert.AreEqual("TableName_ColumnName2Constraint", actualParameters[1].ParameterName);
             Assert.AreEqual(2, actualParameters[1].Value);
         }
 
@@ -781,8 +781,8 @@ namespace WeenyMapper.Specs.Sql
                     new LessOrEqualExpression(new PropertyExpression("ColumnName2"), new ValueExpression(4))));
 
             var expectedSql = "SELECT [ColumnName1], [ColumnName2] FROM [TableName] " +
-                              "WHERE (([ColumnName1] < @ColumnName1Constraint OR [ColumnName2] > @ColumnName2Constraint OR [ColumnName2] = @ColumnName2Constraint2) AND " +
-                              "([ColumnName1] >= @ColumnName1Constraint2 OR [ColumnName2] <= @ColumnName2Constraint3))";
+                              "WHERE (([TableName].[ColumnName1] < @TableName_ColumnName1Constraint OR [TableName].[ColumnName2] > @TableName_ColumnName2Constraint OR [TableName].[ColumnName2] = @TableName_ColumnName2Constraint2) AND " +
+                              "([TableName].[ColumnName1] >= @TableName_ColumnName1Constraint2 OR [TableName].[ColumnName2] <= @TableName_ColumnName2Constraint3))";
 
             var command = _generator.GenerateSelectQuery(_sqlQuery);
             var actualParameters = command.Parameters.SortByParameterName();
@@ -791,19 +791,19 @@ namespace WeenyMapper.Specs.Sql
 
             Assert.AreEqual(5, actualParameters.Count);
 
-            Assert.AreEqual("ColumnName1Constraint", actualParameters[0].ParameterName);
+            Assert.AreEqual("TableName_ColumnName1Constraint", actualParameters[0].ParameterName);
             Assert.AreEqual(1, actualParameters[0].Value);
 
-            Assert.AreEqual("ColumnName1Constraint2", actualParameters[1].ParameterName);
+            Assert.AreEqual("TableName_ColumnName1Constraint2", actualParameters[1].ParameterName);
             Assert.AreEqual(3, actualParameters[1].Value);
 
-            Assert.AreEqual("ColumnName2Constraint", actualParameters[2].ParameterName);
+            Assert.AreEqual("TableName_ColumnName2Constraint", actualParameters[2].ParameterName);
             Assert.AreEqual(2, actualParameters[2].Value);
 
-            Assert.AreEqual("ColumnName2Constraint2", actualParameters[3].ParameterName);
+            Assert.AreEqual("TableName_ColumnName2Constraint2", actualParameters[3].ParameterName);
             Assert.AreEqual(3, actualParameters[3].Value);
 
-            Assert.AreEqual("ColumnName2Constraint3", actualParameters[4].ParameterName);
+            Assert.AreEqual("TableName_ColumnName2Constraint3", actualParameters[4].ParameterName);
             Assert.AreEqual(4, actualParameters[4].Value);
         }
 
@@ -816,7 +816,7 @@ namespace WeenyMapper.Specs.Sql
                                                          new ArrayValueExpression(values));
 
             var expectedSql = "SELECT [ColumnName1], [ColumnName2] FROM [TableName] " +
-                              "WHERE ([PropertyName] IN (@PropertyNameConstraint, @PropertyNameConstraint2, @PropertyNameConstraint3))";
+                              "WHERE ([TableName].[PropertyName] IN (@TableName_PropertyNameConstraint, @TableName_PropertyNameConstraint2, @TableName_PropertyNameConstraint3))";
 
             var command = _generator.GenerateSelectQuery(_sqlQuery);
             var actualParameters = command.Parameters.SortByParameterName();
@@ -824,13 +824,13 @@ namespace WeenyMapper.Specs.Sql
             Assert.AreEqual(expectedSql, command.CommandText);
             Assert.AreEqual(3, actualParameters.Count);
 
-            Assert.AreEqual("PropertyNameConstraint", actualParameters[0].ParameterName);
+            Assert.AreEqual("TableName_PropertyNameConstraint", actualParameters[0].ParameterName);
             Assert.AreEqual(1, actualParameters[0].Value);
 
-            Assert.AreEqual("PropertyNameConstraint2", actualParameters[1].ParameterName);
+            Assert.AreEqual("TableName_PropertyNameConstraint2", actualParameters[1].ParameterName);
             Assert.AreEqual(2, actualParameters[1].Value);
 
-            Assert.AreEqual("PropertyNameConstraint3", actualParameters[2].ParameterName);
+            Assert.AreEqual("TableName_PropertyNameConstraint3", actualParameters[2].ParameterName);
             Assert.AreEqual(3, actualParameters[2].Value);
         }
 
@@ -841,7 +841,7 @@ namespace WeenyMapper.Specs.Sql
             _subQuery.QueryExpression = new EqualsExpression("ColumnName1", 1);
 
             var expectedSql = "SELECT TOP(@RowCountLimitConstraint) [ColumnName1], [ColumnName2] FROM [TableName] " +
-                              "WHERE [ColumnName1] = @ColumnName1Constraint";
+                              "WHERE [TableName].[ColumnName1] = @TableName_ColumnName1Constraint";
 
             var command = _generator.GenerateSelectQuery(_sqlQuery);
             var actualParameters = command.Parameters.SortByParameterName();
@@ -850,11 +850,11 @@ namespace WeenyMapper.Specs.Sql
 
             Assert.AreEqual(2, actualParameters.Count);
 
-            Assert.AreEqual("ColumnName1Constraint", actualParameters[0].ParameterName);
-            Assert.AreEqual(1, actualParameters[0].Value);
+            Assert.AreEqual("RowCountLimitConstraint", actualParameters[0].ParameterName);
+            Assert.AreEqual(3, actualParameters[0].Value);
 
-            Assert.AreEqual("RowCountLimitConstraint", actualParameters[1].ParameterName);
-            Assert.AreEqual(3, actualParameters[1].Value);
+            Assert.AreEqual("TableName_ColumnName1Constraint", actualParameters[1].ParameterName);
+            Assert.AreEqual(1, actualParameters[1].Value);
         }
 
         [Test]
@@ -868,12 +868,12 @@ namespace WeenyMapper.Specs.Sql
             var sqlCommand = _generator.GenerateSelectQuery(_sqlQuery);
 
             var expectedQuery = "SELECT [ColumnName1], [ColumnName2] FROM [TableName] " +
-                                "WHERE [ColumnName1] = @ColumnName1Constraint ORDER BY [ColumnName1] DESC, [ColumnName3], [ColumnName2]";
+                                "WHERE [TableName].[ColumnName1] = @TableName_ColumnName1Constraint ORDER BY [TableName].[ColumnName1] DESC, [TableName].[ColumnName3], [TableName].[ColumnName2]";
 
             Assert.AreEqual(expectedQuery, sqlCommand.CommandText);
 
             Assert.AreEqual(1, sqlCommand.Parameters.Count);
-            Assert.AreEqual("ColumnName1Constraint", sqlCommand.Parameters[0].ParameterName);
+            Assert.AreEqual("TableName_ColumnName1Constraint", sqlCommand.Parameters[0].ParameterName);
             Assert.AreEqual("value", sqlCommand.Parameters[0].Value);
         }
 
@@ -883,7 +883,7 @@ namespace WeenyMapper.Specs.Sql
             _subQuery.Page = new Page(1, 2);
 
             var expectedSql =
-                "WITH [CompleteResult] AS (SELECT [ColumnName1], [ColumnName2], ROW_NUMBER() OVER (ORDER BY [IdColumnName]) AS \"RowNumber\" " +
+                "WITH [CompleteResult] AS (SELECT [ColumnName1], [ColumnName2], ROW_NUMBER() OVER (ORDER BY [TableName].[IdColumnName]) AS \"RowNumber\" " +
                 "FROM [TableName]) SELECT [ColumnName1], [ColumnName2] FROM [CompleteResult] WHERE [RowNumber] BETWEEN @LowRowLimit AND @HighRowLimit";
 
             var command = _generator.GenerateSelectQuery(_sqlQuery);
@@ -917,8 +917,8 @@ namespace WeenyMapper.Specs.Sql
             _subQuery.QueryExpression = QueryExpression.Create(new EqualsExpression("ColumnName3", "value"));
 
             var expectedSql =
-                "WITH [CompleteResult] AS (SELECT [ColumnName1], [ColumnName2], ROW_NUMBER() OVER (ORDER BY [IdColumnName]) AS \"RowNumber\" " +
-                "FROM [TableName] WHERE [ColumnName3] = @ColumnName3Constraint) " +
+                "WITH [CompleteResult] AS (SELECT [ColumnName1], [ColumnName2], ROW_NUMBER() OVER (ORDER BY [TableName].[IdColumnName]) AS \"RowNumber\" " +
+                "FROM [TableName] WHERE [TableName].[ColumnName3] = @TableName_ColumnName3Constraint) " +
                 "SELECT [ColumnName1], [ColumnName2] FROM [CompleteResult] WHERE [RowNumber] BETWEEN @LowRowLimit AND @HighRowLimit";
 
             var command = _generator.GenerateSelectQuery(_sqlQuery);
@@ -928,14 +928,14 @@ namespace WeenyMapper.Specs.Sql
 
             Assert.AreEqual(3, actualParameters.Count);
 
-            Assert.AreEqual("ColumnName3Constraint", actualParameters[0].ParameterName);
-            Assert.AreEqual("value", actualParameters[0].Value);
+            Assert.AreEqual("HighRowLimit", actualParameters[0].ParameterName);
+            Assert.AreEqual(4, actualParameters[0].Value);
 
-            Assert.AreEqual("HighRowLimit", actualParameters[1].ParameterName);
-            Assert.AreEqual(4, actualParameters[1].Value);
-
-            Assert.AreEqual("LowRowLimit", actualParameters[2].ParameterName);
-            Assert.AreEqual(3, actualParameters[2].Value);
+            Assert.AreEqual("LowRowLimit", actualParameters[1].ParameterName);
+            Assert.AreEqual(3, actualParameters[1].Value);
+        
+            Assert.AreEqual("TableName_ColumnName3Constraint", actualParameters[2].ParameterName);
+            Assert.AreEqual("value", actualParameters[2].Value);
         }
 
         [Test]
@@ -947,8 +947,8 @@ namespace WeenyMapper.Specs.Sql
             _subQuery.OrderByStatements.Add(OrderByStatement.Create("ColumnName4", OrderByDirection.Ascending));
 
             var expectedSql = "WITH [CompleteResult] AS (SELECT [ColumnName1], [ColumnName2], ROW_NUMBER() " +
-                              "OVER (ORDER BY [ColumnName3] DESC, [ColumnName4]) AS \"RowNumber\" " +
-                              "FROM [TableName] WHERE [ColumnName3] = @ColumnName3Constraint) " +
+                              "OVER (ORDER BY [TableName].[ColumnName3] DESC, [TableName].[ColumnName4]) AS \"RowNumber\" " +
+                              "FROM [TableName] WHERE [TableName].[ColumnName3] = @TableName_ColumnName3Constraint) " +
                               "SELECT [ColumnName1], [ColumnName2] FROM [CompleteResult] WHERE [RowNumber] BETWEEN @LowRowLimit AND @HighRowLimit";
 
             var command = _generator.GenerateSelectQuery(_sqlQuery);
@@ -967,7 +967,7 @@ namespace WeenyMapper.Specs.Sql
                     });
 
             var expectedSql =
-                "SELECT [ColumnName1], [ColumnName2] FROM [TableName] WHERE [ColumnName1] LIKE @ColumnName1Constraint";
+                "SELECT [ColumnName1], [ColumnName2] FROM [TableName] WHERE [TableName].[ColumnName1] LIKE @TableName_ColumnName1Constraint";
 
             var command = _generator.GenerateSelectQuery(_sqlQuery);
             var actualParameters = command.Parameters.SortByParameterName();
@@ -976,7 +976,7 @@ namespace WeenyMapper.Specs.Sql
 
             Assert.AreEqual(1, actualParameters.Count);
 
-            Assert.AreEqual("ColumnName1Constraint", actualParameters[0].ParameterName);
+            Assert.AreEqual("TableName_ColumnName1Constraint", actualParameters[0].ParameterName);
             Assert.AreEqual("%substring%", actualParameters[0].Value);
         }
 
@@ -1041,16 +1041,16 @@ namespace WeenyMapper.Specs.Sql
             var parameters = sqlCommand.Parameters.SortByParameterName();
 
             var expectedQuery = "SELECT [ColumnName1] FROM [TableName] " +
-                                "WHERE [ColumnName3] = @ColumnName3Constraint OR NOT ([ColumnName1] = @ColumnName1Constraint AND [ColumnName2] = @ColumnName2Constraint)";
+                                "WHERE [TableName].[ColumnName3] = @TableName_ColumnName3Constraint OR NOT ([TableName].[ColumnName1] = @TableName_ColumnName1Constraint AND [TableName].[ColumnName2] = @TableName_ColumnName2Constraint)";
 
             Assert.AreEqual(expectedQuery, sqlCommand.CommandText);
 
             Assert.AreEqual(3, parameters.Count);
-            Assert.AreEqual("ColumnName1Constraint", parameters[0].ParameterName);
+            Assert.AreEqual("TableName_ColumnName1Constraint", parameters[0].ParameterName);
             Assert.AreEqual("value", parameters[0].Value);
-            Assert.AreEqual("ColumnName2Constraint", parameters[1].ParameterName);
+            Assert.AreEqual("TableName_ColumnName2Constraint", parameters[1].ParameterName);
             Assert.AreEqual(123, parameters[1].Value);
-            Assert.AreEqual("ColumnName3Constraint", parameters[2].ParameterName);
+            Assert.AreEqual("TableName_ColumnName3Constraint", parameters[2].ParameterName);
             Assert.AreEqual("value1", parameters[2].Value);
         }
 

@@ -36,8 +36,8 @@ namespace WeenyMapper.Sql
 
             command.CommandText = string.Format("SELECT:topClause {0} FROM {1}", selectedColumnString, Escape(subQuery.TableName));
 
-            var whereClause = CreateWhereClause(subQuery.QueryExpression);
-            var orderByClause = CreateOrderByClause(subQuery.OrderByStatements);
+            var whereClause = CreateWhereClause(subQuery);
+            var orderByClause = CreateOrderByClause(subQuery);
             var topClause = new TopClause(subQuery.RowCountLimit, new CommandParameterFactory());
 
             whereClause.AppendTo(command, _commandFactory);
@@ -63,8 +63,8 @@ namespace WeenyMapper.Sql
 
             var command = _commandFactory.CreateCommand(commandText);
 
-            var whereClause = CreateWhereClause(subQuery.QueryExpression, subQuery.TableName, subQuery.TableName + "_");
-            var orderByClause = CreateOrderByClause(subQuery.OrderByStatements, Escape(subQuery.TableName));
+            var whereClause = CreateWhereClause(subQuery);
+            var orderByClause = CreateOrderByClause(subQuery);
 
             whereClause.AppendTo(command, _commandFactory);
             orderByClause.AppendTo(command, _commandFactory);
@@ -142,8 +142,8 @@ namespace WeenyMapper.Sql
                                                 selectedColumnString,
                                                 Escape(subQuery.TableName));
 
-            var whereClause = CreateWhereClause(subQuery.QueryExpression);
-            var orderByClause = CreateOrderByClause(subQuery.OrderByStatements);
+            var whereClause = CreateWhereClause(subQuery);
+            var orderByClause = CreateOrderByClause(subQuery);
 
             whereClause.AppendTo(command, _commandFactory);
             orderByClause.InsertAtMarker(command, ":orderByClause", _commandFactory);
@@ -258,15 +258,20 @@ namespace WeenyMapper.Sql
             return CreateColumnNameList(columnNames, transformation);
         }
 
-        private OrderByClause CreateOrderByClause(IEnumerable<OrderByStatement> orderByStatements, string tableName = "")
+        private OrderByClause CreateOrderByClause(AliasedSqlSubQuery subQuery)
         {
-            return new OrderByClause(orderByStatements, Escape, tableName);
+            return new OrderByClause(subQuery.OrderByStatements, Escape, subQuery.TableIdentifier);
         }
 
         private string CreateColumnNameList(IEnumerable<string> columnNames, Func<string, string> transformation)
         {
             var escapedColumnNames = columnNames.Select(transformation);
             return string.Join(", ", escapedColumnNames);
+        }
+
+        private WhereClause CreateWhereClause(AliasedSqlSubQuery subQuery)
+        {
+            return CreateWhereClause(subQuery.QueryExpression, subQuery.TableIdentifier, subQuery.TableIdentifier + "_");
         }
 
         private WhereClause CreateWhereClause(QueryExpression queryExpression, string columnNamePrefix = "", string parameterNamePrefix = "")
