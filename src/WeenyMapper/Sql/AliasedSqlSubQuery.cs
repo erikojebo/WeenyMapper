@@ -27,6 +27,16 @@ namespace WeenyMapper.Sql
             get { return Page != null && Page.PageSize > 0; }
         }
 
+        public bool HasCustomAlias
+        {
+            get { return !string.IsNullOrWhiteSpace(Alias); }
+        }
+
+        public string TableIdentifier
+        {
+            get { return Alias ?? TableName; }
+        }
+
         public static AliasedSqlSubQuery CreateFor<T>()
         {
             return new AliasedSqlSubQuery

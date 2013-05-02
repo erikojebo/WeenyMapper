@@ -347,7 +347,7 @@ namespace WeenyMapper.Specs.Sql
                 "SELECT [PostAlias].[Name] AS \"PostAlias Name\", " +
                 "[CommentAlias].[Name] AS \"CommentAlias Name\", " +
                 "[BlogAlias].[Name] AS \"BlogAlias Name\" " +
-                "FROM [Posts] AS [PostAlias] LEFT OUTER JOIN [Comments] AS [CommentAlias]" +
+                "FROM [Posts] AS [PostAlias] LEFT OUTER JOIN [Comments] AS [CommentAlias] " +
                 "ON [PostAlias].[Id] = [CommentAlias].[PostId] " +
                 "LEFT OUTER JOIN [Blogs] AS [BlogAlias] ON [BlogAlias].[Id] = [PostAlias].[BlogId]";
 

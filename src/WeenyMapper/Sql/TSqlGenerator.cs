@@ -58,7 +58,7 @@ namespace WeenyMapper.Sql
 
             var commandText = string.Format("SELECT {0} FROM {1} {2}",
                                             columnSelectString,
-                                            Escape(subQuery.TableName),
+                                            FromClauseTableIdentifier(subQuery),
                                             joinClause);
 
             var command = _commandFactory.CreateCommand(commandText);
@@ -108,11 +108,19 @@ namespace WeenyMapper.Sql
         private string CreateJoinClause(SqlSubQueryJoin joinSpec, AliasedSqlSubQuery newSubQuery)
         {
             return string.Format("LEFT OUTER JOIN {0} ON {1}.{2} = {3}.{4}",
-                                 Escape(newSubQuery.TableName),
-                                 Escape(joinSpec.ParentTableName),
+                                 FromClauseTableIdentifier(newSubQuery),
+                                 Escape(joinSpec.ParentSubQuery.TableIdentifier),
                                  Escape(joinSpec.ParentPrimaryKeyColumnName),
-                                 Escape(joinSpec.ChildTableName),
+                                 Escape(joinSpec.ChildSubQuery.TableIdentifier),
                                  Escape(joinSpec.ChildForeignKeyColumnName));
+        }
+
+        private static string FromClauseTableIdentifier(AliasedSqlSubQuery subQuery)
+        {
+            if (subQuery.HasCustomAlias)
+                return string.Format("{0} AS {1}", Escape(subQuery.TableName), Escape(subQuery.Alias));
+
+            return Escape(subQuery.TableName);
         }
 
         private DbCommand GeneratePagingQuery(AliasedSqlSubQuery subQuery)
@@ -239,8 +247,8 @@ namespace WeenyMapper.Sql
 
         private string CreateColumnSelectString(string columnName, AliasedSqlSubQuery subQuery)
         {
-            var alias = string.Format("{0} {1}", subQuery.TableName, columnName);
-            var columnReference = new ColumnReference(columnName, subQuery.TableName, Escape);
+            var alias = string.Format("{0} {1}", subQuery.TableIdentifier, columnName);
+            var columnReference = new ColumnReference(columnName, subQuery.TableIdentifier, Escape);
             return string.Format("{0} AS \"{1}\"", columnReference, alias);
         }
 
