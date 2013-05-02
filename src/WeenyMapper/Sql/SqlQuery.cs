@@ -18,5 +18,18 @@ namespace WeenyMapper.Sql
         {
             get { return Joins.Any(); }
         }
+
+        public void AddJoin(SqlSubQueryJoin joinSpec)
+        {
+            joinSpec.ParentSubQuery = GetSubQuery(joinSpec.ParentTableName);
+            joinSpec.ChildSubQuery = GetSubQuery(joinSpec.ChildTableName);
+
+            Joins.Add(joinSpec);
+        }
+
+        private AliasedSqlSubQuery GetSubQuery(string tableName)
+        {
+            return SubQueries.FirstOrDefault(x => x.TableName == tableName);
+        }
     }
 }

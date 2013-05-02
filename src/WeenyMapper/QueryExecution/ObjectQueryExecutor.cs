@@ -119,7 +119,7 @@ namespace WeenyMapper.QueryExecution
                     ParentPrimaryKeyColumnName = _conventionReader.GetPrimaryKeyColumnName(joinSpecification.ParentType),
                 };
 
-            query.Joins.Add(joinSpec);
+            query.AddJoin(joinSpec);
         }
 
         private IList<T> ReadEntities<T>(DbCommand command, ObjectQuery objectQuery) where T : new()

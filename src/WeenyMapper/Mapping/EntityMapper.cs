@@ -11,6 +11,8 @@ namespace WeenyMapper.Mapping
 {
     public class EntityMapper : IEntityMapper
     {
+        public const string WeenyMapperGeneratedColumnNamePrefix = "WeenyMapperGenerated_";
+
         private readonly IConventionReader _conventionReader;
         private readonly EntityCache _entityCache;
 

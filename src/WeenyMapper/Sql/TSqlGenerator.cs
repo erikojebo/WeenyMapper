@@ -4,6 +4,7 @@ using System.Data.Common;
 using System.Linq;
 using WeenyMapper.Exceptions;
 using WeenyMapper.Extensions;
+using WeenyMapper.Mapping;
 using WeenyMapper.QueryParsing;
 
 namespace WeenyMapper.Sql
@@ -32,9 +33,9 @@ namespace WeenyMapper.Sql
 
             var command = _commandFactory.CreateCommand();
 
-            var selectedColumnString = CreateColumnNameList(subQuery.ColumnsToSelect, Escape);
+            var selectedColumnString = CreateColumnNameList(subQuery);
 
-            command.CommandText = string.Format("SELECT:topClause {0} FROM {1}", selectedColumnString, Escape(subQuery.TableName));
+            command.CommandText = string.Format("SELECT:topClause {0} FROM {1}", selectedColumnString, FromClauseTableIdentifier(subQuery));
 
             var whereClause = CreateWhereClause(subQuery);
             var orderByClause = CreateOrderByClause(subQuery);
@@ -136,10 +137,11 @@ namespace WeenyMapper.Sql
                 subQuery.OrderByStatements.Add(orderByPrimaryKeyStatement);
             }
 
-            var selectedColumnString = CreateColumnNameList(subQuery.ColumnsToSelect, Escape);
+            var selectedColumnString = CreateColumnNameList(subQuery);
 
-            command.CommandText = string.Format("SELECT {0}, ROW_NUMBER() OVER (:orderByClause) AS \"RowNumber\" FROM {1}",
+            command.CommandText = string.Format("SELECT {0}, ROW_NUMBER() OVER (:orderByClause) AS \"{1}RowNumber\" FROM {2}",
                                                 selectedColumnString,
+                                                EntityMapper.WeenyMapperGeneratedColumnNamePrefix,
                                                 Escape(subQuery.TableName));
 
             var whereClause = CreateWhereClause(subQuery);
@@ -151,8 +153,7 @@ namespace WeenyMapper.Sql
             command.CommandText = string.Format("WITH [CompleteResult] AS ({0}) ", command.CommandText);
 
             var selectString = string.Format(
-                "SELECT {0} FROM [CompleteResult] WHERE [RowNumber] BETWEEN @LowRowLimit AND @HighRowLimit",
-                selectedColumnString);
+                "SELECT * FROM [CompleteResult] WHERE [{0}RowNumber] BETWEEN @LowRowLimit AND @HighRowLimit", EntityMapper.WeenyMapperGeneratedColumnNamePrefix);
 
             command.CommandText += selectString;
 
@@ -263,9 +264,14 @@ namespace WeenyMapper.Sql
             return new OrderByClause(subQuery.OrderByStatements, Escape, subQuery.TableIdentifier);
         }
 
-        private string CreateColumnNameList(IEnumerable<string> columnNames, Func<string, string> transformation)
+        private string CreateColumnNameList(AliasedSqlSubQuery subQuery)
         {
-            var escapedColumnNames = columnNames.Select(transformation);
+            return CreateColumnNameList(subQuery.ColumnsToSelect, x => new ColumnReference(x, subQuery.TableIdentifier, Escape).ToString());
+        }
+
+        private string CreateColumnNameList(IEnumerable<string> columnsNames, Func<string, string> transformation)
+        {
+            var escapedColumnNames = columnsNames.Select(transformation);
             return string.Join(", ", escapedColumnNames);
         }
 

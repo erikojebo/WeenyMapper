@@ -31,7 +31,7 @@ namespace WeenyMapper.Mapping
 
         public IList<ColumnValue> GetColumnValuesForType(Type type, IConvention convention)
         {
-            return ColumnValues.Where(x => x.IsForType(type, convention)).ToList();
+            return ColumnValues.Where(x => x.IsForType(type, convention) && !x.ColumnName.StartsWith(EntityMapper.WeenyMapperGeneratedColumnNamePrefix)).ToList();
         }
     }
 }
