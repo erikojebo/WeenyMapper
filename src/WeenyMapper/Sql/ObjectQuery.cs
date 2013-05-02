@@ -34,13 +34,16 @@ namespace WeenyMapper.Sql
             return SubQueries.Any(x => x.ResultType == type);
         }
 
-        public void AddJoin<TParent, TChild>(ObjectSubQueryJoin joinSpecification)
+        public void AddJoin<TParent, TChild>(ObjectSubQueryJoin joinSpecification, string childAlias, string parentAlias)
         {
             EnsureSubQuery<TParent>();
             EnsureSubQuery<TChild>();
 
             joinSpecification.ParentSubQuery = GetSubQuery<TParent>();
             joinSpecification.ChildSubQuery = GetSubQuery<TChild>();
+
+            joinSpecification.ChildSubQuery.Alias = childAlias;
+            joinSpecification.ParentSubQuery.Alias = parentAlias;
 
             Joins.Add(joinSpecification);
         }

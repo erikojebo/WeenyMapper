@@ -20,6 +20,7 @@ namespace WeenyMapper.Sql
         public int RowCountLimit { get; set; }
         public Page Page { get; set; }
         public string PrimaryKeyColumnName { get; set; }
+        public string Alias { get; set; }
 
         public bool IsPagingQuery
         {

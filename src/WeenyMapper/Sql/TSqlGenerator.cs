@@ -82,17 +82,17 @@ namespace WeenyMapper.Sql
             {
                 foreach (var remainingJoin in sqlQuery.Joins.Except(addedJoins).ToList())
                 {
-                    string newTable = null;
+                    AliasedSqlSubQuery newSubQuery = null;
 
                     if (availableTables.Contains(remainingJoin.ChildTableName))
-                        newTable = remainingJoin.ParentTableName;
+                        newSubQuery = remainingJoin.ParentSubQuery;
                     else if (availableTables.Contains(remainingJoin.ParentTableName))
-                        newTable = remainingJoin.ChildTableName;
+                        newSubQuery = remainingJoin.ChildSubQuery;
 
-                    if (newTable == null)
+                    if (newSubQuery == null)
                         continue;
 
-                    var joinClause = CreateJoinClause(remainingJoin, newTable);
+                    var joinClause = CreateJoinClause(remainingJoin, newSubQuery);
 
                     joinClauses.Add(joinClause);
                     addedJoins.Add(remainingJoin);
@@ -105,10 +105,10 @@ namespace WeenyMapper.Sql
             return string.Join(" ", joinClauses);
         }
 
-        private string CreateJoinClause(SqlSubQueryJoin joinSpec, string newTable)
+        private string CreateJoinClause(SqlSubQueryJoin joinSpec, AliasedSqlSubQuery newSubQuery)
         {
             return string.Format("LEFT OUTER JOIN {0} ON {1}.{2} = {3}.{4}",
-                                 Escape(newTable),
+                                 Escape(newSubQuery.TableName),
                                  Escape(joinSpec.ParentTableName),
                                  Escape(joinSpec.ParentPrimaryKeyColumnName),
                                  Escape(joinSpec.ChildTableName),

@@ -148,46 +148,46 @@ namespace WeenyMapper.QueryBuilding
             return this;
         }
 
-        public StaticSelectBuilder<T> Join<TChild>(Expression<Func<T, IList<TChild>>> parentProperty, Expression<Func<TChild, object>> foreignKeyProperty)
+        public StaticSelectBuilder<T> Join<TChild>(Expression<Func<T, IList<TChild>>> parentProperty, Expression<Func<TChild, object>> foreignKeyProperty, string childAlias = null, string parentAlias = null)
         {
             var parentPropertyInfo = Reflector<T>.GetProperty(parentProperty);
             var foreignKeyPropertyInfo = Reflector<TChild>.GetProperty(foreignKeyProperty);
 
             var joinSpecification = ObjectSubQueryJoin.CreateParentToChild(parentPropertyInfo, foreignKeyPropertyInfo);
 
-            Join<T, TChild>(joinSpecification);
+            Join<T, TChild>(joinSpecification, childAlias, parentAlias);
 
             return this;
         }
 
-        public StaticSelectBuilder<T> Join<TParent>(Expression<Func<T, TParent>> childProperty)
+        public StaticSelectBuilder<T> Join<TParent>(Expression<Func<T, TParent>> childProperty, string childAlias = null, string parentAlias = null)
         {
             var childPropertyInfo = Reflector<T>.GetProperty(childProperty);
 
             var joinSpecification = ObjectSubQueryJoin.CreateChildToParent(childPropertyInfo, typeof(TParent));
 
-            Join<TParent, T>(joinSpecification);
+            Join<TParent, T>(joinSpecification, childAlias, parentAlias);
 
             return this;
         }
 
         public StaticSelectBuilder<T> Join<TParent, TChild>(
             Expression<Func<TParent, IList<TChild>>> parentProperty,
-            Expression<Func<TChild, TParent>> childProperty)
+            Expression<Func<TChild, TParent>> childProperty, string childAlias = null, string parentAlias = null)
         {
             var parentPropertyInfo = Reflector<TParent>.GetProperty(parentProperty);
             var childPropertyInfo = Reflector<TChild>.GetProperty(childProperty);
 
             var joinSpecification = ObjectSubQueryJoin.CreateTwoWay(parentPropertyInfo, childPropertyInfo);
 
-            Join<TParent, TChild>(joinSpecification);
+            Join<TParent, TChild>(joinSpecification, childAlias, parentAlias);
 
             return this;
         }
 
-        private void Join<TParent, TChild>(ObjectSubQueryJoin joinSpecification)
+        private void Join<TParent, TChild>(ObjectSubQueryJoin joinSpecification, string childAlias, string parentAlias)
         {
-            _query.AddJoin<TParent, TChild>(joinSpecification);
+            _query.AddJoin<TParent, TChild>(joinSpecification, childAlias, parentAlias);
         }
     }
 }
