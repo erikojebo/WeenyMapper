@@ -37,7 +37,7 @@ namespace WeenyMapper.Sql
 
             command.CommandText = string.Format("SELECT:topClause {0} FROM {1}", selectedColumnString, FromClauseTableIdentifier(subQuery));
 
-            var whereClause = CreateWhereClause(subQuery);
+            var whereClause = CreateWhereClause(sqlQuery);
             var orderByClause = CreateOrderByClause(subQuery);
             var topClause = new TopClause(subQuery.RowCountLimit, new CommandParameterFactory());
 
@@ -64,7 +64,7 @@ namespace WeenyMapper.Sql
 
             var command = _commandFactory.CreateCommand(commandText);
 
-            var whereClause = CreateWhereClause(subQuery);
+            var whereClause = CreateWhereClause(sqlQuery);
             var orderByClause = CreateOrderByClause(subQuery);
 
             whereClause.AppendTo(command, _commandFactory);
@@ -273,6 +273,16 @@ namespace WeenyMapper.Sql
         {
             var escapedColumnNames = columnsNames.Select(transformation);
             return string.Join(", ", escapedColumnNames);
+        }
+
+        private WhereClause CreateWhereClause(SqlQuery query)
+        {
+            var conditionQuery = query.SubQueries.FirstOrDefault(x => x.HasQuery);
+
+            if (conditionQuery != null)
+                return CreateWhereClause(conditionQuery);
+
+            return CreateWhereClause(query.SubQueries.First());
         }
 
         private WhereClause CreateWhereClause(AliasedSqlSubQuery subQuery)

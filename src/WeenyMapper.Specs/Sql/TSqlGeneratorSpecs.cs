@@ -135,9 +135,16 @@ namespace WeenyMapper.Specs.Sql
         }
 
         [Test]
-        public void Generating_join_with_constraints_generates_join_query_with_corresponding_constraints_qualified_with_table_name()
+        public void Generating_join_with_constraints_on_aliased_table_generates_join_query_with_corresponding_constraints_qualified_with_table_alias()
         {
-            _subQuery.QueryExpression = QueryExpression.Create(
+            var spec2 = new AliasedSqlSubQuery
+                {
+                    ColumnsToSelect = new List<string> { "Table2Column1", "Table2Column2" },
+                    TableName = "TableName2",
+                    Alias = "Table2Alias"
+                };
+            
+            spec2.QueryExpression = QueryExpression.Create(
                 new OrExpression(
                     new EqualsExpression("ColumnName1", 123),
                     new InExpression(new PropertyExpression("ColumnName2"), new ArrayValueExpression(new[] { 1, 2 })),
@@ -146,12 +153,6 @@ namespace WeenyMapper.Specs.Sql
                             HasStartingWildCard = true,
                             HasEndingWildCard = true
                         }));
-
-            var spec2 = new AliasedSqlSubQuery
-                {
-                    ColumnsToSelect = new List<string> { "Table2Column1", "Table2Column2" },
-                    TableName = "TableName2"
-                };
 
             var join = new SqlSubQueryJoin
                 {
@@ -168,25 +169,25 @@ namespace WeenyMapper.Specs.Sql
 
             var expectedSql =
                 "SELECT [TableName].[ColumnName1] AS \"TableName ColumnName1\", [TableName].[ColumnName2] AS \"TableName ColumnName2\", " +
-                "[TableName2].[Table2Column1] AS \"TableName2 Table2Column1\", [TableName2].[Table2Column2] AS \"TableName2 Table2Column2\" " +
-                "FROM [TableName] LEFT OUTER JOIN [TableName2] " +
-                "ON [TableName].[PrimaryKeyColumnName] = [TableName2].[ForeignKeyColumnName] " +
-                "WHERE [TableName].[ColumnName1] = @TableName_ColumnName1Constraint " +
-                "OR ([TableName].[ColumnName2] IN (@TableName_ColumnName2Constraint, @TableName_ColumnName2Constraint2)) " +
-                "OR [TableName].[ColumnName2] LIKE @TableName_ColumnName2Constraint3";
+                "[Table2Alias].[Table2Column1] AS \"Table2Alias Table2Column1\", [Table2Alias].[Table2Column2] AS \"Table2Alias Table2Column2\" " +
+                "FROM [TableName] LEFT OUTER JOIN [TableName2] AS [Table2Alias] " +
+                "ON [TableName].[PrimaryKeyColumnName] = [Table2Alias].[ForeignKeyColumnName] " +
+                "WHERE [Table2Alias].[ColumnName1] = @Table2Alias_ColumnName1Constraint " +
+                "OR ([Table2Alias].[ColumnName2] IN (@Table2Alias_ColumnName2Constraint, @Table2Alias_ColumnName2Constraint2)) " +
+                "OR [Table2Alias].[ColumnName2] LIKE @Table2Alias_ColumnName2Constraint3";
 
             var query = _generator.GenerateSelectQuery(_sqlQuery);
             var actualParameters = query.Parameters.SortByParameterName();
 
             Assert.AreEqual(expectedSql, query.CommandText);
             Assert.AreEqual(4, actualParameters.Count);
-            Assert.AreEqual("TableName_ColumnName1Constraint", actualParameters[0].ParameterName);
+            Assert.AreEqual("Table2Alias_ColumnName1Constraint", actualParameters[0].ParameterName);
             Assert.AreEqual(123, actualParameters[0].Value);
-            Assert.AreEqual("TableName_ColumnName2Constraint", actualParameters[1].ParameterName);
+            Assert.AreEqual("Table2Alias_ColumnName2Constraint", actualParameters[1].ParameterName);
             Assert.AreEqual(1, actualParameters[1].Value);
-            Assert.AreEqual("TableName_ColumnName2Constraint2", actualParameters[2].ParameterName);
+            Assert.AreEqual("Table2Alias_ColumnName2Constraint2", actualParameters[2].ParameterName);
             Assert.AreEqual(2, actualParameters[2].Value);
-            Assert.AreEqual("TableName_ColumnName2Constraint3", actualParameters[3].ParameterName);
+            Assert.AreEqual("Table2Alias_ColumnName2Constraint3", actualParameters[3].ParameterName);
             Assert.AreEqual("%likestring%", actualParameters[3].Value);
         }
 

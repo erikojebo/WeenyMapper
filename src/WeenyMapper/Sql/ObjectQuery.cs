@@ -16,6 +16,13 @@ namespace WeenyMapper.Sql
         public IList<AliasedObjectSubQuery> SubQueries { get; set; }
         public IList<ObjectSubQueryJoin> Joins { get; set; }
 
+        public AliasedObjectSubQuery GetOrCreateSubQuery<T>(string alias = null)
+        {
+            EnsureSubQuery<T>(alias);
+
+            return GetSubQuery<T>(alias);
+        }
+
         public AliasedObjectSubQuery GetSubQuery<T>(string alias = null)
         {
             return GetSubQuery(typeof(T), alias);

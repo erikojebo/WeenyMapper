@@ -37,6 +37,11 @@ namespace WeenyMapper.Sql
             get { return Alias ?? TableName; }
         }
 
+        public bool HasQuery
+        {
+            get { return QueryExpression != null && !Equals(QueryExpression.Create(), QueryExpression); }
+        }
+
         public static AliasedSqlSubQuery CreateFor<T>()
         {
             return new AliasedSqlSubQuery

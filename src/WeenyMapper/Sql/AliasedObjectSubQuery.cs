@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using WeenyMapper.QueryParsing;
 
 namespace WeenyMapper.Sql
@@ -25,6 +26,23 @@ namespace WeenyMapper.Sql
         public bool IsPagingQuery
         {
             get { return Page != null && Page.PageSize > 0; }
+        }
+
+        public void AddConjunctionExpression(QueryExpression queryExpression)
+        {
+            if (Equals(QueryExpression, QueryExpression.Create()))
+                QueryExpression = queryExpression;
+            else
+                QueryExpression = new AndExpression(QueryExpression, queryExpression);
+
+        }
+
+        public void AddDisjunctionExpression(QueryExpression queryExpression)
+        {
+            if (Equals(QueryExpression, QueryExpression.Create()))
+                QueryExpression = queryExpression;
+            else
+                QueryExpression = new OrExpression(QueryExpression, queryExpression);
         }
     }
 }

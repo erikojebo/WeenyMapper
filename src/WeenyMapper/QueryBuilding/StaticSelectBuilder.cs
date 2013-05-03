@@ -34,26 +34,35 @@ namespace WeenyMapper.QueryBuilding
             return AndWhere(queryExpression);
         }
 
+        public StaticSelectBuilder<T> Where<TAliasedEntity>(string alias, Expression<Func<TAliasedEntity, bool>> queryExpression)
+        {
+            return AndWhere(alias, queryExpression);
+        }
+
         public StaticSelectBuilder<T> AndWhere(Expression<Func<T, bool>> queryExpression)
         {
-            var subQuery = _query.GetSubQuery<T>();
+            return AndWhere(null, queryExpression);
+        }
 
-            if (Equals(subQuery.QueryExpression, QueryExpression.Create()))
-                subQuery.QueryExpression = _expressionParser.Parse(queryExpression);
-            else
-                subQuery.QueryExpression = new AndExpression(subQuery.QueryExpression, _expressionParser.Parse(queryExpression));
+        public StaticSelectBuilder<T> AndWhere<TAliasedEntity>(string alias, Expression<Func<TAliasedEntity, bool>> queryExpression)
+        {
+            var subQuery = _query.GetOrCreateSubQuery<TAliasedEntity>(alias);
+
+            subQuery.AddConjunctionExpression(_expressionParser.Parse(queryExpression));
 
             return this;
         }
 
         public StaticSelectBuilder<T> OrWhere(Expression<Func<T, bool>> queryExpression)
         {
-            var subQuery = _query.GetSubQuery<T>();
+            return OrWhere(null, queryExpression);
+        }
 
-            if (Equals(subQuery.QueryExpression, QueryExpression.Create()))
-                subQuery.QueryExpression = _expressionParser.Parse(queryExpression);
-            else
-                subQuery.QueryExpression = new OrExpression(subQuery.QueryExpression, _expressionParser.Parse(queryExpression));
+        public StaticSelectBuilder<T> OrWhere<TAliasedEntity>(string alias, Expression<Func<TAliasedEntity, bool>> queryExpression)
+        {
+            var subQuery = _query.GetOrCreateSubQuery<TAliasedEntity>();
+
+            subQuery.AddDisjunctionExpression(_expressionParser.Parse(queryExpression));
 
             return this;
         }

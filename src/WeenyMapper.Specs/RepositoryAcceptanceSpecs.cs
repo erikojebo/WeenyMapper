@@ -2350,6 +2350,131 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
+        public void Condition_can_be_placed_on_table_without_alias_when_joining_with_aliased_table()
+        {
+            var company = new Company
+            {
+                Name = "Company 1"
+            };
+
+            var employee1 = new Employee
+            {
+                LastName = "Employee 1"
+            };
+
+            var employee2 = new Employee
+            {
+                LastName = "Employee 2"
+            };
+
+            var employee3 = new Employee
+            {
+                LastName = "Employee 3"
+            };
+
+            var manager1 = new Employee
+            {
+                LastName = "Manager"
+            };
+
+            var manager2 = new Employee
+            {
+                LastName = "Manager 2"
+            };
+
+            Repository.Insert(company);
+
+            company.AddEmployee(employee1);
+            company.AddEmployee(employee2);
+            company.AddEmployee(employee3);
+            company.AddEmployee(manager1);
+            company.AddEmployee(manager2);
+
+            Repository.Insert(manager1, manager2);
+
+            // Add the subordinates after the managers have been saved so that the
+            // ManagerIds are set to the correct values
+            manager1.AddSubordinate(employee1);
+            manager1.AddSubordinate(employee2);
+            manager2.AddSubordinate(employee3);
+
+            Repository.Insert(employee1, employee2, employee3);
+
+            var actualEmployees = Repository.Find<Employee>()
+                                            .Where(x => x.ManagerId == manager1.Id)
+                                            .Join<Employee, Employee>(x => x.Subordinates, x => x.Manager, null, "Manager")
+                                            .OrderBy(x => x.LastName)
+                                            .ExecuteList();
+
+            Assert.AreEqual(2, actualEmployees.Count);
+
+            AssertEqualsManagerAndSubordinates(employee1, actualEmployees[0]);
+            AssertEqualsManagerAndSubordinates(employee2, actualEmployees[1]);
+        }
+        [Test]
+        public void Condition_can_be_placed_on_aliased_table_when_joining_entity_to_itself()
+        {
+            var company = new Company
+            {
+                Name = "Company 1"
+            };
+
+            var employee1 = new Employee
+            {
+                LastName = "Employee 1"
+            };
+
+            var employee2 = new Employee
+            {
+                LastName = "Employee 2"
+            };
+
+            var employee3 = new Employee
+            {
+                LastName = "Employee 3"
+            };
+
+            var manager1 = new Employee
+            {
+                LastName = "Manager"
+            };
+
+            var manager2 = new Employee
+            {
+                LastName = "Manager 2"
+            };
+
+            Repository.Insert(company);
+
+            company.AddEmployee(employee1);
+            company.AddEmployee(employee2);
+            company.AddEmployee(employee3);
+            company.AddEmployee(manager1);
+            company.AddEmployee(manager2);
+
+            Repository.Insert(manager1, manager2);
+
+            // Add the subordinates after the managers have been saved so that the
+            // ManagerIds are set to the correct values
+            manager1.AddSubordinate(employee1);
+            manager1.AddSubordinate(employee2);
+            manager2.AddSubordinate(employee3);
+
+            Repository.Insert(employee1, employee2, employee3);
+
+            var actualEmployees = Repository.Find<Employee>()
+                                            .Where<Employee>("Manager", x => x.Id == manager1.Id)
+                                            .Join<Employee, Employee>(x => x.Subordinates, x => x.Manager, null, "Manager")
+                                            .OrderBy(x => x.LastName)
+                                            .ExecuteList();
+
+            Assert.AreEqual(2, actualEmployees.Count);
+
+            AssertEqualsManagerAndSubordinates(employee1, actualEmployees[0]);
+            AssertEqualsManagerAndSubordinates(employee2, actualEmployees[1]);
+        }
+
+        [Test]
         public void Entity_without_primary_key_can_be_written_and_read_back_again()
         {
             var @event = new Event { AggregateId = Guid.NewGuid(), PublishDate = new DateTime(2012, 1, 2, 3, 4, 5), Data = "data" };
