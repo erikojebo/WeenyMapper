@@ -2285,7 +2285,7 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
-        public void Entity_can_be_joined_to_itself()
+        public void Entity_can_be_joined_to_itself_without_constraints()
         {
             var company = new Company
                 {
@@ -2335,19 +2335,18 @@ namespace WeenyMapper.Specs
 
             Repository.Insert(employee1, employee2, employee3);
 
-            var actualManager1 = Repository.Find<Employee>().Where(x => x.Id == manager1.Id)
-                                           .Join<Employee, Employee>(x => x.Subordinates, x => x.Manager, null, "Manager")
-                                           .Execute();
-
             var actualEmployees = Repository.Find<Employee>()
                                             .Join<Employee, Employee>(x => x.Subordinates, x => x.Manager, null, "Manager")
                                             .OrderBy(x => x.LastName)
                                             .ExecuteList();
 
-            Assert.AreEqual(manager1, actualManager1);
-            Assert.AreEqual(employee1, actualEmployees[0]);
-            Assert.AreEqual(employee2, actualEmployees[1]);
-            Assert.AreEqual(employee3, actualEmployees[2]);
+            Assert.AreEqual(5, actualEmployees.Count);
+
+            AssertEqualsManagerAndSubordinates(employee1, actualEmployees[0]);
+            AssertEqualsManagerAndSubordinates(employee2, actualEmployees[1]);
+            AssertEqualsManagerAndSubordinates(employee3, actualEmployees[2]);
+            AssertEqualsManagerAndSubordinates(manager1, actualEmployees[3]);
+            AssertEqualsManagerAndSubordinates(manager2, actualEmployees[4]);
         }
 
         [Test]
@@ -2575,6 +2574,27 @@ namespace WeenyMapper.Specs
 
             Assert.AreEqual(2, actualBlogs.Count);
             CollectionAssert.AreEquivalent(new[] { expectedBlog1, expectedBlog2 }, actualBlogs);
+        }
+
+        private void AssertEqualsManagerAndSubordinates(Employee employee, Employee actualEmployee)
+        {
+            Assert.AreEqual(employee.Id, actualEmployee.Id);
+            Assert.AreEqual(employee.FirstName, actualEmployee.FirstName);
+            Assert.AreEqual(employee.LastName, actualEmployee.LastName);
+
+            Assert.AreEqual(employee.Subordinates.Count, actualEmployee.Subordinates.Count);
+            CollectionAssert.AreEquivalent(employee.Subordinates.Select(x => x.Id), actualEmployee.Subordinates.Select(x => x.Id));
+
+            if (employee.Manager != null)
+            {
+                Assert.IsNotNull(actualEmployee.Manager);
+
+                AssertEqualsManagerAndSubordinates(employee.Manager, actualEmployee.Manager);
+            }
+            else
+            {
+                Assert.IsNull(actualEmployee.Manager);
+            }
         }
     }
 }

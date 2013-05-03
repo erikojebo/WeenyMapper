@@ -154,8 +154,8 @@ namespace WeenyMapper.Mapping
             var childType = relation.ChildType;
             var parentType = relation.ParentType;
 
-            var child = CreateInstance(childType, row, entityCache);
-            var parent = CreateInstance(parentType, row, entityCache);
+            var child = CreateInstance(childType, row, entityCache, relation.ChildAlias);
+            var parent = CreateInstance(parentType, row, entityCache, relation.ParentAlias);
 
             ConnectEntities(relation, child, parent);
 
@@ -202,11 +202,22 @@ namespace WeenyMapper.Mapping
             }
         }
 
-        private object CreateInstance(Type type, Row row, EntityCache entityCache)
+        private object CreateInstance(Type type, Row row, EntityCache entityCache, string alias = null)
         {
             var instance = CreateInstance(type);
 
-            var columnValuesForCurrentType = row.GetColumnValuesForType(type, _conventionReader)
+            IList<ColumnValue> columnValuesForType;
+
+            if (string.IsNullOrWhiteSpace(alias))
+            {
+                columnValuesForType = row.GetColumnValuesForType(type, _conventionReader);                
+            }
+            else
+            {
+                columnValuesForType = row.GetColumnValuesForAlias(alias, _conventionReader);
+            }
+
+            var columnValuesForCurrentType = columnValuesForType
                                                 .Where(x => !_conventionReader.IsEntityReferenceProperty(x.ColumnName, type))
                                                 .ToList();
 

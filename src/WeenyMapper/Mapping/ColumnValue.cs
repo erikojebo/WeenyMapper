@@ -41,14 +41,14 @@ namespace WeenyMapper.Mapping
             return !HasTableQualifiedAlias || TableName == convention.GetTableName(type);
         }
 
+        public bool IsForAlias(string alias)
+        {
+            return !HasTableQualifiedAlias || TableName == alias;
+        }
+
         public override string ToString()
         {
             return string.Format("{0}: {1}", Alias, Value);
-        }
-
-        public bool IsForeignKeyValue
-        {
-            get { throw new NotImplementedException(); }
         }
     }
 }

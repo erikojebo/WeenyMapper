@@ -85,5 +85,10 @@ namespace WeenyMapper.Specs.TestClasses.Entities
                 MentorId = Mentor.Id;
             }
         }
+
+        public override string ToString()
+        {
+            return string.Format("Employee (Id: {0}, FirstName: {1}, LastName: {2}, BirthDate: {3}, ManagerId: {4}, CompanyId: {5})", Id, FirstName, LastName, BirthDate, ManagerId, CompanyId);
+        }
     }
 }

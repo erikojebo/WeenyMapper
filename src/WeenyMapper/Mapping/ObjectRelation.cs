@@ -56,6 +56,8 @@ namespace WeenyMapper.Mapping
         public PropertyInfo ChildProperty { get; private set; }
         public Type ChildType { get; private set; }
         public Type ParentType { get; private set; }
+        public string ParentAlias { get; set; }
+        public string ChildAlias { get; set; }
 
         public bool HasParentProperty
         {
@@ -75,6 +77,8 @@ namespace WeenyMapper.Mapping
                     ParentProperty = @join.ParentProperty,
                     ChildType = @join.ChildType,
                     ParentType = @join.ParentType,
+                    ChildAlias = @join.ChildSubQuery.Alias,
+                    ParentAlias = @join.ParentSubQuery.Alias
                 };
         }
     }
