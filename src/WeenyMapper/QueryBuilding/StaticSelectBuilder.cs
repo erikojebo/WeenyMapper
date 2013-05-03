@@ -44,6 +44,11 @@ namespace WeenyMapper.QueryBuilding
             return AndWhere(null, queryExpression);
         }
 
+        public StaticSelectBuilder<T> AndWhere<TAliasedEntity>(Expression<Func<TAliasedEntity, bool>> queryExpression)
+        {
+            return AndWhere(null, queryExpression);
+        }
+
         public StaticSelectBuilder<T> AndWhere<TAliasedEntity>(string alias, Expression<Func<TAliasedEntity, bool>> queryExpression)
         {
             var subQuery = _query.GetOrCreateSubQuery<TAliasedEntity>(alias);
@@ -54,6 +59,11 @@ namespace WeenyMapper.QueryBuilding
         }
 
         public StaticSelectBuilder<T> OrWhere(Expression<Func<T, bool>> queryExpression)
+        {
+            return OrWhere(null, queryExpression);
+        }
+
+        public StaticSelectBuilder<T> OrWhere<TAliasedEntity>(Expression<Func<TAliasedEntity, bool>> queryExpression)
         {
             return OrWhere(null, queryExpression);
         }

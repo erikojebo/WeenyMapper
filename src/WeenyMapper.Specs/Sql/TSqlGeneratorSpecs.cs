@@ -192,6 +192,56 @@ namespace WeenyMapper.Specs.Sql
         }
 
         [Test]
+        public void Generating_join_with_constraints_on_multiple_tables_generates_join_query_with_combined_constraints_qualified_with_table_alias()
+        {
+            var spec2 = new AliasedSqlSubQuery
+                {
+                    ColumnsToSelect = new List<string> { "Table2Column1", "Table2Column2" },
+                    TableName = "TableName2",
+                    Alias = "Table2Alias"
+                };
+
+
+            _subQuery.QueryExpression = QueryExpression.Create(
+                new OrExpression(
+                    new EqualsExpression("Column1", 123)));
+
+            spec2.QueryExpression = QueryExpression.Create(
+                new OrExpression(
+                    new EqualsExpression("Table2Column1", 234)));
+
+            var join = new SqlSubQueryJoin
+                {
+                    ParentTableName = "TableName",
+                    ChildTableName = "TableName2",
+                    ParentPrimaryKeyColumnName = "PrimaryKeyColumnName",
+                    ChildForeignKeyColumnName = "ForeignKeyColumnName",
+                    ChildSubQuery = spec2,
+                    ParentSubQuery = _subQuery
+                };
+
+            _sqlQuery.Joins.Add(join);
+            _sqlQuery.SubQueries.Add(spec2);
+
+            var expectedSql =
+                "SELECT [TableName].[ColumnName1] AS \"TableName ColumnName1\", [TableName].[ColumnName2] AS \"TableName ColumnName2\", " +
+                "[Table2Alias].[Table2Column1] AS \"Table2Alias Table2Column1\", [Table2Alias].[Table2Column2] AS \"Table2Alias Table2Column2\" " +
+                "FROM [TableName] LEFT OUTER JOIN [TableName2] AS [Table2Alias] " +
+                "ON [TableName].[PrimaryKeyColumnName] = [Table2Alias].[ForeignKeyColumnName] " +
+                "WHERE [TableName].[Column1] = @TableName_Column1Constraint AND [Table2Alias].[Table2Column1] = @Table2Alias_Table2Column1Constraint";
+
+            var query = _generator.GenerateSelectQuery(_sqlQuery);
+            var actualParameters = query.Parameters.SortByParameterName();
+
+            Assert.AreEqual(expectedSql, query.CommandText);
+            Assert.AreEqual(2, actualParameters.Count);
+            Assert.AreEqual("TableName_Column1Constraint", actualParameters[0].ParameterName);
+            Assert.AreEqual(123, actualParameters[0].Value);
+            Assert.AreEqual("Table2Alias_ColumnName1Constraint", actualParameters[1].ParameterName);
+            Assert.AreEqual(234, actualParameters[1].Value);
+        }
+
+        [Test]
         public void Generating_multi_table_join_generates_join_query_with_corresponding_join_clause()
         {
             _subQuery.QueryExpression = QueryExpression.Create(new EqualsExpression("ColumnName1", 123));

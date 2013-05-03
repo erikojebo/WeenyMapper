@@ -2475,6 +2475,89 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
+        public void Conjuncted_conditions_on_multiple_aliased_tables_can_be_specified_in_a_single_join_query()
+        {
+            Repository.IsEntityCachingEnabled = true;
+
+            Repository.DefaultConvention = new BlogConvention();
+
+            var blog1 = new Blog
+            {
+                Name = "Blog 1",
+            };
+
+            var blog2 = new Blog
+            {
+                Name = "Blog 2",
+            };
+
+            var post1 = new BlogPost
+            {
+                Title = "Blog post 1",
+                Content = "Post 1 content",
+                PublishDate = new DateTime(2011, 4, 1),
+            };
+
+            var post2 = new BlogPost
+            {
+                Title = "Blog post 2",
+                Content = "Post 2 content",
+                PublishDate = new DateTime(2011, 2, 2),
+            };
+
+            var post3 = new BlogPost
+            {
+                Title = "Blog post 3",
+                Content = "Post 3 content",
+                PublishDate = new DateTime(2011, 3, 3),
+            };
+
+            var post4 = new BlogPost
+            {
+                Title = "Blog post 4",
+                Content = "Post 4 content",
+                PublishDate = new DateTime(2011, 4, 4),
+            };
+
+            var user = new User
+            {
+                Username = "Steve",
+                Password = "password"
+            };
+
+            user.AddBlogPost(post1);
+            user.AddBlogPost(post2);
+            user.AddBlogPost(post3);
+            user.AddBlogPost(post4);
+
+            blog1.AddPost(post1);
+            blog2.AddPost(post2);
+            blog2.AddPost(post3);
+            blog2.AddPost(post4);
+
+            Repository.Insert(user);
+            Repository.Insert(blog1, blog2);
+            Repository.Insert(post1, post2, post3, post4);
+
+            var actualPosts = Repository.Find<BlogPost>()
+                                        .Where(x => x.PublishDate > new DateTime(2011, 3, 1))
+                                        .AndWhere<Blog>(null, x => x.Name == "Blog 2")
+                                        .OrderBy(x => x.Title)
+                                        .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog)
+                                        .ExecuteList();
+
+            Assert.AreEqual(2, actualPosts.Count);
+            Assert.AreEqual(post3, actualPosts[0]);
+            Assert.AreEqual(post4, actualPosts[1]);
+        }
+        
+        [Test]
+        public void Disjuncted_conditions_on_multiple_aliased_tables_can_be_specified_in_a_single_join_query()
+        {
+            throw new NotImplementedException();
+        }
+
+        [Test]
         public void Entity_without_primary_key_can_be_written_and_read_back_again()
         {
             var @event = new Event { AggregateId = Guid.NewGuid(), PublishDate = new DateTime(2012, 1, 2, 3, 4, 5), Data = "data" };
