@@ -51,5 +51,16 @@ namespace WeenyMapper.Sql
                     TableName = typeof(T).Name,
                 };
         }
+
+        public void AddQueryExpression(QueryExpression queryExpression)
+        {
+            AddQueryExpression(queryExpression, new QueryExpressionMetaData());
+        }
+
+        public void AddQueryExpression(QueryExpression queryExpression, QueryExpressionMetaData metaData)
+        {
+            QueryExpression = queryExpression;
+            QueryExpressionMetaData = metaData;
+        }
     }
 }

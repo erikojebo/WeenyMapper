@@ -91,8 +91,6 @@ namespace WeenyMapper.QueryExecution
             var spec = new AliasedSqlSubQuery
                 {
                     ColumnsToSelect = columnNamesToSelect.ToList(),
-                    QueryExpression = subQuery.QueryExpression.Translate(_conventionReader),
-                    QueryExpressionMetaData = subQuery.QueryExpressionMetaData,
                     TableName = tableName,
                     OrderByStatements = translatedOrderByStatements.ToList(),
                     RowCountLimit = subQuery.RowCountLimit,
@@ -100,6 +98,8 @@ namespace WeenyMapper.QueryExecution
                     PrimaryKeyColumnName = _conventionReader.TryGetPrimaryKeyColumnName(subQuery.ResultType),
                     Alias = subQuery.Alias
                 };
+
+            spec.AddQueryExpression(subQuery.QueryExpression.Translate(_conventionReader), subQuery.QueryExpressionMetaData);
 
             sqlQuery.SubQueries.Add(spec);
         }
