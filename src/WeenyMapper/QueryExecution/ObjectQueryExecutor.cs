@@ -92,6 +92,7 @@ namespace WeenyMapper.QueryExecution
                 {
                     ColumnsToSelect = columnNamesToSelect.ToList(),
                     QueryExpression = subQuery.QueryExpression.Translate(_conventionReader),
+                    QueryExpressionMetaData = subQuery.QueryExpressionMetaData,
                     TableName = tableName,
                     OrderByStatements = translatedOrderByStatements.ToList(),
                     RowCountLimit = subQuery.RowCountLimit,

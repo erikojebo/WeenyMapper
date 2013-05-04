@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using WeenyMapper.Exceptions;
+using WeenyMapper.QueryParsing;
 
 namespace WeenyMapper.Sql
 {
@@ -71,6 +72,33 @@ namespace WeenyMapper.Sql
                 };
 
             SubQueries.Add(subQuery);
+        }
+
+        public void AddConjunctionExpression<T>(string alias, QueryExpression queryExpression)
+        {
+            var subQuery = GetOrCreateSubQuery<T>(alias);
+
+            subQuery.AddConjunctionExpression(queryExpression);
+
+            UpdateMetaData<T>(subQuery, QueryCombinationOperation.And);
+        }
+
+        public void AddDisjunctionExpression<T>(string alias, QueryExpression queryExpression)
+        {
+            var subQuery = GetOrCreateSubQuery<T>();
+
+            subQuery.AddDisjunctionExpression(queryExpression);
+
+            UpdateMetaData<T>(subQuery, QueryCombinationOperation.Or);
+        }
+
+        private void UpdateMetaData<T>(AliasedObjectSubQuery subQuery, QueryCombinationOperation queryCombinationOperation)
+        {
+            if (!subQuery.QueryExpressionMetaData.HasOrderIndex)
+            {
+                subQuery.QueryExpressionMetaData.OrderIndex = SubQueries.Max(x => x.QueryExpressionMetaData.OrderIndex) + 1;
+                subQuery.QueryExpressionMetaData.CombinationOperation = queryCombinationOperation;
+            }
         }
     }
 }

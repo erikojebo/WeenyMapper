@@ -52,6 +52,7 @@
     <Compile Include="Extensions\ReflectionExtensions.cs" />
     <Compile Include="Extensions\SqlCommandExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="IDatabaseProvider.cs" />
     <Compile Include="Logging\ConsoleSqlCommandLogger.cs" />
     <Compile Include="Logging\TraceSqlCommandLoggerBase.cs" />
@@ -66,6 +67,7 @@
     <Compile Include="Mapping\ObjectRelation.cs" />
     <Compile Include="Mapping\ResultSet.cs" />
     <Compile Include="Mapping\Row.cs" />
+    <Compile Include="QueryParsing\QueryCombinationOperation.cs" />
     <Compile Include="QueryParsing\NotExpression.cs" />
     <Compile Include="QueryParsing\NotEqualExpression.cs" />
     <Compile Include="QueryParsing\EntityReferenceExpression.cs" />
@@ -100,6 +102,7 @@
     <Compile Include="QueryParsing\PolyadicOperatorExpression.cs" />
     <Compile Include="QueryParsing\PropertyExpression.cs" />
     <Compile Include="QueryParsing\QueryExpression.cs" />
+    <Compile Include="QueryParsing\QueryExpressionMetaData.cs" />
     <Compile Include="QueryParsing\ReflectedPropertyExpression.cs" />
     <Compile Include="QueryParsing\RootExpression.cs" />
     <Compile Include="QueryParsing\ValueExpression.cs" />

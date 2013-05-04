@@ -12,11 +12,13 @@ namespace WeenyMapper.Sql
             PropertiesToSelect = new List<string>();
             OrderByStatements = new List<OrderByStatement>();
             QueryExpression = QueryExpression.Create();
+            QueryExpressionMetaData = new QueryExpressionMetaData();
             ResultType = resultType;
         }
 
         public IList<string> PropertiesToSelect { get; set; }
         public QueryExpression QueryExpression { get; set; }
+        public QueryExpressionMetaData QueryExpressionMetaData { get; set; }
         public IList<OrderByStatement> OrderByStatements { get; set; }
         public int RowCountLimit { get; set; }
         public Page Page { get; set; }

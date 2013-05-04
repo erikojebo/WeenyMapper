@@ -51,10 +51,8 @@ namespace WeenyMapper.QueryBuilding
 
         public StaticSelectBuilder<T> AndWhere<TAliasedEntity>(string alias, Expression<Func<TAliasedEntity, bool>> queryExpression)
         {
-            var subQuery = _query.GetOrCreateSubQuery<TAliasedEntity>(alias);
-
-            subQuery.AddConjunctionExpression(_expressionParser.Parse(queryExpression));
-
+            _query.AddConjunctionExpression<TAliasedEntity>(alias, _expressionParser.Parse(queryExpression));
+            
             return this;
         }
 
@@ -70,10 +68,7 @@ namespace WeenyMapper.QueryBuilding
 
         public StaticSelectBuilder<T> OrWhere<TAliasedEntity>(string alias, Expression<Func<TAliasedEntity, bool>> queryExpression)
         {
-            var subQuery = _query.GetOrCreateSubQuery<TAliasedEntity>();
-
-            subQuery.AddDisjunctionExpression(_expressionParser.Parse(queryExpression));
-
+            _query.AddDisjunctionExpression<TAliasedEntity>(alias, _expressionParser.Parse(queryExpression));
             return this;
         }
 

@@ -201,14 +201,11 @@ namespace WeenyMapper.Specs.Sql
                     Alias = "Table2Alias"
                 };
 
+            _subQuery.QueryExpression = QueryExpression.Create(new EqualsExpression("Column1", 123));
+            _subQuery.QueryExpressionMetaData = new QueryExpressionMetaData { OrderIndex = 0 };
 
-            _subQuery.QueryExpression = QueryExpression.Create(
-                new OrExpression(
-                    new EqualsExpression("Column1", 123)));
-
-            spec2.QueryExpression = QueryExpression.Create(
-                new OrExpression(
-                    new EqualsExpression("Table2Column1", 234)));
+            spec2.QueryExpression = QueryExpression.Create(new EqualsExpression("Table2Column1", 234));
+            spec2.QueryExpressionMetaData = new QueryExpressionMetaData { OrderIndex = 1, CombinationOperation = QueryCombinationOperation.And };
 
             var join = new SqlSubQueryJoin
                 {
@@ -235,10 +232,63 @@ namespace WeenyMapper.Specs.Sql
 
             Assert.AreEqual(expectedSql, query.CommandText);
             Assert.AreEqual(2, actualParameters.Count);
-            Assert.AreEqual("TableName_Column1Constraint", actualParameters[0].ParameterName);
-            Assert.AreEqual(123, actualParameters[0].Value);
-            Assert.AreEqual("Table2Alias_ColumnName1Constraint", actualParameters[1].ParameterName);
-            Assert.AreEqual(234, actualParameters[1].Value);
+            Assert.AreEqual("Table2Alias_Table2Column1Constraint", actualParameters[0].ParameterName);
+            Assert.AreEqual(234, actualParameters[0].Value);
+            Assert.AreEqual("TableName_Column1Constraint", actualParameters[1].ParameterName);
+            Assert.AreEqual(123, actualParameters[1].Value);
+        }
+
+        [Test]
+        public void Generating_join_with_constraints_on_multiple_tables_with_both_AND_and_OR_operators_generates_join_query_with_combined_constraints_using_expected_precedence()
+        {
+            var spec2 = new AliasedSqlSubQuery
+                {
+                    ColumnsToSelect = new List<string> { "Table2Column1", "Table2Column2" },
+                    TableName = "TableName2",
+                    Alias = "Table2Alias"
+                };
+
+            _subQuery.QueryExpression = new OrExpression(
+                new EqualsExpression("Column1", 123),
+                new EqualsExpression("Column1", 345));
+
+            _subQuery.QueryExpressionMetaData = new QueryExpressionMetaData { OrderIndex = 0 };
+
+            spec2.QueryExpression = QueryExpression.Create(new EqualsExpression("Table2Column1", 234));
+            spec2.QueryExpressionMetaData = new QueryExpressionMetaData { OrderIndex = 1, CombinationOperation = QueryCombinationOperation.And };
+
+            var join = new SqlSubQueryJoin
+                {
+                    ParentTableName = "TableName",
+                    ChildTableName = "TableName2",
+                    ParentPrimaryKeyColumnName = "PrimaryKeyColumnName",
+                    ChildForeignKeyColumnName = "ForeignKeyColumnName",
+                    ChildSubQuery = spec2,
+                    ParentSubQuery = _subQuery
+                };
+
+            _sqlQuery.Joins.Add(join);
+            _sqlQuery.SubQueries.Add(spec2);
+
+            var expectedSql =
+                "SELECT [TableName].[ColumnName1] AS \"TableName ColumnName1\", [TableName].[ColumnName2] AS \"TableName ColumnName2\", " +
+                "[Table2Alias].[Table2Column1] AS \"Table2Alias Table2Column1\", [Table2Alias].[Table2Column2] AS \"Table2Alias Table2Column2\" " +
+                "FROM [TableName] LEFT OUTER JOIN [TableName2] AS [Table2Alias] " +
+                "ON [TableName].[PrimaryKeyColumnName] = [Table2Alias].[ForeignKeyColumnName] " +
+                "WHERE ([TableName].[Column1] = @TableName_Column1Constraint OR [TableName].[Column1] = @TableName_Column1Constraint2) " +
+                "AND [Table2Alias].[Table2Column1] = @Table2Alias_Table2Column1Constraint";
+
+            var query = _generator.GenerateSelectQuery(_sqlQuery);
+            var actualParameters = query.Parameters.SortByParameterName();
+
+            Assert.AreEqual(expectedSql, query.CommandText);
+            Assert.AreEqual(3, actualParameters.Count);
+            Assert.AreEqual("Table2Alias_Table2Column1Constraint", actualParameters[0].ParameterName);
+            Assert.AreEqual(234, actualParameters[0].Value);
+            Assert.AreEqual("TableName_Column1Constraint", actualParameters[1].ParameterName);
+            Assert.AreEqual(123, actualParameters[1].Value);
+            Assert.AreEqual("TableName_Column1Constraint1", actualParameters[2].ParameterName);
+            Assert.AreEqual(345, actualParameters[2].Value);
         }
 
         [Test]

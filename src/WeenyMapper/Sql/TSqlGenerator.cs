@@ -277,12 +277,16 @@ namespace WeenyMapper.Sql
 
         private WhereClause CreateWhereClause(SqlQuery query)
         {
-            var conditionQuery = query.SubQueries.FirstOrDefault(x => x.HasQuery);
+            var combinedWhereClause = new WhereClause();
+            var subQueriesWithConditions = query.SubQueries.Where(x => x.HasQuery).OrderBy(x => x.QueryExpressionMetaData.OrderIndex);
 
-            if (conditionQuery != null)
-                return CreateWhereClause(conditionQuery);
+            foreach (var subQuery in subQueriesWithConditions)
+            {
+                var whereClause = CreateWhereClause(subQuery);
+                combinedWhereClause = combinedWhereClause.Combine(whereClause, subQuery.QueryExpressionMetaData.CombinationOperation);
+            }
 
-            return CreateWhereClause(query.SubQueries.First());
+            return combinedWhereClause;
         }
 
         private WhereClause CreateWhereClause(AliasedSqlSubQuery subQuery)
