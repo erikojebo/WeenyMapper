@@ -2694,6 +2694,89 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
+        public void Conditions_on_multiple_tables_are_combined_with_the_expected_operator_precedence_when_specifying_conditions_alternating_between_tables()
+        {
+            Repository.IsEntityCachingEnabled = true;
+
+            Repository.DefaultConvention = new BlogConvention();
+
+            var blog1 = new Blog
+            {
+                Name = "Blog 1",
+            };
+
+            var blog2 = new Blog
+            {
+                Name = "Blog 2",
+            };
+            
+            var blog3 = new Blog
+            {
+                Name = "Blog 3",
+            };
+
+            var post1 = new BlogPost
+            {
+                Title = "Blog post 1",
+                Content = "Post 1 content",
+                PublishDate = new DateTime(2011, 2, 2),
+            };
+
+            var post2 = new BlogPost
+            {
+                Title = "Blog post 2",
+                Content = "Post 2 content",
+                PublishDate = new DateTime(2011, 2, 2),
+            };
+
+            var post3 = new BlogPost
+            {
+                Title = "Blog post 3",
+                Content = "Post 3 content",
+                PublishDate = new DateTime(2011, 3, 3),
+            };
+
+            var post4 = new BlogPost
+            {
+                Title = "Blog post 4",
+                Content = "Post 4 content",
+                PublishDate = new DateTime(2011, 2, 2),
+            };
+            
+            var post5 = new BlogPost
+            {
+                Title = "Blog post 5",
+                Content = "Post 5 content",
+                PublishDate = new DateTime(2011, 5, 5),
+            };
+
+            blog1.AddPost(post1);
+            blog2.AddPost(post2);
+            blog2.AddPost(post3);
+            blog3.AddPost(post4);
+            blog1.AddPost(post5);
+
+            Repository.Insert(blog1, blog2, blog3);
+            Repository.Insert(post1, post2, post3, post4);
+
+            var actualBlogs = Repository.Find<Blog>()
+                                        .Where(x => x.Name == "Blog 1")
+                                        .AndWhere<BlogPost>(x => x.PublishDate == new DateTime(2011, 2, 2))
+                                        .OrWhere(x => x.Name == "Blog 2")
+                                        .OrderBy(x => x.Name)
+                                        .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog)
+                                        .ExecuteList();
+
+            // Change the original objects to the expected state for the retrieved objects, so that 
+            // we can use Equals to compare the actual result with what is expected
+            blog1.Posts.Remove(post5);
+
+            Assert.AreEqual(2, actualBlogs.Count);
+            Assert.AreEqual(blog1, actualBlogs[0]);
+            Assert.AreEqual(blog2, actualBlogs[1]);
+        }
+
+        [Test]
         public void Entity_without_primary_key_can_be_written_and_read_back_again()
         {
             var @event = new Event { AggregateId = Guid.NewGuid(), PublishDate = new DateTime(2012, 1, 2, 3, 4, 5), Data = "data" };
