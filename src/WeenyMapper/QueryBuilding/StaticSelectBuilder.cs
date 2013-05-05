@@ -84,16 +84,7 @@ namespace WeenyMapper.QueryBuilding
 
         public StaticSelectBuilder<T> Select(params Expression<Func<T, object>>[] propertySelectors)
         {
-            foreach (var propertySelector in propertySelectors)
-            {
-                var subQuery = _query.GetSubQuery<T>();
-
-                string propertyName = GetPropertyName(propertySelector);
-
-                subQuery.PropertiesToSelect.Add(propertyName);    
-            }
-            
-            return this;
+            return Select<T>(propertySelectors);
         }
 
         public StaticSelectBuilder<T> Select<TAliasedEntity>(params Expression<Func<TAliasedEntity, object>>[] propertySelectors)
@@ -147,25 +138,57 @@ namespace WeenyMapper.QueryBuilding
 
         public StaticSelectBuilder<T> OrderBy(params Expression<Func<T, object>>[] getters)
         {
-            AddOrderByStatements(getters, OrderByDirection.Ascending);
+            return OrderBy<T>(getters);            
+        }
+
+        public StaticSelectBuilder<T> OrderBy<TEntity>(params Expression<Func<TEntity, object>>[] getters)
+        {
+            return OrderBy(null, getters);
+        }
+
+        public StaticSelectBuilder<T> OrderBy<TEntity>(string alias, params Expression<Func<TEntity, object>>[] getters)
+        {
+            AddOrderByStatements(getters, OrderByDirection.Ascending, alias);
             return this;
         }
 
         public StaticSelectBuilder<T> OrderByDescending(params Expression<Func<T, object>>[] getters)
         {
-            AddOrderByStatements(getters, OrderByDirection.Descending);
+            return OrderByDescending<T>(getters);
+        }
+
+        public StaticSelectBuilder<T> OrderByDescending<TEntity>(params Expression<Func<TEntity, object>>[] getters)
+        {
+            return OrderByDescending(null, getters);
+        }
+
+        public StaticSelectBuilder<T> OrderByDescending<TEntity>(string alias, params Expression<Func<TEntity, object>>[] getters)
+        {
+            AddOrderByStatements(getters, OrderByDirection.Descending, alias);
             return this;
         }
 
-        private void AddOrderByStatements(IEnumerable<Expression<Func<T, object>>> getters, OrderByDirection orderByDirection)
+        private void AddOrderByStatements<TEntity>(IEnumerable<Expression<Func<TEntity, object>>> getters, OrderByDirection orderByDirection, string alias = null)
         {
-            var subQuery = _query.GetSubQuery<T>();
+            var subQuery = _query.GetOrCreateSubQuery<TEntity>(alias);
+
+            var nextOrderByOrderingIndex = GetNextOrderByOrderIndex();
 
             var orderByStatements = getters
                 .Select(GetPropertyName)
-                .Select(x => OrderByStatement.Create(x, orderByDirection));
+                .Select(x => OrderByStatement.Create(x, orderByDirection, nextOrderByOrderingIndex++));
 
             subQuery.OrderByStatements.AddRange(orderByStatements);
+        }
+
+        private int GetNextOrderByOrderIndex()
+        {
+            var existingOrderByStatements = _query.SubQueries.SelectMany(x => x.OrderByStatements).OrderByDescending(x => x.OrderIndex);
+
+            if (existingOrderByStatements.Any())
+                return existingOrderByStatements.First().OrderIndex + 1;
+
+            return 0;
         }
 
         public StaticSelectBuilder<T> Top(int rowCount)

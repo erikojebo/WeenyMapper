@@ -133,7 +133,7 @@ namespace WeenyMapper.Sql
 
             if (subQuery.OrderByStatements.IsEmpty())
             {
-                var orderByPrimaryKeyStatement = OrderByStatement.Create(subQuery.PrimaryKeyColumnName, OrderByDirection.Ascending);
+                var orderByPrimaryKeyStatement = OrderByStatement.Create(subQuery.PrimaryKeyColumnName, OrderByDirection.Ascending, 0);
                 subQuery.OrderByStatements.Add(orderByPrimaryKeyStatement);
             }
 

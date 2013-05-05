@@ -2778,7 +2778,7 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
-        public void Partial_selects_can_be_pecified_for_multiple_tables_in_a_join()
+        public void Partial_selects_can_be_specified_for_multiple_tables_in_a_join()
         {
             Repository.DefaultConvention = new BlogConvention();
 
@@ -2808,11 +2808,11 @@ namespace WeenyMapper.Specs
             Assert.AreEqual(1, actualBlogs.Count);
             Assert.AreEqual(blog1.Id, actualBlogs[0].Id);
             Assert.IsNull(actualBlogs[0].Name);
-            
+
             Assert.AreEqual(1, actualBlogs[0].Posts.Count);
 
             var actualPost = actualBlogs[0].Posts[0];
-            
+
             Assert.AreEqual(post1.Id, actualPost.Id);
             Assert.AreEqual("Blog post 1", actualPost.Title);
             Assert.IsNull(actualPost.Content);
@@ -2820,7 +2820,71 @@ namespace WeenyMapper.Specs
             Assert.IsNull(actualPost.Author);
             Assert.AreSame(actualBlogs[0], actualPost.Blog);
             CollectionAssert.IsEmpty(actualPost.Comments);
-            
+        }
+
+        [Test]
+        public void Order_by_clauses_can_be_specified_for_multiple_tables_in_a_join()
+        {
+            Repository.DefaultConvention = new BlogConvention();
+
+            var blog1 = new Blog
+                {
+                    Name = "Blog 1",
+                };
+            var blog2 = new Blog
+                {
+                    Name = "Blog 2",
+                };
+
+            var post1 = new BlogPost
+                {
+                    Title = "Blog post 1",
+                    Content = "Post 1 content",
+                    PublishDate = new DateTime(2011, 2, 3),
+                };
+            var post2 = new BlogPost
+                {
+                    Title = "Blog post 2",
+                    Content = "aaa",
+                    PublishDate = new DateTime(2011, 2, 2),
+                };
+            var post3 = new BlogPost
+                {
+                    Title = "Blog post 3",
+                    Content = "zzz",
+                    PublishDate = new DateTime(2011, 2, 2),
+                };
+            var post4 = new BlogPost
+                {
+                    Title = "Blog post 3",
+                    Content = "Post 3 content",
+                    PublishDate = new DateTime(2011, 2, 1),
+                };
+
+            blog1.AddPost(post1);
+            blog1.AddPost(post2);
+            blog2.AddPost(post3);
+
+            Repository.Insert(blog1, blog2);
+            Repository.Insert(post1, post2, post3);
+
+            var actualBlogs = Repository.Find<Blog>()
+                                        .OrderBy<BlogPost>(x => x.PublishDate, x => x.Content)
+                                        .OrderByDescending(x => x.Name)
+                                        .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog)
+                                        .ExecuteList();
+
+            Assert.AreEqual(2, actualBlogs.Count);
+            Assert.AreEqual(blog2, actualBlogs[0]);
+            Assert.AreEqual(blog1, actualBlogs[1]);
+
+            Assert.AreEqual(3, actualBlogs[0].Posts.Count);
+            Assert.AreEqual(post2, actualBlogs[0].Posts[0]);
+            Assert.AreEqual(post3, actualBlogs[0].Posts[1]);
+            Assert.AreEqual(post1, actualBlogs[0].Posts[2]);
+
+            Assert.AreEqual(1, actualBlogs[1].Posts.Count);
+            Assert.AreEqual(post4, actualBlogs[1].Posts[0]);
         }
 
         [Test]

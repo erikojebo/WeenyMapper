@@ -597,8 +597,8 @@ namespace WeenyMapper.Specs.Sql
         [Test]
         public void Generating_join_with_order_by_generates_select_with_corresponding_order_by_with_qualified_column_name()
         {
-            _subQuery.OrderByStatements.Add(new OrderByStatement("ColumnName3"));
-            _subQuery.OrderByStatements.Add(new OrderByStatement("ColumnName4", OrderByDirection.Descending));
+            _subQuery.OrderByStatements.Add(OrderByStatement.Create("ColumnName3", OrderByDirection.Ascending, 0));
+            _subQuery.OrderByStatements.Add(OrderByStatement.Create("ColumnName4", OrderByDirection.Descending, 1));
 
             var spec2 = new AliasedSqlSubQuery
                 {
@@ -627,6 +627,45 @@ namespace WeenyMapper.Specs.Sql
                 "FROM [TableName] LEFT OUTER JOIN [TableName2] " +
                 "ON [TableName].[PrimaryKeyColumnName] = [TableName2].[ForeignKeyColumnName] " +
                 "ORDER BY [TableName].[ColumnName3], [TableName].[ColumnName4] DESC";
+
+            Assert.AreEqual(expectedSql, query.CommandText);
+        }
+
+        [Test]
+        public void Generating_join_with_order_bys_on_multiple_tables_generates_select_with_corresponding_order_bys_with_qualified_column_name()
+        {
+            var subQuery2 = new AliasedSqlSubQuery
+            {
+                ColumnsToSelect = new List<string> { "Table2Column1" },
+                TableName = "TableName2",
+                Alias = "Table2Alias"
+            };
+
+            _subQuery.OrderByStatements.Add(OrderByStatement.Create("ColumnName3", OrderByDirection.Ascending, 0));
+            subQuery2.OrderByStatements.Add(OrderByStatement.Create("Table2Column1", OrderByDirection.Descending, 1));
+            _subQuery.OrderByStatements.Add(OrderByStatement.Create("ColumnName4", OrderByDirection.Descending, 2));
+            
+            var join = new SqlSubQueryJoin
+                {
+                    ParentTableName = "TableName",
+                    ChildTableName = "TableName2",
+                    ParentPrimaryKeyColumnName = "PrimaryKeyColumnName",
+                    ChildForeignKeyColumnName = "ForeignKeyColumnName",
+                    ChildSubQuery = subQuery2,
+                    ParentSubQuery = _subQuery
+                };
+
+            _sqlQuery.Joins.Add(join);
+            _sqlQuery.SubQueries.Add(subQuery2);
+
+            var query = _generator.GenerateSelectQuery(_sqlQuery);
+
+            var expectedSql =
+                "SELECT [TableName].[ColumnName1] AS \"TableName ColumnName1\", [TableName].[ColumnName2] AS \"TableName ColumnName2\", " +
+                "[Table2Alias].[Table2Column1] AS \"Table2Alias Table2Column1\" " +
+                "FROM [TableName] LEFT OUTER JOIN [TableName2] AS [Table2Alias] " +
+                "ON [TableName].[PrimaryKeyColumnName] = [Table2Alias].[ForeignKeyColumnName] " +
+                "ORDER BY [TableName].[ColumnName3], [Table2Alias].[Table2Column1] DESC, [TableName].[ColumnName4] DESC";
 
             Assert.AreEqual(expectedSql, query.CommandText);
         }
@@ -1115,8 +1154,8 @@ namespace WeenyMapper.Specs.Sql
         {
             _subQuery.Page = new Page(1, 2);
             _subQuery.AddQueryExpression(QueryExpression.Create(new EqualsExpression("ColumnName3", "value")));
-            _subQuery.OrderByStatements.Add(OrderByStatement.Create("ColumnName3", OrderByDirection.Descending));
-            _subQuery.OrderByStatements.Add(OrderByStatement.Create("ColumnName4", OrderByDirection.Ascending));
+            _subQuery.OrderByStatements.Add(OrderByStatement.Create("ColumnName3", OrderByDirection.Descending, 0));
+            _subQuery.OrderByStatements.Add(OrderByStatement.Create("ColumnName4", OrderByDirection.Ascending, 1));
 
             var expectedSql = "WITH [CompleteResult] AS (SELECT [TableName].[ColumnName1], [TableName].[ColumnName2], ROW_NUMBER() " +
                               "OVER (ORDER BY [TableName].[ColumnName3] DESC, [TableName].[ColumnName4]) AS \"WeenyMapperGenerated_RowNumber\" " +
