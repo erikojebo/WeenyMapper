@@ -103,6 +103,7 @@
     <Compile Include="QueryParsing\PropertyExpression.cs" />
     <Compile Include="QueryParsing\QueryExpression.cs" />
     <Compile Include="QueryParsing\QueryExpressionMetaData.cs" />
+    <Compile Include="QueryParsing\QueryExpressionPart.cs" />
     <Compile Include="QueryParsing\ReflectedPropertyExpression.cs" />
     <Compile Include="QueryParsing\RootExpression.cs" />
     <Compile Include="QueryParsing\ValueExpression.cs" />

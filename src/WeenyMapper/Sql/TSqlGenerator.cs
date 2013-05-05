@@ -278,12 +278,17 @@ namespace WeenyMapper.Sql
         private WhereClause CreateWhereClause(SqlQuery query)
         {
             var combinedWhereClause = new WhereClause();
-            var subQueriesWithConditions = query.SubQueries.Where(x => x.HasQuery).OrderBy(x => x.QueryExpressionMetaData.OrderIndex);
+            var queryParts = query.SubQueries.SelectMany(x => x.QueryExpressions ).OrderBy(x => x.MetaData.OrderIndex);
 
-            foreach (var subQuery in subQueriesWithConditions)
+            var commandParameterFactory = new CommandParameterFactory();
+
+            foreach (var expressionPart in queryParts)
             {
-                var whereClause = CreateWhereClause(subQuery);
-                combinedWhereClause = combinedWhereClause.Combine(whereClause, subQuery.QueryExpressionMetaData.CombinationOperation);
+                var parentSubQueryForPart = query.SubQueries.First(x => x.QueryExpressions.Any(q => q == expressionPart));
+                
+                var whereClause = CreateWhereClause(expressionPart.QueryExpression, parentSubQueryForPart, commandParameterFactory);
+
+                combinedWhereClause = combinedWhereClause.Combine(whereClause, expressionPart.MetaData.CombinationOperation);
             }
 
             return combinedWhereClause;
@@ -291,16 +296,30 @@ namespace WeenyMapper.Sql
 
         private WhereClause CreateWhereClause(AliasedSqlSubQuery subQuery)
         {
-            return CreateWhereClause(subQuery.QueryExpression, subQuery.TableIdentifier, subQuery.TableIdentifier + "_");
+            if (!subQuery.HasQuery)
+                return new WhereClause();
+
+            return CreateWhereClause(subQuery.QueryExpressions.First().QueryExpression, subQuery.TableIdentifier, subQuery.TableIdentifier + "_");
+        }
+
+        private WhereClause CreateWhereClause(QueryExpression queryExpression, AliasedSqlSubQuery subQuery, CommandParameterFactory commandParameterFactory)
+        {
+            commandParameterFactory.ParameterNamePrefix = subQuery.TableIdentifier + "_";
+            return CreateWhereClause(queryExpression, subQuery.TableIdentifier, commandParameterFactory);
         }
 
         private WhereClause CreateWhereClause(QueryExpression queryExpression, string columnNamePrefix = "", string parameterNamePrefix = "")
         {
             var commandParameterFactory = new CommandParameterFactory
-                {
-                    ParameterNamePrefix = parameterNamePrefix,
-                };
+            {
+                ParameterNamePrefix = parameterNamePrefix,
+            };
 
+            return CreateWhereClause(queryExpression, columnNamePrefix, commandParameterFactory);
+        }
+
+        private WhereClause CreateWhereClause(QueryExpression queryExpression, string columnNamePrefix, CommandParameterFactory commandParameterFactory)
+        {
             var whereExpression = TSqlExpression.Create(queryExpression, commandParameterFactory, columnNamePrefix);
             var whereClause = new WhereClause(whereExpression.ConstraintCommandText);
 

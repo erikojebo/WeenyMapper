@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using WeenyMapper.QueryParsing;
+using System.Linq;
 
 namespace WeenyMapper.Sql
 {
@@ -10,13 +11,12 @@ namespace WeenyMapper.Sql
         {
             ColumnsToSelect = new List<string>();
             OrderByStatements = new List<OrderByStatement>();
-            QueryExpression = QueryExpression.Create();
-            QueryExpressionMetaData = new QueryExpressionMetaData();
+            QueryExpressions = new List<QueryExpressionPart>();
         }
 
         public string TableName { get; set; }
         public IList<string> ColumnsToSelect { get; set; }
-        public QueryExpression QueryExpression { get; set; }
+        public List<QueryExpressionPart> QueryExpressions { get; set; }
         public QueryExpressionMetaData QueryExpressionMetaData { get; set; }
         public IList<OrderByStatement> OrderByStatements { get; set; }
         public int RowCountLimit { get; set; }
@@ -41,7 +41,7 @@ namespace WeenyMapper.Sql
 
         public bool HasQuery
         {
-            get { return QueryExpression != null && !Equals(QueryExpression.Create(), QueryExpression); }
+            get { return QueryExpressions.Any(); }
         }
 
         public static AliasedSqlSubQuery CreateFor<T>()
@@ -59,8 +59,7 @@ namespace WeenyMapper.Sql
 
         public void AddQueryExpression(QueryExpression queryExpression, QueryExpressionMetaData metaData)
         {
-            QueryExpression = queryExpression;
-            QueryExpressionMetaData = metaData;
+            QueryExpressions.Add(new QueryExpressionPart(queryExpression, metaData));
         }
     }
 }

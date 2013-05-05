@@ -201,11 +201,11 @@ namespace WeenyMapper.Specs.Sql
                     Alias = "Table2Alias"
                 };
 
-            _subQuery.AddQueryExpression(QueryExpression.Create(new EqualsExpression("Column1", 123)));
-            _subQuery.QueryExpressionMetaData = new QueryExpressionMetaData { OrderIndex = 0 };
+            _subQuery.AddQueryExpression(QueryExpression.Create(new EqualsExpression("Column1", 123)), new QueryExpressionMetaData { OrderIndex = 0 });
 
-            spec2.AddQueryExpression(QueryExpression.Create(new EqualsExpression("Table2Column1", 234)));
-            spec2.QueryExpressionMetaData = new QueryExpressionMetaData { OrderIndex = 1, CombinationOperation = QueryCombinationOperation.And };
+            spec2.AddQueryExpression(
+                QueryExpression.Create(new EqualsExpression("Table2Column1", 234)),
+                new QueryExpressionMetaData { OrderIndex = 1, CombinationOperation = QueryCombinationOperation.And });
 
             var join = new SqlSubQueryJoin
                 {
@@ -253,8 +253,9 @@ namespace WeenyMapper.Specs.Sql
                 new EqualsExpression("Column1", 345)), 
                 new QueryExpressionMetaData { OrderIndex = 0 });
 
-            spec2.AddQueryExpression(QueryExpression.Create(new EqualsExpression("Table2Column1", 234)));
-            spec2.QueryExpressionMetaData = new QueryExpressionMetaData { OrderIndex = 1, CombinationOperation = QueryCombinationOperation.And };
+            spec2.AddQueryExpression(
+                QueryExpression.Create(new EqualsExpression("Table2Column1", 234)),
+                new QueryExpressionMetaData { OrderIndex = 1, CombinationOperation = QueryCombinationOperation.And });
 
             var join = new SqlSubQueryJoin
                 {
@@ -301,9 +302,12 @@ namespace WeenyMapper.Specs.Sql
                 };
 
             _subQuery.AddQueryExpression(new EqualsExpression("Column1", 123), new QueryExpressionMetaData { OrderIndex = 0 });
-            _subQuery.AddQueryExpression(new EqualsExpression("Column1", 345), new QueryExpressionMetaData { OrderIndex = 2 });
 
-            spec2.AddQueryExpression(QueryExpression.Create(new EqualsExpression("Table2Column1", 234)), new QueryExpressionMetaData { OrderIndex = 1, CombinationOperation = QueryCombinationOperation.And });
+            spec2.AddQueryExpression(
+                QueryExpression.Create(new EqualsExpression("Table2Column1", 234)),
+                new QueryExpressionMetaData { OrderIndex = 1, CombinationOperation = QueryCombinationOperation.And });
+
+            _subQuery.AddQueryExpression(new EqualsExpression("Column1", 345), new QueryExpressionMetaData { OrderIndex = 2, CombinationOperation = QueryCombinationOperation.Or });
 
             var join = new SqlSubQueryJoin
                 {
@@ -323,8 +327,8 @@ namespace WeenyMapper.Specs.Sql
                 "[Table2Alias].[Table2Column1] AS \"Table2Alias Table2Column1\", [Table2Alias].[Table2Column2] AS \"Table2Alias Table2Column2\" " +
                 "FROM [TableName] LEFT OUTER JOIN [TableName2] AS [Table2Alias] " +
                 "ON [TableName].[PrimaryKeyColumnName] = [Table2Alias].[ForeignKeyColumnName] " +
-                "WHERE ([TableName].[Column1] = @TableName_Column1Constraint OR [TableName].[Column1] = @TableName_Column1Constraint2) " +
-                "AND [Table2Alias].[Table2Column1] = @Table2Alias_Table2Column1Constraint";
+                "WHERE [TableName].[Column1] = @TableName_Column1Constraint AND [Table2Alias].[Table2Column1] = @Table2Alias_Table2Column1Constraint " +
+                "OR [TableName].[Column1] = @TableName_Column1Constraint2";
 
             var query = _generator.GenerateSelectQuery(_sqlQuery);
             var actualParameters = query.Parameters.SortByParameterName();
@@ -335,7 +339,7 @@ namespace WeenyMapper.Specs.Sql
             Assert.AreEqual(234, actualParameters[0].Value);
             Assert.AreEqual("TableName_Column1Constraint", actualParameters[1].ParameterName);
             Assert.AreEqual(123, actualParameters[1].Value);
-            Assert.AreEqual("TableName_Column1Constraint1", actualParameters[2].ParameterName);
+            Assert.AreEqual("TableName_Column1Constraint2", actualParameters[2].ParameterName);
             Assert.AreEqual(345, actualParameters[2].Value);
         }
 
