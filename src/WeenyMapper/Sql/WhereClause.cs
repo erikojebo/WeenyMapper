@@ -7,10 +7,6 @@ namespace WeenyMapper.Sql
     {
         private readonly string _constraintString;
 
-        public WhereClause()
-        {
-        }
-
         public WhereClause(string constraintString)
         {
             _constraintString = constraintString;
@@ -35,6 +31,11 @@ namespace WeenyMapper.Sql
             combineWhereClause.CommandParameters.AddRange(whereClause.CommandParameters);
 
             return combineWhereClause;
+        }
+
+        public static WhereClause CreateEmpty()
+        {
+            return new WhereClause("");
         }
     }
 }

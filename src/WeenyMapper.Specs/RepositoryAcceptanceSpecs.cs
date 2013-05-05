@@ -2856,21 +2856,24 @@ namespace WeenyMapper.Specs
                 };
             var post4 = new BlogPost
                 {
-                    Title = "Blog post 3",
-                    Content = "Post 3 content",
+                    Title = "Blog post 4",
+                    Content = "Post 4 content",
                     PublishDate = new DateTime(2011, 2, 1),
                 };
 
-            blog1.AddPost(post1);
+            // Add the posts in the expected sort order to enable comparisons to be made correctly during the asserts
             blog1.AddPost(post2);
-            blog2.AddPost(post3);
+            blog1.AddPost(post3);
+            blog1.AddPost(post1);
+
+            blog2.AddPost(post4);
 
             Repository.Insert(blog1, blog2);
-            Repository.Insert(post1, post2, post3);
+            Repository.Insert(post1, post2, post3, post4);
 
             var actualBlogs = Repository.Find<Blog>()
-                                        .OrderBy<BlogPost>(x => x.PublishDate, x => x.Content)
                                         .OrderByDescending(x => x.Name)
+                                        .OrderBy<BlogPost>(x => x.PublishDate, x => x.Content)
                                         .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog)
                                         .ExecuteList();
 
@@ -2878,14 +2881,15 @@ namespace WeenyMapper.Specs
             Assert.AreEqual(blog2, actualBlogs[0]);
             Assert.AreEqual(blog1, actualBlogs[1]);
 
-            Assert.AreEqual(3, actualBlogs[0].Posts.Count);
-            Assert.AreEqual(post2, actualBlogs[0].Posts[0]);
-            Assert.AreEqual(post3, actualBlogs[0].Posts[1]);
-            Assert.AreEqual(post1, actualBlogs[0].Posts[2]);
+            Assert.AreEqual(1, actualBlogs[0].Posts.Count);
+            Assert.AreEqual(post4, actualBlogs[0].Posts[0]);
 
-            Assert.AreEqual(1, actualBlogs[1].Posts.Count);
-            Assert.AreEqual(post4, actualBlogs[1].Posts[0]);
-        }
+            Assert.AreEqual(3, actualBlogs[1].Posts.Count);
+            Assert.AreEqual(post2, actualBlogs[1].Posts[0]);
+            Assert.AreEqual(post3, actualBlogs[1].Posts[1]);
+            Assert.AreEqual(post1, actualBlogs[1].Posts[2]);
+
+            }
 
         [Test]
         public void Entity_without_primary_key_can_be_written_and_read_back_again()

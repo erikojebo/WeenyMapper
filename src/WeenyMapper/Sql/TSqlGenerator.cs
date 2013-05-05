@@ -65,7 +65,7 @@ namespace WeenyMapper.Sql
             var command = _commandFactory.CreateCommand(commandText);
 
             var whereClause = CreateWhereClause(sqlQuery);
-            var orderByClause = CreateOrderByClause(subQuery);
+            var orderByClause = CreateOrderByClause(sqlQuery);
 
             whereClause.AppendTo(command, _commandFactory);
             orderByClause.AppendTo(command, _commandFactory);
@@ -259,9 +259,30 @@ namespace WeenyMapper.Sql
             return CreateColumnNameList(columnNames, transformation);
         }
 
+        private OrderByClause CreateOrderByClause(SqlQuery sqlQuery)
+        {
+            var combinedOrderByClause = OrderByClause.CreateEmpty();
+            var orderByStatements = sqlQuery.SubQueries.SelectMany(x => x.OrderByStatements).OrderBy(x => x.OrderIndex);
+
+            foreach (var orderByStatement in orderByStatements)
+            {
+                var parentSubQueryForStatement = sqlQuery.SubQueries.First(x => x.OrderByStatements.Any(y => y == orderByStatement));
+                var orderByClause = CreateOrderByClause(orderByStatement, parentSubQueryForStatement);
+
+                combinedOrderByClause = combinedOrderByClause.Combine(orderByClause);
+            }
+
+            return combinedOrderByClause;
+        }
+
         private OrderByClause CreateOrderByClause(AliasedSqlSubQuery subQuery)
         {
             return new OrderByClause(subQuery.OrderByStatements, Escape, subQuery.TableIdentifier);
+        }
+
+        private OrderByClause CreateOrderByClause(OrderByStatement orderByStatement, AliasedSqlSubQuery subQuery)
+        {
+            return new OrderByClause(orderByStatement, Escape, subQuery.TableIdentifier);            
         }
 
         private string CreateColumnNameList(AliasedSqlSubQuery subQuery)
@@ -277,7 +298,7 @@ namespace WeenyMapper.Sql
 
         private WhereClause CreateWhereClause(SqlQuery query)
         {
-            var combinedWhereClause = new WhereClause();
+            var combinedWhereClause = WhereClause.CreateEmpty();
             var queryParts = query.SubQueries.SelectMany(x => x.QueryExpressions ).OrderBy(x => x.MetaData.OrderIndex);
 
             var commandParameterFactory = new CommandParameterFactory();
@@ -297,7 +318,7 @@ namespace WeenyMapper.Sql
         private WhereClause CreateWhereClause(AliasedSqlSubQuery subQuery)
         {
             if (!subQuery.HasQuery)
-                return new WhereClause();
+                return WhereClause.CreateEmpty();
 
             return CreateWhereClause(subQuery.QueryExpressions.First().QueryExpression, subQuery.TableIdentifier, subQuery.TableIdentifier + "_");
         }
