@@ -2888,8 +2888,7 @@ namespace WeenyMapper.Specs
             Assert.AreEqual(post2, actualBlogs[1].Posts[0]);
             Assert.AreEqual(post3, actualBlogs[1].Posts[1]);
             Assert.AreEqual(post1, actualBlogs[1].Posts[2]);
-
-            }
+        }
 
         [Test]
         public void Entity_without_primary_key_can_be_written_and_read_back_again()
