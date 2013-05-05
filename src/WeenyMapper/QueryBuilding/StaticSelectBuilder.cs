@@ -82,14 +82,36 @@ namespace WeenyMapper.QueryBuilding
             return _objectQueryExecutor.Find<T>(_query);
         }
 
-        public StaticSelectBuilder<T> Select<TValue>(Expression<Func<T, TValue>> propertySelector)
+        public StaticSelectBuilder<T> Select(params Expression<Func<T, object>>[] propertySelectors)
         {
-            var subQuery = _query.GetSubQuery<T>();
+            foreach (var propertySelector in propertySelectors)
+            {
+                var subQuery = _query.GetSubQuery<T>();
 
-            string propertyName = GetPropertyName(propertySelector);
+                string propertyName = GetPropertyName(propertySelector);
 
-            subQuery.PropertiesToSelect.Add(propertyName);
+                subQuery.PropertiesToSelect.Add(propertyName);    
+            }
+            
+            return this;
+        }
 
+        public StaticSelectBuilder<T> Select<TAliasedEntity>(params Expression<Func<TAliasedEntity, object>>[] propertySelectors)
+        {
+            return Select(null, propertySelectors);
+        }
+
+        public StaticSelectBuilder<T> Select<TAliasedEntity>(string alias, params Expression<Func<TAliasedEntity, object>>[] propertySelectors)
+        {
+            foreach (var propertySelector in propertySelectors)
+            {
+                var subQuery = _query.GetOrCreateSubQuery<TAliasedEntity>(alias);
+
+                string propertyName = GetPropertyName(propertySelector);
+
+                subQuery.PropertiesToSelect.Add(propertyName);    
+            }
+            
             return this;
         }
 
