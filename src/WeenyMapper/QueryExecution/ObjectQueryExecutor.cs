@@ -99,7 +99,10 @@ namespace WeenyMapper.QueryExecution
                     Alias = subQuery.Alias
                 };
 
-            spec.AddQueryExpression(subQuery.QueryExpression.Translate(_conventionReader), subQuery.QueryExpressionMetaData);
+            foreach (var expressionPart in subQuery.QueryExpressions)
+            {
+                spec.AddQueryExpression(expressionPart.QueryExpression.Translate(_conventionReader), expressionPart.MetaData);                
+            }
 
             sqlQuery.SubQueries.Add(spec);
         }

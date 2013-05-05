@@ -76,29 +76,31 @@ namespace WeenyMapper.Sql
 
         public void AddConjunctionExpression<T>(string alias, QueryExpression queryExpression)
         {
-            var subQuery = GetOrCreateSubQuery<T>(alias);
-
-            subQuery.AddConjunctionExpression(queryExpression);
-
-            UpdateMetaData<T>(subQuery, QueryCombinationOperation.And);
+            AddQueryExpression<T>(alias, queryExpression, QueryCombinationOperation.And);
         }
 
         public void AddDisjunctionExpression<T>(string alias, QueryExpression queryExpression)
         {
-            var subQuery = GetOrCreateSubQuery<T>();
-
-            subQuery.AddDisjunctionExpression(queryExpression);
-
-            UpdateMetaData<T>(subQuery, QueryCombinationOperation.Or);
+            AddQueryExpression<T>(alias, queryExpression, QueryCombinationOperation.Or);
         }
 
-        private void UpdateMetaData<T>(AliasedObjectSubQuery subQuery, QueryCombinationOperation queryCombinationOperation)
+        private void AddQueryExpression<T>(string alias, QueryExpression queryExpression, QueryCombinationOperation queryCombinationOperation)
         {
-            if (!subQuery.QueryExpressionMetaData.HasOrderIndex)
-            {
-                subQuery.QueryExpressionMetaData.OrderIndex = SubQueries.Max(x => x.QueryExpressionMetaData.OrderIndex) + 1;
-                subQuery.QueryExpressionMetaData.CombinationOperation = queryCombinationOperation;
-            }
+            var subQuery = GetOrCreateSubQuery<T>(alias);
+
+            var nextOrderIndex = GetNextOrderIndex();
+
+            subQuery.AddQueryExpression(queryExpression, new QueryExpressionMetaData { OrderIndex = nextOrderIndex, CombinationOperation = queryCombinationOperation });
+        }
+
+        private int GetNextOrderIndex()
+        {
+            var lastQueryExpressionPart = SubQueries.SelectMany(x => x.QueryExpressions).OrderByDescending(x => x.MetaData.OrderIndex).FirstOrDefault();
+
+            if (lastQueryExpressionPart != null)
+                return lastQueryExpressionPart.MetaData.OrderIndex + 1;
+
+            return 0;
         }
     }
 }

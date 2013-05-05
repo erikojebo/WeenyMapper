@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using WeenyMapper.QueryParsing;
 
 namespace WeenyMapper.Sql
@@ -11,14 +10,14 @@ namespace WeenyMapper.Sql
         {
             PropertiesToSelect = new List<string>();
             OrderByStatements = new List<OrderByStatement>();
-            QueryExpression = QueryExpression.Create();
-            QueryExpressionMetaData = new QueryExpressionMetaData();
+            QueryExpressions = new List<QueryExpressionPart>();
             ResultType = resultType;
         }
 
         public IList<string> PropertiesToSelect { get; set; }
         public QueryExpression QueryExpression { get; set; }
         public QueryExpressionMetaData QueryExpressionMetaData { get; set; }
+        public List<QueryExpressionPart> QueryExpressions { get; set; }
         public IList<OrderByStatement> OrderByStatements { get; set; }
         public int RowCountLimit { get; set; }
         public Page Page { get; set; }
@@ -30,21 +29,9 @@ namespace WeenyMapper.Sql
             get { return Page != null && Page.PageSize > 0; }
         }
 
-        public void AddConjunctionExpression(QueryExpression queryExpression)
+        public void AddQueryExpression(QueryExpression queryExpression, QueryExpressionMetaData metaData)
         {
-            if (Equals(QueryExpression, QueryExpression.Create()))
-                QueryExpression = queryExpression;
-            else
-                QueryExpression = new AndExpression(QueryExpression, queryExpression);
-
-        }
-
-        public void AddDisjunctionExpression(QueryExpression queryExpression)
-        {
-            if (Equals(QueryExpression, QueryExpression.Create()))
-                QueryExpression = queryExpression;
-            else
-                QueryExpression = new OrExpression(QueryExpression, queryExpression);
+            QueryExpressions.Add(new QueryExpressionPart(queryExpression, metaData));
         }
     }
 }
