@@ -2,13 +2,13 @@
 <package >
   <metadata>
     <id>WeenyMapper</id>
-    <version>0.3.0</version>
+    <version>0.3.3</version>
     <authors>Erik Öjebo</authors>
     <owners>Erik Öjebo</owners>
     <projectUrl>https://github.com/erikojebo/WeenyMapper</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Configuration-less object-relational mapper for SQL Server and SQL Server CE</description>
-    <releaseNotes>Added support for IS NULL queries and partial selects that do not include the primary key column</releaseNotes>
+    <releaseNotes>Fixed bug in joins with one way navigatino properties</releaseNotes>
     <copyright>Copyright 2012</copyright>
     <tags>.net orm object relational mapping sql sqlserver</tags>
   </metadata>

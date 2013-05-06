@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace WeenyMapper.Extensions
 {
-    public static class ReflectionExtensions
+    internal static class ReflectionExtensions
     {
         public static bool ImplementsGenericInterface(this Type type, Type genericInterfaceType)
         {

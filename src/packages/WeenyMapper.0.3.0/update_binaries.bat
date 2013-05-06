@@ -1,1 +1,0 @@
-cp ../../src/WeenyMapper/bin/Release/WeenyMapper.dll lib/net40/

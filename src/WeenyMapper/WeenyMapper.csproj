@@ -52,6 +52,7 @@
     <Compile Include="Extensions\ReflectionExtensions.cs" />
     <Compile Include="Extensions\SqlCommandExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="IDatabaseProvider.cs" />
     <Compile Include="InMemoryRepository.cs" />
     <Compile Include="Logging\ConsoleSqlCommandLogger.cs" />
@@ -68,6 +69,7 @@
     <Compile Include="Mapping\ResultSet.cs" />
     <Compile Include="Mapping\Row.cs" />
     <Compile Include="QueryExecution\InMemoryDatabase.cs" />
+    <Compile Include="QueryParsing\QueryCombinationOperation.cs" />
     <Compile Include="QueryExecution\InMemoryObjectCountExecutor.cs" />
     <Compile Include="QueryExecution\InMemoryObjectDeleteExecutor.cs" />
     <Compile Include="QueryExecution\InMemoryObjectInsertExecutor.cs" />
@@ -108,6 +110,8 @@
     <Compile Include="QueryParsing\PolyadicOperatorExpression.cs" />
     <Compile Include="QueryParsing\PropertyExpression.cs" />
     <Compile Include="QueryParsing\QueryExpression.cs" />
+    <Compile Include="QueryParsing\QueryExpressionMetaData.cs" />
+    <Compile Include="QueryParsing\QueryExpressionPart.cs" />
     <Compile Include="QueryParsing\ReflectedPropertyExpression.cs" />
     <Compile Include="QueryParsing\RootExpression.cs" />
     <Compile Include="QueryParsing\ValueExpression.cs" />
@@ -130,16 +134,18 @@
     <Compile Include="Sql\IDbCommandFactory.cs" />
     <Compile Include="Sql\ISqlGenerator.cs" />
     <Compile Include="QueryExecution\ObjectQueryExecutor.cs" />
-    <Compile Include="Sql\ObjectQueryJoinSpecification.cs" />
-    <Compile Include="Sql\ObjectQuerySpecification.cs" />
+    <Compile Include="Sql\ObjectQuery.cs" />
+    <Compile Include="Sql\ObjectSubQueryJoin.cs" />
+    <Compile Include="Sql\AliasedObjectSubQuery.cs" />
     <Compile Include="Sql\OrderByClause.cs" />
     <Compile Include="Sql\Page.cs" />
     <Compile Include="Sql\QueryOptimizer.cs" />
     <Compile Include="Sql\ScalarCommand.cs" />
     <Compile Include="Sql\DbCommandExecutor.cs" />
     <Compile Include="Sql\SqlClauseBase.cs" />
-    <Compile Include="Sql\SqlQueryJoinSpecification.cs" />
-    <Compile Include="Sql\SqlQuerySpecification.cs" />
+    <Compile Include="Sql\SqlQuery.cs" />
+    <Compile Include="Sql\SqlSubQueryJoin.cs" />
+    <Compile Include="Sql\AliasedSqlSubQuery.cs" />
     <Compile Include="Sql\SqlServerCommandFactory.cs" />
     <Compile Include="Sql\TopClause.cs" />
     <Compile Include="Sql\TSqlGenerator.cs" />

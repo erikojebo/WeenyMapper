@@ -3,15 +3,15 @@ using System.Reflection;
 
 namespace WeenyMapper.Sql
 {
-    public class ObjectQueryJoinSpecification
+    public class ObjectSubQueryJoin
     {
-        private ObjectQueryJoinSpecification()
+        private ObjectSubQueryJoin()
         {
         }
 
-        public static ObjectQueryJoinSpecification CreateTwoWay(PropertyInfo parentProperty, PropertyInfo childProperty)
+        public static ObjectSubQueryJoin CreateTwoWay(PropertyInfo parentProperty, PropertyInfo childProperty)
         {
-            return new ObjectQueryJoinSpecification
+            return new ObjectSubQueryJoin
                 {
                     ParentProperty = parentProperty,
                     ChildProperty = childProperty,
@@ -20,30 +20,30 @@ namespace WeenyMapper.Sql
                 };
         }
 
-        public static ObjectQueryJoinSpecification CreateParentToChild(PropertyInfo parentProperty, PropertyInfo foreignKeyProperty)
+        public static ObjectSubQueryJoin CreateParentToChild(PropertyInfo parentProperty, PropertyInfo foreignKeyProperty)
         {
-            return new ObjectQueryJoinSpecification
+            return new ObjectSubQueryJoin
                 {
                     ParentProperty = parentProperty,
                     ChildToParentForeignKeyProperty = foreignKeyProperty,
                     ChildType = foreignKeyProperty.DeclaringType,
                     ParentType = parentProperty.DeclaringType,
-                    ObjectQuerySpecification = new ObjectQuerySpecification(foreignKeyProperty.DeclaringType)
+                    AliasedObjectSubQuery = new AliasedObjectSubQuery(foreignKeyProperty.DeclaringType)
                 };
         }
 
-        public static ObjectQueryJoinSpecification CreateChildToParent(PropertyInfo childProperty, Type parentType)
+        public static ObjectSubQueryJoin CreateChildToParent(PropertyInfo childProperty, Type parentType)
         {
-            return new ObjectQueryJoinSpecification
+            return new ObjectSubQueryJoin
                 {
                     ChildProperty = childProperty,
                     ChildType = childProperty.DeclaringType,
                     ParentType = parentType,
-                    ObjectQuerySpecification = new ObjectQuerySpecification(parentType)
+                    AliasedObjectSubQuery = new AliasedObjectSubQuery(parentType)
                 };
         }
 
-        public ObjectQuerySpecification ObjectQuerySpecification { get; set; }
+        public AliasedObjectSubQuery AliasedObjectSubQuery { get; set; }
         public PropertyInfo ParentProperty { get; private set; }
         public PropertyInfo ChildProperty { get; private set; }
         public PropertyInfo ChildToParentForeignKeyProperty { get; private set; }
@@ -59,5 +59,8 @@ namespace WeenyMapper.Sql
         {
             get { return ParentProperty != null; }
         }
+
+        public AliasedObjectSubQuery ChildSubQuery { get; set; }
+        public AliasedObjectSubQuery ParentSubQuery { get; set; }
     }
 }

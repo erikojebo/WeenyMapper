@@ -18,13 +18,14 @@ namespace WeenyMapper.QueryParsing
             PropertyName = propertyName;
         }
 
-        public static OrderByStatement Create(string propertyName, OrderByDirection orderByDirection)
+        public static OrderByStatement Create(string propertyName, OrderByDirection orderByDirection, int orderingIndex)
         {
-            return new OrderByStatement(propertyName, orderByDirection);
+            return new OrderByStatement(propertyName, orderByDirection) { OrderIndex = orderingIndex };
         }
 
         public string PropertyName { get; private set; }
         public OrderByDirection Direction { get; private set; }
+        public int OrderIndex { get; set; }
 
         public OrderByStatement Translate(IConventionReader convention, Type type)
         {

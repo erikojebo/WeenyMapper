@@ -1652,6 +1652,195 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
+        public virtual void Multi_level_relationship_directed_from_middle_level_out_to_parent_and_to_child_can_be_read_with_two_way_relations()
+        {
+            Repository.DefaultConvention = new BlogConvention();
+
+            var blog1 = new Blog
+                {
+                    Name = "Blog 1",
+                };
+
+            var blog2 = new Blog
+                {
+                    Name = "Blog 2",
+                };
+
+            var post1 = new BlogPost
+                {
+                    Title = "Blog post 1",
+                    Content = "Post 1 content",
+                    PublishDate = new DateTime(2011, 1, 1),
+                };
+
+            var post2 = new BlogPost
+                {
+                    Title = "Blog post 2",
+                    Content = "Post 2 content",
+                    PublishDate = new DateTime(2011, 1, 2)
+                };
+
+            var post3 = new BlogPost
+                {
+                    Title = "Blog post 3",
+                    Content = "Post 3 content",
+                    PublishDate = new DateTime(2011, 1, 3)
+                };
+
+            var comment1 = new Comment
+                {
+                    Content = "Comment 1",
+                    PublishDate = new DateTime(2011, 1, 5)
+                };
+
+            var comment2 = new Comment
+                {
+                    Content = "Comment 2",
+                    PublishDate = new DateTime(2011, 1, 6)
+                };
+
+            var comment3 = new Comment
+                {
+                    Content = "Comment 3",
+                    PublishDate = new DateTime(2011, 1, 7)
+                };
+
+            var comment4 = new Comment
+                {
+                    Content = "Comment 4",
+                    PublishDate = new DateTime(2011, 1, 8)
+                };
+
+            var comment5 = new Comment
+                {
+                    Content = "Comment 5",
+                    PublishDate = new DateTime(2011, 1, 9)
+                };
+
+            blog1.AddPost(post1);
+            blog1.AddPost(post2);
+            blog2.AddPost(post3);
+
+            post1.AddComment(comment1);
+            post1.AddComment(comment2);
+            post1.AddComment(comment3);
+            post2.AddComment(comment4);
+            post2.AddComment(comment5);
+
+            Repository.Insert(blog1, blog2);
+            Repository.Insert(post1, post2, post3);
+            Repository.Insert(comment1, comment2, comment3, comment4, comment5);
+
+            var actualBlogPosts = Repository.Find<BlogPost>().Where(x => x.PublishDate >= new DateTime(2011, 1, 2))
+                                            .OrderBy(x => x.PublishDate)
+                                            .Join<BlogPost, Comment>(x => x.Comments, x => x.BlogPost)
+                                            .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog)
+                                            .ExecuteList();
+
+            Assert.AreEqual(2, actualBlogPosts.Count);
+
+            Assert.AreEqual(post2, actualBlogPosts[0]);
+            Assert.AreEqual(post3, actualBlogPosts[1]);
+
+            // Post1 does not match the filter condition of the query, so that won't be in the result
+            // Hence, remove that post from the expected blog, so that we can use the Equals method
+            // to compare the expected with the actual
+            blog1.Posts.Remove(post1);
+
+            Assert.AreEqual(blog1, actualBlogPosts[0].Blog);
+            Assert.AreEqual(blog2, actualBlogPosts[1].Blog);
+
+            var actualBlog1 = actualBlogPosts[0].Blog;
+            var actualBlog2 = actualBlogPosts[1].Blog;
+
+            Assert.AreEqual(1, actualBlog1.Posts.Count);
+            Assert.AreEqual(1, actualBlog2.Posts.Count);
+
+            Assert.AreSame(actualBlogPosts[0], actualBlog1.Posts.First());
+            Assert.AreSame(actualBlogPosts[1], actualBlog2.Posts.First());
+
+            actualBlogPosts[0].Comments.ToList().ForEach(x => Assert.AreSame(actualBlogPosts[0], x.BlogPost));
+            actualBlogPosts[1].Comments.ToList().ForEach(x => Assert.AreSame(actualBlogPosts[1], x.BlogPost));
+        }
+
+        [Ignore("Not implemented yet")]
+        [Test]
+        public virtual void Object_can_join_two_child_collections_using_only_parent_to_child_relation()
+        {
+            var company1 = new Company
+                {
+                    Name = "Company 1"
+                };
+
+            var employee1 = new Employee
+                {
+                    FirstName = "Steve",
+                    LastName = "Smith",
+                    BirthDate = new DateTime(1972, 1, 2),
+                    Company = company1
+                };
+
+            var employee2 = new Employee
+                {
+                    FirstName = "Lisa",
+                    LastName = "Johnsson",
+                    BirthDate = new DateTime(1954, 11, 12),
+                    Company = company1
+                };
+
+            var employee3 = new Employee
+                {
+                    FirstName = "Nisse",
+                    LastName = "Karlsson",
+                    BirthDate = new DateTime(1972, 1, 3),
+                    Company = company1
+                };
+
+            var employee4 = new Employee
+                {
+                    FirstName = "Kalle",
+                    LastName = "Svensson",
+                    BirthDate = new DateTime(1954, 11, 13),
+                    Company = company1
+                };
+
+            var employee5 = new Employee
+                {
+                    FirstName = "Pelle",
+                    LastName = "Persson",
+                    BirthDate = new DateTime(1954, 11, 14),
+                    Company = company1
+                };
+
+            var employee6 = new Employee
+                {
+                    FirstName = "Sture",
+                    LastName = "Karlsson",
+                    BirthDate = new DateTime(1954, 11, 14),
+                    Company = company1
+                };
+
+            employee1.AddMentee(employee2);
+            employee1.AddMentee(employee3);
+
+            employee1.AddSubordinate(employee4);
+            employee1.AddSubordinate(employee5);
+
+            Repository.Insert(company1);
+            Repository.Insert(employee1); // Insert employee1 first since all the others reference that one
+            Repository.Insert(employee2, employee3, employee4, employee5, employee6);
+
+            var actualEmployee1 = Repository.Find<Employee>()
+                                            .Join(x => x.Subordinates, x => x.ManagerId)
+                                            .Join(x => x.Mentees, x => x.MentorId)
+                                            .Execute();
+
+            Assert.AreEqual(employee1, actualEmployee1);
+            CollectionAssert.AreEquivalent(employee1.Subordinates, actualEmployee1.Subordinates);
+            CollectionAssert.AreEquivalent(employee1.Mentees, actualEmployee1.Mentees);
+        }
+
+        [Test]
         public void Entities_with_relation_mapped_as_both_reference_and_foreign_key_value_can_be_written_and_read_back_again_using_single_table_query()
         {
             var company1 = new Company
@@ -2095,9 +2284,8 @@ namespace WeenyMapper.Specs
             Assert.IsNull(actualMovieAfterDelete);
         }
 
-        [Ignore("Not implemented yet")]
         [Test]
-        public void Entity_can_be_joined_to_itself()
+        public void Entity_can_be_joined_to_itself_without_constraints()
         {
             var company = new Company
                 {
@@ -2147,19 +2335,559 @@ namespace WeenyMapper.Specs
 
             Repository.Insert(employee1, employee2, employee3);
 
-            var actualManager1 = Repository.Find<Employee>().Where(x => x.Id == manager1.Id)
-                                           .Join<Employee, Employee>(x => x.Subordinates, x => x.Manager)
-                                           .Execute();
-
             var actualEmployees = Repository.Find<Employee>()
-                                            .Join<Employee, Employee>(x => x.Subordinates, x => x.Manager)
+                                            .Join<Employee, Employee>(x => x.Subordinates, x => x.Manager, null, "Manager")
                                             .OrderBy(x => x.LastName)
                                             .ExecuteList();
 
-            Assert.AreEqual(manager1, actualManager1);
-            Assert.AreEqual(employee1, actualEmployees[0]);
-            Assert.AreEqual(employee2, actualEmployees[1]);
-            Assert.AreEqual(employee3, actualEmployees[2]);
+            Assert.AreEqual(5, actualEmployees.Count);
+
+            AssertEqualsManagerAndSubordinates(employee1, actualEmployees[0]);
+            AssertEqualsManagerAndSubordinates(employee2, actualEmployees[1]);
+            AssertEqualsManagerAndSubordinates(employee3, actualEmployees[2]);
+            AssertEqualsManagerAndSubordinates(manager1, actualEmployees[3]);
+            AssertEqualsManagerAndSubordinates(manager2, actualEmployees[4]);
+        }
+
+        [Test]
+        public void Condition_can_be_placed_on_table_without_alias_when_joining_with_aliased_table()
+        {
+            var company = new Company
+                {
+                    Name = "Company 1"
+                };
+
+            var employee1 = new Employee
+                {
+                    LastName = "Employee 1"
+                };
+
+            var employee2 = new Employee
+                {
+                    LastName = "Employee 2"
+                };
+
+            var employee3 = new Employee
+                {
+                    LastName = "Employee 3"
+                };
+
+            var manager1 = new Employee
+                {
+                    LastName = "Manager"
+                };
+
+            var manager2 = new Employee
+                {
+                    LastName = "Manager 2"
+                };
+
+            Repository.Insert(company);
+
+            company.AddEmployee(employee1);
+            company.AddEmployee(employee2);
+            company.AddEmployee(employee3);
+            company.AddEmployee(manager1);
+            company.AddEmployee(manager2);
+
+            Repository.Insert(manager1, manager2);
+
+            // Add the subordinates after the managers have been saved so that the
+            // ManagerIds are set to the correct values
+            manager1.AddSubordinate(employee1);
+            manager1.AddSubordinate(employee2);
+            manager2.AddSubordinate(employee3);
+
+            Repository.Insert(employee1, employee2, employee3);
+
+            var actualEmployees = Repository.Find<Employee>()
+                                            .Where(x => x.ManagerId == manager1.Id)
+                                            .Join<Employee, Employee>(x => x.Subordinates, x => x.Manager, null, "Manager")
+                                            .OrderBy(x => x.LastName)
+                                            .ExecuteList();
+
+            Assert.AreEqual(2, actualEmployees.Count);
+
+            AssertEqualsManagerAndSubordinates(employee1, actualEmployees[0]);
+            AssertEqualsManagerAndSubordinates(employee2, actualEmployees[1]);
+        }
+
+        [Test]
+        public void Condition_can_be_placed_on_aliased_table_when_joining_entity_to_itself()
+        {
+            var company = new Company
+                {
+                    Name = "Company 1"
+                };
+
+            var employee1 = new Employee
+                {
+                    LastName = "Employee 1"
+                };
+
+            var employee2 = new Employee
+                {
+                    LastName = "Employee 2"
+                };
+
+            var employee3 = new Employee
+                {
+                    LastName = "Employee 3"
+                };
+
+            var manager1 = new Employee
+                {
+                    LastName = "Manager"
+                };
+
+            var manager2 = new Employee
+                {
+                    LastName = "Manager 2"
+                };
+
+            Repository.Insert(company);
+
+            company.AddEmployee(employee1);
+            company.AddEmployee(employee2);
+            company.AddEmployee(employee3);
+            company.AddEmployee(manager1);
+            company.AddEmployee(manager2);
+
+            Repository.Insert(manager1, manager2);
+
+            // Add the subordinates after the managers have been saved so that the
+            // ManagerIds are set to the correct values
+            manager1.AddSubordinate(employee1);
+            manager1.AddSubordinate(employee2);
+            manager2.AddSubordinate(employee3);
+
+            Repository.Insert(employee1, employee2, employee3);
+
+            var actualEmployees = Repository.Find<Employee>()
+                                            .Where<Employee>("Manager", x => x.Id == manager1.Id)
+                                            .Join<Employee, Employee>(x => x.Subordinates, x => x.Manager, null, "Manager")
+                                            .OrderBy(x => x.LastName)
+                                            .ExecuteList();
+
+            Assert.AreEqual(2, actualEmployees.Count);
+
+            AssertEqualsManagerAndSubordinates(employee1, actualEmployees[0]);
+            AssertEqualsManagerAndSubordinates(employee2, actualEmployees[1]);
+        }
+
+        [Test]
+        public void Conjuncted_conditions_on_multiple_aliased_tables_can_be_specified_in_a_single_join_query()
+        {
+            Repository.IsEntityCachingEnabled = true;
+
+            Repository.DefaultConvention = new BlogConvention();
+
+            var blog1 = new Blog
+                {
+                    Name = "Blog 1",
+                };
+
+            var blog2 = new Blog
+                {
+                    Name = "Blog 2",
+                };
+
+            var post1 = new BlogPost
+                {
+                    Title = "Blog post 1",
+                    Content = "Post 1 content",
+                    PublishDate = new DateTime(2011, 4, 1),
+                };
+
+            var post2 = new BlogPost
+                {
+                    Title = "Blog post 2",
+                    Content = "Post 2 content",
+                    PublishDate = new DateTime(2011, 2, 2),
+                };
+
+            var post3 = new BlogPost
+                {
+                    Title = "Blog post 3",
+                    Content = "Post 3 content",
+                    PublishDate = new DateTime(2011, 3, 3),
+                };
+
+            var post4 = new BlogPost
+                {
+                    Title = "Blog post 4",
+                    Content = "Post 4 content",
+                    PublishDate = new DateTime(2011, 4, 4),
+                };
+
+            blog1.AddPost(post1);
+            blog2.AddPost(post2);
+            blog2.AddPost(post3);
+            blog2.AddPost(post4);
+
+            Repository.Insert(blog1, blog2);
+            Repository.Insert(post1, post2, post3, post4);
+
+            var actualPosts = Repository.Find<BlogPost>()
+                                        .Where(x => x.PublishDate > new DateTime(2011, 3, 1))
+                                        .AndWhere<Blog>(null, x => x.Name == "Blog 2")
+                                        .OrderBy(x => x.Title)
+                                        .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog)
+                                        .ExecuteList();
+
+            Assert.AreEqual(2, actualPosts.Count);
+            Assert.AreEqual(post3, actualPosts[0]);
+            Assert.AreEqual(post4, actualPosts[1]);
+        }
+
+        [Test]
+        public void Disjuncted_conditions_on_multiple_tables_can_be_specified_in_a_single_join_query()
+        {
+            Repository.IsEntityCachingEnabled = true;
+
+            Repository.DefaultConvention = new BlogConvention();
+
+            var blog1 = new Blog
+                {
+                    Name = "Blog 1",
+                };
+
+            var blog2 = new Blog
+                {
+                    Name = "Blog 2",
+                };
+
+            var post1 = new BlogPost
+                {
+                    Title = "Blog post 1",
+                    Content = "Post 1 content",
+                    PublishDate = new DateTime(2011, 4, 1),
+                };
+
+            var post2 = new BlogPost
+                {
+                    Title = "Blog post 2",
+                    Content = "Post 2 content",
+                    PublishDate = new DateTime(2011, 2, 2),
+                };
+
+            var post3 = new BlogPost
+                {
+                    Title = "Blog post 3",
+                    Content = "Post 3 content",
+                    PublishDate = new DateTime(2011, 3, 3),
+                };
+
+            var post4 = new BlogPost
+                {
+                    Title = "Blog post 4",
+                    Content = "Post 4 content",
+                    PublishDate = new DateTime(2011, 4, 4),
+                };
+
+            blog1.AddPost(post1);
+            blog2.AddPost(post2);
+            blog2.AddPost(post3);
+            blog2.AddPost(post4);
+
+            Repository.Insert(blog1, blog2);
+            Repository.Insert(post1, post2, post3, post4);
+
+            var actualBlogs = Repository.Find<Blog>()
+                                        .Where(x => x.Name == "Blog 1")
+                                        .OrWhere<BlogPost>(x => x.Title == "Blog post 2")
+                                        .OrderBy(x => x.Name)
+                                        .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog)
+                                        .ExecuteList();
+
+            // Change the original objects to the expected state for the retrieved objects, so that 
+            // we can use Equals to compare the actual result with what is expected
+            blog2.Posts.Remove(post3);
+            blog2.Posts.Remove(post4);
+
+            Assert.AreEqual(2, actualBlogs.Count);
+            Assert.AreEqual(blog1, actualBlogs[0]);
+            Assert.AreEqual(blog2, actualBlogs[1]);
+        }
+
+        [Test]
+        public void Conditions_on_multiple_tables_are_combined_with_the_expected_operator_precedence()
+        {
+            Repository.IsEntityCachingEnabled = true;
+
+            Repository.DefaultConvention = new BlogConvention();
+
+            var blog1 = new Blog
+                {
+                    Name = "Blog 1",
+                };
+
+            var blog2 = new Blog
+                {
+                    Name = "Blog 2",
+                };
+
+            var blog3 = new Blog
+                {
+                    Name = "Blog 3",
+                };
+
+            var post1 = new BlogPost
+                {
+                    Title = "Blog post 1",
+                    Content = "Post 1 content",
+                    PublishDate = new DateTime(2011, 2, 2),
+                };
+
+            var post2 = new BlogPost
+                {
+                    Title = "Blog post 2",
+                    Content = "Post 2 content",
+                    PublishDate = new DateTime(2011, 2, 2),
+                };
+
+            var post3 = new BlogPost
+                {
+                    Title = "Blog post 3",
+                    Content = "Post 3 content",
+                    PublishDate = new DateTime(2011, 3, 3),
+                };
+
+            var post4 = new BlogPost
+                {
+                    Title = "Blog post 4",
+                    Content = "Post 4 content",
+                    PublishDate = new DateTime(2011, 2, 2),
+                };
+
+            var post5 = new BlogPost
+                {
+                    Title = "Blog post 5",
+                    Content = "Post 5 content",
+                    PublishDate = new DateTime(2011, 5, 5),
+                };
+
+            blog1.AddPost(post1);
+            blog2.AddPost(post2);
+            blog2.AddPost(post3);
+            blog3.AddPost(post4);
+            blog1.AddPost(post5);
+
+            Repository.Insert(blog1, blog2, blog3);
+            Repository.Insert(post1, post2, post3, post4);
+
+            var actualBlogs = Repository.Find<Blog>()
+                                        .Where(x => x.Name == "Blog 1")
+                                        .OrWhere(x => x.Name == "Blog 2")
+                                        .AndWhere<BlogPost>(x => x.PublishDate == new DateTime(2011, 2, 2))
+                                        .OrderBy(x => x.Name)
+                                        .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog)
+                                        .ExecuteList();
+
+            // Change the original objects to the expected state for the retrieved objects, so that 
+            // we can use Equals to compare the actual result with what is expected
+            blog1.Posts.Remove(post5);
+            blog2.Posts.Remove(post3);
+
+            Assert.AreEqual(2, actualBlogs.Count);
+            Assert.AreEqual(blog1, actualBlogs[0]);
+            Assert.AreEqual(blog2, actualBlogs[1]);
+        }
+
+        [Test]
+        public void Conditions_on_multiple_tables_are_combined_with_the_expected_operator_precedence_when_specifying_conditions_alternating_between_tables()
+        {
+            Repository.IsEntityCachingEnabled = true;
+
+            Repository.DefaultConvention = new BlogConvention();
+
+            var blog1 = new Blog
+                {
+                    Name = "Blog 1",
+                };
+
+            var blog2 = new Blog
+                {
+                    Name = "Blog 2",
+                };
+
+            var blog3 = new Blog
+                {
+                    Name = "Blog 3",
+                };
+
+            var post1 = new BlogPost
+                {
+                    Title = "Blog post 1",
+                    Content = "Post 1 content",
+                    PublishDate = new DateTime(2011, 2, 2),
+                };
+
+            var post2 = new BlogPost
+                {
+                    Title = "Blog post 2",
+                    Content = "Post 2 content",
+                    PublishDate = new DateTime(2011, 2, 2),
+                };
+
+            var post3 = new BlogPost
+                {
+                    Title = "Blog post 3",
+                    Content = "Post 3 content",
+                    PublishDate = new DateTime(2011, 3, 3),
+                };
+
+            var post4 = new BlogPost
+                {
+                    Title = "Blog post 4",
+                    Content = "Post 4 content",
+                    PublishDate = new DateTime(2011, 2, 2),
+                };
+
+            var post5 = new BlogPost
+                {
+                    Title = "Blog post 5",
+                    Content = "Post 5 content",
+                    PublishDate = new DateTime(2011, 5, 5),
+                };
+
+            blog1.AddPost(post1);
+            blog2.AddPost(post2);
+            blog2.AddPost(post3);
+            blog3.AddPost(post4);
+            blog1.AddPost(post5);
+
+            Repository.Insert(blog1, blog2, blog3);
+            Repository.Insert(post1, post2, post3, post4);
+
+            var actualBlogs = Repository.Find<Blog>()
+                                        .Where(x => x.Name == "Blog 1")
+                                        .AndWhere<BlogPost>(x => x.PublishDate == new DateTime(2011, 2, 2))
+                                        .OrWhere(x => x.Name == "Blog 2")
+                                        .OrderBy(x => x.Name)
+                                        .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog)
+                                        .ExecuteList();
+
+            // Change the original objects to the expected state for the retrieved objects, so that 
+            // we can use Equals to compare the actual result with what is expected
+            blog1.Posts.Remove(post5);
+
+            Assert.AreEqual(2, actualBlogs.Count);
+            Assert.AreEqual(blog1, actualBlogs[0]);
+            Assert.AreEqual(blog2, actualBlogs[1]);
+        }
+
+        [Test]
+        public void Partial_selects_can_be_specified_for_multiple_tables_in_a_join()
+        {
+            Repository.DefaultConvention = new BlogConvention();
+
+            var blog1 = new Blog
+                {
+                    Name = "Blog 1",
+                };
+
+            var post1 = new BlogPost
+                {
+                    Title = "Blog post 1",
+                    Content = "Post 1 content",
+                    PublishDate = new DateTime(2011, 2, 2),
+                };
+
+            blog1.AddPost(post1);
+
+            Repository.Insert(blog1);
+            Repository.Insert(post1);
+
+            var actualBlogs = Repository.Find<Blog>()
+                                        .Select(x => x.Id)
+                                        .Select<BlogPost>(x => x.Id, x => x.Title)
+                                        .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog)
+                                        .ExecuteList();
+
+            Assert.AreEqual(1, actualBlogs.Count);
+            Assert.AreEqual(blog1.Id, actualBlogs[0].Id);
+            Assert.IsNull(actualBlogs[0].Name);
+
+            Assert.AreEqual(1, actualBlogs[0].Posts.Count);
+
+            var actualPost = actualBlogs[0].Posts[0];
+
+            Assert.AreEqual(post1.Id, actualPost.Id);
+            Assert.AreEqual("Blog post 1", actualPost.Title);
+            Assert.IsNull(actualPost.Content);
+            Assert.AreEqual(new DateTime(), actualPost.PublishDate);
+            Assert.IsNull(actualPost.Author);
+            Assert.AreSame(actualBlogs[0], actualPost.Blog);
+            CollectionAssert.IsEmpty(actualPost.Comments);
+        }
+
+        [Test]
+        public void Order_by_clauses_can_be_specified_for_multiple_tables_in_a_join()
+        {
+            Repository.DefaultConvention = new BlogConvention();
+
+            var blog1 = new Blog
+                {
+                    Name = "Blog 1",
+                };
+            var blog2 = new Blog
+                {
+                    Name = "Blog 2",
+                };
+
+            var post1 = new BlogPost
+                {
+                    Title = "Blog post 1",
+                    Content = "Post 1 content",
+                    PublishDate = new DateTime(2011, 2, 3),
+                };
+            var post2 = new BlogPost
+                {
+                    Title = "Blog post 2",
+                    Content = "aaa",
+                    PublishDate = new DateTime(2011, 2, 2),
+                };
+            var post3 = new BlogPost
+                {
+                    Title = "Blog post 3",
+                    Content = "zzz",
+                    PublishDate = new DateTime(2011, 2, 2),
+                };
+            var post4 = new BlogPost
+                {
+                    Title = "Blog post 4",
+                    Content = "Post 4 content",
+                    PublishDate = new DateTime(2011, 2, 1),
+                };
+
+            // Add the posts in the expected sort order to enable comparisons to be made correctly during the asserts
+            blog1.AddPost(post2);
+            blog1.AddPost(post3);
+            blog1.AddPost(post1);
+
+            blog2.AddPost(post4);
+
+            Repository.Insert(blog1, blog2);
+            Repository.Insert(post1, post2, post3, post4);
+
+            var actualBlogs = Repository.Find<Blog>()
+                                        .OrderByDescending(x => x.Name)
+                                        .OrderBy<BlogPost>(x => x.PublishDate, x => x.Content)
+                                        .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog)
+                                        .ExecuteList();
+
+            Assert.AreEqual(2, actualBlogs.Count);
+            Assert.AreEqual(blog2, actualBlogs[0]);
+            Assert.AreEqual(blog1, actualBlogs[1]);
+
+            Assert.AreEqual(1, actualBlogs[0].Posts.Count);
+            Assert.AreEqual(post4, actualBlogs[0].Posts[0]);
+
+            Assert.AreEqual(3, actualBlogs[1].Posts.Count);
+            Assert.AreEqual(post2, actualBlogs[1].Posts[0]);
+            Assert.AreEqual(post3, actualBlogs[1].Posts[1]);
+            Assert.AreEqual(post1, actualBlogs[1].Posts[2]);
         }
 
         [Test]
@@ -2387,6 +3115,27 @@ namespace WeenyMapper.Specs
 
             Assert.AreEqual(2, actualBlogs.Count);
             CollectionAssert.AreEquivalent(new[] { expectedBlog1, expectedBlog2 }, actualBlogs);
+        }
+
+        private void AssertEqualsManagerAndSubordinates(Employee employee, Employee actualEmployee)
+        {
+            Assert.AreEqual(employee.Id, actualEmployee.Id);
+            Assert.AreEqual(employee.FirstName, actualEmployee.FirstName);
+            Assert.AreEqual(employee.LastName, actualEmployee.LastName);
+
+            Assert.AreEqual(employee.Subordinates.Count, actualEmployee.Subordinates.Count);
+            CollectionAssert.AreEquivalent(employee.Subordinates.Select(x => x.Id), actualEmployee.Subordinates.Select(x => x.Id));
+
+            if (employee.Manager != null)
+            {
+                Assert.IsNotNull(actualEmployee.Manager);
+
+                AssertEqualsManagerAndSubordinates(employee.Manager, actualEmployee.Manager);
+            }
+            else
+            {
+                Assert.IsNull(actualEmployee.Manager);
+            }
         }
     }
 }

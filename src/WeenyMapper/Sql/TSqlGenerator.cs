@@ -4,6 +4,7 @@ using System.Data.Common;
 using System.Linq;
 using WeenyMapper.Exceptions;
 using WeenyMapper.Extensions;
+using WeenyMapper.Mapping;
 using WeenyMapper.QueryParsing;
 
 namespace WeenyMapper.Sql
@@ -17,26 +18,28 @@ namespace WeenyMapper.Sql
             _commandFactory = commandFactory;
         }
 
-        public DbCommand GenerateSelectQuery(SqlQuerySpecification querySpecification)
+        public DbCommand GenerateSelectQuery(SqlQuery sqlQuery)
         {
-            if (querySpecification.HasJoinSpecification)
+            var subQuery = sqlQuery.SubQueries.First();
+
+            if (sqlQuery.IsJoinQuery)
             {
-                return GenerateJoinQuery(querySpecification);
+                return GenerateJoinQuery(sqlQuery);
             }
-            if (querySpecification.IsPagingQuery)
+            if (subQuery.IsPagingQuery)
             {
-                return GeneratePagingQuery(querySpecification);
+                return GeneratePagingQuery(subQuery);
             }
 
             var command = _commandFactory.CreateCommand();
 
-            var selectedColumnString = CreateColumnNameList(querySpecification.ColumnsToSelect, Escape);
+            var selectedColumnString = CreateColumnNameList(subQuery);
 
-            command.CommandText = string.Format("SELECT:topClause {0} FROM {1}", selectedColumnString, Escape(querySpecification.TableName));
+            command.CommandText = string.Format("SELECT:topClause {0} FROM {1}", selectedColumnString, FromClauseTableIdentifier(subQuery));
 
-            var whereClause = CreateWhereClause(querySpecification.QueryExpression);
-            var orderByClause = CreateOrderByClause(querySpecification.OrderByStatements);
-            var topClause = new TopClause(querySpecification.RowCountLimit, new CommandParameterFactory());
+            var whereClause = CreateWhereClause(sqlQuery);
+            var orderByClause = CreateOrderByClause(subQuery);
+            var topClause = new TopClause(subQuery.RowCountLimit, new CommandParameterFactory());
 
             whereClause.AppendTo(command, _commandFactory);
             orderByClause.AppendTo(command, _commandFactory);
@@ -45,22 +48,24 @@ namespace WeenyMapper.Sql
             return command;
         }
 
-        private DbCommand GenerateJoinQuery(SqlQuerySpecification querySpecification)
+        private DbCommand GenerateJoinQuery(SqlQuery sqlQuery)
         {
-            var columnSelectStrings = CreateColumnSelectStrings(querySpecification);
+            var subQuery = sqlQuery.SubQueries.First();
+
+            var columnSelectStrings = CreateColumnSelectStrings(sqlQuery);
             var columnSelectString = string.Join(", ", columnSelectStrings);
 
-            var joinClause = CreateJoinClauses(querySpecification);
+            var joinClause = CreateJoinClauses(sqlQuery);
 
             var commandText = string.Format("SELECT {0} FROM {1} {2}",
-                columnSelectString,
-                Escape(querySpecification.TableName),
-                joinClause);
+                                            columnSelectString,
+                                            FromClauseTableIdentifier(subQuery),
+                                            joinClause);
 
             var command = _commandFactory.CreateCommand(commandText);
 
-            var whereClause = CreateWhereClause(querySpecification.QueryExpression, querySpecification.TableName, querySpecification.TableName + "_");
-            var orderByClause = CreateOrderByClause(querySpecification.OrderByStatements, Escape(querySpecification.TableName));
+            var whereClause = CreateWhereClause(sqlQuery);
+            var orderByClause = CreateOrderByClause(sqlQuery);
 
             whereClause.AppendTo(command, _commandFactory);
             orderByClause.AppendTo(command, _commandFactory);
@@ -68,54 +73,79 @@ namespace WeenyMapper.Sql
             return command;
         }
 
-        private string CreateJoinClauses(SqlQuerySpecification querySpecification)
+        private string CreateJoinClauses(SqlQuery sqlQuery)
         {
             var joinClauses = new List<string>();
+            var availableTables = new List<string> { sqlQuery.SubQueries.First().TableName };
+            var addedJoins = new HashSet<SqlSubQueryJoin>();
 
-            var currentQuerySpecification = querySpecification;
-
-            while (currentQuerySpecification.HasJoinSpecification)
+            while (addedJoins.Count < sqlQuery.Joins.Count)
             {
-                var joinClause = CreateJoinClause(currentQuerySpecification);
-                joinClauses.Add(joinClause);
+                foreach (var remainingJoin in sqlQuery.Joins.Except(addedJoins).ToList())
+                {
+                    AliasedSqlSubQuery newSubQuery = null;
 
-                currentQuerySpecification = currentQuerySpecification.JoinSpecification.SqlQuerySpecification;
+                    if (availableTables.Contains(remainingJoin.ChildTableName))
+                        newSubQuery = remainingJoin.ParentSubQuery;
+                    else if (availableTables.Contains(remainingJoin.ParentTableName))
+                        newSubQuery = remainingJoin.ChildSubQuery;
+
+                    if (newSubQuery == null)
+                        continue;
+
+                    var joinClause = CreateJoinClause(remainingJoin, newSubQuery);
+
+                    joinClauses.Add(joinClause);
+                    addedJoins.Add(remainingJoin);
+
+                    availableTables.Add(remainingJoin.ChildTableName);
+                    availableTables.Add(remainingJoin.ParentTableName);
+                }
             }
 
             return string.Join(" ", joinClauses);
         }
 
-        private string CreateJoinClause(SqlQuerySpecification querySpecification)
+        private string CreateJoinClause(SqlSubQueryJoin joinSpec, AliasedSqlSubQuery newSubQuery)
         {
             return string.Format("LEFT OUTER JOIN {0} ON {1}.{2} = {3}.{4}",
-                Escape(querySpecification.JoinSpecification.SqlQuerySpecification.TableName),
-                Escape(querySpecification.JoinSpecification.ParentTableName),
-                Escape(querySpecification.JoinSpecification.ParentPrimaryKeyColumnName),
-                Escape(querySpecification.JoinSpecification.ChildTableName),
-                Escape(querySpecification.JoinSpecification.ChildForeignKeyColumnName));
+                                 FromClauseTableIdentifier(newSubQuery),
+                                 Escape(joinSpec.ParentSubQuery.TableIdentifier),
+                                 Escape(joinSpec.ParentPrimaryKeyColumnName),
+                                 Escape(joinSpec.ChildSubQuery.TableIdentifier),
+                                 Escape(joinSpec.ChildForeignKeyColumnName));
         }
 
-        private DbCommand GeneratePagingQuery(SqlQuerySpecification querySpecification)
+        private static string FromClauseTableIdentifier(AliasedSqlSubQuery subQuery)
+        {
+            if (subQuery.HasCustomAlias)
+                return string.Format("{0} AS {1}", Escape(subQuery.TableName), Escape(subQuery.Alias));
+
+            return Escape(subQuery.TableName);
+        }
+
+        private DbCommand GeneratePagingQuery(AliasedSqlSubQuery subQuery)
         {
             var command = _commandFactory.CreateCommand();
 
-            if (querySpecification.OrderByStatements.IsEmpty() && string.IsNullOrEmpty(querySpecification.PrimaryKeyColumnName))
+            if (subQuery.OrderByStatements.IsEmpty() && string.IsNullOrEmpty(subQuery.PrimaryKeyColumnName))
                 throw new WeenyMapperException("You have to specify an order by clause for paging queries");
 
-            if (querySpecification.OrderByStatements.IsEmpty())
+            if (subQuery.OrderByStatements.IsEmpty())
             {
-                var orderByPrimaryKeyStatement = OrderByStatement.Create(querySpecification.PrimaryKeyColumnName, OrderByDirection.Ascending);
-                querySpecification.OrderByStatements.Add(orderByPrimaryKeyStatement);
+                var orderByPrimaryKeyStatement = OrderByStatement.Create(subQuery.PrimaryKeyColumnName, OrderByDirection.Ascending, 0);
+                subQuery.OrderByStatements.Add(orderByPrimaryKeyStatement);
             }
 
-            var selectedColumnString = CreateColumnNameList(querySpecification.ColumnsToSelect, Escape);
+            var selectedColumnString = CreateColumnNameList(subQuery);
 
-            command.CommandText = string.Format("SELECT {0}, ROW_NUMBER() OVER (:orderByClause) AS \"RowNumber\" FROM {1}",
-                selectedColumnString,
-                Escape(querySpecification.TableName));
+            command.CommandText = string.Format("SELECT {0}, ROW_NUMBER() OVER (:orderByClause) AS \"{1}RowNumber\" FROM {2}",
+                                                selectedColumnString,
+                                                EntityMapper.WeenyMapperGeneratedColumnNamePrefix,
+                                                Escape(subQuery.TableName));
 
-            var whereClause = CreateWhereClause(querySpecification.QueryExpression);
-            var orderByClause = CreateOrderByClause(querySpecification.OrderByStatements);
+            var whereClause = CreateWhereClause(subQuery);
+            var orderByClause = CreateOrderByClause(subQuery);
 
             whereClause.AppendTo(command, _commandFactory);
             orderByClause.InsertAtMarker(command, ":orderByClause", _commandFactory);
@@ -123,13 +153,12 @@ namespace WeenyMapper.Sql
             command.CommandText = string.Format("WITH [CompleteResult] AS ({0}) ", command.CommandText);
 
             var selectString = string.Format(
-                "SELECT {0} FROM [CompleteResult] WHERE [RowNumber] BETWEEN @LowRowLimit AND @HighRowLimit",
-                selectedColumnString);
+                "SELECT * FROM [CompleteResult] WHERE [{0}RowNumber] BETWEEN @LowRowLimit AND @HighRowLimit", EntityMapper.WeenyMapperGeneratedColumnNamePrefix);
 
             command.CommandText += selectString;
 
-            command.Parameters.Add(_commandFactory.CreateParameter("LowRowLimit", querySpecification.Page.LowRowLimit));
-            command.Parameters.Add(_commandFactory.CreateParameter("HighRowLimit", querySpecification.Page.HighRowLimit));
+            command.Parameters.Add(_commandFactory.CreateParameter("LowRowLimit", subQuery.Page.LowRowLimit));
+            command.Parameters.Add(_commandFactory.CreateParameter("HighRowLimit", subQuery.Page.HighRowLimit));
 
             return command;
         }
@@ -203,25 +232,25 @@ namespace WeenyMapper.Sql
             return command;
         }
 
-        private string CreateColumnSelectString(string columnName, SqlQuerySpecification querySpecification)
+        private IEnumerable<string> CreateColumnSelectStrings(SqlQuery sqlQuery)
         {
-            var alias = string.Format("{0} {1}", querySpecification.TableName, columnName);
-            var columnReference = new ColumnReference(columnName, querySpecification.TableName, Escape);
-            return string.Format("{0} AS \"{1}\"", columnReference, alias);
-        }
-
-        private IEnumerable<string> CreateColumnSelectStrings(SqlQuerySpecification querySpecification)
-        {
-            var joinedColumnStrings = Enumerable.Empty<string>();
-
-            if (querySpecification.HasJoinSpecification)
+            var joinedColumnStrings = new List<string>();
+            
+            foreach (var subQuery in sqlQuery.SubQueries)
             {
-                joinedColumnStrings = CreateColumnSelectStrings(querySpecification.JoinSpecification.SqlQuerySpecification);
+                var stringsForCurrentTable = subQuery.ColumnsToSelect.Select(x => CreateColumnSelectString(x, subQuery));
+
+                joinedColumnStrings.AddRange(stringsForCurrentTable);
             }
 
-            var stringsForCurrentTable = querySpecification.ColumnsToSelect.Select(x => CreateColumnSelectString(x, querySpecification));
+            return joinedColumnStrings;
+        }
 
-            return stringsForCurrentTable.Concat(joinedColumnStrings);
+        private string CreateColumnSelectString(string columnName, AliasedSqlSubQuery subQuery)
+        {
+            var alias = string.Format("{0} {1}", subQuery.TableIdentifier, columnName);
+            var columnReference = new ColumnReference(columnName, subQuery.TableIdentifier, Escape);
+            return string.Format("{0} AS \"{1}\"", columnReference, alias);
         }
 
         private string CreateColumnNameList(IEnumerable<KeyValuePair<string, object>> propertyValues, Func<string, string> transformation)
@@ -230,24 +259,88 @@ namespace WeenyMapper.Sql
             return CreateColumnNameList(columnNames, transformation);
         }
 
-        private OrderByClause CreateOrderByClause(IEnumerable<OrderByStatement> orderByStatements, string tableName = "")
+        private OrderByClause CreateOrderByClause(SqlQuery sqlQuery)
         {
-            return new OrderByClause(orderByStatements, Escape, tableName);
+            var combinedOrderByClause = OrderByClause.CreateEmpty();
+            var orderByStatements = sqlQuery.SubQueries.SelectMany(x => x.OrderByStatements).OrderBy(x => x.OrderIndex);
+
+            foreach (var orderByStatement in orderByStatements)
+            {
+                var parentSubQueryForStatement = sqlQuery.SubQueries.First(x => x.OrderByStatements.Any(y => y == orderByStatement));
+                var orderByClause = CreateOrderByClause(orderByStatement, parentSubQueryForStatement);
+
+                combinedOrderByClause = combinedOrderByClause.Combine(orderByClause);
+            }
+
+            return combinedOrderByClause;
         }
 
-        private string CreateColumnNameList(IEnumerable<string> columnNames, Func<string, string> transformation)
+        private OrderByClause CreateOrderByClause(AliasedSqlSubQuery subQuery)
         {
-            var escapedColumnNames = columnNames.Select(transformation);
+            return new OrderByClause(subQuery.OrderByStatements, Escape, subQuery.TableIdentifier);
+        }
+
+        private OrderByClause CreateOrderByClause(OrderByStatement orderByStatement, AliasedSqlSubQuery subQuery)
+        {
+            return new OrderByClause(orderByStatement, Escape, subQuery.TableIdentifier);            
+        }
+
+        private string CreateColumnNameList(AliasedSqlSubQuery subQuery)
+        {
+            return CreateColumnNameList(subQuery.ColumnsToSelect, x => new ColumnReference(x, subQuery.TableIdentifier, Escape).ToString());
+        }
+
+        private string CreateColumnNameList(IEnumerable<string> columnsNames, Func<string, string> transformation)
+        {
+            var escapedColumnNames = columnsNames.Select(transformation);
             return string.Join(", ", escapedColumnNames);
+        }
+
+        private WhereClause CreateWhereClause(SqlQuery query)
+        {
+            var combinedWhereClause = WhereClause.CreateEmpty();
+            var queryParts = query.SubQueries.SelectMany(x => x.QueryExpressions ).OrderBy(x => x.MetaData.OrderIndex);
+
+            var commandParameterFactory = new CommandParameterFactory();
+
+            foreach (var expressionPart in queryParts)
+            {
+                var parentSubQueryForPart = query.SubQueries.First(x => x.QueryExpressions.Any(q => q == expressionPart));
+                
+                var whereClause = CreateWhereClause(expressionPart.QueryExpression, parentSubQueryForPart, commandParameterFactory);
+
+                combinedWhereClause = combinedWhereClause.Combine(whereClause, expressionPart.MetaData.CombinationOperation);
+            }
+
+            return combinedWhereClause;
+        }
+
+        private WhereClause CreateWhereClause(AliasedSqlSubQuery subQuery)
+        {
+            if (!subQuery.HasQuery)
+                return WhereClause.CreateEmpty();
+
+            return CreateWhereClause(subQuery.QueryExpressions.First().QueryExpression, subQuery.TableIdentifier, subQuery.TableIdentifier + "_");
+        }
+
+        private WhereClause CreateWhereClause(QueryExpression queryExpression, AliasedSqlSubQuery subQuery, CommandParameterFactory commandParameterFactory)
+        {
+            commandParameterFactory.ParameterNamePrefix = subQuery.TableIdentifier + "_";
+            return CreateWhereClause(queryExpression, subQuery.TableIdentifier, commandParameterFactory);
         }
 
         private WhereClause CreateWhereClause(QueryExpression queryExpression, string columnNamePrefix = "", string parameterNamePrefix = "")
         {
             var commandParameterFactory = new CommandParameterFactory
-                {
-                    ParameterNamePrefix = parameterNamePrefix,
-                };
+            {
+                ParameterNamePrefix = parameterNamePrefix,
+            };
 
+            return CreateWhereClause(queryExpression, columnNamePrefix, commandParameterFactory);
+        }
+
+        private WhereClause CreateWhereClause(QueryExpression queryExpression, string columnNamePrefix, CommandParameterFactory commandParameterFactory)
+        {
             var whereExpression = TSqlExpression.Create(queryExpression, commandParameterFactory, columnNamePrefix);
             var whereClause = new WhereClause(whereExpression.ConstraintCommandText);
 
@@ -328,7 +421,9 @@ namespace WeenyMapper.Sql
                 ConstraintCommandText = string.Format("({0})", commandText);
             }
 
-            public void Visit(ValueExpression expression) {}
+            public void Visit(ValueExpression expression)
+            {
+            }
 
             public void Visit(PropertyExpression expression)
             {
@@ -373,7 +468,7 @@ namespace WeenyMapper.Sql
                 }
                 else
                 {
-                    VisitBinaryComparisonExpression(expression, "=");    
+                    VisitBinaryComparisonExpression(expression, "=");
                 }
             }
 
@@ -428,7 +523,9 @@ namespace WeenyMapper.Sql
                 ConstraintCommandText = string.Format("{0} LIKE {1}", CreateColumnNameString(propertyName), commandParameter.ReferenceName);
             }
 
-            public void Visit(EntityReferenceExpression expression) {}
+            public void Visit(EntityReferenceExpression expression)
+            {
+            }
 
             public void Visit(NotEqualExpression expression)
             {

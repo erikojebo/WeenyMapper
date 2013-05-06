@@ -1,6 +1,5 @@
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Linq;
+using WeenyMapper.QueryParsing;
+using WeenyMapper.Extensions;
 
 namespace WeenyMapper.Sql
 {
@@ -21,6 +20,22 @@ namespace WeenyMapper.Sql
         protected override bool IsEmpty
         {
             get { return string.IsNullOrWhiteSpace(_constraintString); }
+        }
+
+        public WhereClause Combine(WhereClause whereClause, QueryCombinationOperation combinationOperation)
+        {
+            var combinedConstraintString = combinationOperation.Combine(_constraintString, whereClause._constraintString);
+            var combineWhereClause = new WhereClause(combinedConstraintString);
+
+            combineWhereClause.CommandParameters.AddRange(CommandParameters);
+            combineWhereClause.CommandParameters.AddRange(whereClause.CommandParameters);
+
+            return combineWhereClause;
+        }
+
+        public static WhereClause CreateEmpty()
+        {
+            return new WhereClause("");
         }
     }
 }

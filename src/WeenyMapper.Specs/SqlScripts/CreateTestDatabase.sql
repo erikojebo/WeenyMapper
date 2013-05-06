@@ -95,8 +95,16 @@ CREATE TABLE [Employee](
 	[LastName] [nvarchar](255) NULL,
 	[BirthDate] [datetime] NULL,
 	[ManagerId] [int] NULL,
+	[MentorId] [int] NULL,
 	[CompanyId] [int] NOT NULL
 )
+GO
+
+ALTER TABLE [Employee] ADD CONSTRAINT FK_Employee_Company FOREIGN KEY (CompanyId) REFERENCES [Company] ([Id])
+GO
+ALTER TABLE [Employee] ADD CONSTRAINT FK_Employee_Manager FOREIGN KEY (ManagerId) REFERENCES [Employee] ([Id])
+GO
+ALTER TABLE [Employee] ADD CONSTRAINT FK_Employee_Mentor FOREIGN KEY (MentorId) REFERENCES [Employee] ([Id])
 GO
 
 CREATE TABLE [Event](
@@ -104,9 +112,4 @@ CREATE TABLE [Event](
 	[Data] [nvarchar](1024) NOT NULL,
 	[PublishDate] [datetime] NOT NULL
 )
-GO
-
-ALTER TABLE [Employee] ADD CONSTRAINT FK_Employee_Company FOREIGN KEY (CompanyId) REFERENCES [Company] ([Id])
-GO
-ALTER TABLE [Employee] ADD CONSTRAINT FK_Employee_Employee FOREIGN KEY (ManagerId) REFERENCES [Employee] ([Id])
 GO

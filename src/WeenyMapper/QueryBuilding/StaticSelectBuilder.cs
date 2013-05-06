@@ -15,16 +15,18 @@ namespace WeenyMapper.QueryBuilding
     {
         private readonly IObjectQueryExecutor _objectQueryExecutor;
         private readonly IExpressionParser _expressionParser;
-        private readonly ObjectQuerySpecification _querySpecification;
-        private ObjectQuerySpecification _latestQuerySpecification;
+        private readonly ObjectQuery _query = new ObjectQuery();
+        private AliasedObjectSubQuery _latestSubQuery;
 
         public StaticSelectBuilder(IObjectQueryExecutor objectQueryExecutor, IExpressionParser expressionParser)
         {
             _objectQueryExecutor = objectQueryExecutor;
             _expressionParser = expressionParser;
 
-            _querySpecification = new ObjectQuerySpecification(typeof(T));
-            _latestQuerySpecification = _querySpecification;
+            var subQuery = new AliasedObjectSubQuery(typeof(T));
+            _latestSubQuery = subQuery;
+
+            _query.SubQueries.Add(subQuery);
         }
 
         public StaticSelectBuilder<T> Where(Expression<Func<T, bool>> queryExpression)
@@ -32,23 +34,41 @@ namespace WeenyMapper.QueryBuilding
             return AndWhere(queryExpression);
         }
 
+        public StaticSelectBuilder<T> Where<TAliasedEntity>(string alias, Expression<Func<TAliasedEntity, bool>> queryExpression)
+        {
+            return AndWhere(alias, queryExpression);
+        }
+
         public StaticSelectBuilder<T> AndWhere(Expression<Func<T, bool>> queryExpression)
         {
-            if (Equals(_querySpecification.QueryExpression, QueryExpression.Create()))
-                _querySpecification.QueryExpression = _expressionParser.Parse(queryExpression);
-            else
-                _querySpecification.QueryExpression = new AndExpression(_querySpecification.QueryExpression, _expressionParser.Parse(queryExpression));
+            return AndWhere(null, queryExpression);
+        }
 
+        public StaticSelectBuilder<T> AndWhere<TAliasedEntity>(Expression<Func<TAliasedEntity, bool>> queryExpression)
+        {
+            return AndWhere(null, queryExpression);
+        }
+
+        public StaticSelectBuilder<T> AndWhere<TAliasedEntity>(string alias, Expression<Func<TAliasedEntity, bool>> queryExpression)
+        {
+            _query.AddConjunctionExpression<TAliasedEntity>(alias, _expressionParser.Parse(queryExpression));
+            
             return this;
         }
 
         public StaticSelectBuilder<T> OrWhere(Expression<Func<T, bool>> queryExpression)
         {
-            if (Equals(_querySpecification.QueryExpression, QueryExpression.Create()))
-                _querySpecification.QueryExpression = _expressionParser.Parse(queryExpression);
-            else
-                _querySpecification.QueryExpression = new OrExpression(_querySpecification.QueryExpression, _expressionParser.Parse(queryExpression));
+            return OrWhere(null, queryExpression);
+        }
 
+        public StaticSelectBuilder<T> OrWhere<TAliasedEntity>(Expression<Func<TAliasedEntity, bool>> queryExpression)
+        {
+            return OrWhere(null, queryExpression);
+        }
+
+        public StaticSelectBuilder<T> OrWhere<TAliasedEntity>(string alias, Expression<Func<TAliasedEntity, bool>> queryExpression)
+        {
+            _query.AddDisjunctionExpression<TAliasedEntity>(alias, _expressionParser.Parse(queryExpression));
             return this;
         }
 
@@ -59,15 +79,30 @@ namespace WeenyMapper.QueryBuilding
 
         public IList<T> ExecuteList()
         {
-            return _objectQueryExecutor.Find<T>(_querySpecification);
+            return _objectQueryExecutor.Find<T>(_query);
         }
 
-        public StaticSelectBuilder<T> Select<TValue>(Expression<Func<T, TValue>> propertySelector)
+        public StaticSelectBuilder<T> Select(params Expression<Func<T, object>>[] propertySelectors)
         {
-            string propertyName = GetPropertyName(propertySelector);
+            return Select<T>(propertySelectors);
+        }
 
-            _querySpecification.PropertiesToSelect.Add(propertyName);
+        public StaticSelectBuilder<T> Select<TAliasedEntity>(params Expression<Func<TAliasedEntity, object>>[] propertySelectors)
+        {
+            return Select(null, propertySelectors);
+        }
 
+        public StaticSelectBuilder<T> Select<TAliasedEntity>(string alias, params Expression<Func<TAliasedEntity, object>>[] propertySelectors)
+        {
+            foreach (var propertySelector in propertySelectors)
+            {
+                var subQuery = _query.GetOrCreateSubQuery<TAliasedEntity>(alias);
+
+                string propertyName = GetPropertyName(propertySelector);
+
+                subQuery.PropertiesToSelect.Add(propertyName);    
+            }
+            
             return this;
         }
 
@@ -83,96 +118,135 @@ namespace WeenyMapper.QueryBuilding
 
         public void ExecuteScalarAsync<TScalar>(Action<TScalar> callback, Action<Exception> errorCallback = null)
         {
-            TaskRunner.Run<TScalar>(ExecuteScalar<TScalar>, callback, errorCallback);
+            TaskRunner.Run(ExecuteScalar<TScalar>, callback, errorCallback);
         }
 
         public TScalar ExecuteScalar<TScalar>()
         {
-            return _objectQueryExecutor.FindScalar<T, TScalar>(_querySpecification);
+            return _objectQueryExecutor.FindScalar<T, TScalar>(_query);
         }
 
         public void ExecuteScalarListAsync<TScalar>(Action<IList<TScalar>> callback, Action<Exception> errorCallback = null)
         {
-            TaskRunner.Run<IList<TScalar>>(ExecuteScalarList<TScalar>, callback, errorCallback);
+            TaskRunner.Run(ExecuteScalarList<TScalar>, callback, errorCallback);
         }
 
         public IList<TScalar> ExecuteScalarList<TScalar>()
         {
-            return _objectQueryExecutor.FindScalarList<T, TScalar>(_querySpecification);
+            return _objectQueryExecutor.FindScalarList<T, TScalar>(_query);
         }
 
         public StaticSelectBuilder<T> OrderBy(params Expression<Func<T, object>>[] getters)
         {
-            AddOrderByStatements(getters, OrderByDirection.Ascending);
+            return OrderBy<T>(getters);            
+        }
+
+        public StaticSelectBuilder<T> OrderBy<TEntity>(params Expression<Func<TEntity, object>>[] getters)
+        {
+            return OrderBy(null, getters);
+        }
+
+        public StaticSelectBuilder<T> OrderBy<TEntity>(string alias, params Expression<Func<TEntity, object>>[] getters)
+        {
+            AddOrderByStatements(getters, OrderByDirection.Ascending, alias);
             return this;
         }
 
         public StaticSelectBuilder<T> OrderByDescending(params Expression<Func<T, object>>[] getters)
         {
-            AddOrderByStatements(getters, OrderByDirection.Descending);
+            return OrderByDescending<T>(getters);
+        }
+
+        public StaticSelectBuilder<T> OrderByDescending<TEntity>(params Expression<Func<TEntity, object>>[] getters)
+        {
+            return OrderByDescending(null, getters);
+        }
+
+        public StaticSelectBuilder<T> OrderByDescending<TEntity>(string alias, params Expression<Func<TEntity, object>>[] getters)
+        {
+            AddOrderByStatements(getters, OrderByDirection.Descending, alias);
             return this;
         }
 
-        private void AddOrderByStatements(IEnumerable<Expression<Func<T, object>>> getters, OrderByDirection orderByDirection)
+        private void AddOrderByStatements<TEntity>(IEnumerable<Expression<Func<TEntity, object>>> getters, OrderByDirection orderByDirection, string alias = null)
         {
+            var subQuery = _query.GetOrCreateSubQuery<TEntity>(alias);
+
+            var nextOrderByOrderingIndex = GetNextOrderByOrderIndex();
+
             var orderByStatements = getters
                 .Select(GetPropertyName)
-                .Select(x => OrderByStatement.Create(x, orderByDirection));
+                .Select(x => OrderByStatement.Create(x, orderByDirection, nextOrderByOrderingIndex++));
 
-            _querySpecification.OrderByStatements.AddRange(orderByStatements);
+            subQuery.OrderByStatements.AddRange(orderByStatements);
+        }
+
+        private int GetNextOrderByOrderIndex()
+        {
+            var existingOrderByStatements = _query.SubQueries.SelectMany(x => x.OrderByStatements).OrderByDescending(x => x.OrderIndex);
+
+            if (existingOrderByStatements.Any())
+                return existingOrderByStatements.First().OrderIndex + 1;
+
+            return 0;
         }
 
         public StaticSelectBuilder<T> Top(int rowCount)
         {
-            _querySpecification.RowCountLimit = rowCount;
+            var subQuery = _query.GetSubQuery<T>();
+
+            subQuery.RowCountLimit = rowCount;
             return this;
         }
 
         public StaticSelectBuilder<T> Page(int pageIndex, int pageSize)
         {
-            _querySpecification.Page = new Page { PageIndex = pageIndex, PageSize = pageSize };
+            var subQuery = _query.GetSubQuery<T>();
+
+            subQuery.Page = new Page { PageIndex = pageIndex, PageSize = pageSize };
             return this;
         }
 
-        public StaticSelectBuilder<T> Join<TChild>(Expression<Func<T, IList<TChild>>> parentProperty, Expression<Func<TChild, object>> foreignKeyProperty)
+        public StaticSelectBuilder<T> Join<TChild>(Expression<Func<T, IList<TChild>>> parentProperty, Expression<Func<TChild, object>> foreignKeyProperty, string childAlias = null, string parentAlias = null)
         {
             var parentPropertyInfo = Reflector<T>.GetProperty(parentProperty);
             var foreignKeyPropertyInfo = Reflector<TChild>.GetProperty(foreignKeyProperty);
 
-            _latestQuerySpecification.JoinSpecification = ObjectQueryJoinSpecification.CreateParentToChild(parentPropertyInfo, foreignKeyPropertyInfo);
+            var joinSpecification = ObjectSubQueryJoin.CreateParentToChild(parentPropertyInfo, foreignKeyPropertyInfo);
+
+            Join<T, TChild>(joinSpecification, childAlias, parentAlias);
 
             return this;
         }
 
-        public StaticSelectBuilder<T> Join<TParent>(Expression<Func<T, TParent>> childProperty)
+        public StaticSelectBuilder<T> Join<TParent>(Expression<Func<T, TParent>> childProperty, string childAlias = null, string parentAlias = null)
         {
             var childPropertyInfo = Reflector<T>.GetProperty(childProperty);
 
-            _latestQuerySpecification.JoinSpecification = ObjectQueryJoinSpecification.CreateChildToParent(childPropertyInfo, typeof(TParent));
+            var joinSpecification = ObjectSubQueryJoin.CreateChildToParent(childPropertyInfo, typeof(TParent));
+
+            Join<TParent, T>(joinSpecification, childAlias, parentAlias);
 
             return this;
         }
 
         public StaticSelectBuilder<T> Join<TParent, TChild>(
             Expression<Func<TParent, IList<TChild>>> parentProperty,
-            Expression<Func<TChild, TParent>> childProperty)
+            Expression<Func<TChild, TParent>> childProperty, string childAlias = null, string parentAlias = null)
         {
-            var nextType = typeof(TChild);
-
-            if (nextType == _latestQuerySpecification.ResultType)
-            {
-                nextType = typeof(TParent);
-            }
-
             var parentPropertyInfo = Reflector<TParent>.GetProperty(parentProperty);
             var childPropertyInfo = Reflector<TChild>.GetProperty(childProperty);
 
-            _latestQuerySpecification.JoinSpecification = ObjectQueryJoinSpecification.CreateTwoWay(parentPropertyInfo, childPropertyInfo);
-            _latestQuerySpecification.JoinSpecification.ObjectQuerySpecification = new ObjectQuerySpecification(nextType);
+            var joinSpecification = ObjectSubQueryJoin.CreateTwoWay(parentPropertyInfo, childPropertyInfo);
 
-            _latestQuerySpecification = _latestQuerySpecification.JoinSpecification.ObjectQuerySpecification;
+            Join<TParent, TChild>(joinSpecification, childAlias, parentAlias);
 
             return this;
+        }
+
+        private void Join<TParent, TChild>(ObjectSubQueryJoin joinSpecification, string childAlias, string parentAlias)
+        {
+            _query.AddJoin<TParent, TChild>(joinSpecification, childAlias, parentAlias);
         }
     }
 }
