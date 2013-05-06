@@ -121,7 +121,7 @@ namespace WeenyMapper.Reflection
             return columnValues;
         }
 
-        private IDictionary<string, object> GetColumnValues(object instance)
+        public IDictionary<string, object> GetColumnValues(object instance)
         {
             var properties = GetMappedProperties(instance.GetType()).ToList();
 

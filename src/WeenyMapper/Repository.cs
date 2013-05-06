@@ -243,7 +243,7 @@ namespace WeenyMapper
             return _entityMapper;
         }
 
-        private ConventionReader CreateConventionReader()
+        protected ConventionReader CreateConventionReader()
         {
             return new ConventionReader(Convention);
         }

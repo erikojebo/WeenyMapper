@@ -1,12 +1,20 @@
 using System.Data.Common;
 using WeenyMapper.Exceptions;
+using WeenyMapper.Mapping;
 using WeenyMapper.QueryExecution;
 
 namespace WeenyMapper
 {
     public class InMemoryRepository : Repository
     {
-        private InMemoryDatabase _inMemoryDatabase = new InMemoryDatabase();
+        private readonly InMemoryDatabase _inMemoryDatabase;
+
+        public InMemoryRepository()
+        {
+            var conventionReader = CreateConventionReader();
+
+            _inMemoryDatabase = new InMemoryDatabase(conventionReader, new EntityMapper(conventionReader));
+        }
 
         public override CustomSqlQueryExecutor<T> FindBySql<T>(DbCommand dbCommand)
         {

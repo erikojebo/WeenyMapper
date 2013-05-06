@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using WeenyMapper.Sql;
 
 namespace WeenyMapper.QueryExecution
@@ -14,17 +15,17 @@ namespace WeenyMapper.QueryExecution
 
         public string ConnectionString { get; set; }
 
-        public IList<T> Find<T>(ObjectQuerySpecification querySpecification) where T : new()
+        public IList<T> Find<T>(ObjectQuery query) where T : new()
         {
-            querySpecification.QueryExpression
+            return _inMemoryDatabase.FindAll<T>();
         }
 
-        public TScalar FindScalar<T, TScalar>(ObjectQuerySpecification querySpecification)
+        public TScalar FindScalar<T, TScalar>(ObjectQuery query)
         {
             throw new System.NotImplementedException();
         }
 
-        public IList<TScalar> FindScalarList<T, TScalar>(ObjectQuerySpecification querySpecification)
+        public IList<TScalar> FindScalarList<T, TScalar>(ObjectQuery query)
         {
             throw new System.NotImplementedException();
         }

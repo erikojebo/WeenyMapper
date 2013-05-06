@@ -26,5 +26,6 @@ namespace WeenyMapper.Reflection
         PropertyInfo TryGetIdProperty(Type type);
         bool HasIdProperty(Type type);
         string TryGetPrimaryKeyColumnName(Type type);
+        IDictionary<string, object> GetColumnValues(object instance);
     }
 }

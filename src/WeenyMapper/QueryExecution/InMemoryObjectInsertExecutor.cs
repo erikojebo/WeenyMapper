@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace WeenyMapper.QueryExecution
 {
@@ -16,12 +17,21 @@ namespace WeenyMapper.QueryExecution
 
         public void Insert<T>(IEnumerable<T> entities)
         {
-            _inMemoryDatabase.Entities<T>().AddRange(entities);
+            _inMemoryDatabase.Add(entities);
         }
 
         public void InsertAsync<T>(IEnumerable<T> entities, Action callback, Action<Exception> errorCallback = null)
         {
-            throw new NotImplementedException();
+            try
+            {
+                Insert(entities);
+                callback();
+            }
+            catch (Exception e)
+            {
+                if (errorCallback != null)
+                    errorCallback(e);
+            }
         }
     }
 }

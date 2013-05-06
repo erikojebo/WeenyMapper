@@ -13,6 +13,11 @@ namespace WeenyMapper.Mapping
             ColumnValues = new List<ColumnValue>();
         }
 
+        public Row(IEnumerable<KeyValuePair<string, object>> values)
+        {
+            ColumnValues = values.Select(x => new ColumnValue(x.Key, x.Value)).ToList();
+        }
+
         public Row(IEnumerable<ColumnValue> columnValues)
         {
             ColumnValues = columnValues.ToList();
