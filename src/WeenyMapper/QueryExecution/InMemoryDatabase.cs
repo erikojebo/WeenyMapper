@@ -122,6 +122,11 @@ namespace WeenyMapper.QueryExecution
 
         public void Visit(PropertyExpression expression)
         {
+            if (expression.PropertyType == typeof(bool))
+            {
+                var columnName = expression.PropertyName;
+                MatchValue(columnName, true);
+            }
         }
 
         public void Visit(InExpression expression)
@@ -134,6 +139,11 @@ namespace WeenyMapper.QueryExecution
             var columnName = expression.PropertyExpression.PropertyName;
             var value = expression.ValueExpression.Value;
 
+            MatchValue(columnName, value);
+        }
+
+        private void MatchValue(string columnName, object value)
+        {
             var columnValue = _row.ColumnValues.First(x => x.ColumnName == columnName).Value;
 
             if (!Equals(value, columnValue))
@@ -182,7 +192,10 @@ namespace WeenyMapper.QueryExecution
 
         public void Visit(NotExpression expression)
         {
-            throw new NotImplementedException();
+            var matcher = new InMemoryRowMatcher(_row, expression.Expression);
+
+            if (matcher.IsMatch())
+                _isMatch = false;
         }
 
         public bool IsMatch()
