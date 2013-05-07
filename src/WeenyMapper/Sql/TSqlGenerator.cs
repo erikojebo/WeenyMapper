@@ -262,9 +262,8 @@ namespace WeenyMapper.Sql
         private OrderByClause CreateOrderByClause(SqlQuery sqlQuery)
         {
             var combinedOrderByClause = OrderByClause.CreateEmpty();
-            var orderByStatements = sqlQuery.SubQueries.SelectMany(x => x.OrderByStatements).OrderBy(x => x.OrderIndex);
 
-            foreach (var orderByStatement in orderByStatements)
+            foreach (var orderByStatement in sqlQuery.OrderByStatements)
             {
                 var parentSubQueryForStatement = sqlQuery.SubQueries.First(x => x.OrderByStatements.Any(y => y == orderByStatement));
                 var orderByClause = CreateOrderByClause(orderByStatement, parentSubQueryForStatement);

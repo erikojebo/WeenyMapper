@@ -176,7 +176,7 @@ namespace WeenyMapper.QueryBuilding
 
             var orderByStatements = getters
                 .Select(GetPropertyName)
-                .Select(x => OrderByStatement.Create(x, orderByDirection, nextOrderByOrderingIndex++));
+                .Select(x => OrderByStatement.Create<TEntity>(x, orderByDirection, nextOrderByOrderingIndex++));
 
             subQuery.OrderByStatements.AddRange(orderByStatements);
         }

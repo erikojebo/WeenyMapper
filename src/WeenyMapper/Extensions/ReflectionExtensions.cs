@@ -10,5 +10,10 @@ namespace WeenyMapper.Extensions
         {
             return type.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == genericInterfaceType);
         }
+        
+        public static bool ImplementsInterface<T>(this Type type)
+        {
+            return type.GetInterfaces().Any(x => x == typeof(T));
+        }
     }
 }

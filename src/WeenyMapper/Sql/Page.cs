@@ -25,5 +25,10 @@ namespace WeenyMapper.Sql
         {
             get { return (PageIndex + 1) * PageSize; }
         }
+
+        public int Offset
+        {
+            get { return PageIndex * PageSize; }
+        }
     }
 }

@@ -23,6 +23,12 @@ namespace WeenyMapper.QueryParsing
             return new OrderByStatement(propertyName, orderByDirection) { OrderIndex = orderingIndex };
         }
 
+        public static OrderByStatement Create<T>(string propertyName, OrderByDirection orderByDirection, int orderingIndex)
+        {
+            return new OrderByStatement(propertyName, orderByDirection) { OrderIndex = orderingIndex, Type = typeof(T) };
+        }
+
+        public Type Type { get; set; }
         public string PropertyName { get; private set; }
         public OrderByDirection Direction { get; private set; }
         public int OrderIndex { get; set; }
@@ -30,6 +36,11 @@ namespace WeenyMapper.QueryParsing
         public OrderByStatement Translate(IConventionReader convention, Type type)
         {
             return new OrderByStatement(convention.GetColumnName(PropertyName, type), Direction);
+        }
+        
+        public OrderByStatement Translate(IConventionReader convention)
+        {
+            return new OrderByStatement(convention.GetColumnName(PropertyName, Type), Direction);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using WeenyMapper.QueryParsing;
 
 namespace WeenyMapper.Sql
 {
@@ -17,6 +18,11 @@ namespace WeenyMapper.Sql
         public bool IsJoinQuery
         {
             get { return Joins.Any(); }
+        }
+
+        public IEnumerable<OrderByStatement> OrderByStatements
+        {
+            get { return SubQueries.SelectMany(x => x.OrderByStatements).OrderBy(x => x.OrderIndex); }
         }
 
         public void AddJoin(SqlSubQueryJoin joinSpec, string childAlias, string parentAlias)

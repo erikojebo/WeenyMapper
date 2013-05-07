@@ -5,6 +5,7 @@ using WeenyMapper.Mapping;
 using WeenyMapper.QueryParsing;
 using WeenyMapper.Reflection;
 using WeenyMapper.Sql;
+using WeenyMapper.Extensions;
 
 namespace WeenyMapper.QueryExecution
 {
@@ -49,9 +50,69 @@ namespace WeenyMapper.QueryExecution
             EnsureTable<T>();
 
             var matchingRows = Table<T>().Rows.Where(row => MatchesQuery(row, query)).ToList();
+
+            var subQuery = query.GetSubQuery<T>();
+
+            matchingRows = Order(query, matchingRows);
+            matchingRows = Limit(subQuery, matchingRows);
+            matchingRows = Page(subQuery, matchingRows);
+
             var resultSet = new ResultSet(matchingRows);
 
             return _entityMapper.CreateInstanceGraphs<T>(resultSet);
+        }
+
+        private List<Row> Order(ObjectQuery query, List<Row> rows)
+        {
+            var orderedResult = rows.ToList();
+
+            orderedResult.Sort((left, right) =>
+                {
+                    foreach (var orderByStatement in query.OrderByStatements)
+                    {
+                        var translatedOrderBy = orderByStatement.Translate(_conventionReader);
+
+                        var leftValue = left.ColumnValues.First(x => x.ColumnName == translatedOrderBy.PropertyName).Value;
+                        var rightValue = right.ColumnValues.First(x => x.ColumnName == translatedOrderBy.PropertyName).Value;
+
+                        if (leftValue.GetType().ImplementsInterface<IComparable>())
+                        {
+                            var leftComparable = (IComparable)leftValue;
+
+                            var result = leftComparable.CompareTo(rightValue);
+
+                            var areDifferent = result != 0;
+
+                            if (areDifferent && orderByStatement.Direction == OrderByDirection.Ascending)
+                                return result;
+                            if (areDifferent && orderByStatement.Direction == OrderByDirection.Descending)
+                                return -1 * result;
+                        }
+                    }
+
+                    return 0;
+                });
+
+            return orderedResult;
+        }
+
+        private static List<Row> Limit(AliasedObjectSubQuery subQuery, List<Row> matchingRows)
+        {
+            if (subQuery.RowCountLimit > 0)
+            {
+                matchingRows = matchingRows.Take(subQuery.RowCountLimit).ToList();
+            }
+            return matchingRows;
+        }
+
+        private static List<Row> Page(AliasedObjectSubQuery subQuery, List<Row> matchingRows)
+        {
+            if (subQuery.IsPagingQuery)
+            {
+                matchingRows = matchingRows.Skip(subQuery.Page.Offset).Take(subQuery.Page.PageSize).ToList();
+            }
+
+            return matchingRows;
         }
 
         private bool MatchesQuery(Row row, ObjectQuery query)

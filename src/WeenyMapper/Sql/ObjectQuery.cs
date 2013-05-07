@@ -17,6 +17,11 @@ namespace WeenyMapper.Sql
         public IList<AliasedObjectSubQuery> SubQueries { get; set; }
         public IList<ObjectSubQueryJoin> Joins { get; set; }
 
+        public IEnumerable<OrderByStatement> OrderByStatements
+        {
+            get { return SubQueries.SelectMany(x => x.OrderByStatements).OrderBy(x => x.OrderIndex); }
+        }
+
         public AliasedObjectSubQuery GetOrCreateSubQuery<T>(string alias = null)
         {
             EnsureSubQuery<T>(alias);
