@@ -214,7 +214,7 @@ namespace WeenyMapper.Mapping
             }
             else
             {
-                columnValuesForType = row.GetColumnValuesForAlias(alias, _conventionReader);
+                columnValuesForType = row.GetColumnValuesForAlias(alias);
             }
 
             var columnValuesForCurrentType = columnValuesForType

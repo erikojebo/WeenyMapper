@@ -1,13 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace WeenyMapper.Mapping
 {
     public class ResultSet
     {
-        public ResultSet()
+        public ResultSet() : this(new List<Row>())
         {
-            Rows = new List<Row>();
+        }
+
+        public ResultSet(IEnumerable<Row> rows)
+        {
+            Rows = rows.ToList();
         }
 
         public IList<Row> Rows { get; set; }

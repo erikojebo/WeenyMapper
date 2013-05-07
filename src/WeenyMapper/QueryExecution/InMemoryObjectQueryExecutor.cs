@@ -17,7 +17,7 @@ namespace WeenyMapper.QueryExecution
 
         public IList<T> Find<T>(ObjectQuery query) where T : new()
         {
-            return _inMemoryDatabase.FindAll<T>();
+            return _inMemoryDatabase.Find<T>(query);
         }
 
         public TScalar FindScalar<T, TScalar>(ObjectQuery query)

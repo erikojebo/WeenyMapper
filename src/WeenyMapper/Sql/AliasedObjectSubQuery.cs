@@ -15,8 +15,6 @@ namespace WeenyMapper.Sql
         }
 
         public IList<string> PropertiesToSelect { get; set; }
-        public QueryExpression QueryExpression { get; set; }
-        public QueryExpressionMetaData QueryExpressionMetaData { get; set; }
         public List<QueryExpressionPart> QueryExpressions { get; set; }
         public IList<OrderByStatement> OrderByStatements { get; set; }
         public int RowCountLimit { get; set; }

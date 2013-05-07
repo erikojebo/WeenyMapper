@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using WeenyMapper.Mapping;
+using WeenyMapper.QueryParsing;
 using WeenyMapper.Reflection;
+using WeenyMapper.Sql;
 
 namespace WeenyMapper.QueryExecution
 {
@@ -42,16 +44,154 @@ namespace WeenyMapper.QueryExecution
                 _tables[typeof(T)] = new ResultSet();
         }
 
-        public IList<T> FindAll<T>()
+        public IList<T> Find<T>(ObjectQuery query)
         {
             EnsureTable<T>();
 
-            return _entityMapper.CreateInstanceGraphs<T>(Table<T>());
+            var matchingRows = Table<T>().Rows.Where(row => MatchesQuery(row, query)).ToList();
+            var resultSet = new ResultSet(matchingRows);
+
+            return _entityMapper.CreateInstanceGraphs<T>(resultSet);
+        }
+
+        private bool MatchesQuery(Row row, ObjectQuery query)
+        {
+            var queryExpressions = query.SubQueries.SelectMany(x => x.QueryExpressions);
+            return queryExpressions.All(q => MatchesQuery(row, q));
+        }
+
+        private bool MatchesQuery(Row row, QueryExpressionPart query)
+        {
+            var translatedExpression = query.QueryExpression.Translate(_conventionReader);
+
+            var matcher = new InMemoryRowMatcher(row, translatedExpression);
+
+            return matcher.IsMatch();
         }
 
         private ResultSet Table<T>()
         {
             return _tables[typeof(T)];
+        }
+    }
+
+    public class InMemoryRowMatcher : IExpressionVisitor
+    {
+        private readonly Row _row;
+        private readonly QueryExpression _queryExpression;
+        private bool _isMatch;
+
+        public InMemoryRowMatcher(Row row, QueryExpression queryExpression)
+        {
+            _row = row;
+            _queryExpression = queryExpression;
+        }
+
+        public void Visit(AndExpression expression)
+        {
+            foreach (var queryExpression in expression.Expressions)
+            {
+                var matcher = new InMemoryRowMatcher(_row, queryExpression);
+
+                if (!matcher.IsMatch())
+                {
+                    _isMatch = false;
+                    return;
+                }
+            }
+        }
+
+        public void Visit(OrExpression expression)
+        {
+            foreach (var queryExpression in expression.Expressions)
+            {
+                var matcher = new InMemoryRowMatcher(_row, queryExpression);
+
+                if (matcher.IsMatch())
+                {
+                    return;
+                }
+            }
+
+            _isMatch = false;
+        }
+
+        public void Visit(ValueExpression expression)
+        {
+        }
+
+        public void Visit(PropertyExpression expression)
+        {
+        }
+
+        public void Visit(InExpression expression)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Visit(EqualsExpression expression)
+        {
+            var columnName = expression.PropertyExpression.PropertyName;
+            var value = expression.ValueExpression.Value;
+
+            var columnValue = _row.ColumnValues.First(x => x.ColumnName == columnName).Value;
+
+            if (!Equals(value, columnValue))
+                _isMatch = false;
+        }
+
+        public void Visit(LessOrEqualExpression expression)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Visit(LessExpression expression)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Visit(GreaterOrEqualExpression expression)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Visit(GreaterExpression expression)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Visit(RootExpression expression)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Visit(LikeExpression expression)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Visit(EntityReferenceExpression expression)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Visit(NotEqualExpression expression)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Visit(NotExpression expression)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsMatch()
+        {
+            _isMatch = true;
+
+            _queryExpression.Accept(this);
+
+            return _isMatch;
         }
     }
 }

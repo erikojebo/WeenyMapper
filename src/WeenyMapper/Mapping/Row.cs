@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using WeenyMapper.Conventions;
-using WeenyMapper.Reflection;
 
 namespace WeenyMapper.Mapping
 {
@@ -40,7 +39,7 @@ namespace WeenyMapper.Mapping
             return ColumnValues.Where(x => x.IsForType(type, convention) && !IsGeneratedByWeenyMapper(x)).ToList();
         }
 
-        public IList<ColumnValue> GetColumnValuesForAlias(string alias, IConventionReader conventionReader)
+        public IList<ColumnValue> GetColumnValuesForAlias(string alias)
         {
             return ColumnValues.Where(x => x.IsForAlias(alias) && !IsGeneratedByWeenyMapper(x)).ToList();
         }
