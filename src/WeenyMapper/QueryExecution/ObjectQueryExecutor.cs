@@ -78,12 +78,7 @@ namespace WeenyMapper.QueryExecution
         {
             var resultType = subQuery.ResultType;
 
-            var columnNamesToSelect = subQuery.PropertiesToSelect.Select(x => _conventionReader.GetColumnName(x, resultType));
-
-            if (!subQuery.PropertiesToSelect.Any())
-            {
-                columnNamesToSelect = _conventionReader.GetSelectableColumNames(resultType);
-            }
+            var columnNamesToSelect = subQuery.GetColumnNamesToSelect(_conventionReader);
 
             var translatedOrderByStatements = subQuery.OrderByStatements.Select(x => x.Translate(_conventionReader, resultType));
             var tableName = _conventionReader.GetTableName(resultType);

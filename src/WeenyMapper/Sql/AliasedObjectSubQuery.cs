@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using WeenyMapper.QueryParsing;
+using WeenyMapper.Reflection;
 
 namespace WeenyMapper.Sql
 {
@@ -30,6 +32,16 @@ namespace WeenyMapper.Sql
         public void AddQueryExpression(QueryExpression queryExpression, QueryExpressionMetaData metaData)
         {
             QueryExpressions.Add(new QueryExpressionPart(queryExpression, metaData));
+        }
+
+        public IList<string> GetColumnNamesToSelect(IConventionReader conventionReader)
+        {
+            if (!PropertiesToSelect.Any())
+            {
+                return conventionReader.GetSelectableColumNames(ResultType).ToList();
+            }
+
+            return PropertiesToSelect.Select(x => conventionReader.GetColumnName(x, ResultType)).ToList();
         }
     }
 }

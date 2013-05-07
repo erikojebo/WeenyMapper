@@ -22,12 +22,12 @@ namespace WeenyMapper.QueryExecution
 
         public TScalar FindScalar<T, TScalar>(ObjectQuery query)
         {
-            throw new System.NotImplementedException();
+            return FindScalarList<T, TScalar>(query).FirstOrDefault();
         }
 
         public IList<TScalar> FindScalarList<T, TScalar>(ObjectQuery query)
         {
-            throw new System.NotImplementedException();
+            return _inMemoryDatabase.FindScalarList<T, TScalar>(query);
         }
     }
 }

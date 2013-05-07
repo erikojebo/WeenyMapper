@@ -57,9 +57,28 @@ namespace WeenyMapper.QueryExecution
             matchingRows = Limit(subQuery, matchingRows);
             matchingRows = Page(subQuery, matchingRows);
 
+            matchingRows = StripUnselectedColumns(query, matchingRows);
+
             var resultSet = new ResultSet(matchingRows);
 
             return _entityMapper.CreateInstanceGraphs<T>(resultSet);
+        }
+
+        private List<Row> StripUnselectedColumns(ObjectQuery query, List<Row> matchingRows)
+        {
+            var columnNamesToSelect = query.SubQueries.First().GetColumnNamesToSelect(_conventionReader);
+
+            var strippedRows = new List<Row>();
+
+            foreach (var row in matchingRows)
+            {
+                var columnsToSelect = row.ColumnValues.Where(x => columnNamesToSelect.Contains(x.ColumnName));
+                var strippedRow = new Row(columnsToSelect);
+
+                strippedRows.Add(strippedRow);
+            }
+
+            return strippedRows;
         }
 
         private List<Row> Order(ObjectQuery query, List<Row> rows)
@@ -133,6 +152,11 @@ namespace WeenyMapper.QueryExecution
         private ResultSet Table<T>()
         {
             return _tables[typeof(T)];
+        }
+
+        public IList<TScalar> FindScalarList<T, TScalar>(ObjectQuery query)
+        {
+            throw new NotImplementedException();
         }
     }
 
