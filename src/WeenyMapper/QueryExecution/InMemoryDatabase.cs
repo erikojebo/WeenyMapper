@@ -11,6 +11,8 @@ namespace WeenyMapper.QueryExecution
 {
     public class InMemoryDatabase
     {
+        private static int _lastIdentityId;
+
         private readonly IConventionReader _conventionReader;
         private readonly IEntityMapper _entityMapper;
         private readonly Dictionary<Type, ResultSet> _tables = new Dictionary<Type, ResultSet>();
@@ -31,6 +33,14 @@ namespace WeenyMapper.QueryExecution
 
         private void Add<T>(T entity)
         {
+            var hasIdentityId = _conventionReader.HasIdentityId(typeof(T));
+
+            if (hasIdentityId)
+            {
+                var idProperty = _conventionReader.TryGetIdProperty(typeof(T));
+                idProperty.SetValue(entity, ++_lastIdentityId, null);
+            }
+
             var columnValues = _conventionReader.GetColumnValues(entity);
             var row = new Row(columnValues);
 
@@ -229,10 +239,17 @@ namespace WeenyMapper.QueryExecution
 
         private void MatchValue(string columnName, object value)
         {
+            var isMatch = IsMatch(columnName, value);
+
+            if (!isMatch)
+                _isMatch = false;
+        }
+
+        private bool IsMatch(string columnName, object value)
+        {
             var columnValue = _row.ColumnValues.First(x => x.ColumnName == columnName).Value;
 
-            if (!Equals(value, columnValue))
-                _isMatch = false;
+            return Equals(value, columnValue);
         }
 
         public void Visit(LessOrEqualExpression expression)
@@ -272,7 +289,10 @@ namespace WeenyMapper.QueryExecution
 
         public void Visit(NotEqualExpression expression)
         {
-            throw new NotImplementedException();
+            var isColumnValueMatch = IsMatch(expression.PropertyExpression.PropertyName, expression.ValueExpression.Value);
+
+            if (isColumnValueMatch)
+                _isMatch = false;
         }
 
         public void Visit(NotExpression expression)
