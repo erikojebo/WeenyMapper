@@ -23,27 +23,39 @@ namespace WeenyMapper
 
         protected override IObjectQueryExecutor CreateObjectQueryExecutor<T>()
         {
+            UpdateConventionReader();
             return new InMemoryObjectQueryExecutor(_inMemoryDatabase);
         }
 
         protected override IObjectCountExecutor CreateObjectCountExecutor<T>()
         {
+            UpdateConventionReader();
             return new InMemoryObjectCountExecutor(_inMemoryDatabase);
         }
 
         protected override IObjectDeleteExecutor CreateObjectDeleteExecutor<T>()
         {
+            UpdateConventionReader();
             return new InMemoryObjectDeleteExecutor(_inMemoryDatabase);
         }
 
         protected override IObjectInsertExecutor CreateObjectInsertExecutor<T>()
         {
+            UpdateConventionReader();
             return new InMemoryObjectInsertExecutor(_inMemoryDatabase);
         }
 
         protected override IObjectUpdateExecutor CreateObjectUpdateExecutor<T>()
         {
+            UpdateConventionReader();
             return new InMemoryObjectUpdateExecutor(_inMemoryDatabase);
+        }
+
+        private void UpdateConventionReader()
+        {
+            var conventionReader = CreateConventionReader();
+            _inMemoryDatabase.ConventionReader = conventionReader;
+            _inMemoryDatabase.EntityMapper = new EntityMapper(conventionReader);
         }
     }
 }

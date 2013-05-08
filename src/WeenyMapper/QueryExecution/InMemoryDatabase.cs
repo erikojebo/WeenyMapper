@@ -15,14 +15,14 @@ namespace WeenyMapper.QueryExecution
     {
         private static int _lastIdentityId;
 
-        private readonly IConventionReader _conventionReader;
-        private readonly IEntityMapper _entityMapper;
+        public IConventionReader ConventionReader;
+        public IEntityMapper EntityMapper;
         private readonly Dictionary<Type, ResultSet> _tables = new Dictionary<Type, ResultSet>();
 
         public InMemoryDatabase(IConventionReader conventionReader, IEntityMapper entityMapper)
         {
-            _conventionReader = conventionReader;
-            _entityMapper = entityMapper;
+            ConventionReader = conventionReader;
+            EntityMapper = entityMapper;
         }
 
         public void Add<T>(IEnumerable<T> entities)
@@ -35,11 +35,11 @@ namespace WeenyMapper.QueryExecution
 
         private void Add<T>(T entity)
         {
-            var hasIdentityId = _conventionReader.HasIdentityId(typeof(T));
+            var hasIdentityId = ConventionReader.HasIdentityId(typeof(T));
 
             if (hasIdentityId)
             {
-                var idProperty = _conventionReader.TryGetIdProperty(typeof(T));
+                var idProperty = ConventionReader.TryGetIdProperty(typeof(T));
                 idProperty.SetValue(entity, ++_lastIdentityId, null);
             }
 
@@ -50,7 +50,7 @@ namespace WeenyMapper.QueryExecution
         {
             var type = entity.GetType();
 
-            var columnValues = _conventionReader.GetColumnValues(entity);
+            var columnValues = ConventionReader.GetColumnValues(entity);
             var row = new Row(columnValues);
 
             EnsureTable(type);
@@ -60,8 +60,14 @@ namespace WeenyMapper.QueryExecution
 
         public IList<T> Find<T>(ObjectQuery query)
         {
-            EnsureTable<T>();
+            var resultSet = FindResultSet<T>(query);
 
+            return EntityMapper.CreateInstanceGraphs<T>(resultSet);
+        }
+
+        private ResultSet FindResultSet<T>(ObjectQuery query)
+        {
+            EnsureTable<T>();
 
             var subQuery = query.GetSubQuery<T>();
 
@@ -74,8 +80,7 @@ namespace WeenyMapper.QueryExecution
             matchingRows = StripUnselectedColumns(query, matchingRows);
 
             var resultSet = new ResultSet(matchingRows);
-
-            return _entityMapper.CreateInstanceGraphs<T>(resultSet);
+            return resultSet;
         }
 
         private List<Row> Filter<T>(ObjectQuery query)
@@ -90,7 +95,7 @@ namespace WeenyMapper.QueryExecution
 
         private List<Row> StripUnselectedColumns(ObjectQuery query, List<Row> matchingRows)
         {
-            var columnNamesToSelect = query.SubQueries.First().GetColumnNamesToSelect(_conventionReader);
+            var columnNamesToSelect = query.SubQueries.First().GetColumnNamesToSelect(ConventionReader);
 
             var strippedRows = new List<Row>();
 
@@ -113,7 +118,7 @@ namespace WeenyMapper.QueryExecution
                 {
                     foreach (var orderByStatement in query.OrderByStatements)
                     {
-                        var translatedOrderBy = orderByStatement.Translate(_conventionReader);
+                        var translatedOrderBy = orderByStatement.Translate(ConventionReader);
 
                         var leftValue = left.ColumnValues.First(x => x.ColumnName == translatedOrderBy.PropertyName).Value;
                         var rightValue = right.ColumnValues.First(x => x.ColumnName == translatedOrderBy.PropertyName).Value;
@@ -166,7 +171,7 @@ namespace WeenyMapper.QueryExecution
 
         private bool MatchesQuery(Row row, QueryExpression query)
         {
-            var translatedExpression = query.Translate(_conventionReader);
+            var translatedExpression = query.Translate(ConventionReader);
 
             var matcher = new InMemoryRowMatcher(row, translatedExpression);
 
@@ -175,7 +180,9 @@ namespace WeenyMapper.QueryExecution
 
         public IList<TScalar> FindScalarList<T, TScalar>(ObjectQuery query)
         {
-            throw new NotImplementedException();
+            var result = FindResultSet<T>(query);
+
+            return result.Rows.Select(x => x.ColumnValues.First().Value).Cast<TScalar>().ToList();
         }
 
         public void Update(object instance)
@@ -198,8 +205,8 @@ namespace WeenyMapper.QueryExecution
             var type = instance.GetType();
             var table = Table(type);
             
-            var primaryKeyColumnName = _conventionReader.GetPrimaryKeyColumnName(type);
-            var primaryKeyValue = _conventionReader.GetPrimaryKeyValue(instance);
+            var primaryKeyColumnName = ConventionReader.GetPrimaryKeyColumnName(type);
+            var primaryKeyValue = ConventionReader.GetPrimaryKeyValue(instance);
             
             foreach (var row in table.Rows)
             {
@@ -256,7 +263,7 @@ namespace WeenyMapper.QueryExecution
 
             var rows = table.Rows.Where(x => MatchesQuery(x, queryExpression)).ToList();
 
-            var columnSetters = _conventionReader.GetColumnValues<T>(setters);
+            var columnSetters = ConventionReader.GetColumnValues<T>(setters);
 
             foreach (var row in rows)
             {

@@ -47,7 +47,7 @@ namespace WeenyMapper
                     var message =
                         "The connection string has not been set. " +
                         "Please set the ConnectionString property on the repository instance " +
-                        "or set the static Repository.DefaultConnectionString property "+
+                        "or set the static Repository.DefaultConnectionString property " +
                         "to set the connection string for all repositories created from then on.";
 
                     throw new WeenyMapperException(message);
@@ -63,7 +63,10 @@ namespace WeenyMapper
         public IConvention Convention
         {
             get { return _convention ?? DefaultConvention; }
-            set { _convention = value; }
+            set
+            {
+                _convention = value;
+            }
         }
 
         public void Insert<T>(params T[] entities)
