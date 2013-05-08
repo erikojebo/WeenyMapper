@@ -176,7 +176,7 @@ namespace WeenyMapper.QueryExecution
 
             var table = Table(type);
 
-            table.Rows.Remove(row);
+            table.Remove(row);
 
             AddRow(instance);
         }
@@ -219,6 +219,12 @@ namespace WeenyMapper.QueryExecution
         private ResultSet Table(Type type)
         {
             return _tables[type];
+        }
+
+        public void Delete(object instance)
+        {
+            var row = GetRowForEntity(instance);
+            Table(instance.GetType()).Remove(row);
         }
     }
 }

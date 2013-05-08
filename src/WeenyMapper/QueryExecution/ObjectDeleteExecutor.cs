@@ -21,7 +21,7 @@ namespace WeenyMapper.QueryExecution
 
         public string ConnectionString { get; set; }
 
-        public int Delete<T>(T instance)
+        public void Delete<T>(T instance)
         {
             var tableName = _conventionReader.GetTableName<T>();
 
@@ -32,7 +32,7 @@ namespace WeenyMapper.QueryExecution
 
             var command = _sqlGenerator.CreateDeleteCommand(tableName, constraintExpression);
 
-            return _dbCommandExecutor.ExecuteNonQuery(command, ConnectionString);
+            _dbCommandExecutor.ExecuteNonQuery(command, ConnectionString);
         }
 
         public void DeleteAsync<T>(T entity, Action callback, Action<Exception> errorCallback = null)

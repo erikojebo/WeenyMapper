@@ -14,9 +14,9 @@ namespace WeenyMapper.QueryExecution
 
         public string ConnectionString { get; set; }
 
-        public int Delete<T>(T instance)
+        public void Delete<T>(T instance)
         {
-            throw new NotImplementedException();
+            _inMemoryDatabase.Delete(instance);
         }
 
         public void DeleteAsync<T>(T entity, Action callback, Action<Exception> errorCallback = null)

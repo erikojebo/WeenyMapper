@@ -123,11 +123,11 @@ namespace WeenyMapper
             return new StaticSelectBuilder<T>(objectQueryExecutor, new ExpressionParser());
         }
 
-        public int Delete<T>(T entity)
+        public void Delete<T>(T entity)
         {
             var objectDeleteExecutor = CreateObjectDeleteExecutor<T>();
 
-            return objectDeleteExecutor.Delete(entity);
+            objectDeleteExecutor.Delete(entity);
         }
 
         public void DeleteAsync<T>(T entity, Action callback, Action<Exception> errorCallback = null)

@@ -32,5 +32,10 @@ namespace WeenyMapper.Mapping
             var row = new Row(columnValues);
             Rows.Add(row);
         }
+
+        public void Remove(Row row)
+        {
+            Rows.Remove(row);
+        }
     }
 }
