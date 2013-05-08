@@ -203,7 +203,7 @@ namespace WeenyMapper.QueryExecution
             
             foreach (var row in table.Rows)
             {
-                var columnValue = row.GetValue(primaryKeyColumnName);
+                var columnValue = row.GetColumnValue(primaryKeyColumnName);
 
                 if (columnValue != null && columnValue.MatchesValue(primaryKeyValue))
                     return row;

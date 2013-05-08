@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using WeenyMapper.Exceptions;
+using WeenyMapper.Extensions;
 using WeenyMapper.Mapping;
 using WeenyMapper.QueryParsing;
+using WeenyMapper.Sql;
 
 namespace WeenyMapper.QueryExecution
 {
@@ -61,7 +65,23 @@ namespace WeenyMapper.QueryExecution
 
         public void Visit(InExpression expression)
         {
-            throw new NotImplementedException();
+            var values = expression.ArrayValueExpression.Values;
+
+            if (values.IsEmpty())
+            {
+                throw new WeenyMapperException("Can not generate IN constraint from empty collection");
+            }
+
+            var columnName = expression.PropertyExpression.PropertyName;
+            var actualValue = _row.GetColumnValue(columnName).Value;
+
+            foreach (var value in values)
+            {
+                if (Equals(value, actualValue))
+                    return;
+            }
+
+            _isMatch = false;
         }
 
         public void Visit(EqualsExpression expression)

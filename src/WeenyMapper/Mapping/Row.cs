@@ -49,7 +49,7 @@ namespace WeenyMapper.Mapping
             return x.ColumnName.StartsWith(EntityMapper.WeenyMapperGeneratedColumnNamePrefix);
         }
 
-        public ColumnValue GetValue(string columnName)
+        public ColumnValue GetColumnValue(string columnName)
         {
             return ColumnValues.FirstOrDefault(x => x.ColumnName == columnName);
         }
