@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using WeenyMapper.Exceptions;
 using WeenyMapper.Mapping;
 using WeenyMapper.QueryParsing;
 using WeenyMapper.Reflection;
@@ -41,18 +42,19 @@ namespace WeenyMapper.QueryExecution
                 idProperty.SetValue(entity, ++_lastIdentityId, null);
             }
 
+            AddRow(entity);
+        }
+
+        private void AddRow(object entity)
+        {
+            var type = entity.GetType();
+
             var columnValues = _conventionReader.GetColumnValues(entity);
             var row = new Row(columnValues);
 
-            EnsureTable<T>();
+            EnsureTable(type);
 
-            Table<T>().AddRow(row);
-        }
-
-        private void EnsureTable<T>()
-        {
-            if (!_tables.ContainsKey(typeof(T)))
-                _tables[typeof(T)] = new ResultSet();
+            Table(type).AddRow(row);
         }
 
         public IList<T> Find<T>(ObjectQuery query)
@@ -159,157 +161,64 @@ namespace WeenyMapper.QueryExecution
             return matcher.IsMatch();
         }
 
-        private ResultSet Table<T>()
-        {
-            return _tables[typeof(T)];
-        }
-
         public IList<TScalar> FindScalarList<T, TScalar>(ObjectQuery query)
         {
             throw new NotImplementedException();
         }
-    }
 
-    public class InMemoryRowMatcher : IExpressionVisitor
-    {
-        private readonly Row _row;
-        private readonly QueryExpression _queryExpression;
-        private bool _isMatch;
-
-        public InMemoryRowMatcher(Row row, QueryExpression queryExpression)
+        public void Update(object instance)
         {
-            _row = row;
-            _queryExpression = queryExpression;
+            var type = instance.GetType();
+
+            EnsureTable(type);
+
+            var row = GetRowForEntity(instance);
+
+            var table = Table(type);
+
+            table.Rows.Remove(row);
+
+            AddRow(instance);
         }
 
-        public void Visit(AndExpression expression)
+        private Row GetRowForEntity(object instance)
         {
-            foreach (var queryExpression in expression.Expressions)
+            var type = instance.GetType();
+            var table = Table(type);
+            
+            var primaryKeyColumnName = _conventionReader.GetPrimaryKeyColumnName(type);
+            var primaryKeyValue = _conventionReader.GetPrimaryKeyValue(instance);
+            
+            foreach (var row in table.Rows)
             {
-                var matcher = new InMemoryRowMatcher(_row, queryExpression);
+                var columnValue = row.GetValue(primaryKeyColumnName);
 
-                if (!matcher.IsMatch())
-                {
-                    _isMatch = false;
-                    return;
-                }
-            }
-        }
-
-        public void Visit(OrExpression expression)
-        {
-            foreach (var queryExpression in expression.Expressions)
-            {
-                var matcher = new InMemoryRowMatcher(_row, queryExpression);
-
-                if (matcher.IsMatch())
-                {
-                    return;
-                }
+                if (columnValue != null && columnValue.MatchesValue(primaryKeyValue))
+                    return row;
             }
 
-            _isMatch = false;
+            throw new WeenyMapperException("Could not find any entity of type '{0}' with the primary key '{1}' with value '{2}'", type.FullName, primaryKeyColumnName, primaryKeyValue);
         }
 
-        public void Visit(ValueExpression expression)
+        private void EnsureTable<T>()
         {
+            EnsureTable(typeof(T));
         }
 
-        public void Visit(PropertyExpression expression)
+        private void EnsureTable(Type type)
         {
-            if (expression.PropertyType == typeof(bool))
-            {
-                var columnName = expression.PropertyName;
-                MatchValue(columnName, true);
-            }
+            if (!_tables.ContainsKey(type))
+                _tables[type] = new ResultSet();
         }
 
-        public void Visit(InExpression expression)
+        private ResultSet Table<T>()
         {
-            throw new NotImplementedException();
+            return Table(typeof(T));
         }
 
-        public void Visit(EqualsExpression expression)
+        private ResultSet Table(Type type)
         {
-            var columnName = expression.PropertyExpression.PropertyName;
-            var value = expression.ValueExpression.Value;
-
-            MatchValue(columnName, value);
-        }
-
-        private void MatchValue(string columnName, object value)
-        {
-            var isMatch = IsMatch(columnName, value);
-
-            if (!isMatch)
-                _isMatch = false;
-        }
-
-        private bool IsMatch(string columnName, object value)
-        {
-            var columnValue = _row.ColumnValues.First(x => x.ColumnName == columnName).Value;
-
-            return Equals(value, columnValue);
-        }
-
-        public void Visit(LessOrEqualExpression expression)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Visit(LessExpression expression)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Visit(GreaterOrEqualExpression expression)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Visit(GreaterExpression expression)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Visit(RootExpression expression)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Visit(LikeExpression expression)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Visit(EntityReferenceExpression expression)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Visit(NotEqualExpression expression)
-        {
-            var isColumnValueMatch = IsMatch(expression.PropertyExpression.PropertyName, expression.ValueExpression.Value);
-
-            if (isColumnValueMatch)
-                _isMatch = false;
-        }
-
-        public void Visit(NotExpression expression)
-        {
-            var matcher = new InMemoryRowMatcher(_row, expression.Expression);
-
-            if (matcher.IsMatch())
-                _isMatch = false;
-        }
-
-        public bool IsMatch()
-        {
-            _isMatch = true;
-
-            _queryExpression.Accept(this);
-
-            return _isMatch;
+            return _tables[type];
         }
     }
 }

@@ -48,5 +48,10 @@ namespace WeenyMapper.Mapping
         {
             return x.ColumnName.StartsWith(EntityMapper.WeenyMapperGeneratedColumnNamePrefix);
         }
+
+        public ColumnValue GetValue(string columnName)
+        {
+            return ColumnValues.FirstOrDefault(x => x.ColumnName == columnName);
+        }
     }
 }

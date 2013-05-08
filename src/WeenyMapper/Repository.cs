@@ -92,13 +92,13 @@ namespace WeenyMapper
             objectInsertExecutor.InsertAsync(entities, callback, errorCallback);
         }
 
-        public int Update<T>(T entity)
+        public void Update<T>(T entity)
         {
             var objectUpdateExecutor = CreateObjectUpdateExecutor<T>();
 
             var builder = new StaticUpdateBuilder<T>(objectUpdateExecutor, new ExpressionParser());
 
-            return builder.Update(entity);
+            builder.Update(entity);
         }
 
         public void UpdateAsync<T>(T entity, Action callback, Action<Exception> errorCallback = null)

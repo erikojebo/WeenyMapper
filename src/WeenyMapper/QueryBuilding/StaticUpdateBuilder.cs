@@ -22,9 +22,9 @@ namespace WeenyMapper.QueryBuilding
             _expressionParser = expressionParser;
         }
 
-        public int Update(T instance)
+        public void Update(T instance)
         {
-            return _objectUpdateExecutor.Update(instance);
+            _objectUpdateExecutor.Update(instance);
         }
 
         public StaticUpdateBuilder<T> Set<TValue>(Expression<Func<T, TValue>> getter, TValue value)

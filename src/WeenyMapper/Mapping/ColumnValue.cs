@@ -50,5 +50,10 @@ namespace WeenyMapper.Mapping
         {
             return string.Format("{0}: {1}", Alias, Value);
         }
+
+        public bool MatchesValue(object value)
+        {
+            return Equals(Value, value);
+        }
     }
 }
