@@ -139,7 +139,31 @@ namespace WeenyMapper.QueryExecution
 
         public void Visit(LikeExpression expression)
         {
-            throw new NotImplementedException();
+            var searchString = expression.SearchString;
+            var columnName = expression.PropertyExpression.PropertyName;
+            var actualValue = (string)_row.GetColumnValue(columnName).Value;
+
+            Func<string, bool> operation;
+
+            if (expression.HasStartingWildCard && expression.HasEndingWildCard)
+            {
+                operation = actualValue.Contains;
+            }
+            else if (expression.HasStartingWildCard)
+            {
+                operation = actualValue.EndsWith;
+            }
+            else if (expression.HasEndingWildCard)
+            {
+                operation = actualValue.StartsWith;
+            }
+            else
+            {
+                throw new WeenyMapperException("Invalid like expression for column '{0}' and search string '{1}'", columnName, searchString);
+            }
+
+            if (!operation(searchString))
+                _isMatch = false;
         }
 
         public void Visit(EntityReferenceExpression expression)
