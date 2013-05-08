@@ -237,7 +237,7 @@ namespace WeenyMapper.Specs
                     Title = "Title 6",
                     PageCount = 222
                 };
-
+            
             Repository.Insert(book1, book2, book3, book4, book5, book6);
 
             var actualBooks = Repository.Find<Book>()
@@ -251,6 +251,116 @@ namespace WeenyMapper.Specs
             Assert.AreEqual(book1, actualBooks[0]);
             Assert.AreEqual(book3, actualBooks[1]);
             Assert.AreEqual(book4, actualBooks[2]);
+        }
+
+        [Test]
+        public virtual void Multiple_where_clauses_containing_multiple_conditions_can_be_combined_using_both_And_and_Or_when_querying_for_objects()
+        {
+            Repository.DefaultConvention = new BookConvention();
+
+            var book1 = new Book
+                {
+                    Isbn = "1",
+                    AuthorName = "Author Name",
+                    Title = "Title 1",
+                    PageCount = 123,
+                    IsPublicDomain = true
+                };
+
+            var book2 = new Book
+                {
+                    Isbn = "2",
+                    AuthorName = "Author Name",
+                    Title = "Title 2",
+                    PageCount = 222,
+                    IsPublicDomain = true
+                };
+
+            var book3 = new Book
+                {
+                    Isbn = "3",
+                    AuthorName = "Author Name",
+                    Title = "Title 3",
+                    PageCount = 222,
+                    IsPublicDomain = false
+                };
+
+            var book4 = new Book
+                {
+                    Isbn = "4",
+                    AuthorName = "Author Name",
+                    Title = "Title 4",
+                    PageCount = 222,
+                    IsPublicDomain = true
+                };
+
+            var book5 = new Book
+                {
+                    Isbn = "5",
+                    AuthorName = "Author Name",
+                    Title = "Title 5",
+                    PageCount = 123,
+                    IsPublicDomain = true
+                };
+
+            var book6 = new Book
+                {
+                    Isbn = "6",
+                    AuthorName = "Another author Name",
+                    Title = "Title 6",
+                    PageCount = 222,
+                    IsPublicDomain = true
+                };
+
+            var book7 = new Book
+            {
+                Isbn = "7",
+                AuthorName = "Author Name 2",
+                Title = "Title 7",
+                PageCount = 222,
+                IsPublicDomain = false
+            };
+
+            var book8 = new Book
+            {
+                Isbn = "8",
+                AuthorName = "Author Name 2",
+                Title = "Title 8",
+                PageCount = 222,
+                IsPublicDomain = true
+            };
+            
+            var book9 = new Book
+            {
+                Isbn = "9",
+                AuthorName = "Author Name 2",
+                Title = "Title 9",
+                PageCount = 123,
+                IsPublicDomain = false
+            };
+
+            var book10 = new Book
+            {
+                Isbn = "10",
+                AuthorName = "Another author Name",
+                Title = "Title 10",
+                PageCount = 222,
+                IsPublicDomain = false
+            };
+
+            Repository.Insert(book1, book2, book3, book4, book5, book6, book7, book8, book9, book10);
+
+            var actualBooks = Repository.Find<Book>()
+                                        .Where(x => x.AuthorName == "Author Name" && x.IsPublicDomain)
+                                        .OrWhere(x => x.AuthorName == "Author Name 2" && !x.IsPublicDomain)
+                                        .AndWhere(x => x.PageCount == 222)
+                                        .OrderBy(x => x.Isbn)
+                                        .ExecuteList();
+
+            Assert.AreEqual(3, actualBooks.Count);
+            Assert.AreEqual(book2, actualBooks[0]);
+            Assert.AreEqual(book4, actualBooks[1]);
+            Assert.AreEqual(book7, actualBooks[2]);
         }
 
         [Test]

@@ -16,7 +16,7 @@ namespace WeenyMapper.Sql
             return reducedExpression;
         }
 
-        private bool CanOutermostParensBeReduced(string expression)
+        public bool CanOutermostParensBeReduced(string expression)
         {
             return expression.Length >= 2 && 
                 expression.StartsWith("(") && expression.EndsWith(")") && 
