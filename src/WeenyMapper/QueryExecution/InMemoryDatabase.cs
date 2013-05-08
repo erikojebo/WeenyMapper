@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using WeenyMapper.Exceptions;
 using WeenyMapper.Mapping;
 using WeenyMapper.QueryParsing;
@@ -247,6 +248,35 @@ namespace WeenyMapper.QueryExecution
             table.Remove(rows);
 
             return rows.Count;
+        }
+
+        public int Update<T>(QueryExpression queryExpression, IDictionary<PropertyInfo, object> setters)
+        {
+            var table = Table<T>();
+
+            var rows = table.Rows.Where(x => MatchesQuery(x, queryExpression)).ToList();
+
+            var columnSetters = _conventionReader.GetColumnValues<T>(setters);
+
+            foreach (var row in rows)
+            {
+                Update(row, columnSetters);
+            }
+
+            return rows.Count;
+        }
+
+        private void Update(Row row, IDictionary<string, object> columnValues)
+        {
+            var existingColumnValues = row.ColumnValues.Where(x => columnValues.Keys.Contains(x.ColumnName)).ToList();
+
+            foreach (var existingColumnValue in existingColumnValues)
+            {
+                var newValue = columnValues.First(x => x.Key == existingColumnValue.ColumnName).Value;
+                var newColumnValue = existingColumnValue.Copy(newValue);
+                row.Remove(existingColumnValue);
+                row.Add(newColumnValue);
+            }
         }
     }
 }

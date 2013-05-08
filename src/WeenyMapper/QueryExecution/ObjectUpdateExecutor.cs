@@ -31,7 +31,7 @@ namespace WeenyMapper.QueryExecution
 
             var constraintExpression = QueryExpression.Create(new EqualsExpression(primaryKeyColumn, primaryKeyValue));
 
-            var command = _sqlGenerator.CreateUpdateCommand(tableName, primaryKeyColumn, constraintExpression, columnValues);
+            var command = _sqlGenerator.CreateUpdateCommand(tableName, constraintExpression, columnValues);
 
             _dbCommandExecutor.ExecuteNonQuery(command, ConnectionString);
         }
@@ -42,7 +42,7 @@ namespace WeenyMapper.QueryExecution
             var columnSetters = _conventionReader.GetColumnValues<T>(setters);
             var primaryKeyColumn = _conventionReader.GetPrimaryKeyColumnName<T>();
 
-            var command = _sqlGenerator.CreateUpdateCommand(tableName, primaryKeyColumn, queryExpression.Translate(_conventionReader), columnSetters);
+            var command = _sqlGenerator.CreateUpdateCommand(tableName, queryExpression.Translate(_conventionReader), columnSetters);
 
             return _dbCommandExecutor.ExecuteNonQuery(command, ConnectionString);
         }

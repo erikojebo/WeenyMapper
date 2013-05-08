@@ -84,6 +84,11 @@ namespace WeenyMapper.QueryExecution
         {
             var columnValue = _row.ColumnValues.First(x => x.ColumnName == columnName).Value;
 
+            if (columnValue is Enum)
+                columnValue = (int)columnValue;
+            if (value is Enum)
+                value = (int)value;
+
             return Equals(value, columnValue);
         }
 

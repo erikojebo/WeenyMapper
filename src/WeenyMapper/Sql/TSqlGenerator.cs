@@ -178,7 +178,7 @@ namespace WeenyMapper.Sql
             return command;
         }
 
-        public DbCommand CreateUpdateCommand(string tableName, string primaryKeyColumn, QueryExpression constraintExpression, IDictionary<string, object> columnSetters)
+        public DbCommand CreateUpdateCommand(string tableName, QueryExpression constraintExpression, IDictionary<string, object> columnSetters)
         {
             var updateString = CreateColumnNameList(columnSetters, x => CreateParameterEqualsStatement(x));
 

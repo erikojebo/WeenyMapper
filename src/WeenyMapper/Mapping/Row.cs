@@ -53,5 +53,23 @@ namespace WeenyMapper.Mapping
         {
             return ColumnValues.FirstOrDefault(x => x.ColumnName == columnName);
         }
+
+        public void Remove(IEnumerable<ColumnValue> columnValues)
+        {
+            foreach (var columnValue in columnValues)
+            {
+                Remove(columnValue);
+            }
+        }
+
+        public void Remove(ColumnValue columnValue)
+        {
+            ColumnValues.Remove(columnValue); 
+        }
+
+        public void Add(ColumnValue columnValue)
+        {
+            ColumnValues.Add(columnValue);
+        }
     }
 }

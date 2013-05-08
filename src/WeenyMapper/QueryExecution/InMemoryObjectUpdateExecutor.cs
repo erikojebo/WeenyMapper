@@ -23,7 +23,7 @@ namespace WeenyMapper.QueryExecution
 
         public int Update<T>(QueryExpression queryExpression, IDictionary<PropertyInfo, object> setters)
         {
-            throw new NotImplementedException();    
+            return _inMemoryDatabase.Update<T>(queryExpression, setters);
         }
     }
 }

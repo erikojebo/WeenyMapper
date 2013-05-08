@@ -55,5 +55,10 @@ namespace WeenyMapper.Mapping
         {
             return Equals(Value, value);
         }
+
+        public ColumnValue Copy(object newValue)
+        {
+            return new ColumnValue(Alias, newValue);
+        }
     }
 }

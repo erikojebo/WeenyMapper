@@ -766,7 +766,7 @@ namespace WeenyMapper.Specs.Sql
 
             var queryExpression = QueryExpression.Create();
 
-            var sqlCommand = _generator.CreateUpdateCommand("TableName", "IdColumnName", queryExpression, columnSetters);
+            var sqlCommand = _generator.CreateUpdateCommand("TableName", queryExpression, columnSetters);
 
             var expectedSql = "UPDATE [TableName] SET [ColumnName1] = @ColumnName1";
 
@@ -792,7 +792,7 @@ namespace WeenyMapper.Specs.Sql
                 new EqualsExpression(new PropertyExpression("ColumnName3"), new ValueExpression("value 3")),
                 new EqualsExpression(new PropertyExpression("ColumnName4"), new ValueExpression("value 4")));
 
-            var sqlCommand = _generator.CreateUpdateCommand("TableName", "IdColumnName", expression, columnSetters);
+            var sqlCommand = _generator.CreateUpdateCommand("TableName", expression, columnSetters);
 
             var expectedSql = "UPDATE [TableName] SET [ColumnName1] = @ColumnName1, [ColumnName2] = @ColumnName2 " +
                               "WHERE ([ColumnName3] = @ColumnName3Constraint AND [ColumnName4] = @ColumnName4Constraint)";
