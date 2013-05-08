@@ -12,10 +12,12 @@ namespace WeenyMapper.Sql
         {
             SubQueries = new List<AliasedObjectSubQuery>();
             Joins = new List<ObjectSubQueryJoin>();
+            QueryExpressionTree = new EmptyQueryExpressionTree();
         }
 
         public IList<AliasedObjectSubQuery> SubQueries { get; set; }
         public IList<ObjectSubQueryJoin> Joins { get; set; }
+        public QueryExpressionTree QueryExpressionTree { get; set; }
 
         public IEnumerable<OrderByStatement> OrderByStatements
         {
@@ -47,6 +49,11 @@ namespace WeenyMapper.Sql
             var subQueriesForType = SubQueries.Where(x => x.ResultType == type);
 
             return subQueriesForType.Any(x => x.Alias == alias);
+        }
+
+        public IEnumerable<QueryExpressionPart> GetQueryExpressions()
+        {
+            return SubQueries.SelectMany(x => x.QueryExpressions).OrderBy(x => x.MetaData.OrderIndex);
         }
 
         public void AddJoin<TParent, TChild>(ObjectSubQueryJoin joinSpecification, string childAlias, string parentAlias)
@@ -81,11 +88,25 @@ namespace WeenyMapper.Sql
 
         public void AddConjunctionExpression<T>(string alias, QueryExpression queryExpression)
         {
+            var leaf = new QueryExpressionTreeLeaf(queryExpression, typeof(T));
+
+            if (QueryExpressionTree.IsEmpty())
+                QueryExpressionTree = leaf;
+            else
+                QueryExpressionTree = new QueryExpressionTreeAndBranch(QueryExpressionTree, leaf);
+
             AddQueryExpression<T>(alias, queryExpression, QueryCombinationOperation.And);
         }
 
         public void AddDisjunctionExpression<T>(string alias, QueryExpression queryExpression)
         {
+            var leaf = new QueryExpressionTreeLeaf(queryExpression, typeof(T));
+
+            if (QueryExpressionTree.IsEmpty())
+                QueryExpressionTree = leaf;
+            else
+                QueryExpressionTree = new QueryExpressionTreeOrBranch(QueryExpressionTree, leaf);
+            
             AddQueryExpression<T>(alias, queryExpression, QueryCombinationOperation.Or);
         }
 

@@ -16,7 +16,6 @@ namespace WeenyMapper.QueryBuilding
         private readonly IObjectQueryExecutor _objectQueryExecutor;
         private readonly IExpressionParser _expressionParser;
         private readonly ObjectQuery _query = new ObjectQuery();
-        private AliasedObjectSubQuery _latestSubQuery;
 
         public StaticSelectBuilder(IObjectQueryExecutor objectQueryExecutor, IExpressionParser expressionParser)
         {
@@ -24,7 +23,6 @@ namespace WeenyMapper.QueryBuilding
             _expressionParser = expressionParser;
 
             var subQuery = new AliasedObjectSubQuery(typeof(T));
-            _latestSubQuery = subQuery;
 
             _query.SubQueries.Add(subQuery);
         }

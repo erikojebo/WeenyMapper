@@ -298,7 +298,7 @@ namespace WeenyMapper.Sql
         private WhereClause CreateWhereClause(SqlQuery query)
         {
             var combinedWhereClause = WhereClause.CreateEmpty();
-            var queryParts = query.SubQueries.SelectMany(x => x.QueryExpressions ).OrderBy(x => x.MetaData.OrderIndex);
+            var queryParts = query.GetQueryExpressions();
 
             var commandParameterFactory = new CommandParameterFactory();
 

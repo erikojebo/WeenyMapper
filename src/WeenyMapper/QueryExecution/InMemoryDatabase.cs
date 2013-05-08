@@ -166,8 +166,9 @@ namespace WeenyMapper.QueryExecution
 
         private bool MatchesQuery(Row row, ObjectQuery query)
         {
-            var queryExpressions = query.SubQueries.SelectMany(x => x.QueryExpressions);
-            return queryExpressions.All(q => MatchesQuery(row, q.QueryExpression));
+            var matcher = new QueryExpressionRowMatcher(row, ConventionReader);
+
+            return matcher.Matches(query.QueryExpressionTree);
         }
 
         private bool MatchesQuery(Row row, QueryExpression query)

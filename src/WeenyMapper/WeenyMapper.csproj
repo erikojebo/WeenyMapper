@@ -70,6 +70,7 @@
     <Compile Include="Mapping\Row.cs" />
     <Compile Include="QueryExecution\InMemoryDatabase.cs" />
     <Compile Include="QueryExecution\InMemoryRowMatcher.cs" />
+    <Compile Include="QueryExecution\QueryExpressionRowMatcher.cs" />
     <Compile Include="QueryParsing\QueryCombinationOperation.cs" />
     <Compile Include="QueryExecution\InMemoryObjectCountExecutor.cs" />
     <Compile Include="QueryExecution\InMemoryObjectDeleteExecutor.cs" />
@@ -133,6 +134,7 @@
     <Compile Include="Sql\IDbCommandExecutor.cs" />
     <Compile Include="QueryParsing\IExpressionVisitor.cs" />
     <Compile Include="Sql\IDbCommandFactory.cs" />
+    <Compile Include="Sql\IQueryExpressionTreeVisitor.cs" />
     <Compile Include="Sql\ISqlGenerator.cs" />
     <Compile Include="QueryExecution\ObjectQueryExecutor.cs" />
     <Compile Include="Sql\ObjectQuery.cs" />
@@ -140,6 +142,7 @@
     <Compile Include="Sql\AliasedObjectSubQuery.cs" />
     <Compile Include="Sql\OrderByClause.cs" />
     <Compile Include="Sql\Page.cs" />
+    <Compile Include="Sql\QueryExpressionTree.cs" />
     <Compile Include="Sql\QueryOptimizer.cs" />
     <Compile Include="Sql\ScalarCommand.cs" />
     <Compile Include="Sql\DbCommandExecutor.cs" />

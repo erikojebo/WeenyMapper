@@ -40,5 +40,10 @@ namespace WeenyMapper.Sql
 
             return SubQueries.FirstOrDefault(x => x.TableName == tableName);
         }
+
+        public IEnumerable<QueryExpressionPart> GetQueryExpressions()
+        {
+            return SubQueries.SelectMany(x => x.QueryExpressions ).OrderBy(x => x.MetaData.OrderIndex);
+        }
     }
 }
