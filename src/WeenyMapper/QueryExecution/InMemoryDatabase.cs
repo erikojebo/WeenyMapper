@@ -61,9 +61,10 @@ namespace WeenyMapper.QueryExecution
         {
             EnsureTable<T>();
 
-            var matchingRows = Table<T>().Rows.Where(row => MatchesQuery(row, query)).ToList();
 
             var subQuery = query.GetSubQuery<T>();
+
+            var matchingRows = Filter<T>(query);
 
             matchingRows = Order(query, matchingRows);
             matchingRows = Limit(subQuery, matchingRows);
@@ -74,6 +75,16 @@ namespace WeenyMapper.QueryExecution
             var resultSet = new ResultSet(matchingRows);
 
             return _entityMapper.CreateInstanceGraphs<T>(resultSet);
+        }
+
+        private List<Row> Filter<T>(ObjectQuery query)
+        {
+            return Filter(query, typeof(T));
+        }
+
+        private List<Row> Filter(ObjectQuery query, Type type)
+        {
+            return Table(type).Rows.Where(row => MatchesQuery(row, query)).ToList();
         }
 
         private List<Row> StripUnselectedColumns(ObjectQuery query, List<Row> matchingRows)
@@ -149,12 +160,12 @@ namespace WeenyMapper.QueryExecution
         private bool MatchesQuery(Row row, ObjectQuery query)
         {
             var queryExpressions = query.SubQueries.SelectMany(x => x.QueryExpressions);
-            return queryExpressions.All(q => MatchesQuery(row, q));
+            return queryExpressions.All(q => MatchesQuery(row, q.QueryExpression));
         }
 
-        private bool MatchesQuery(Row row, QueryExpressionPart query)
+        private bool MatchesQuery(Row row, QueryExpression query)
         {
-            var translatedExpression = query.QueryExpression.Translate(_conventionReader);
+            var translatedExpression = query.Translate(_conventionReader);
 
             var matcher = new InMemoryRowMatcher(row, translatedExpression);
 
@@ -225,6 +236,17 @@ namespace WeenyMapper.QueryExecution
         {
             var row = GetRowForEntity(instance);
             Table(instance.GetType()).Remove(row);
+        }
+
+        public int Delete<T>(QueryExpression queryExpression)
+        {
+            var table = Table<T>();
+
+            var rows = table.Rows.Where(x => MatchesQuery(x, queryExpression)).ToList();
+
+            table.Remove(rows);
+
+            return rows.Count;
         }
     }
 }

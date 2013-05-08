@@ -1,4 +1,5 @@
 ﻿using System;
+using WeenyMapper.Async;
 using WeenyMapper.QueryParsing;
 
 namespace WeenyMapper.QueryExecution
@@ -21,12 +22,12 @@ namespace WeenyMapper.QueryExecution
 
         public void DeleteAsync<T>(T entity, Action callback, Action<Exception> errorCallback = null)
         {
-            throw new NotImplementedException();
+            TaskRunner.Run(() => Delete(entity), callback, errorCallback);            
         }
 
         public int Delete<T>(QueryExpression queryExpression)
         {
-            throw new NotImplementedException();
+            return _inMemoryDatabase.Delete<T>(queryExpression);
         }
     }
 }

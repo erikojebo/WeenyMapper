@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using WeenyMapper.Async;
 
 namespace WeenyMapper.QueryExecution
 {
@@ -22,16 +23,7 @@ namespace WeenyMapper.QueryExecution
 
         public void InsertAsync<T>(IEnumerable<T> entities, Action callback, Action<Exception> errorCallback = null)
         {
-            try
-            {
-                Insert(entities);
-                callback();
-            }
-            catch (Exception e)
-            {
-                if (errorCallback != null)
-                    errorCallback(e);
-            }
+            TaskRunner.Run(() => Insert(entities), callback, errorCallback);
         }
     }
 }

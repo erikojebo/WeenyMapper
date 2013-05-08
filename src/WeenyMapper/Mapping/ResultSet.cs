@@ -37,5 +37,13 @@ namespace WeenyMapper.Mapping
         {
             Rows.Remove(row);
         }
+
+        public void Remove(IEnumerable<Row> rows)
+        {
+            foreach (var row in rows)
+            {
+                Remove(row);
+            }
+        }
     }
 }
