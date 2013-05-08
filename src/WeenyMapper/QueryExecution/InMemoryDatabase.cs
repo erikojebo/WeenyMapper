@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using WeenyMapper.Conventions;
 using WeenyMapper.Exceptions;
 using WeenyMapper.Mapping;
 using WeenyMapper.QueryParsing;
@@ -17,7 +18,7 @@ namespace WeenyMapper.QueryExecution
 
         public IConventionReader ConventionReader;
         public IEntityMapper EntityMapper;
-        private readonly Dictionary<Type, ResultSet> _tables = new Dictionary<Type, ResultSet>();
+        private readonly Dictionary<string, ResultSet> _tables = new Dictionary<string, ResultSet>();
 
         public InMemoryDatabase(IConventionReader conventionReader, IEntityMapper entityMapper)
         {
@@ -226,8 +227,10 @@ namespace WeenyMapper.QueryExecution
 
         private void EnsureTable(Type type)
         {
-            if (!_tables.ContainsKey(type))
-                _tables[type] = new ResultSet();
+            var tableName = ConventionReader.GetTableName(type);
+
+            if (!_tables.ContainsKey(tableName))
+                _tables[tableName] = new ResultSet();
         }
 
         private ResultSet Table<T>()
@@ -237,7 +240,9 @@ namespace WeenyMapper.QueryExecution
 
         private ResultSet Table(Type type)
         {
-            return _tables[type];
+            var tableName = ConventionReader.GetTableName(type);
+
+            return _tables[tableName];
         }
 
         public void Delete(object instance)
