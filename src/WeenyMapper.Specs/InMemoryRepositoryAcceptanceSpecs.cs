@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using WeenyMapper.Conventions;
 
 namespace WeenyMapper.Specs
 {
@@ -8,6 +9,11 @@ namespace WeenyMapper.Specs
         protected override void PerformSetUp()
         {
             Repository = new InMemoryRepository();
+        }
+
+        protected override Repository CreateRepository(IConvention convention)
+        {
+            return new InMemoryRepository { Convention = convention };
         }
     }
 }

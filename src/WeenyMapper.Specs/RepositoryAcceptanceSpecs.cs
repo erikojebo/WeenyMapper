@@ -2905,8 +2905,8 @@ namespace WeenyMapper.Specs
         [Test]
         public void Setting_the_convention_on_one_repository_instance_does_not_change_the_convention_of_another_repository_instance()
         {
-            var bookRepository = new Repository { Convention = new BookConvention() };
-            var blogRepository = new Repository { Convention = new BlogConvention() };
+            var bookRepository = CreateRepository(new BookConvention());
+            var blogRepository = CreateRepository(new BlogConvention());
 
             var book = new Book
                 {
@@ -2945,6 +2945,11 @@ namespace WeenyMapper.Specs
             Assert.AreEqual(book, actualBook);
             Assert.AreEqual(post.Id, actualPost.Id); // Only check id to avoid equals comparison of Blog
             Assert.AreEqual(user, actualUser);
+        }
+
+        protected virtual Repository CreateRepository(IConvention convention)
+        {
+            return new Repository { Convention = convention };
         }
 
         [Test]
