@@ -249,12 +249,20 @@ namespace WeenyMapper.QueryExecution
         public int Delete<T>(QueryExpression queryExpression)
         {
             var table = Table<T>();
-
-            var rows = table.Rows.Where(x => MatchesQuery(x, queryExpression)).ToList();
+            var rows = FindMatchingRows<T>(queryExpression);
 
             table.Remove(rows);
 
             return rows.Count;
+        }
+
+        private List<Row> FindMatchingRows<T>(QueryExpression queryExpression)
+        {
+            var table = Table<T>();
+
+            var rows = table.Rows.Where(x => MatchesQuery(x, queryExpression)).ToList();
+
+            return rows;
         }
 
         public int Update<T>(QueryExpression queryExpression, IDictionary<PropertyInfo, object> setters)
@@ -284,6 +292,13 @@ namespace WeenyMapper.QueryExecution
                 row.Remove(existingColumnValue);
                 row.Add(newColumnValue);
             }
+        }
+
+        public int Count<T>(QueryExpression queryExpression)
+        {
+            var matches = FindMatchingRows<T>(queryExpression);
+
+            return matches.Count;
         }
     }
 }

@@ -12,9 +12,10 @@ namespace WeenyMapper.QueryExecution
         }
 
         public string ConnectionString { get; set; }
+
         public int Count<T>(QueryExpression queryExpression)
         {
-            throw new System.NotImplementedException();
+            return _inMemoryDatabase.Count<T>(queryExpression);
         }
     }
 }

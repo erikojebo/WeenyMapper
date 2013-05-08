@@ -71,5 +71,11 @@ namespace WeenyMapper.Mapping
         {
             ColumnValues.Add(columnValue);
         }
+
+        public override string ToString()
+        {
+            var columnStrings = ColumnValues.Select(x => x.ToString());
+            return string.Join(", ", columnStrings);
+        }
     }
 }

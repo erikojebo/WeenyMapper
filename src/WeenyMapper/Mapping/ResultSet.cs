@@ -45,5 +45,11 @@ namespace WeenyMapper.Mapping
                 Remove(row);
             }
         }
+
+        public override string ToString()
+        {
+            var rowStrings = Rows.Select(x => x.ToString());
+            return string.Join(", ", rowStrings);
+        }
     }
 }
