@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
+using WeenyMapper.Conventions;
 using WeenyMapper.Exceptions;
 using WeenyMapper.Extensions;
 using WeenyMapper.Mapping;
 using WeenyMapper.QueryParsing;
+using WeenyMapper.Reflection;
 
 namespace WeenyMapper.Sql
 {
@@ -297,21 +299,25 @@ namespace WeenyMapper.Sql
 
         private WhereClause CreateWhereClause(SqlQuery query)
         {
-            var combinedWhereClause = WhereClause.CreateEmpty();
-            var queryParts = query.GetQueryExpressions();
-
             var commandParameterFactory = new CommandParameterFactory();
 
-            foreach (var expressionPart in queryParts)
-            {
-                var parentSubQueryForPart = query.SubQueries.First(x => x.QueryExpressions.Any(q => q == expressionPart));
-                
-                var whereClause = CreateWhereClause(expressionPart.QueryExpression, parentSubQueryForPart, commandParameterFactory);
+            var generator = new QueryExpressionTreeWhereClauseGenerator(commandParameterFactory);
+            return generator.CreateWhereClause(query.QueryExpressionTree);
 
-                combinedWhereClause = combinedWhereClause.Combine(whereClause, expressionPart.MetaData.CombinationOperation);
-            }
+            //var combinedWhereClause = WhereClause.CreateEmpty();
 
-            return combinedWhereClause;
+            //var queryParts = query.GetQueryExpressions();
+
+            //foreach (var expressionPart in queryParts)
+            //{
+            //    var parentSubQueryForPart = query.SubQueries.First(x => x.QueryExpressions.Any(q => q == expressionPart));
+
+            //    var whereClause = CreateWhereClause(expressionPart.QueryExpression, parentSubQueryForPart, commandParameterFactory);
+
+            //    combinedWhereClause = combinedWhereClause.Combine(whereClause, expressionPart.MetaData.CombinationOperation);
+            //}
+
+            //return combinedWhereClause;
         }
 
         private WhereClause CreateWhereClause(AliasedSqlSubQuery subQuery)
@@ -558,4 +564,72 @@ namespace WeenyMapper.Sql
             }
         }
     }
+
+    public class QueryExpressionTreeWhereClauseGenerator : IQueryExpressionTreeVisitor
+    {
+        private readonly CommandParameterFactory _commandParameterFactory;
+        private WhereClause _whereClause = WhereClause.CreateEmpty();
+
+        public QueryExpressionTreeWhereClauseGenerator(CommandParameterFactory commandParameterFactory)
+        {
+            _commandParameterFactory = commandParameterFactory;
+        }
+
+        public void Visit(QueryExpressionTreeAndBranch tree)
+        {
+            foreach (var node in tree.Nodes)
+            {
+                var whereClauseGenerator = new QueryExpressionTreeWhereClauseGenerator(_commandParameterFactory);
+
+                var whereClause = whereClauseGenerator.CreateWhereClause(node);
+                _whereClause = _whereClause.Combine(whereClause, QueryCombinationOperation.And);
+            }
+        }
+
+        public void Visit(QueryExpressionTreeOrBranch tree)
+        {
+            foreach (var node in tree.Nodes)
+            {
+                var whereClauseGenerator = new QueryExpressionTreeWhereClauseGenerator(_commandParameterFactory);
+                var whereClause = whereClauseGenerator.CreateWhereClause(node);
+
+                _whereClause = _whereClause.Combine(whereClause, QueryCombinationOperation.Or);
+            }
+        }
+
+        public void Visit(QueryExpressionTreeLeaf tree)
+        {
+            throw new WeenyMapperException("All expression tree leaves must be translated before generating SQL");
+        }
+
+        public void Visit(EmptyQueryExpressionTree tree)
+        {
+        }
+
+        public void Visit(TranslatedQueryExpressionTreeLeaf tree)
+        {
+            _commandParameterFactory.ParameterNamePrefix = tree.TableIdentifier + "_";
+            _whereClause = CreateWhereClause(tree.QueryExpression, tree.TableIdentifier, _commandParameterFactory);
+        }
+
+        private WhereClause CreateWhereClause(QueryExpression queryExpression, string columnNamePrefix, CommandParameterFactory commandParameterFactory)
+        {
+            var whereExpression = TSqlGenerator.TSqlExpression.Create(queryExpression, commandParameterFactory, columnNamePrefix);
+            var whereClause = new WhereClause(whereExpression.ConstraintCommandText);
+
+            whereClause.CommandParameters = whereExpression.CommandParameters;
+
+            return whereClause;
+        }
+
+        public WhereClause CreateWhereClause(QueryExpressionTree tree)
+        {
+            _whereClause = WhereClause.CreateEmpty();
+
+            tree.Accept(this);
+
+            return _whereClause;
+        }
+    }
+
 }

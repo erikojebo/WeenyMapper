@@ -55,6 +55,10 @@ namespace WeenyMapper.QueryExecution
         {
         }
 
+        public void Visit(TranslatedQueryExpressionTreeLeaf tree)
+        {
+        }
+
         public bool Matches(QueryExpressionTree expressionTree)
         {
             _isMatch = true;

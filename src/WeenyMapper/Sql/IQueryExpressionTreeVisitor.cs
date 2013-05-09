@@ -6,5 +6,6 @@
         void Visit(QueryExpressionTreeOrBranch tree);
         void Visit(QueryExpressionTreeLeaf tree);
         void Visit(EmptyQueryExpressionTree tree);
+        void Visit(TranslatedQueryExpressionTreeLeaf tree);
     }
 }

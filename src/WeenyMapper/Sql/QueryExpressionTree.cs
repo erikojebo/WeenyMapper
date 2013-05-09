@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using WeenyMapper.Conventions;
 using WeenyMapper.QueryParsing;
 using System.Linq;
+using WeenyMapper.Reflection;
 
 namespace WeenyMapper.Sql
 {
@@ -13,22 +15,51 @@ namespace WeenyMapper.Sql
         {
             return false;
         }
+
+        public abstract QueryExpressionTree Translate(IConventionReader conventionReader);
     }
 
     public class QueryExpressionTreeLeaf : QueryExpressionTree
     {
         public QueryExpression QueryExpression { get; set; }
-        public Type Type { get; set; }
+        public TableIdentifier TableIdentifier { get; set; }
 
-        public QueryExpressionTreeLeaf(QueryExpression queryExpression, Type type)
+        public QueryExpressionTreeLeaf(QueryExpression queryExpression, TableIdentifier tableIdentifier)
         {
             QueryExpression = queryExpression;
-            Type = type;
+            TableIdentifier = tableIdentifier;
         }
 
         public override void Accept(IQueryExpressionTreeVisitor visitor)
         {
             visitor.Visit(this);
+        }
+
+        public override QueryExpressionTree Translate(IConventionReader conventionReader)
+        {
+            return new TranslatedQueryExpressionTreeLeaf(QueryExpression.Translate(conventionReader), TableIdentifier.GetTableIdentifier(conventionReader));
+        }
+    }
+
+    public class TranslatedQueryExpressionTreeLeaf : QueryExpressionTree
+    {
+        public QueryExpression QueryExpression { get; set; }
+        public string TableIdentifier { get; set; }
+
+        public TranslatedQueryExpressionTreeLeaf(QueryExpression queryExpression, string tableIdentifier)
+        {
+            QueryExpression = queryExpression;
+            TableIdentifier = tableIdentifier;
+        }
+
+        public override void Accept(IQueryExpressionTreeVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
+
+        public override QueryExpressionTree Translate(IConventionReader conventionReader)
+        {
+            return this;
         }
     }
 
@@ -45,6 +76,11 @@ namespace WeenyMapper.Sql
         {
             visitor.Visit(this);
         }
+
+        public override QueryExpressionTree Translate(IConventionReader conventionReader)
+        {
+            return new QueryExpressionTreeAndBranch(Nodes.Select(x => x.Translate(conventionReader)).ToArray());
+        }
     }
 
     public class QueryExpressionTreeOrBranch : QueryExpressionTree
@@ -60,6 +96,10 @@ namespace WeenyMapper.Sql
         {
             visitor.Visit(this);
         }
+        public override QueryExpressionTree Translate(IConventionReader conventionReader)
+        {
+            return new QueryExpressionTreeOrBranch(Nodes.Select(x => x.Translate(conventionReader)).ToArray());
+        }
     }
 
     public class EmptyQueryExpressionTree : QueryExpressionTree
@@ -72,6 +112,11 @@ namespace WeenyMapper.Sql
         public override bool IsEmpty()
         {
             return true;
+        }
+
+        public override QueryExpressionTree Translate(IConventionReader conventionReader)
+        {
+            return this;
         }
     }
 }

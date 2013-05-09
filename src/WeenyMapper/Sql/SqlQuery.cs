@@ -14,6 +14,7 @@ namespace WeenyMapper.Sql
 
         public List<AliasedSqlSubQuery> SubQueries { get; set; }
         public List<SqlSubQueryJoin> Joins { get; set; }
+        public QueryExpressionTree QueryExpressionTree { get; set; }
 
         public bool IsJoinQuery
         {

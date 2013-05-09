@@ -151,6 +151,7 @@
     <Compile Include="Sql\SqlSubQueryJoin.cs" />
     <Compile Include="Sql\AliasedSqlSubQuery.cs" />
     <Compile Include="Sql\SqlServerCommandFactory.cs" />
+    <Compile Include="Sql\TableIdentifier.cs" />
     <Compile Include="Sql\TopClause.cs" />
     <Compile Include="Sql\TSqlGenerator.cs" />
     <Compile Include="Sql\WhereClause.cs" />
