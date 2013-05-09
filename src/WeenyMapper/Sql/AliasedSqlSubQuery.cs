@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using WeenyMapper.QueryParsing;
-using System.Linq;
 
 namespace WeenyMapper.Sql
 {
@@ -39,22 +38,12 @@ namespace WeenyMapper.Sql
             get { return Alias ?? TableName; }
         }
 
-        public bool HasQuery
-        {
-            get { return QueryExpressions.Any(); }
-        }
-
         public static AliasedSqlSubQuery CreateFor<T>()
         {
             return new AliasedSqlSubQuery
                 {
                     TableName = typeof(T).Name,
                 };
-        }
-
-        public void AddQueryExpression(QueryExpression queryExpression)
-        {
-            AddQueryExpression(queryExpression, new QueryExpressionMetaData());
         }
 
         public void AddQueryExpression(QueryExpression queryExpression, QueryExpressionMetaData metaData)

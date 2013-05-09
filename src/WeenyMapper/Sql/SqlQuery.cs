@@ -43,11 +43,6 @@ namespace WeenyMapper.Sql
             return SubQueries.FirstOrDefault(x => x.TableName == tableName);
         }
 
-        public IEnumerable<QueryExpressionPart> GetQueryExpressions()
-        {
-            return SubQueries.SelectMany(x => x.QueryExpressions ).OrderBy(x => x.MetaData.OrderIndex);
-        }
-
         public void AddConjunctionExpression(string tableIdentifier, QueryExpression queryExpression)
         {
             var leaf = new TranslatedQueryExpressionTreeLeaf(queryExpression, tableIdentifier);

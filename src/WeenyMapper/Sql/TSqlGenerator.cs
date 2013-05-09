@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
-using WeenyMapper.Conventions;
 using WeenyMapper.Exceptions;
 using WeenyMapper.Extensions;
 using WeenyMapper.Mapping;
 using WeenyMapper.QueryParsing;
-using WeenyMapper.Reflection;
 
 namespace WeenyMapper.Sql
 {
@@ -304,14 +302,6 @@ namespace WeenyMapper.Sql
 
             var generator = new QueryExpressionTreeWhereClauseGenerator(commandParameterFactory);
             return generator.CreateWhereClause(query.QueryExpressionTree);
-        }
-
-        private WhereClause CreateWhereClause(AliasedSqlSubQuery subQuery)
-        {
-            if (!subQuery.HasQuery)
-                return WhereClause.CreateEmpty();
-
-            return CreateWhereClause(subQuery.QueryExpressions.First().QueryExpression, subQuery.TableIdentifier, subQuery.TableIdentifier + "_");
         }
 
         private WhereClause CreateWhereClause(QueryExpression queryExpression, string columnNamePrefix = "", string parameterNamePrefix = "")
