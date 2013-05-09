@@ -2,15 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using WeenyMapper.Conventions;
 using WeenyMapper.Exceptions;
 using WeenyMapper.Mapping;
 using WeenyMapper.QueryParsing;
 using WeenyMapper.Reflection;
 using WeenyMapper.Sql;
-using WeenyMapper.Extensions;
 
-namespace WeenyMapper.QueryExecution
+namespace WeenyMapper.QueryExecution.InMemory
 {
     public class InMemoryDatabase
     {
@@ -113,42 +111,13 @@ namespace WeenyMapper.QueryExecution
             return strippedRows;
         }
 
-        private List<Row> Order(ObjectQuery query, List<Row> rows)
+        private List<Row> Order(ObjectQuery query, IEnumerable<Row> rows)
         {
             var orderedResult = rows.ToList();
 
-            orderedResult.Sort((left, right) =>
-                {
-                    var orderByStatements = query.OrderByStatements.Select(x => x.Translate(ConventionReader)).ToList();
+            var comparer = new InMemoryRowSorter(query, ConventionReader);
 
-                    if (orderByStatements.IsEmpty() && query.SubQueries.First().IsPagingQuery)
-                    {
-                        var primaryKeyColumnName = ConventionReader.GetPrimaryKeyColumnName(query.SubQueries.First().ResultType);
-                        orderByStatements.Add(new OrderByStatement(primaryKeyColumnName));
-                    }
-
-                    foreach (var translatedOrderBy in orderByStatements)
-                    {
-                        var leftValue = left.ColumnValues.First(x => x.ColumnName == translatedOrderBy.PropertyName).Value;
-                        var rightValue = right.ColumnValues.First(x => x.ColumnName == translatedOrderBy.PropertyName).Value;
-
-                        if (leftValue.GetType().ImplementsInterface<IComparable>())
-                        {
-                            var leftComparable = (IComparable)leftValue;
-
-                            var result = leftComparable.CompareTo(rightValue);
-
-                            var areDifferent = result != 0;
-
-                            if (areDifferent && translatedOrderBy.Direction == OrderByDirection.Ascending)
-                                return result;
-                            if (areDifferent && translatedOrderBy.Direction == OrderByDirection.Descending)
-                                return -1 * result;
-                        }
-                    }
-
-                    return 0;
-                });
+            orderedResult.Sort(comparer);
 
             return orderedResult;
         }

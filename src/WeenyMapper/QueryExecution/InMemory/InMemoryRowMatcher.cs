@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using WeenyMapper.Exceptions;
 using WeenyMapper.Extensions;
 using WeenyMapper.Mapping;
 using WeenyMapper.QueryParsing;
-using WeenyMapper.Sql;
 
-namespace WeenyMapper.QueryExecution
+namespace WeenyMapper.QueryExecution.InMemory
 {
     public class InMemoryRowMatcher : IExpressionVisitor
     {

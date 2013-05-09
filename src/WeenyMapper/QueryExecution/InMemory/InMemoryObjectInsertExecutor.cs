@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using WeenyMapper.Async;
 
-namespace WeenyMapper.QueryExecution
+namespace WeenyMapper.QueryExecution.InMemory
 {
     public class InMemoryObjectInsertExecutor : IObjectInsertExecutor
     {

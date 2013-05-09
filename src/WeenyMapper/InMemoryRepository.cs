@@ -2,6 +2,7 @@ using System.Data.Common;
 using WeenyMapper.Exceptions;
 using WeenyMapper.Mapping;
 using WeenyMapper.QueryExecution;
+using WeenyMapper.QueryExecution.InMemory;
 
 namespace WeenyMapper
 {

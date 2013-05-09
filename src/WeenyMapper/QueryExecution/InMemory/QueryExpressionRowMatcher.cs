@@ -2,7 +2,7 @@
 using WeenyMapper.Reflection;
 using WeenyMapper.Sql;
 
-namespace WeenyMapper.QueryExecution
+namespace WeenyMapper.QueryExecution.InMemory
 {
     public class QueryExpressionRowMatcher : IQueryExpressionTreeVisitor
     {

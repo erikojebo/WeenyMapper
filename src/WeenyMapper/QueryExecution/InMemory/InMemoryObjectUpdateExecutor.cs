@@ -1,9 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.Reflection;
 using WeenyMapper.QueryParsing;
 
-namespace WeenyMapper.QueryExecution
+namespace WeenyMapper.QueryExecution.InMemory
 {
     public class InMemoryObjectUpdateExecutor : IObjectUpdateExecutor
     {

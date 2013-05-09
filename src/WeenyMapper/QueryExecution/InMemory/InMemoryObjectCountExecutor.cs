@@ -1,6 +1,6 @@
 ﻿using WeenyMapper.QueryParsing;
 
-namespace WeenyMapper.QueryExecution
+namespace WeenyMapper.QueryExecution.InMemory
 {
     public class InMemoryObjectCountExecutor : IObjectCountExecutor
     {
