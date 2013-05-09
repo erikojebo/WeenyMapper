@@ -51,11 +51,6 @@ namespace WeenyMapper.Sql
             return subQueriesForType.Any(x => x.Alias == alias);
         }
 
-        public IEnumerable<QueryExpressionPart> GetQueryExpressions()
-        {
-            return SubQueries.SelectMany(x => x.QueryExpressions).OrderBy(x => x.MetaData.OrderIndex);
-        }
-
         public void AddJoin<TParent, TChild>(ObjectSubQueryJoin joinSpecification, string childAlias, string parentAlias)
         {
             EnsureSubQuery<TParent>(parentAlias);
@@ -90,35 +85,12 @@ namespace WeenyMapper.Sql
         {
             var leaf = new QueryExpressionTreeLeaf(queryExpression, new TableIdentifier(typeof(T), alias));
             QueryExpressionTree = QueryExpressionTree.And(leaf);
-
-            AddQueryExpression<T>(alias, queryExpression, QueryCombinationOperation.And);
         }
 
         public void AddDisjunctionExpression<T>(string alias, QueryExpression queryExpression)
         {
             var leaf = new QueryExpressionTreeLeaf(queryExpression, new TableIdentifier(typeof(T), alias));
             QueryExpressionTree = QueryExpressionTree.Or(leaf);
-            
-            AddQueryExpression<T>(alias, queryExpression, QueryCombinationOperation.Or);
-        }
-
-        private void AddQueryExpression<T>(string alias, QueryExpression queryExpression, QueryCombinationOperation queryCombinationOperation)
-        {
-            var subQuery = GetOrCreateSubQuery<T>(alias);
-
-            var nextOrderIndex = GetNextOrderIndex();
-
-            subQuery.AddQueryExpression(queryExpression, new QueryExpressionMetaData { OrderIndex = nextOrderIndex, CombinationOperation = queryCombinationOperation });
-        }
-
-        private int GetNextOrderIndex()
-        {
-            var lastQueryExpressionPart = SubQueries.SelectMany(x => x.QueryExpressions).OrderByDescending(x => x.MetaData.OrderIndex).FirstOrDefault();
-
-            if (lastQueryExpressionPart != null)
-                return lastQueryExpressionPart.MetaData.OrderIndex + 1;
-
-            return 0;
         }
     }
 }

@@ -10,13 +10,10 @@ namespace WeenyMapper.Sql
         {
             ColumnsToSelect = new List<string>();
             OrderByStatements = new List<OrderByStatement>();
-            QueryExpressions = new List<QueryExpressionPart>();
         }
 
         public string TableName { get; set; }
         public IList<string> ColumnsToSelect { get; set; }
-        public List<QueryExpressionPart> QueryExpressions { get; set; }
-        public QueryExpressionMetaData QueryExpressionMetaData { get; set; }
         public IList<OrderByStatement> OrderByStatements { get; set; }
         public int RowCountLimit { get; set; }
         public Page Page { get; set; }
@@ -44,11 +41,6 @@ namespace WeenyMapper.Sql
                 {
                     TableName = typeof(T).Name,
                 };
-        }
-
-        public void AddQueryExpression(QueryExpression queryExpression, QueryExpressionMetaData metaData)
-        {
-            QueryExpressions.Add(new QueryExpressionPart(queryExpression, metaData));
         }
     }
 }

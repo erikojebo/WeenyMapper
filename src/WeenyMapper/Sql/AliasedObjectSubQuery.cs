@@ -12,12 +12,10 @@ namespace WeenyMapper.Sql
         {
             PropertiesToSelect = new List<string>();
             OrderByStatements = new List<OrderByStatement>();
-            QueryExpressions = new List<QueryExpressionPart>();
             ResultType = resultType;
         }
 
         public IList<string> PropertiesToSelect { get; set; }
-        public List<QueryExpressionPart> QueryExpressions { get; set; }
         public IList<OrderByStatement> OrderByStatements { get; set; }
         public int RowCountLimit { get; set; }
         public Page Page { get; set; }
@@ -27,11 +25,6 @@ namespace WeenyMapper.Sql
         public bool IsPagingQuery
         {
             get { return Page != null && Page.PageSize > 0; }
-        }
-
-        public void AddQueryExpression(QueryExpression queryExpression, QueryExpressionMetaData metaData)
-        {
-            QueryExpressions.Add(new QueryExpressionPart(queryExpression, metaData));
         }
 
         public IList<string> GetColumnNamesToSelect(IConventionReader conventionReader)
