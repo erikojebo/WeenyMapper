@@ -6,7 +6,6 @@ namespace WeenyMapper.Mapping
     {
         T CreateInstance<T>(IDictionary<string, object> dictionary) where T : new();
         IList<T> CreateInstanceGraphs<T>(ResultSet resultSet);
-        IList<T> CreateInstanceGraphs<T>(ResultSet resultSet, ObjectRelation parentChildRelation);
         IList<T> CreateInstanceGraphs<T>(ResultSet resultSet, IEnumerable<ObjectRelation> parentChildRelation);
     }
 }

@@ -237,7 +237,7 @@ namespace WeenyMapper.Specs
                     Title = "Title 6",
                     PageCount = 222
                 };
-            
+
             Repository.Insert(book1, book2, book3, book4, book5, book6);
 
             var actualBooks = Repository.Find<Book>()
@@ -313,40 +313,40 @@ namespace WeenyMapper.Specs
                 };
 
             var book7 = new Book
-            {
-                Isbn = "7",
-                AuthorName = "Author Name 2",
-                Title = "Title 7",
-                PageCount = 222,
-                IsPublicDomain = false
-            };
+                {
+                    Isbn = "7",
+                    AuthorName = "Author Name 2",
+                    Title = "Title 7",
+                    PageCount = 222,
+                    IsPublicDomain = false
+                };
 
             var book8 = new Book
-            {
-                Isbn = "8",
-                AuthorName = "Author Name 2",
-                Title = "Title 8",
-                PageCount = 222,
-                IsPublicDomain = true
-            };
-            
+                {
+                    Isbn = "8",
+                    AuthorName = "Author Name 2",
+                    Title = "Title 8",
+                    PageCount = 222,
+                    IsPublicDomain = true
+                };
+
             var book9 = new Book
-            {
-                Isbn = "9",
-                AuthorName = "Author Name 2",
-                Title = "Title 9",
-                PageCount = 123,
-                IsPublicDomain = false
-            };
+                {
+                    Isbn = "9",
+                    AuthorName = "Author Name 2",
+                    Title = "Title 9",
+                    PageCount = 123,
+                    IsPublicDomain = false
+                };
 
             var book10 = new Book
-            {
-                Isbn = "10",
-                AuthorName = "Another author Name",
-                Title = "Title 10",
-                PageCount = 222,
-                IsPublicDomain = false
-            };
+                {
+                    Isbn = "10",
+                    AuthorName = "Another author Name",
+                    Title = "Title 10",
+                    PageCount = 222,
+                    IsPublicDomain = false
+                };
 
             Repository.Insert(book1, book2, book3, book4, book5, book6, book7, book8, book9, book10);
 
@@ -1549,7 +1549,9 @@ namespace WeenyMapper.Specs
             Repository.Insert(blog1, blog2);
             Repository.Insert(post1, post2, post3);
 
-            var actualBlog1 = Repository.Find<Blog>().Where(x => x.Name == "Blog 1").Join<Blog, BlogPost>(x => x.Posts, x => x.Blog).Execute();
+            var actualBlog1 = Repository.Find<Blog>().Where(x => x.Name == "Blog 1")
+                                        .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog)
+                                        .Execute();
 
             Assert.AreEqual(blog1, actualBlog1);
         }

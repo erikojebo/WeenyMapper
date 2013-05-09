@@ -61,9 +61,14 @@ namespace WeenyMapper.QueryExecution.InMemory
         {
             var resultSet = FindResultSet<T>(query);
 
-            var entities = EntityMapper.CreateInstanceGraphs<T>(resultSet);
+            var objectRelations = query.Joins.Select(ObjectRelation.Create).ToList();
 
-            return entities;
+            if (objectRelations.Any())
+            {
+                return EntityMapper.CreateInstanceGraphs<T>(resultSet, objectRelations);
+            }
+
+            return EntityMapper.CreateInstanceGraphs<T>(resultSet);
         }
 
         private ResultSet FindResultSet<T>(ObjectQuery query)
