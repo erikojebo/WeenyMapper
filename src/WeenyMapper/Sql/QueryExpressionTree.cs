@@ -17,6 +17,22 @@ namespace WeenyMapper.Sql
         }
 
         public abstract QueryExpressionTree Translate(IConventionReader conventionReader);
+
+        public QueryExpressionTree And(QueryExpressionTree leaf)
+        {
+            if (IsEmpty())
+                return leaf;
+
+            return new QueryExpressionTreeAndBranch(this, leaf);
+        }
+        
+        public QueryExpressionTree Or(QueryExpressionTree leaf)
+        {
+            if (IsEmpty())
+                return leaf;
+            
+            return new QueryExpressionTreeOrBranch(this, leaf);
+        }
     }
 
     public class QueryExpressionTreeLeaf : QueryExpressionTree

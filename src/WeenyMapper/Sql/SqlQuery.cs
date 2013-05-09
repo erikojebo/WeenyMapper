@@ -10,6 +10,7 @@ namespace WeenyMapper.Sql
         {
             SubQueries = new List<AliasedSqlSubQuery>();
             Joins = new List<SqlSubQueryJoin>();
+            QueryExpressionTree = new EmptyQueryExpressionTree();
         }
 
         public List<AliasedSqlSubQuery> SubQueries { get; set; }
@@ -45,6 +46,18 @@ namespace WeenyMapper.Sql
         public IEnumerable<QueryExpressionPart> GetQueryExpressions()
         {
             return SubQueries.SelectMany(x => x.QueryExpressions ).OrderBy(x => x.MetaData.OrderIndex);
+        }
+
+        public void AddConjunctionExpression(string tableIdentifier, QueryExpression queryExpression)
+        {
+            var leaf = new TranslatedQueryExpressionTreeLeaf(queryExpression, tableIdentifier);
+            QueryExpressionTree = QueryExpressionTree.And(leaf);
+        }
+
+        public void AddDisjunctionExpression(string tableIdentifier, QueryExpression queryExpression)
+        {
+            var leaf = new TranslatedQueryExpressionTreeLeaf(queryExpression, tableIdentifier);
+            QueryExpressionTree = QueryExpressionTree.Or(leaf);
         }
     }
 }

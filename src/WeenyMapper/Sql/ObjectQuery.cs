@@ -88,14 +88,8 @@ namespace WeenyMapper.Sql
 
         public void AddConjunctionExpression<T>(string alias, QueryExpression queryExpression)
         {
-            var subQuery = GetOrCreateSubQuery<T>(alias);
-
             var leaf = new QueryExpressionTreeLeaf(queryExpression, new TableIdentifier(typeof(T), alias));
-
-            if (QueryExpressionTree.IsEmpty())
-                QueryExpressionTree = leaf;
-            else
-                QueryExpressionTree = new QueryExpressionTreeAndBranch(QueryExpressionTree, leaf);
+            QueryExpressionTree = QueryExpressionTree.And(leaf);
 
             AddQueryExpression<T>(alias, queryExpression, QueryCombinationOperation.And);
         }
@@ -103,11 +97,7 @@ namespace WeenyMapper.Sql
         public void AddDisjunctionExpression<T>(string alias, QueryExpression queryExpression)
         {
             var leaf = new QueryExpressionTreeLeaf(queryExpression, new TableIdentifier(typeof(T), alias));
-
-            if (QueryExpressionTree.IsEmpty())
-                QueryExpressionTree = leaf;
-            else
-                QueryExpressionTree = new QueryExpressionTreeOrBranch(QueryExpressionTree, leaf);
+            QueryExpressionTree = QueryExpressionTree.Or(leaf);
             
             AddQueryExpression<T>(alias, queryExpression, QueryCombinationOperation.Or);
         }
