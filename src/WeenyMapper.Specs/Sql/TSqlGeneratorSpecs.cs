@@ -1131,7 +1131,7 @@ namespace WeenyMapper.Specs.Sql
         public void Paging_query_with_constraints_creates_row_number_query_with_constraint_in_aliased_select()
         {
             _subQuery.Page = new Page(1, 2);
-            _subQuery.AddQueryExpression(QueryExpression.Create(new EqualsExpression("ColumnName3", "value")));
+            _sqlQuery.AddConjunctionExpression(_subQuery.TableIdentifier, QueryExpression.Create(new EqualsExpression("ColumnName3", "value")));
 
             var expectedSql =
                 "WITH [CompleteResult] AS (SELECT [TableName].[ColumnName1], [TableName].[ColumnName2], ROW_NUMBER() OVER (ORDER BY [TableName].[IdColumnName]) AS \"WeenyMapperGenerated_RowNumber\" " +
@@ -1159,7 +1159,7 @@ namespace WeenyMapper.Specs.Sql
         public void Paging_query_with_specified_order_by_uses_specified_order_by_in_row_number_over_clause()
         {
             _subQuery.Page = new Page(1, 2);
-            _subQuery.AddQueryExpression(QueryExpression.Create(new EqualsExpression("ColumnName3", "value")));
+            _sqlQuery.AddConjunctionExpression(_subQuery.TableIdentifier, QueryExpression.Create(new EqualsExpression("ColumnName3", "value")));
             _subQuery.OrderByStatements.Add(OrderByStatement.Create("ColumnName3", OrderByDirection.Descending, 0));
             _subQuery.OrderByStatements.Add(OrderByStatement.Create("ColumnName4", OrderByDirection.Ascending, 1));
 

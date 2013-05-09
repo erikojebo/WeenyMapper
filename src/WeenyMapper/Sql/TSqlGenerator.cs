@@ -30,7 +30,7 @@ namespace WeenyMapper.Sql
             }
             if (subQuery.IsPagingQuery)
             {
-                return GeneratePagingQuery(subQuery);
+                return GeneratePagingQuery(sqlQuery);
             }
 
             var command = _commandFactory.CreateCommand();
@@ -126,8 +126,9 @@ namespace WeenyMapper.Sql
             return Escape(subQuery.TableName);
         }
 
-        private DbCommand GeneratePagingQuery(AliasedSqlSubQuery subQuery)
+        private DbCommand GeneratePagingQuery(SqlQuery sqlQuery)
         {
+            var subQuery = sqlQuery.SubQueries.First();
             var command = _commandFactory.CreateCommand();
 
             if (subQuery.OrderByStatements.IsEmpty() && string.IsNullOrEmpty(subQuery.PrimaryKeyColumnName))
@@ -146,7 +147,7 @@ namespace WeenyMapper.Sql
                                                 EntityMapper.WeenyMapperGeneratedColumnNamePrefix,
                                                 Escape(subQuery.TableName));
 
-            var whereClause = CreateWhereClause(subQuery);
+            var whereClause = CreateWhereClause(sqlQuery);
             var orderByClause = CreateOrderByClause(subQuery);
 
             whereClause.AppendTo(command, _commandFactory);
@@ -303,21 +304,6 @@ namespace WeenyMapper.Sql
 
             var generator = new QueryExpressionTreeWhereClauseGenerator(commandParameterFactory);
             return generator.CreateWhereClause(query.QueryExpressionTree);
-
-            //var combinedWhereClause = WhereClause.CreateEmpty();
-
-            //var queryParts = query.GetQueryExpressions();
-
-            //foreach (var expressionPart in queryParts)
-            //{
-            //    var parentSubQueryForPart = query.SubQueries.First(x => x.QueryExpressions.Any(q => q == expressionPart));
-
-            //    var whereClause = CreateWhereClause(expressionPart.QueryExpression, parentSubQueryForPart, commandParameterFactory);
-
-            //    combinedWhereClause = combinedWhereClause.Combine(whereClause, expressionPart.MetaData.CombinationOperation);
-            //}
-
-            //return combinedWhereClause;
         }
 
         private WhereClause CreateWhereClause(AliasedSqlSubQuery subQuery)
@@ -326,12 +312,6 @@ namespace WeenyMapper.Sql
                 return WhereClause.CreateEmpty();
 
             return CreateWhereClause(subQuery.QueryExpressions.First().QueryExpression, subQuery.TableIdentifier, subQuery.TableIdentifier + "_");
-        }
-
-        private WhereClause CreateWhereClause(QueryExpression queryExpression, AliasedSqlSubQuery subQuery, CommandParameterFactory commandParameterFactory)
-        {
-            commandParameterFactory.ParameterNamePrefix = subQuery.TableIdentifier + "_";
-            return CreateWhereClause(queryExpression, subQuery.TableIdentifier, commandParameterFactory);
         }
 
         private WhereClause CreateWhereClause(QueryExpression queryExpression, string columnNamePrefix = "", string parameterNamePrefix = "")
