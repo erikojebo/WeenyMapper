@@ -19,40 +19,40 @@ namespace WeenyMapper
 
         public override CustomSqlQueryExecutor<T> FindBySql<T>(DbCommand dbCommand)
         {
-            throw new WeenyMapperException("The InMemoryRepository does not support custom SQL queries");
+            throw new WeenyMapperException("The InMemoryRepository does not support custom SQL queries, since that would require writing a complete in-memory SQL database, which is kind of out of scope :)");
         }
 
         protected override IObjectQueryExecutor CreateObjectQueryExecutor<T>()
         {
-            UpdateConventionReader();
+            UseNewConventionReaderForCurrentConvention();
             return new InMemoryObjectQueryExecutor(_inMemoryDatabase);
         }
 
         protected override IObjectCountExecutor CreateObjectCountExecutor<T>()
         {
-            UpdateConventionReader();
+            UseNewConventionReaderForCurrentConvention();
             return new InMemoryObjectCountExecutor(_inMemoryDatabase);
         }
 
         protected override IObjectDeleteExecutor CreateObjectDeleteExecutor<T>()
         {
-            UpdateConventionReader();
+            UseNewConventionReaderForCurrentConvention();
             return new InMemoryObjectDeleteExecutor(_inMemoryDatabase);
         }
 
         protected override IObjectInsertExecutor CreateObjectInsertExecutor<T>()
         {
-            UpdateConventionReader();
+            UseNewConventionReaderForCurrentConvention();
             return new InMemoryObjectInsertExecutor(_inMemoryDatabase);
         }
 
         protected override IObjectUpdateExecutor CreateObjectUpdateExecutor<T>()
         {
-            UpdateConventionReader();
+            UseNewConventionReaderForCurrentConvention();
             return new InMemoryObjectUpdateExecutor(_inMemoryDatabase);
         }
 
-        private void UpdateConventionReader()
+        private void UseNewConventionReaderForCurrentConvention()
         {
             var conventionReader = CreateConventionReader();
             _inMemoryDatabase.ConventionReader = conventionReader;
