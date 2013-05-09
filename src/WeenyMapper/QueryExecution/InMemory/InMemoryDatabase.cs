@@ -77,45 +77,100 @@ namespace WeenyMapper.QueryExecution.InMemory
 
             var subQuery = query.GetSubQuery<T>();
 
-            var matchingRows = Filter<T>(query);
+            var matchingRows = Table<T>().Rows;
 
             if (query.IsJoinQuery)
             {
-                matchingRows = FindWithJoin<T>(query, matchingRows);
+                matchingRows = FindWithJoin(query, matchingRows);
+                matchingRows = Filter(query, matchingRows);
             }
             else
             {
+                matchingRows = Filter(query, matchingRows);
                 matchingRows = Order(query, matchingRows);
                 matchingRows = Limit(subQuery, matchingRows);
                 matchingRows = Page(subQuery, matchingRows);
                 matchingRows = StripUnselectedColumns(query, matchingRows);
-            }            
+            }
 
             return new ResultSet(matchingRows);
         }
 
-        private List<Row> FindWithJoin<T>(ObjectQuery query, List<Row> matchingRows)
+        private string GetTableIdentifier(AliasedObjectSubQuery subQuery)
         {
-            var tableName = ConventionReader.GetTableName<T>();
-            matchingRows = matchingRows.Select(x =>
+            return subQuery.Alias ?? ConventionReader.GetTableName(subQuery.ResultType);
+        }
+
+        private IList<Row> FindWithJoin(ObjectQuery query, IList<Row> matchingRows)
+        {
+            var availableTables = new List<string> { GetTableIdentifier(query.SubQueries.First()) };
+            var addedJoins = new HashSet<ObjectSubQueryJoin>();
+
+            var matches = new ResultSet(matchingRows);
+            matches = PrefixRows(matches, GetTableIdentifier(query.SubQueries.First()));
+
+            while (addedJoins.Count < query.Joins.Count)
+            {
+                foreach (var remainingJoin in query.Joins.Except(addedJoins).ToList())
+                {
+                    AliasedObjectSubQuery newSubQuery = null;
+
+                    var childIdentifier = GetTableIdentifier(remainingJoin.ChildSubQuery);
+                    var parentIdentifier = GetTableIdentifier(remainingJoin.ParentSubQuery);
+
+                    if (availableTables.Contains(childIdentifier))
+                        newSubQuery = remainingJoin.ParentSubQuery;
+                    else if (availableTables.Contains(parentIdentifier))
+                        newSubQuery = remainingJoin.ChildSubQuery;
+
+                    if (newSubQuery == null)
+                        continue;
+
+                    var table = Table(newSubQuery.ResultType);
+
+                    table = PrefixRows(table, GetTableIdentifier(newSubQuery));
+
+
+                    string manyToOneForeignKeyColumnName;
+
+                    if (remainingJoin.HasChildProperty)
+                        manyToOneForeignKeyColumnName = ConventionReader.GetManyToOneForeignKeyColumnName(remainingJoin.ChildProperty);
+                    else
+                        manyToOneForeignKeyColumnName = ConventionReader.GetColumnName(remainingJoin.ChildToParentForeignKeyProperty);
+
+                    matches = matches.Join(table, ConventionReader.GetPrimaryKeyColumnName(remainingJoin.ParentType), manyToOneForeignKeyColumnName);
+
+                    addedJoins.Add(remainingJoin);
+
+                    availableTables.Add(childIdentifier);
+                    availableTables.Add(parentIdentifier);
+                }
+            }
+
+            return matches.Rows;
+        }
+
+        private static ResultSet PrefixRows(ResultSet table, string tableName)
+        {
+            var prefixRows = PrefixRows(table.Rows, tableName);
+            return new ResultSet(prefixRows);
+        }
+
+        private static List<Row> PrefixRows(IEnumerable<Row> rows, string tableName)
+        {
+            return rows.Select(x =>
                 {
                     var newColumnValues = x.ColumnValues.Select(c => new ColumnValue(tableName + " " + c.ColumnName, c.Value));
                     return new Row(newColumnValues);
                 }).ToList();
-            return matchingRows;
         }
 
-        private List<Row> Filter<T>(ObjectQuery query)
+        private IList<Row> Filter(ObjectQuery query, IEnumerable<Row> rows)
         {
-            return Filter(query, typeof(T));
+            return rows.Where(row => MatchesQuery(row, query)).ToList();
         }
 
-        private List<Row> Filter(ObjectQuery query, Type type)
-        {
-            return Table(type).Rows.Where(row => MatchesQuery(row, query)).ToList();
-        }
-
-        private List<Row> StripUnselectedColumns(ObjectQuery query, List<Row> matchingRows)
+        private IList<Row> StripUnselectedColumns(ObjectQuery query, IEnumerable<Row> matchingRows)
         {
             var columnNamesToSelect = query.SubQueries.First().GetColumnNamesToSelect(ConventionReader);
 
@@ -143,7 +198,7 @@ namespace WeenyMapper.QueryExecution.InMemory
             return orderedResult;
         }
 
-        private static List<Row> Limit(AliasedObjectSubQuery subQuery, List<Row> matchingRows)
+        private static IList<Row> Limit(AliasedObjectSubQuery subQuery, IList<Row> matchingRows)
         {
             if (subQuery.RowCountLimit > 0)
             {
@@ -152,7 +207,7 @@ namespace WeenyMapper.QueryExecution.InMemory
             return matchingRows;
         }
 
-        private static List<Row> Page(AliasedObjectSubQuery subQuery, List<Row> matchingRows)
+        private static IList<Row> Page(AliasedObjectSubQuery subQuery, IList<Row> matchingRows)
         {
             if (subQuery.IsPagingQuery)
             {
@@ -166,7 +221,7 @@ namespace WeenyMapper.QueryExecution.InMemory
         {
             var matcher = new QueryExpressionRowMatcher(row, ConventionReader);
 
-            return matcher.Matches(query.QueryExpressionTree);
+            return matcher.Matches(query.QueryExpressionTree.Translate(ConventionReader));
         }
 
         private bool MatchesQuery(Row row, QueryExpression query)
@@ -204,10 +259,10 @@ namespace WeenyMapper.QueryExecution.InMemory
         {
             var type = instance.GetType();
             var table = Table(type);
-            
+
             var primaryKeyColumnName = ConventionReader.GetPrimaryKeyColumnName(type);
             var primaryKeyValue = ConventionReader.GetPrimaryKeyValue(instance);
-            
+
             foreach (var row in table.Rows)
             {
                 var columnValue = row.GetColumnValue(primaryKeyColumnName);

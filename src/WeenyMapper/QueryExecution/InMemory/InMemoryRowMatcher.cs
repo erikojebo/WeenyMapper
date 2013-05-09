@@ -11,12 +11,14 @@ namespace WeenyMapper.QueryExecution.InMemory
     {
         private readonly Row _row;
         private readonly QueryExpression _queryExpression;
+        private readonly string _tableIdentifier;
         private bool _isMatch;
 
-        public InMemoryRowMatcher(Row row, QueryExpression queryExpression)
+        public InMemoryRowMatcher(Row row, QueryExpression queryExpression, string tableIdentifier = null)
         {
             _row = row;
             _queryExpression = queryExpression;
+            _tableIdentifier = tableIdentifier;
         }
 
         public void Visit(AndExpression expression)
@@ -37,7 +39,7 @@ namespace WeenyMapper.QueryExecution.InMemory
         {
             foreach (var queryExpression in expression.Expressions)
             {
-                var matcher = new InMemoryRowMatcher(_row, queryExpression);
+                var matcher = new InMemoryRowMatcher(_row, queryExpression, _tableIdentifier);
 
                 if (matcher.IsMatch())
                 {
@@ -100,7 +102,7 @@ namespace WeenyMapper.QueryExecution.InMemory
 
         private bool IsMatch(string columnName, object value)
         {
-            var columnValue = _row.ColumnValues.First(x => x.ColumnName == columnName).Value;
+            var columnValue = _row.ColumnValues.Single(x => x.ColumnName == columnName).Value;
 
             if (columnValue is Enum)
                 columnValue = (int)columnValue;
@@ -179,7 +181,7 @@ namespace WeenyMapper.QueryExecution.InMemory
 
         public void Visit(NotExpression expression)
         {
-            var matcher = new InMemoryRowMatcher(_row, expression.Expression);
+            var matcher = new InMemoryRowMatcher(_row, expression.Expression, _tableIdentifier);
 
             if (matcher.IsMatch())
                 _isMatch = false;

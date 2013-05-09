@@ -41,7 +41,7 @@ namespace WeenyMapper.Mapping
 
         public IList<ColumnValue> GetColumnValuesForAlias(string alias)
         {
-            return ColumnValues.Where(x => x.IsForAlias(alias) && !IsGeneratedByWeenyMapper(x)).ToList();
+            return ColumnValues.Where(x => x.IsForIdentifier(alias) && !IsGeneratedByWeenyMapper(x)).ToList();
         }
 
         private static bool IsGeneratedByWeenyMapper(ColumnValue x)

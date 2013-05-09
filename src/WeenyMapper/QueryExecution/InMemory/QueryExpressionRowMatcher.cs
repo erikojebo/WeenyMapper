@@ -1,4 +1,5 @@
-﻿using WeenyMapper.Mapping;
+﻿using WeenyMapper.Exceptions;
+using WeenyMapper.Mapping;
 using WeenyMapper.Reflection;
 using WeenyMapper.Sql;
 
@@ -45,10 +46,7 @@ namespace WeenyMapper.QueryExecution.InMemory
 
         public void Visit(QueryExpressionTreeLeaf tree)
         {
-            var matcher = new InMemoryRowMatcher(_row, tree.QueryExpression.Translate(_conventionReader));
-
-            if (!matcher.IsMatch())
-                _isMatch = false;
+            throw new WeenyMapperException("Expression tree must be translated before being used to filter the result set");
         }
 
         public void Visit(EmptyQueryExpressionTree tree)
@@ -57,6 +55,10 @@ namespace WeenyMapper.QueryExecution.InMemory
 
         public void Visit(TranslatedQueryExpressionTreeLeaf tree)
         {
+            var matcher = new InMemoryRowMatcher(_row, tree.QueryExpression.Translate(_conventionReader), tree.TableIdentifier);
+
+            if (!matcher.IsMatch())
+                _isMatch = false;
         }
 
         public bool Matches(QueryExpressionTree expressionTree)

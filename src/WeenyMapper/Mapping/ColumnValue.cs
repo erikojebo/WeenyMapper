@@ -41,9 +41,9 @@ namespace WeenyMapper.Mapping
             return !HasTableQualifiedAlias || TableName == convention.GetTableName(type);
         }
 
-        public bool IsForAlias(string alias)
+        public bool IsForIdentifier(string tableIdentifier)
         {
-            return !HasTableQualifiedAlias || TableName == alias;
+            return !HasTableQualifiedAlias || TableName == tableIdentifier;
         }
 
         public override string ToString()
