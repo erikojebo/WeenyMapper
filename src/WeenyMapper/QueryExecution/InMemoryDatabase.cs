@@ -63,7 +63,9 @@ namespace WeenyMapper.QueryExecution
         {
             var resultSet = FindResultSet<T>(query);
 
-            return EntityMapper.CreateInstanceGraphs<T>(resultSet);
+            var entities = EntityMapper.CreateInstanceGraphs<T>(resultSet);
+
+            return entities;
         }
 
         private ResultSet FindResultSet<T>(ObjectQuery query)
@@ -117,10 +119,16 @@ namespace WeenyMapper.QueryExecution
 
             orderedResult.Sort((left, right) =>
                 {
-                    foreach (var orderByStatement in query.OrderByStatements)
-                    {
-                        var translatedOrderBy = orderByStatement.Translate(ConventionReader);
+                    var orderByStatements = query.OrderByStatements.Select(x => x.Translate(ConventionReader)).ToList();
 
+                    if (orderByStatements.IsEmpty() && query.SubQueries.First().IsPagingQuery)
+                    {
+                        var primaryKeyColumnName = ConventionReader.GetPrimaryKeyColumnName(query.SubQueries.First().ResultType);
+                        orderByStatements.Add(new OrderByStatement(primaryKeyColumnName));
+                    }
+
+                    foreach (var translatedOrderBy in orderByStatements)
+                    {
                         var leftValue = left.ColumnValues.First(x => x.ColumnName == translatedOrderBy.PropertyName).Value;
                         var rightValue = right.ColumnValues.First(x => x.ColumnName == translatedOrderBy.PropertyName).Value;
 
@@ -132,9 +140,9 @@ namespace WeenyMapper.QueryExecution
 
                             var areDifferent = result != 0;
 
-                            if (areDifferent && orderByStatement.Direction == OrderByDirection.Ascending)
+                            if (areDifferent && translatedOrderBy.Direction == OrderByDirection.Ascending)
                                 return result;
-                            if (areDifferent && orderByStatement.Direction == OrderByDirection.Descending)
+                            if (areDifferent && translatedOrderBy.Direction == OrderByDirection.Descending)
                                 return -1 * result;
                         }
                     }
