@@ -24,6 +24,11 @@ namespace WeenyMapper.Sql
             get { return SubQueries.SelectMany(x => x.OrderByStatements).OrderBy(x => x.OrderIndex); }
         }
 
+        public bool IsJoinQuery
+        {
+            get { return Joins.Any(); }
+        }
+
         public AliasedObjectSubQuery GetOrCreateSubQuery<T>(string alias = null)
         {
             EnsureSubQuery<T>(alias);

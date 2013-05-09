@@ -79,14 +79,30 @@ namespace WeenyMapper.QueryExecution.InMemory
 
             var matchingRows = Filter<T>(query);
 
-            matchingRows = Order(query, matchingRows);
-            matchingRows = Limit(subQuery, matchingRows);
-            matchingRows = Page(subQuery, matchingRows);
+            if (query.IsJoinQuery)
+            {
+                matchingRows = FindWithJoin<T>(query, matchingRows);
+            }
+            else
+            {
+                matchingRows = Order(query, matchingRows);
+                matchingRows = Limit(subQuery, matchingRows);
+                matchingRows = Page(subQuery, matchingRows);
+                matchingRows = StripUnselectedColumns(query, matchingRows);
+            }            
 
-            matchingRows = StripUnselectedColumns(query, matchingRows);
+            return new ResultSet(matchingRows);
+        }
 
-            var resultSet = new ResultSet(matchingRows);
-            return resultSet;
+        private List<Row> FindWithJoin<T>(ObjectQuery query, List<Row> matchingRows)
+        {
+            var tableName = ConventionReader.GetTableName<T>();
+            matchingRows = matchingRows.Select(x =>
+                {
+                    var newColumnValues = x.ColumnValues.Select(c => new ColumnValue(tableName + " " + c.ColumnName, c.Value));
+                    return new Row(newColumnValues);
+                }).ToList();
+            return matchingRows;
         }
 
         private List<Row> Filter<T>(ObjectQuery query)
