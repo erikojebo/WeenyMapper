@@ -56,7 +56,7 @@ namespace WeenyMapper
         {
             var conventionReader = CreateConventionReader();
             _inMemoryDatabase.ConventionReader = conventionReader;
-            _inMemoryDatabase.EntityMapper = new EntityMapper(conventionReader);
+            _inMemoryDatabase.EntityMapper = CreateEntityMapper();
         }
     }
 }

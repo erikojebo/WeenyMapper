@@ -233,7 +233,7 @@ namespace WeenyMapper
             return DatabaseProvider.CreateDbCommandFactory();
         }
 
-        private EntityMapper CreateEntityMapper()
+        protected EntityMapper CreateEntityMapper()
         {
             if (_entityMapper == null)
             {

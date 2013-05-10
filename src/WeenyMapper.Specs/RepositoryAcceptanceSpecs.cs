@@ -1848,6 +1848,7 @@ namespace WeenyMapper.Specs
 
             var actualBlogPosts = Repository.Find<BlogPost>().Where(x => x.PublishDate >= new DateTime(2011, 1, 2))
                                             .OrderBy(x => x.PublishDate)
+                                            .OrderBy<Comment>(x => x.Content)
                                             .Join<BlogPost, Comment>(x => x.Comments, x => x.BlogPost)
                                             .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog)
                                             .ExecuteList();
@@ -2256,12 +2257,14 @@ namespace WeenyMapper.Specs
 
             var actualPosts = Repository.Find<BlogPost>()
                                         .OrderBy(x => x.Title)
+                                        .OrderBy<Comment>(x => x.Content)
                                         .Join<BlogPost, Comment>(x => x.Comments, x => x.BlogPost)
                                         .ExecuteList();
 
             var firstActualPost1 = Repository.Find<BlogPost>()
                                              .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog)
                                              .Where(x => x.Id == post1.Id)
+                                             .OrderBy(x => x.Title)
                                              .Execute();
 
             var secondActualPost1 = Repository.Find<BlogPost>()
@@ -2880,6 +2883,7 @@ namespace WeenyMapper.Specs
                                         .AndWhere<BlogPost>(x => x.PublishDate == new DateTime(2011, 2, 2))
                                         .OrWhere(x => x.Name == "Blog 2")
                                         .OrderBy(x => x.Name)
+                                        .OrderBy<BlogPost>(x => x.Title)
                                         .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog)
                                         .ExecuteList();
 
@@ -3143,6 +3147,7 @@ namespace WeenyMapper.Specs
             var actualAlbum = Repository
                 .Find<Album>()
                 .Join<Track>(x => x.Tracks, x => x.AlbumId)
+                .OrderBy<Track>(x => x.Title)
                 .Where(x => x.Title == "Album 1").Execute();
 
             Assert.AreEqual(album1, actualAlbum);
