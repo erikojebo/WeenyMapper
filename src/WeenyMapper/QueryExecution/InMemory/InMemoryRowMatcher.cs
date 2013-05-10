@@ -119,22 +119,34 @@ namespace WeenyMapper.QueryExecution.InMemory
 
         public void Visit(LessOrEqualExpression expression)
         {
-            throw new NotImplementedException();
+            MatchCompareValues(expression.PropertyExpression.PropertyName, expression.ValueExpression.Value, -1, 0);
         }
 
         public void Visit(LessExpression expression)
         {
-            throw new NotImplementedException();
+            MatchCompareValues(expression.PropertyExpression.PropertyName, expression.ValueExpression.Value, -1);
         }
 
         public void Visit(GreaterOrEqualExpression expression)
         {
-            throw new NotImplementedException();
+            MatchCompareValues(expression.PropertyExpression.PropertyName, expression.ValueExpression.Value, 0, 1);
         }
 
         public void Visit(GreaterExpression expression)
         {
-            throw new NotImplementedException();
+            MatchCompareValues(expression.PropertyExpression.PropertyName, expression.ValueExpression.Value, 1);
+        }
+
+        private void MatchCompareValues(string columnName, object value, params int[] compareValues)
+        {
+            var columnValue = _row.GetColumnValue(_tableIdentifier, columnName);
+
+            var comparable = columnValue.Value as IComparable;
+            if (comparable != null)
+            {
+                var compareValue = comparable.CompareTo(value);
+                _isMatch = compareValues.Contains(compareValue);
+            }
         }
 
         public void Visit(RootExpression expression)
