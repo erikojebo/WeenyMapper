@@ -83,6 +83,7 @@ namespace WeenyMapper.QueryExecution.InMemory
             {
                 matchingRows = FindWithJoin(query, matchingRows);
                 matchingRows = Filter(query, matchingRows);
+                matchingRows = Order(query, matchingRows);
             }
             else
             {
@@ -140,6 +141,9 @@ namespace WeenyMapper.QueryExecution.InMemory
 
                     matches = matches.Join(table, parentIdentifier, ConventionReader.GetPrimaryKeyColumnName(remainingJoin.ParentType), childIdentifier, manyToOneForeignKeyColumnName);
 
+                    AddColumnsNotAddedByJoin(matches, remainingJoin.ParentSubQuery);
+                    AddColumnsNotAddedByJoin(matches, remainingJoin.ChildSubQuery);
+
                     addedJoins.Add(remainingJoin);
 
                     availableTables.Add(childIdentifier);
@@ -150,13 +154,30 @@ namespace WeenyMapper.QueryExecution.InMemory
             return matches.Rows;
         }
 
+        private void AddColumnsNotAddedByJoin(ResultSet matches, AliasedObjectSubQuery subQuery)
+        {
+            var allColumns = ConventionReader.GetSelectableMappedPropertyNames(subQuery.ResultType)
+                .Select(x => new ColumnValue(GetTableIdentifier(subQuery), x, null))
+                .ToList();
+
+            foreach (var row in matches.Rows)
+            {
+                var missingColumns = allColumns
+                    .Where(x => !row.HasColumnValue(x.TableName, x.ColumnName))
+                    .Select(x => x.Copy(null))
+                    .ToList();
+
+                row.Add(missingColumns);
+            }
+        }
+
         private static ResultSet PrefixRows(ResultSet table, string tableName)
         {
             var prefixRows = PrefixRows(table.Rows, tableName);
             return new ResultSet(prefixRows);
         }
 
-        private static List<Row> PrefixRows(IEnumerable<Row> rows, string tableName)
+        private static IList<Row> PrefixRows(IEnumerable<Row> rows, string tableName)
         {
             return rows.Select(x =>
                 {

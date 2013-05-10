@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using WeenyMapper.Conventions;
 using WeenyMapper.Extensions;
 using WeenyMapper.Mapping;
 using WeenyMapper.QueryParsing;
@@ -22,17 +23,26 @@ namespace WeenyMapper.QueryExecution.InMemory
 
         public int Compare(Row left, Row right)
         {
-            var translatedOrderByStatements = _query.OrderByStatements.Select(x => x.Translate(_conventionReader)).ToList();
+            var translatedOrderByStatements = _query.OrderByStatements.Select(orderBy =>
+                {
+                    var subQuery = _query.SubQueries.First(query => query.OrderByStatements.Contains(orderBy));
+                    return new OrderByWithTable
+                        {
+                            TableIdentifier = subQuery.Alias ?? _conventionReader.GetTableName(subQuery.ResultType),
+                            TranslatedOrderBy = orderBy.Translate(_conventionReader)
+                        };
+
+                }).ToList();
 
             if (IsUnorderedPagingQuery())
             {
                 AddOrderByStatementForPrimaryKeyColumn(translatedOrderByStatements);
             }
 
-            foreach (var translatedOrderBy in translatedOrderByStatements)
+            foreach (var orderByWithTable in translatedOrderByStatements)
             {
-                var leftValue = left.ColumnValues.First(x => x.ColumnName == translatedOrderBy.PropertyName).Value;
-                var rightValue = right.ColumnValues.First(x => x.ColumnName == translatedOrderBy.PropertyName).Value;
+                var leftValue = left.GetColumnValue(orderByWithTable.TableIdentifier, orderByWithTable.TranslatedOrderBy.PropertyName).Value;
+                var rightValue = right.GetColumnValue(orderByWithTable.TableIdentifier, orderByWithTable.TranslatedOrderBy.PropertyName).Value;
 
                 if (leftValue is IComparable)
                 {
@@ -42,9 +52,9 @@ namespace WeenyMapper.QueryExecution.InMemory
 
                     var areDifferent = result != 0;
 
-                    if (areDifferent && translatedOrderBy.Direction == OrderByDirection.Ascending)
+                    if (areDifferent && orderByWithTable.TranslatedOrderBy.Direction == OrderByDirection.Ascending)
                         return result;
-                    if (areDifferent && translatedOrderBy.Direction == OrderByDirection.Descending)
+                    if (areDifferent && orderByWithTable.TranslatedOrderBy.Direction == OrderByDirection.Descending)
                         return -1 * result;
                 }
             }
@@ -52,10 +62,10 @@ namespace WeenyMapper.QueryExecution.InMemory
             return 0;
         }
 
-        private void AddOrderByStatementForPrimaryKeyColumn(List<OrderByStatement> orderByStatements)
+        private void AddOrderByStatementForPrimaryKeyColumn(List<OrderByWithTable> orderByStatements)
         {
             var primaryKeyColumnName = _conventionReader.GetPrimaryKeyColumnName(_query.SubQueries.First().ResultType);
-            orderByStatements.Add(new OrderByStatement(primaryKeyColumnName));
+            orderByStatements.Add(new OrderByWithTable { TableIdentifier = null, TranslatedOrderBy = new OrderByStatement(primaryKeyColumnName)});
         }
 
         private bool IsUnorderedPagingQuery()
@@ -63,5 +73,10 @@ namespace WeenyMapper.QueryExecution.InMemory
             return _query.OrderByStatements.IsEmpty() && _query.SubQueries.First().IsPagingQuery;
         }
 
+        private class OrderByWithTable
+        {
+            public string TableIdentifier { get; set; }
+            public OrderByStatement TranslatedOrderBy { get; set; }
+        }
     }
 }

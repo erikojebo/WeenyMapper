@@ -13,6 +13,12 @@ namespace WeenyMapper.Mapping
             Alias = alias;
             _value = value;
         }
+        
+        public ColumnValue(string tableIdentifier, string columnName, object value)
+        {
+            Alias = tableIdentifier + Separator + columnName;
+            _value = value;
+        }
 
         public string Alias { get; private set; }
 
@@ -59,6 +65,22 @@ namespace WeenyMapper.Mapping
         public ColumnValue Copy(object newValue)
         {
             return new ColumnValue(Alias, newValue);
+        }
+
+        public override int GetHashCode()
+        {
+            return Alias.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as ColumnValue;
+
+            if (other == null)
+                return false;
+
+            return other.Alias == Alias &&
+                   other.Value == Value;
         }
     }
 }

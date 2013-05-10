@@ -87,5 +87,18 @@ namespace WeenyMapper.Mapping
         {
             return GetColumnValuesForAlias(tableIdentifier).FirstOrDefault(x => x.ColumnName == columnName);
         }
+
+        public bool HasColumnValue(string tableName, string columnName)
+        {
+            return GetColumnValue(tableName, columnName) != null;
+        }
+
+        public void Add(IEnumerable<ColumnValue> columnValues)
+        {
+            foreach (var columnValue in columnValues)
+            {
+                Add(columnValue);
+            }
+        }
     }
 }
