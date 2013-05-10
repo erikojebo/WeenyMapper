@@ -77,5 +77,10 @@ namespace WeenyMapper.Mapping
             var columnStrings = ColumnValues.Select(x => x.ToString());
             return string.Join(", ", columnStrings);
         }
+
+        public ColumnValue GetColumnValue(string tableIdentifier, string columnName)
+        {
+            return GetColumnValuesForAlias(tableIdentifier).FirstOrDefault(x => x.ColumnName == columnName);
+        }
     }
 }

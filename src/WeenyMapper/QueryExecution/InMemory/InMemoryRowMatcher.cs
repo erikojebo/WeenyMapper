@@ -102,14 +102,19 @@ namespace WeenyMapper.QueryExecution.InMemory
 
         private bool IsMatch(string columnName, object value)
         {
-            var columnValue = _row.GetColumnValuesForAlias(_tableIdentifier).Single(x => x.ColumnName == columnName).Value;
+            var columnValue = _row.GetColumnValuesForAlias(_tableIdentifier).SingleOrDefault(x => x.ColumnName == columnName);
 
-            if (columnValue is Enum)
-                columnValue = (int)columnValue;
+            object existingValue = null;
+
+            if (columnValue != null)
+                existingValue = columnValue.Value;
+
+            if (existingValue is Enum)
+                existingValue = (int)existingValue;
             if (value is Enum)
                 value = (int)value;
 
-            return Equals(value, columnValue);
+            return Equals(value, existingValue);
         }
 
         public void Visit(LessOrEqualExpression expression)

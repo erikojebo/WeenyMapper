@@ -138,7 +138,7 @@ namespace WeenyMapper.QueryExecution.InMemory
                     else
                         manyToOneForeignKeyColumnName = ConventionReader.GetColumnName(remainingJoin.ChildToParentForeignKeyProperty);
 
-                    matches = matches.Join(table, ConventionReader.GetPrimaryKeyColumnName(remainingJoin.ParentType), manyToOneForeignKeyColumnName);
+                    matches = matches.Join(table, childIdentifier, manyToOneForeignKeyColumnName, parentIdentifier, ConventionReader.GetPrimaryKeyColumnName(remainingJoin.ParentType));
 
                     addedJoins.Add(remainingJoin);
 
