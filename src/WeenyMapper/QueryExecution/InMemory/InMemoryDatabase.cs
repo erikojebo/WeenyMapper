@@ -7,6 +7,7 @@ using WeenyMapper.Mapping;
 using WeenyMapper.QueryParsing;
 using WeenyMapper.Reflection;
 using WeenyMapper.Sql;
+using WeenyMapper.Extensions;
 
 namespace WeenyMapper.QueryExecution.InMemory
 {
@@ -84,6 +85,7 @@ namespace WeenyMapper.QueryExecution.InMemory
                 matchingRows = FindWithJoin(query, matchingRows);
                 matchingRows = Filter(query, matchingRows);
                 matchingRows = Order(query, matchingRows);
+                matchingRows = StripUnselectedColumns(query, matchingRows);
             }
             else
             {
@@ -193,13 +195,28 @@ namespace WeenyMapper.QueryExecution.InMemory
 
         private IList<Row> StripUnselectedColumns(ObjectQuery query, IEnumerable<Row> matchingRows)
         {
-            var columnNamesToSelect = query.SubQueries.First().GetColumnNamesToSelect(ConventionReader);
+            var columnValuesToSelect = query.SubQueries
+                .SelectMany(x => x.GetColumnNamesToSelect(ConventionReader)
+                    .Select(y => new ColumnValue(GetTableIdentifier(x), y, null)));
 
             var strippedRows = new List<Row>();
 
             foreach (var row in matchingRows)
             {
-                var columnsToSelect = row.ColumnValues.Where(x => columnNamesToSelect.Contains(x.ColumnName));
+                IEnumerable<ColumnValue> columnsToSelect;
+
+                if (row.ColumnValues.IsEmpty())
+                    continue;
+
+                if (row.ColumnValues.First().HasTableQualifiedAlias)
+                {
+                    columnsToSelect = row.ColumnValues.Where(x => columnValuesToSelect.Any(y => y.Alias == x.Alias));                    
+                }
+                else
+                {
+                    columnsToSelect = row.ColumnValues.Where(x => columnValuesToSelect.Any(y => y.ColumnName == x.ColumnName));
+                }
+
                 var strippedRow = new Row(columnsToSelect);
 
                 strippedRows.Add(strippedRow);
