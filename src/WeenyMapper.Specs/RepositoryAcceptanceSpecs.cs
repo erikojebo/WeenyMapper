@@ -1551,6 +1551,7 @@ namespace WeenyMapper.Specs
 
             var actualBlog1 = Repository.Find<Blog>().Where(x => x.Name == "Blog 1")
                                         .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog)
+                                        .OrderBy<BlogPost>(x => x.Title)
                                         .Execute();
 
             Assert.AreEqual(blog1, actualBlog1);
