@@ -59,8 +59,7 @@ namespace WeenyMapper.Mapping
 
             foreach (var row in Rows)
             {
-                var leftValue = row.GetColumnValue(leftTableIdentifier, leftColumnName);
-                var matchingRows = table.Rows.Where(x => Equals(x.GetColumnValue(rightTableIdentifier, rightColumnName).Value, leftValue.Value));
+                var matchingRows = GetMatchingRows(row, table, leftTableIdentifier, leftColumnName, rightTableIdentifier, rightColumnName);
 
                 if (matchingRows.IsEmpty())
                     joinedRows.Add(row);
@@ -73,6 +72,45 @@ namespace WeenyMapper.Mapping
             }
 
             return new ResultSet(joinedRows);
+        }
+
+        private static IEnumerable<Row> GetMatchingRows(Row row, ResultSet joinedTable, string leftTableIdentifier, string leftColumnName, string rightTableIdentifier, string rightColumnName)
+        {
+            // This code is messy... The deal is that we don't know if the left table identifier + column name
+            // is found in the joined table or the original table, and the same for the right.
+            // TODO: This should be refactored when I have the energy.
+
+            ColumnValue leftValue = null, rightValue = null;
+
+            var matchingRows = new List<Row>();
+
+            var isJoinedTableRight = row.HasValuesForTable(leftTableIdentifier);
+
+            if (isJoinedTableRight)
+            {
+                leftValue = row.GetColumnValue(leftTableIdentifier, leftColumnName);
+            }
+            else
+            {
+                rightValue = row.GetColumnValue(rightTableIdentifier, rightColumnName);
+            }
+
+            foreach (var joinedRow in joinedTable.Rows)
+            {
+                if (isJoinedTableRight)
+                {
+                    rightValue = joinedRow.GetColumnValue(rightTableIdentifier, rightColumnName);
+                }
+                else
+                {
+                    leftValue = joinedRow.GetColumnValue(leftTableIdentifier, leftColumnName);
+                }    
+
+                if (Equals(leftValue.Value, rightValue.Value))
+                    matchingRows.Add(joinedRow);
+            }
+
+            return matchingRows;
         }
     }
 }

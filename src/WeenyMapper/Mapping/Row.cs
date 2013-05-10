@@ -34,6 +34,11 @@ namespace WeenyMapper.Mapping
             return ColumnValues.Any(x => x.IsForType(type, convention));
         }
 
+        public bool HasValuesForTable(string tableIdentifier)
+        {
+            return ColumnValues.Any(x => x.IsForIdentifier(tableIdentifier));
+        }
+
         public IList<ColumnValue> GetColumnValuesForType(Type type, IConvention convention)
         {
             return ColumnValues.Where(x => x.IsForType(type, convention) && !IsGeneratedByWeenyMapper(x)).ToList();
