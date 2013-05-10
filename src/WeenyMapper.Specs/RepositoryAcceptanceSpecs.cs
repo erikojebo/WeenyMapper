@@ -1643,6 +1643,8 @@ namespace WeenyMapper.Specs
 
             var actualBlogs = Repository.Find<Blog>().Where(x => x.Name == "Blog 1" || x.Name.EndsWith("3"))
                                         .OrderBy(x => x.Name)
+                                        .OrderBy<BlogPost>(x => x.Title)
+                                        .OrderBy<Comment>(x => x.Content)
                                         .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog)
                                         .Join<BlogPost, Comment>(x => x.Comments, x => x.BlogPost)
                                         .ExecuteList();
