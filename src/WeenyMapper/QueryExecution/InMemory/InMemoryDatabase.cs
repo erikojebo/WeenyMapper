@@ -197,7 +197,8 @@ namespace WeenyMapper.QueryExecution.InMemory
         {
             var columnValuesToSelect = query.SubQueries
                 .SelectMany(x => x.GetColumnNamesToSelect(ConventionReader)
-                    .Select(y => new ColumnValue(GetTableIdentifier(x), y, null)));
+                    .Select(y => new ColumnValue(GetTableIdentifier(x), y, null)))
+                    .ToList();
 
             var strippedRows = new List<Row>();
 
