@@ -1055,7 +1055,7 @@ namespace WeenyMapper.Specs.Sql
         [Test]
         public void Adding_a_row_count_limit_translates_into_a_top_clause()
         {
-            _subQuery.RowCountLimit = 3;
+            _sqlQuery.RowCountLimit = 3;
 
             _sqlQuery.AddConjunctionExpression(_subQuery.TableIdentifier, new EqualsExpression("ColumnName1", 1));
 

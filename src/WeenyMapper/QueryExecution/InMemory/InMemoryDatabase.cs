@@ -91,7 +91,7 @@ namespace WeenyMapper.QueryExecution.InMemory
             {
                 matchingRows = Filter(query, matchingRows);
                 matchingRows = Order(query, matchingRows);
-                matchingRows = Limit(subQuery, matchingRows);
+                matchingRows = Limit(sqlQuery, matchingRows);
                 matchingRows = Page(subQuery, matchingRows);
                 matchingRows = StripUnselectedColumns(query, sqlQuery, matchingRows);
             }
@@ -238,11 +238,11 @@ namespace WeenyMapper.QueryExecution.InMemory
             return orderedResult;
         }
 
-        private static IList<Row> Limit(AliasedObjectSubQuery subQuery, IList<Row> matchingRows)
+        private static IList<Row> Limit(SqlQuery sqlQuery, IList<Row> matchingRows)
         {
-            if (subQuery.RowCountLimit > 0)
+            if (sqlQuery.HasRowCountLimit)
             {
-                matchingRows = matchingRows.Take(subQuery.RowCountLimit).ToList();
+                matchingRows = matchingRows.Take(sqlQuery.RowCountLimit).ToList();
             }
             return matchingRows;
         }

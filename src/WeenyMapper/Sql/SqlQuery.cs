@@ -39,6 +39,13 @@ namespace WeenyMapper.Sql
             get { return SubQueries.SelectMany(x => x.OrderByStatements).OrderBy(x => x.OrderIndex); }
         }
 
+        public int RowCountLimit { get; set; }
+
+        public bool HasRowCountLimit
+        {
+            get { return RowCountLimit > 0; }
+        }
+
         public void AddJoin(SqlSubQueryJoin joinSpec, string childAlias, string parentAlias)
         {
             joinSpec.ParentSubQuery = GetSubQuery(joinSpec.ParentTableName, parentAlias);

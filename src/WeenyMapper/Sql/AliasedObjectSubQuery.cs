@@ -13,7 +13,6 @@ namespace WeenyMapper.Sql
         }
 
         public IList<OrderByStatement> OrderByStatements { get; set; }
-        public int RowCountLimit { get; set; }
         public Page Page { get; set; }
         public Type ResultType { get; set; }
         public string Alias { get; set; }

@@ -39,7 +39,7 @@ namespace WeenyMapper.Sql
 
             var whereClause = CreateWhereClause(sqlQuery);
             var orderByClause = CreateOrderByClause(subQuery);
-            var topClause = new TopClause(subQuery.RowCountLimit, new CommandParameterFactory());
+            var topClause = new TopClause(sqlQuery.RowCountLimit, new CommandParameterFactory());
 
             whereClause.AppendTo(command, _commandFactory);
             orderByClause.AppendTo(command, _commandFactory);

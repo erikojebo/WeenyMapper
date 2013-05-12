@@ -184,9 +184,8 @@ namespace WeenyMapper.QueryBuilding
 
         public StaticSelectBuilder<T> Top(int rowCount)
         {
-            var subQuery = _query.GetSubQuery<T>();
+            _sqlQuery.RowCountLimit = rowCount;
 
-            subQuery.RowCountLimit = rowCount;
             return this;
         }
 
