@@ -25,26 +25,17 @@ namespace WeenyMapper.QueryExecution.InMemory
 
         public int Compare(Row left, Row right)
         {
-            var translatedOrderByStatements = _query.OrderByStatements.Select(orderBy =>
-                {
-                    var subQuery = _query.SubQueries.First(query => query.OrderByStatements.Contains(orderBy));
-                    return new OrderByWithTable
-                        {
-                            TableIdentifier = subQuery.Alias ?? _conventionReader.GetTableName(subQuery.ResultType),
-                            TranslatedOrderBy = orderBy.Translate(_conventionReader)
-                        };
-
-                }).ToList();
+            var orderByStatements = _sqlQuery.OrderByStatements.ToList();
 
             if (IsUnorderedPagingQuery())
             {
-                AddOrderByStatementForPrimaryKeyColumn(translatedOrderByStatements);
+                AddOrderByStatementForPrimaryKeyColumn(orderByStatements);
             }
 
-            foreach (var orderByWithTable in translatedOrderByStatements)
+            foreach (var orderByStatement in orderByStatements)
             {
-                var leftValue = left.GetColumnValue(orderByWithTable.TableIdentifier, orderByWithTable.TranslatedOrderBy.PropertyName).Value;
-                var rightValue = right.GetColumnValue(orderByWithTable.TableIdentifier, orderByWithTable.TranslatedOrderBy.PropertyName).Value;
+                var leftValue = left.GetColumnValue(orderByStatement.TableIdentifier, orderByStatement.PropertyName).Value;
+                var rightValue = right.GetColumnValue(orderByStatement.TableIdentifier, orderByStatement.PropertyName).Value;
 
                 if (leftValue is IComparable)
                 {
@@ -54,9 +45,9 @@ namespace WeenyMapper.QueryExecution.InMemory
 
                     var areDifferent = result != 0;
 
-                    if (areDifferent && orderByWithTable.TranslatedOrderBy.Direction == OrderByDirection.Ascending)
+                    if (areDifferent && orderByStatement.Direction == OrderByDirection.Ascending)
                         return result;
-                    if (areDifferent && orderByWithTable.TranslatedOrderBy.Direction == OrderByDirection.Descending)
+                    if (areDifferent && orderByStatement.Direction == OrderByDirection.Descending)
                         return -1 * result;
                 }
             }
@@ -64,10 +55,10 @@ namespace WeenyMapper.QueryExecution.InMemory
             return 0;
         }
 
-        private void AddOrderByStatementForPrimaryKeyColumn(List<OrderByWithTable> orderByStatements)
+        private void AddOrderByStatementForPrimaryKeyColumn(List<OrderByStatement> orderByStatements)
         {
             var primaryKeyColumnName = _conventionReader.GetPrimaryKeyColumnName(_query.SubQueries.First().ResultType);
-            orderByStatements.Add(new OrderByWithTable { TableIdentifier = null, TranslatedOrderBy = new OrderByStatement(primaryKeyColumnName)});
+            orderByStatements.Add(new OrderByStatement(primaryKeyColumnName));
         }
 
         private bool IsUnorderedPagingQuery()

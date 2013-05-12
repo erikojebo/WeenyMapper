@@ -163,15 +163,21 @@ namespace WeenyMapper.QueryBuilding
 
         private void AddOrderByStatements<TEntity>(IEnumerable<Expression<Func<TEntity, object>>> getters, OrderByDirection orderByDirection, string alias = null)
         {
+            var propertyNames = getters.Select(GetPropertyName).ToList();
+
+            // TODO: remove
             var subQuery = _query.GetOrCreateSubQuery<TEntity>(alias);
 
             var nextOrderByOrderingIndex = GetNextOrderByOrderIndex();
 
-            var orderByStatements = getters
-                .Select(GetPropertyName)
+            var orderByStatements = propertyNames
                 .Select(x => OrderByStatement.Create<TEntity>(x, orderByDirection, nextOrderByOrderingIndex++));
 
             subQuery.OrderByStatements.AddRange(orderByStatements);
+
+            // ----------------
+
+            _sqlQuery.AddOrderByStatements<TEntity>(propertyNames, orderByDirection, alias);
         }
 
         private int GetNextOrderByOrderIndex()

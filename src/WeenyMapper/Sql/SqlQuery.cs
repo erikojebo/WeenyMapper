@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using WeenyMapper.Conventions;
 using WeenyMapper.QueryParsing;
 using WeenyMapper.Reflection;
@@ -149,6 +150,17 @@ namespace WeenyMapper.Sql
                 return subQuery.ExplicitlySpecifiedColumnsToSelect;
 
             return subQuery.AllSelectableColumnNames;
+        }
+
+        public void AddOrderByStatements<T>(IEnumerable<string> propertyNames, OrderByDirection orderByDirection, string alias)
+        {
+            var subQuery = GetOrCreateSubQuery<T>(alias);
+
+            var orderByStatements = propertyNames
+                .Select(x => _conventionReader.GetColumnName<T>(x))
+                .Select(x => OrderByStatement.Create<T>(x, orderByDirection, subQuery.TableIdentifier));
+
+            subQuery.OrderByStatements.AddRange(orderByStatements);
         }
     }
 }
