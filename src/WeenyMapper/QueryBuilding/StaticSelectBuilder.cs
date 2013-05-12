@@ -92,18 +92,6 @@ namespace WeenyMapper.QueryBuilding
 
         public StaticSelectBuilder<T> Select<TAliasedEntity>(string alias, params Expression<Func<TAliasedEntity, object>>[] propertySelectors)
         {
-            // TODO: Remove
-            foreach (var propertySelector in propertySelectors)
-            {
-                var subQuery = _query.GetOrCreateSubQuery<TAliasedEntity>(alias);
-
-                string propertyName = GetPropertyName(propertySelector);
-
-                subQuery.PropertiesToSelect.Add(propertyName);    
-            }
-
-            // ---
-
             var propertyNames = propertySelectors.Select(GetPropertyName);
 
             _sqlQuery.AddPropertiesToSelect<TAliasedEntity>(alias, propertyNames);
