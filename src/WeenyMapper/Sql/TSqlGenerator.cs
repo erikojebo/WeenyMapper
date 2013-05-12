@@ -38,7 +38,7 @@ namespace WeenyMapper.Sql
             command.CommandText = string.Format("SELECT:topClause {0} FROM {1}", selectedColumnString, FromClauseTableIdentifier(subQuery));
 
             var whereClause = CreateWhereClause(sqlQuery);
-            var orderByClause = CreateOrderByClause(subQuery);
+            var orderByClause = CreateOrderByClause(sqlQuery.OrderByStatements);
             var topClause = new TopClause(sqlQuery.RowCountLimit, new CommandParameterFactory());
 
             whereClause.AppendTo(command, _commandFactory);
@@ -65,7 +65,7 @@ namespace WeenyMapper.Sql
             var command = _commandFactory.CreateCommand(commandText);
 
             var whereClause = CreateWhereClause(sqlQuery);
-            var orderByClause = CreateOrderByClause(sqlQuery);
+            var orderByClause = CreateOrderByClause(sqlQuery.OrderByStatements);
 
             whereClause.AppendTo(command, _commandFactory);
             orderByClause.AppendTo(command, _commandFactory);
@@ -129,13 +129,15 @@ namespace WeenyMapper.Sql
             var subQuery = sqlQuery.SubQueries.First();
             var command = _commandFactory.CreateCommand();
 
-            if (subQuery.OrderByStatements.IsEmpty() && string.IsNullOrEmpty(subQuery.PrimaryKeyColumnName))
+            var orderByStatements = sqlQuery.OrderByStatements.ToList();
+
+            if (orderByStatements.IsEmpty() && string.IsNullOrEmpty(subQuery.PrimaryKeyColumnName))
                 throw new WeenyMapperException("You have to specify an order by clause for paging queries");
 
-            if (subQuery.OrderByStatements.IsEmpty())
+            if (orderByStatements.IsEmpty())
             {
-                var orderByPrimaryKeyStatement = OrderByStatement.Create(subQuery.PrimaryKeyColumnName, OrderByDirection.Ascending, 0);
-                subQuery.OrderByStatements.Add(orderByPrimaryKeyStatement);
+                var orderByPrimaryKeyStatement = OrderByStatement.Create(subQuery.PrimaryKeyColumnName, OrderByDirection.Ascending, subQuery.TableIdentifier);
+                orderByStatements.Add(orderByPrimaryKeyStatement);
             }
 
             var selectedColumnString = CreateColumnNameList(sqlQuery);
@@ -146,7 +148,7 @@ namespace WeenyMapper.Sql
                                                 Escape(subQuery.TableName));
 
             var whereClause = CreateWhereClause(sqlQuery);
-            var orderByClause = CreateOrderByClause(subQuery);
+            var orderByClause = CreateOrderByClause(orderByStatements);
 
             whereClause.AppendTo(command, _commandFactory);
             orderByClause.InsertAtMarker(command, ":orderByClause", _commandFactory);
@@ -260,14 +262,13 @@ namespace WeenyMapper.Sql
             return CreateColumnNameList(columnNames, transformation);
         }
 
-        private OrderByClause CreateOrderByClause(SqlQuery sqlQuery)
+        private OrderByClause CreateOrderByClause(IEnumerable<OrderByStatement> orderByStatements)
         {
             var combinedOrderByClause = OrderByClause.CreateEmpty();
 
-            foreach (var orderByStatement in sqlQuery.OrderByStatements)
+            foreach (var orderByStatement in orderByStatements)
             {
-                var parentSubQueryForStatement = sqlQuery.SubQueries.First(x => x.OrderByStatements.Any(y => y == orderByStatement));
-                var orderByClause = CreateOrderByClause(orderByStatement, parentSubQueryForStatement);
+                var orderByClause = CreateOrderByClause(orderByStatement);
 
                 combinedOrderByClause = combinedOrderByClause.Combine(orderByClause);
             }
@@ -280,9 +281,9 @@ namespace WeenyMapper.Sql
             return new OrderByClause(subQuery.OrderByStatements, Escape, subQuery.TableIdentifier);
         }
 
-        private OrderByClause CreateOrderByClause(OrderByStatement orderByStatement, AliasedSqlSubQuery subQuery)
+        private OrderByClause CreateOrderByClause(OrderByStatement orderByStatement)
         {
-            return new OrderByClause(orderByStatement, Escape, subQuery.TableIdentifier);            
+            return new OrderByClause(orderByStatement, Escape, orderByStatement.TableIdentifier);            
         }
 
         private string CreateColumnNameList(SqlQuery sqlQuery)

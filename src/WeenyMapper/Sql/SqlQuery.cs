@@ -24,6 +24,7 @@ namespace WeenyMapper.Sql
             SubQueries = new List<AliasedSqlSubQuery>();
             Joins = new List<SqlSubQueryJoin>();
             QueryExpressionTree = new EmptyQueryExpressionTree();
+            OrderByStatements = new List<OrderByStatement>();
         }
 
         public List<AliasedSqlSubQuery> SubQueries { get; set; }
@@ -42,7 +43,9 @@ namespace WeenyMapper.Sql
             get { return Joins.Any(); }
         }
 
-        public IEnumerable<OrderByStatement> OrderByStatements
+        public IList<OrderByStatement> OrderByStatements { get; set; }
+
+        public IEnumerable<OrderByStatement> OldOrderByStatements
         {
             get { return SubQueries.SelectMany(x => x.OrderByStatements).OrderBy(x => x.OrderIndex); }
         }
@@ -158,9 +161,9 @@ namespace WeenyMapper.Sql
 
             var orderByStatements = propertyNames
                 .Select(x => _conventionReader.GetColumnName<T>(x))
-                .Select(x => OrderByStatement.Create<T>(x, orderByDirection, subQuery.TableIdentifier));
+                .Select(x => OrderByStatement.Create(x, orderByDirection, subQuery.TableIdentifier));
 
-            subQuery.OrderByStatements.AddRange(orderByStatements);
+            OrderByStatements.AddRange(orderByStatements);
         }
     }
 }

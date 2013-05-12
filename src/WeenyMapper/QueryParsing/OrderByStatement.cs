@@ -28,9 +28,9 @@ namespace WeenyMapper.QueryParsing
             return new OrderByStatement(propertyName, orderByDirection) { OrderIndex = orderingIndex, Type = typeof(T) };
         }
 
-        public static OrderByStatement Create<T>(string propertyName, OrderByDirection orderByDirection, string tableIdentifier)
+        public static OrderByStatement Create(string propertyName, OrderByDirection orderByDirection, string tableIdentifier)
         {
-            return new OrderByStatement(propertyName, orderByDirection) { Type = typeof(T), TableIdentifier = tableIdentifier };
+            return new OrderByStatement(propertyName, orderByDirection) { TableIdentifier = tableIdentifier };
         }
 
         public string TableIdentifier { get; set; }
