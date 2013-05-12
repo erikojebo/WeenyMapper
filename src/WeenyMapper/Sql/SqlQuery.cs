@@ -28,6 +28,13 @@ namespace WeenyMapper.Sql
         public List<AliasedSqlSubQuery> SubQueries { get; set; }
         public List<SqlSubQueryJoin> Joins { get; set; }
         public QueryExpressionTree QueryExpressionTree { get; set; }
+        public int RowCountLimit { get; set; }
+        public Page Page { get; set; }
+
+        public bool IsPagingQuery
+        {
+            get { return Page != null && Page.PageSize > 0; }
+        }
 
         public bool IsJoinQuery
         {
@@ -38,8 +45,6 @@ namespace WeenyMapper.Sql
         {
             get { return SubQueries.SelectMany(x => x.OrderByStatements).OrderBy(x => x.OrderIndex); }
         }
-
-        public int RowCountLimit { get; set; }
 
         public bool HasRowCountLimit
         {

@@ -92,7 +92,7 @@ namespace WeenyMapper.QueryExecution.InMemory
                 matchingRows = Filter(query, matchingRows);
                 matchingRows = Order(query, matchingRows);
                 matchingRows = Limit(sqlQuery, matchingRows);
-                matchingRows = Page(subQuery, matchingRows);
+                matchingRows = Page(sqlQuery, matchingRows);
                 matchingRows = StripUnselectedColumns(query, sqlQuery, matchingRows);
             }
 
@@ -247,11 +247,11 @@ namespace WeenyMapper.QueryExecution.InMemory
             return matchingRows;
         }
 
-        private static IList<Row> Page(AliasedObjectSubQuery subQuery, IList<Row> matchingRows)
+        private static IList<Row> Page(SqlQuery sqlQuery, IList<Row> matchingRows)
         {
-            if (subQuery.IsPagingQuery)
+            if (sqlQuery.IsPagingQuery)
             {
-                matchingRows = matchingRows.Skip(subQuery.Page.Offset).Take(subQuery.Page.PageSize).ToList();
+                matchingRows = matchingRows.Skip(sqlQuery.Page.Offset).Take(sqlQuery.Page.PageSize).ToList();
             }
 
             return matchingRows;

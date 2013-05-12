@@ -194,6 +194,8 @@ namespace WeenyMapper.QueryBuilding
             var subQuery = _query.GetSubQuery<T>();
 
             subQuery.Page = new Page { PageIndex = pageIndex, PageSize = pageSize };
+            _sqlQuery.Page = new Page { PageIndex = pageIndex, PageSize = pageSize };
+
             return this;
         }
 

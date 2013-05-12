@@ -26,7 +26,7 @@ namespace WeenyMapper.Sql
             {
                 return GenerateJoinQuery(sqlQuery);
             }
-            if (subQuery.IsPagingQuery)
+            if (sqlQuery.IsPagingQuery)
             {
                 return GeneratePagingQuery(sqlQuery);
             }
@@ -158,8 +158,8 @@ namespace WeenyMapper.Sql
 
             command.CommandText += selectString;
 
-            command.Parameters.Add(_commandFactory.CreateParameter("LowRowLimit", subQuery.Page.LowRowLimit));
-            command.Parameters.Add(_commandFactory.CreateParameter("HighRowLimit", subQuery.Page.HighRowLimit));
+            command.Parameters.Add(_commandFactory.CreateParameter("LowRowLimit", sqlQuery.Page.LowRowLimit));
+            command.Parameters.Add(_commandFactory.CreateParameter("HighRowLimit", sqlQuery.Page.HighRowLimit));
 
             return command;
         }

@@ -89,7 +89,6 @@ namespace WeenyMapper.QueryExecution
 
             spec.TableName = tableName;
             spec.OrderByStatements = translatedOrderByStatements.ToList();
-            spec.Page = subQuery.Page;
             spec.PrimaryKeyColumnName = _conventionReader.TryGetPrimaryKeyColumnName(subQuery.ResultType);
             spec.Alias = subQuery.Alias;
         }
