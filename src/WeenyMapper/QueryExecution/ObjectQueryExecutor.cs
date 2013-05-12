@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using WeenyMapper.Mapping;
@@ -14,6 +13,7 @@ namespace WeenyMapper.QueryExecution
         private readonly IDbCommandExecutor _dbCommandExecutor;
         private readonly IEntityMapper _entityMapper;
         private readonly IConventionReader _conventionReader;
+        private SqlQuery _sqlQuery;
 
         public ObjectQueryExecutor(
             ISqlGenerator sqlGenerator,
@@ -29,22 +29,26 @@ namespace WeenyMapper.QueryExecution
 
         public string ConnectionString { get; set; }
 
-        public IList<T> Find<T>(ObjectQuery query) where T : new()
+        public IList<T> Find<T>(ObjectQuery query, SqlQuery sqlQuery) where T : new()
         {
+            _sqlQuery = sqlQuery;
+
             var command = CreateCommand(query);
 
             return ReadEntities<T>(command, query);
         }
 
-        public TScalar FindScalar<T, TScalar>(ObjectQuery query)
+        public TScalar FindScalar<T, TScalar>(ObjectQuery query, SqlQuery sqlQuery)
         {
+            _sqlQuery = sqlQuery;
             var command = CreateCommand(query);
 
             return _dbCommandExecutor.ExecuteScalar<TScalar>(command, ConnectionString);
         }
 
-        public IList<TScalar> FindScalarList<T, TScalar>(ObjectQuery query)
+        public IList<TScalar> FindScalarList<T, TScalar>(ObjectQuery query, SqlQuery sqlQuery)
         {
+            _sqlQuery = sqlQuery;
             var command = CreateCommand(query);
 
             return _dbCommandExecutor.ExecuteScalarList<TScalar>(command, ConnectionString);
@@ -59,7 +63,7 @@ namespace WeenyMapper.QueryExecution
 
         private SqlQuery CreateSqlQuery(ObjectQuery query)
         {
-            var sqlQuery = new SqlQuery();
+            var sqlQuery = _sqlQuery ?? new SqlQuery(_conventionReader);
 
             sqlQuery.QueryExpressionTree = query.QueryExpressionTree.Translate(_conventionReader);
 
@@ -70,7 +74,7 @@ namespace WeenyMapper.QueryExecution
 
             foreach (var objectSubQueryJoin in query.Joins)
             {
-                AddSqlQueryJoinSpecification(objectSubQueryJoin, sqlQuery);                
+                AddSqlQueryJoinSpecification(objectSubQueryJoin, sqlQuery);
             }
 
             return sqlQuery;
@@ -78,25 +82,17 @@ namespace WeenyMapper.QueryExecution
 
         private void AddSqlQuerySpecification(AliasedObjectSubQuery subQuery, SqlQuery sqlQuery)
         {
-            var resultType = subQuery.ResultType;
+            var translatedOrderByStatements = subQuery.OrderByStatements.Select(x => x.Translate(_conventionReader, subQuery.ResultType));
+            var tableName = _conventionReader.GetTableName(subQuery.ResultType);
 
-            var columnNamesToSelect = subQuery.GetColumnNamesToSelect(_conventionReader);
+            var spec = sqlQuery.GetOrCreateSubQuery(subQuery.Alias, subQuery.ResultType);
 
-            var translatedOrderByStatements = subQuery.OrderByStatements.Select(x => x.Translate(_conventionReader, resultType));
-            var tableName = _conventionReader.GetTableName(resultType);
-
-            var spec = new AliasedSqlSubQuery
-                {
-                    ColumnsToSelect = columnNamesToSelect.ToList(),
-                    TableName = tableName,
-                    OrderByStatements = translatedOrderByStatements.ToList(),
-                    RowCountLimit = subQuery.RowCountLimit,
-                    Page = subQuery.Page,
-                    PrimaryKeyColumnName = _conventionReader.TryGetPrimaryKeyColumnName(subQuery.ResultType),
-                    Alias = subQuery.Alias
-                };
-
-            sqlQuery.SubQueries.Add(spec);
+            spec.TableName = tableName;
+            spec.OrderByStatements = translatedOrderByStatements.ToList();
+            spec.RowCountLimit = subQuery.RowCountLimit;
+            spec.Page = subQuery.Page;
+            spec.PrimaryKeyColumnName = _conventionReader.TryGetPrimaryKeyColumnName(subQuery.ResultType);
+            spec.Alias = subQuery.Alias;
         }
 
         private void AddSqlQueryJoinSpecification(ObjectSubQueryJoin joinSpecification, SqlQuery query)

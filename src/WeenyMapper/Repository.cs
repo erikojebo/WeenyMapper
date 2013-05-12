@@ -123,7 +123,7 @@ namespace WeenyMapper
         {
             var objectQueryExecutor = CreateObjectQueryExecutor<T>();
 
-            return new StaticSelectBuilder<T>(objectQueryExecutor, new ExpressionParser());
+            return new StaticSelectBuilder<T>(objectQueryExecutor, new ExpressionParser(), CreateConventionReader());
         }
 
         public void Delete<T>(T entity)

@@ -1,5 +1,8 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using WeenyMapper.QueryParsing;
+using WeenyMapper.Reflection;
 
 namespace WeenyMapper.Sql
 {
@@ -7,12 +10,13 @@ namespace WeenyMapper.Sql
     {
         public AliasedSqlSubQuery()
         {
-            ColumnsToSelect = new List<string>();
+            ExplicitlySpecifiedColumnsToSelect = new List<string>();
             OrderByStatements = new List<OrderByStatement>();
         }
 
         public string TableName { get; set; }
-        public IList<string> ColumnsToSelect { get; set; }
+        public IList<string> AllSelectableColumnNames { get; set; }
+        public IList<string> ExplicitlySpecifiedColumnsToSelect { get; set; }
         public IList<OrderByStatement> OrderByStatements { get; set; }
         public int RowCountLimit { get; set; }
         public Page Page { get; set; }
@@ -34,6 +38,11 @@ namespace WeenyMapper.Sql
             get { return Alias ?? TableName; }
         }
 
+        public bool HasExplicitlySpecifiedColumnsToSelect
+        {
+            get { return ExplicitlySpecifiedColumnsToSelect.Any(); }
+        }
+
         public static AliasedSqlSubQuery CreateFor<T>()
         {
             return new AliasedSqlSubQuery
@@ -41,5 +50,34 @@ namespace WeenyMapper.Sql
                     TableName = typeof(T).Name,
                 };
         }
+
+
+        public IList<string> GetColumnNamesToSelect()
+        {
+            if (ExplicitlySpecifiedColumnsToSelect.Any())
+            {
+                return ExplicitlySpecifiedColumnsToSelect;
+            }
+
+            return AllSelectableColumnNames;
+        }
+
+        public static AliasedSqlSubQuery Create<T>(string alias, IConventionReader conventionReader)
+        {
+            return Create(alias, typeof(T), conventionReader);
+        }
+
+        public static AliasedSqlSubQuery Create(string alias, Type type, IConventionReader conventionReader)
+        {
+            var subQuery = new AliasedSqlSubQuery
+            {
+                Alias = alias,
+                TableName = conventionReader.GetTableName(type),
+                AllSelectableColumnNames = conventionReader.GetSelectableColumNames(type).ToList()
+            };
+
+            return subQuery;
+        }
+
     }
 }

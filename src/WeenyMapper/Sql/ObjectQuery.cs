@@ -19,9 +19,9 @@ namespace WeenyMapper.Sql
         public IList<ObjectSubQueryJoin> Joins { get; set; }
         public QueryExpressionTree QueryExpressionTree { get; set; }
 
-        public IEnumerable<OrderByStatement> OrderByStatements
+        public IList<OrderByStatement> OrderByStatements
         {
-            get { return SubQueries.SelectMany(x => x.OrderByStatements).OrderBy(x => x.OrderIndex); }
+            get { return SubQueries.SelectMany(x => x.OrderByStatements).OrderBy(x => x.OrderIndex).ToList(); }
         }
 
         public bool IsJoinQuery
@@ -70,7 +70,7 @@ namespace WeenyMapper.Sql
             Joins.Add(joinSpecification);
         }
 
-        private void EnsureSubQuery<T>(string alias)
+        public void EnsureSubQuery<T>(string alias = null)
         {
             if (!HasSubQuery(typeof(T), alias))
                 CreateSubQuery<T>(alias);

@@ -16,15 +16,15 @@ namespace WeenyMapper.QueryBuilding
         private readonly IObjectQueryExecutor _objectQueryExecutor;
         private readonly IExpressionParser _expressionParser;
         private readonly ObjectQuery _query = new ObjectQuery();
+        private readonly SqlQuery _sqlQuery;
 
-        public StaticSelectBuilder(IObjectQueryExecutor objectQueryExecutor, IExpressionParser expressionParser)
+        public StaticSelectBuilder(IObjectQueryExecutor objectQueryExecutor, IExpressionParser expressionParser, IConventionReader conventionReader)
         {
             _objectQueryExecutor = objectQueryExecutor;
             _expressionParser = expressionParser;
+            _sqlQuery = SqlQuery.Create<T>(conventionReader);
 
-            var subQuery = new AliasedObjectSubQuery(typeof(T));
-
-            _query.SubQueries.Add(subQuery);
+            _query.EnsureSubQuery<T>();
         }
 
         public StaticSelectBuilder<T> Where(Expression<Func<T, bool>> queryExpression)
@@ -77,7 +77,7 @@ namespace WeenyMapper.QueryBuilding
 
         public IList<T> ExecuteList()
         {
-            return _objectQueryExecutor.Find<T>(_query);
+            return _objectQueryExecutor.Find<T>(_query, _sqlQuery);
         }
 
         public StaticSelectBuilder<T> Select(params Expression<Func<T, object>>[] propertySelectors)
@@ -92,6 +92,7 @@ namespace WeenyMapper.QueryBuilding
 
         public StaticSelectBuilder<T> Select<TAliasedEntity>(string alias, params Expression<Func<TAliasedEntity, object>>[] propertySelectors)
         {
+            // TODO: Remove
             foreach (var propertySelector in propertySelectors)
             {
                 var subQuery = _query.GetOrCreateSubQuery<TAliasedEntity>(alias);
@@ -100,6 +101,12 @@ namespace WeenyMapper.QueryBuilding
 
                 subQuery.PropertiesToSelect.Add(propertyName);    
             }
+
+            // ---
+
+            var propertyNames = propertySelectors.Select(GetPropertyName);
+
+            _sqlQuery.AddPropertiesToSelect<TAliasedEntity>(alias, propertyNames);
             
             return this;
         }
@@ -121,7 +128,7 @@ namespace WeenyMapper.QueryBuilding
 
         public TScalar ExecuteScalar<TScalar>()
         {
-            return _objectQueryExecutor.FindScalar<T, TScalar>(_query);
+            return _objectQueryExecutor.FindScalar<T, TScalar>(_query, _sqlQuery);
         }
 
         public void ExecuteScalarListAsync<TScalar>(Action<IList<TScalar>> callback, Action<Exception> errorCallback = null)
@@ -131,7 +138,7 @@ namespace WeenyMapper.QueryBuilding
 
         public IList<TScalar> ExecuteScalarList<TScalar>()
         {
-            return _objectQueryExecutor.FindScalarList<T, TScalar>(_query);
+            return _objectQueryExecutor.FindScalarList<T, TScalar>(_query, _sqlQuery);
         }
 
         public StaticSelectBuilder<T> OrderBy(params Expression<Func<T, object>>[] getters)
@@ -181,10 +188,8 @@ namespace WeenyMapper.QueryBuilding
 
         private int GetNextOrderByOrderIndex()
         {
-            var existingOrderByStatements = _query.SubQueries.SelectMany(x => x.OrderByStatements).OrderByDescending(x => x.OrderIndex);
-
-            if (existingOrderByStatements.Any())
-                return existingOrderByStatements.First().OrderIndex + 1;
+            if (_query.OrderByStatements.Any())
+                return _query.OrderByStatements.First().OrderIndex + 1;
 
             return 0;
         }
@@ -245,6 +250,8 @@ namespace WeenyMapper.QueryBuilding
         private void Join<TParent, TChild>(ObjectSubQueryJoin joinSpecification, string childAlias, string parentAlias)
         {
             _query.AddJoin<TParent, TChild>(joinSpecification, childAlias, parentAlias);
+            _sqlQuery.EnsureSubQuery<TParent>(parentAlias);
+            _sqlQuery.EnsureSubQuery<TChild>(childAlias);
         }
     }
 }

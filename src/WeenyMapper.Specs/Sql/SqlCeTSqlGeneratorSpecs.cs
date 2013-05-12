@@ -20,7 +20,7 @@ namespace WeenyMapper.Specs.Sql
 
             _subQuery = new AliasedSqlSubQuery();
 
-            _subQuery.ColumnsToSelect = new[] { "ColumnName1", "ColumnName2" };
+            _subQuery.ExplicitlySpecifiedColumnsToSelect = new[] { "ColumnName1", "ColumnName2" };
             _subQuery.TableName = "TableName";
             _subQuery.PrimaryKeyColumnName = "IdColumnName";
         }

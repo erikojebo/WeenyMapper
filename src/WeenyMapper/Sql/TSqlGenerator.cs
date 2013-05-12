@@ -33,7 +33,7 @@ namespace WeenyMapper.Sql
 
             var command = _commandFactory.CreateCommand();
 
-            var selectedColumnString = CreateColumnNameList(subQuery);
+            var selectedColumnString = CreateColumnNameList(sqlQuery);
 
             command.CommandText = string.Format("SELECT:topClause {0} FROM {1}", selectedColumnString, FromClauseTableIdentifier(subQuery));
 
@@ -138,7 +138,7 @@ namespace WeenyMapper.Sql
                 subQuery.OrderByStatements.Add(orderByPrimaryKeyStatement);
             }
 
-            var selectedColumnString = CreateColumnNameList(subQuery);
+            var selectedColumnString = CreateColumnNameList(sqlQuery);
 
             command.CommandText = string.Format("SELECT {0}, ROW_NUMBER() OVER (:orderByClause) AS \"{1}RowNumber\" FROM {2}",
                                                 selectedColumnString,
@@ -239,7 +239,7 @@ namespace WeenyMapper.Sql
             
             foreach (var subQuery in sqlQuery.SubQueries)
             {
-                var stringsForCurrentTable = subQuery.ColumnsToSelect.Select(x => CreateColumnSelectString(x, subQuery));
+                var stringsForCurrentTable = sqlQuery.GetColumnNamesToSelect(subQuery).Select(x => CreateColumnSelectString(x, subQuery));
 
                 joinedColumnStrings.AddRange(stringsForCurrentTable);
             }
@@ -285,9 +285,10 @@ namespace WeenyMapper.Sql
             return new OrderByClause(orderByStatement, Escape, subQuery.TableIdentifier);            
         }
 
-        private string CreateColumnNameList(AliasedSqlSubQuery subQuery)
+        private string CreateColumnNameList(SqlQuery sqlQuery)
         {
-            return CreateColumnNameList(subQuery.ColumnsToSelect, x => new ColumnReference(x, subQuery.TableIdentifier, Escape).ToString());
+            var subQuery = sqlQuery.SubQueries.First();
+            return CreateColumnNameList(sqlQuery.GetColumnNamesToSelect(subQuery), x => new ColumnReference(x, subQuery.TableIdentifier, Escape).ToString());
         }
 
         private string CreateColumnNameList(IEnumerable<string> columnsNames, Func<string, string> transformation)

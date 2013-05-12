@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using WeenyMapper.Exceptions;
+using WeenyMapper.Extensions;
 using WeenyMapper.Mapping;
 using WeenyMapper.QueryParsing;
 using WeenyMapper.Reflection;
 using WeenyMapper.Sql;
-using WeenyMapper.Extensions;
 
 namespace WeenyMapper.QueryExecution.InMemory
 {
@@ -58,9 +58,9 @@ namespace WeenyMapper.QueryExecution.InMemory
             Table(type).AddRow(row);
         }
 
-        public IList<T> Find<T>(ObjectQuery query)
+        public IList<T> Find<T>(ObjectQuery query, SqlQuery sqlQuery)
         {
-            var resultSet = FindResultSet<T>(query);
+            var resultSet = FindResultSet<T>(query, sqlQuery);
 
             var objectRelations = query.Joins.Select(ObjectRelation.Create).ToList();
 
@@ -72,7 +72,7 @@ namespace WeenyMapper.QueryExecution.InMemory
             return EntityMapper.CreateInstanceGraphs<T>(resultSet);
         }
 
-        private ResultSet FindResultSet<T>(ObjectQuery query)
+        private ResultSet FindResultSet<T>(ObjectQuery query, SqlQuery sqlQuery)
         {
             EnsureTable<T>();
 
@@ -85,7 +85,7 @@ namespace WeenyMapper.QueryExecution.InMemory
                 matchingRows = FindWithJoin(query, matchingRows);
                 matchingRows = Filter(query, matchingRows);
                 matchingRows = Order(query, matchingRows);
-                matchingRows = StripUnselectedColumns(query, matchingRows);
+                matchingRows = StripUnselectedColumns(query, sqlQuery, matchingRows);
             }
             else
             {
@@ -93,7 +93,7 @@ namespace WeenyMapper.QueryExecution.InMemory
                 matchingRows = Order(query, matchingRows);
                 matchingRows = Limit(subQuery, matchingRows);
                 matchingRows = Page(subQuery, matchingRows);
-                matchingRows = StripUnselectedColumns(query, matchingRows);
+                matchingRows = StripUnselectedColumns(query, sqlQuery, matchingRows);
             }
 
             return new ResultSet(matchingRows);
@@ -159,8 +159,8 @@ namespace WeenyMapper.QueryExecution.InMemory
         private void AddColumnsNotAddedByJoin(ResultSet matches, AliasedObjectSubQuery subQuery)
         {
             var allColumns = ConventionReader.GetSelectableMappedPropertyNames(subQuery.ResultType)
-                .Select(x => new ColumnValue(GetTableIdentifier(subQuery), x, null))
-                .ToList();
+                                             .Select(x => new ColumnValue(GetTableIdentifier(subQuery), x, null))
+                                             .ToList();
 
             foreach (var row in matches.Rows)
             {
@@ -193,12 +193,13 @@ namespace WeenyMapper.QueryExecution.InMemory
             return rows.Where(row => MatchesQuery(row, query)).ToList();
         }
 
-        private IList<Row> StripUnselectedColumns(ObjectQuery query, IEnumerable<Row> matchingRows)
+        private IList<Row> StripUnselectedColumns(ObjectQuery query, SqlQuery sqlQuery, IEnumerable<Row> matchingRows)
         {
-            var columnValuesToSelect = query.SubQueries
-                .SelectMany(x => x.GetColumnNamesToSelect(ConventionReader)
-                    .Select(y => new ColumnValue(GetTableIdentifier(x), y, null)))
-                    .ToList();
+            var columnValuesToSelect = sqlQuery.SubQueries
+                                            .SelectMany(x =>
+                                                        sqlQuery.GetColumnNamesToSelect(x)
+                                                         .Select(y => new ColumnValue(x.TableIdentifier, y, null)))
+                                            .ToList();
 
             var strippedRows = new List<Row>();
 
@@ -211,7 +212,7 @@ namespace WeenyMapper.QueryExecution.InMemory
 
                 if (row.ColumnValues.First().HasTableQualifiedAlias)
                 {
-                    columnsToSelect = row.ColumnValues.Where(x => columnValuesToSelect.Any(y => y.Alias == x.Alias));                    
+                    columnsToSelect = row.ColumnValues.Where(x => columnValuesToSelect.Any(y => y.Alias == x.Alias));
                 }
                 else
                 {
@@ -272,9 +273,9 @@ namespace WeenyMapper.QueryExecution.InMemory
             return matcher.IsMatch();
         }
 
-        public IList<TScalar> FindScalarList<T, TScalar>(ObjectQuery query)
+        public IList<TScalar> FindScalarList<T, TScalar>(ObjectQuery query, SqlQuery sqlQuery)
         {
-            var result = FindResultSet<T>(query);
+            var result = FindResultSet<T>(query, sqlQuery);
 
             return result.Rows.Select(x => x.ColumnValues.First().Value).Cast<TScalar>().ToList();
         }

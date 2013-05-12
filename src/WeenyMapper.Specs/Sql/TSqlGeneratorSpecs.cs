@@ -2,9 +2,11 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using NUnit.Framework;
+using WeenyMapper.Conventions;
 using WeenyMapper.Exceptions;
 using WeenyMapper.Extensions;
 using WeenyMapper.QueryParsing;
+using WeenyMapper.Reflection;
 using WeenyMapper.Sql;
 
 namespace WeenyMapper.Specs.Sql
@@ -28,7 +30,7 @@ namespace WeenyMapper.Specs.Sql
 
             _sqlQuery.SubQueries.Add(_subQuery);
 
-            _subQuery.ColumnsToSelect = new[] { "ColumnName1", "ColumnName2" };
+            _subQuery.ExplicitlySpecifiedColumnsToSelect = new[] { "ColumnName1", "ColumnName2" };
             _subQuery.TableName = "TableName";
             _subQuery.PrimaryKeyColumnName = "IdColumnName";
         }
@@ -44,7 +46,7 @@ namespace WeenyMapper.Specs.Sql
         [Test]
         public void Generating_select_with_single_constraints_generates_select_with_parameterized_where_clause()
         {
-            _subQuery.ColumnsToSelect = new[] { "ColumnName" };
+            _subQuery.ExplicitlySpecifiedColumnsToSelect = new[] { "ColumnName" };
             _sqlQuery.AddConjunctionExpression(
                 _subQuery.TableIdentifier,
                 new EqualsExpression(new PropertyExpression("ColumnName"),
@@ -63,7 +65,7 @@ namespace WeenyMapper.Specs.Sql
         [Test]
         public void Select_for_aliased_table_uses_alias_for_entire_query()
         {
-            _subQuery.ColumnsToSelect = new[] { "ColumnName" };
+            _subQuery.ExplicitlySpecifiedColumnsToSelect = new[] { "ColumnName" };
             _subQuery.Alias = "TableAlias";            
             
             _sqlQuery.AddConjunctionExpression(_subQuery.TableIdentifier, 
@@ -83,7 +85,7 @@ namespace WeenyMapper.Specs.Sql
         [Test]
         public void Generating_select_with_multiple_constraints_generates_select_with_where_clause_containing_both_constraints()
         {
-            _subQuery.ColumnsToSelect = new[] { "ColumnName1" };
+            _subQuery.ExplicitlySpecifiedColumnsToSelect = new[] { "ColumnName1" };
             _sqlQuery.AddConjunctionExpression(
                 _subQuery.TableIdentifier,
                 new RootExpression(
@@ -110,7 +112,7 @@ namespace WeenyMapper.Specs.Sql
         {
             var spec2 = new AliasedSqlSubQuery
                 {
-                    ColumnsToSelect = new List<string> { "Table2Column1", "Table2Column2" },
+                    ExplicitlySpecifiedColumnsToSelect = new List<string> { "Table2Column1", "Table2Column2" },
                     TableName = "TableName2"
                 };
 
@@ -143,7 +145,7 @@ namespace WeenyMapper.Specs.Sql
         {
             var spec2 = new AliasedSqlSubQuery
                 {
-                    ColumnsToSelect = new List<string> { "Table2Column1", "Table2Column2" },
+                    ExplicitlySpecifiedColumnsToSelect = new List<string> { "Table2Column1", "Table2Column2" },
                     TableName = "TableName2",
                     Alias = "Table2Alias"
                 };
@@ -201,7 +203,7 @@ namespace WeenyMapper.Specs.Sql
         {
             var spec2 = new AliasedSqlSubQuery
                 {
-                    ColumnsToSelect = new List<string> { "Table2Column1", "Table2Column2" },
+                    ExplicitlySpecifiedColumnsToSelect = new List<string> { "Table2Column1", "Table2Column2" },
                     TableName = "TableName2",
                     Alias = "Table2Alias"
                 };
@@ -250,7 +252,7 @@ namespace WeenyMapper.Specs.Sql
         {
             var spec2 = new AliasedSqlSubQuery
                 {
-                    ColumnsToSelect = new List<string> { "Table2Column1", "Table2Column2" },
+                    ExplicitlySpecifiedColumnsToSelect = new List<string> { "Table2Column1", "Table2Column2" },
                     TableName = "TableName2",
                     Alias = "Table2Alias"
                 };
@@ -304,7 +306,7 @@ namespace WeenyMapper.Specs.Sql
         {
             var spec2 = new AliasedSqlSubQuery
                 {
-                    ColumnsToSelect = new List<string> { "Table2Column1", "Table2Column2" },
+                    ExplicitlySpecifiedColumnsToSelect = new List<string> { "Table2Column1", "Table2Column2" },
                     TableName = "TableName2",
                     Alias = "Table2Alias"
                 };
@@ -354,13 +356,13 @@ namespace WeenyMapper.Specs.Sql
 
             var spec2 = new AliasedSqlSubQuery
                 {
-                    ColumnsToSelect = new List<string> { "Table2Column1", "Table2Column2" },
+                    ExplicitlySpecifiedColumnsToSelect = new List<string> { "Table2Column1", "Table2Column2" },
                     TableName = "TableName2"
                 };
 
             var spec3 = new AliasedSqlSubQuery
                 {
-                    ColumnsToSelect = new List<string> { "Table3Column1" },
+                    ExplicitlySpecifiedColumnsToSelect = new List<string> { "Table3Column1" },
                     TableName = "TableName3"
                 };
 
@@ -410,20 +412,20 @@ namespace WeenyMapper.Specs.Sql
 
             _subQuery = new AliasedSqlSubQuery
                 {
-                    ColumnsToSelect = new[] { "Name" },
+                    ExplicitlySpecifiedColumnsToSelect = new[] { "Name" },
                     TableName = "Posts",
                     PrimaryKeyColumnName = "Id"
                 };
 
             var spec2 = new AliasedSqlSubQuery
                 {
-                    ColumnsToSelect = new List<string> { "Name" },
+                    ExplicitlySpecifiedColumnsToSelect = new List<string> { "Name" },
                     TableName = "Comments"
                 };
 
             var spec3 = new AliasedSqlSubQuery
                 {
-                    ColumnsToSelect = new List<string> { "Name" },
+                    ExplicitlySpecifiedColumnsToSelect = new List<string> { "Name" },
                     TableName = "Blogs"
                 };
 
@@ -473,7 +475,7 @@ namespace WeenyMapper.Specs.Sql
 
             _subQuery = new AliasedSqlSubQuery
                 {
-                    ColumnsToSelect = new[] { "Name" },
+                    ExplicitlySpecifiedColumnsToSelect = new[] { "Name" },
                     TableName = "Posts",
                     Alias = "PostAlias",
                     PrimaryKeyColumnName = "Id"
@@ -481,14 +483,14 @@ namespace WeenyMapper.Specs.Sql
 
             var spec2 = new AliasedSqlSubQuery
                 {
-                    ColumnsToSelect = new List<string> { "Name" },
+                    ExplicitlySpecifiedColumnsToSelect = new List<string> { "Name" },
                     TableName = "Comments",
                     Alias = "CommentAlias"
                 };
 
             var spec3 = new AliasedSqlSubQuery
                 {
-                    ColumnsToSelect = new List<string> { "Name" },
+                    ExplicitlySpecifiedColumnsToSelect = new List<string> { "Name" },
                     TableName = "Blogs",
                     Alias = "BlogAlias"
                 };
@@ -539,20 +541,20 @@ namespace WeenyMapper.Specs.Sql
 
             _subQuery = new AliasedSqlSubQuery
                 {
-                    ColumnsToSelect = new List<string> { "Name" },
+                    ExplicitlySpecifiedColumnsToSelect = new List<string> { "Name" },
                     TableName = "Blogs"
                 };
 
             var spec2 = new AliasedSqlSubQuery
                 {
-                    ColumnsToSelect = new[] { "Name" },
+                    ExplicitlySpecifiedColumnsToSelect = new[] { "Name" },
                     TableName = "Posts",
                     PrimaryKeyColumnName = "Id"
                 };
 
             var spec3 = new AliasedSqlSubQuery
                 {
-                    ColumnsToSelect = new List<string> { "Name" },
+                    ExplicitlySpecifiedColumnsToSelect = new List<string> { "Name" },
                     TableName = "Comments"
                 };
 
@@ -606,7 +608,7 @@ namespace WeenyMapper.Specs.Sql
 
             var spec2 = new AliasedSqlSubQuery
                 {
-                    ColumnsToSelect = new List<string> { "Table2Column1" },
+                    ExplicitlySpecifiedColumnsToSelect = new List<string> { "Table2Column1" },
                     TableName = "TableName2"
                 };
 
@@ -640,7 +642,7 @@ namespace WeenyMapper.Specs.Sql
         {
             var subQuery2 = new AliasedSqlSubQuery
                 {
-                    ColumnsToSelect = new List<string> { "Table2Column1" },
+                    ExplicitlySpecifiedColumnsToSelect = new List<string> { "Table2Column1" },
                     TableName = "TableName2",
                     Alias = "Table2Alias"
                 };
@@ -682,7 +684,7 @@ namespace WeenyMapper.Specs.Sql
 
             var spec2 = new AliasedSqlSubQuery
                 {
-                    ColumnsToSelect = new List<string> { "Table2Column1" },
+                    ExplicitlySpecifiedColumnsToSelect = new List<string> { "Table2Column1" },
                     TableName = "TableName2"
                 };
 
@@ -922,7 +924,7 @@ namespace WeenyMapper.Specs.Sql
         [Test]
         public void Expression_with_single_equals_comparison_creates_parameterized_sql_query_with_corresponding_where_clause()
         {
-            _subQuery.ColumnsToSelect = new[] { "ColumnName1", "ColumnName2" };
+            _subQuery.ExplicitlySpecifiedColumnsToSelect = new[] { "ColumnName1", "ColumnName2" };
             _sqlQuery.AddConjunctionExpression(_subQuery.TableIdentifier, new EqualsExpression(new PropertyExpression("ColumnName"),
                                                                                                new ValueExpression("Value")));
             _subQuery.TableName = "TableName";
@@ -1244,7 +1246,7 @@ namespace WeenyMapper.Specs.Sql
         [Test]
         public void Not_expression_results_in_query_with_not_operator_and_inner_expression_parenthesized()
         {
-            _subQuery.ColumnsToSelect = new[] { "ColumnName1" };
+            _subQuery.ExplicitlySpecifiedColumnsToSelect = new[] { "ColumnName1" };
             _sqlQuery.AddConjunctionExpression(_subQuery.TableIdentifier, 
                 new RootExpression(
                     new OrExpression(
@@ -1274,7 +1276,7 @@ namespace WeenyMapper.Specs.Sql
         [Test]
         public void Single_property_expression_for_boolean_property_generates_explicit_comparison_to_1()
         {
-            _subQuery.ColumnsToSelect = new[] { "ColumnName" };
+            _subQuery.ExplicitlySpecifiedColumnsToSelect = new[] { "ColumnName" };
             _sqlQuery.AddConjunctionExpression(_subQuery.TableIdentifier, new PropertyExpression("ColumnName", typeof(bool)));
 
             var sqlCommand = _generator.GenerateSelectQuery(_sqlQuery);
@@ -1288,7 +1290,7 @@ namespace WeenyMapper.Specs.Sql
         [Test]
         public void Equals_expression_comparing_something_to_null_generates_IS_NULL_query()
         {
-            _subQuery.ColumnsToSelect = new[] { "ColumnName" };
+            _subQuery.ExplicitlySpecifiedColumnsToSelect = new[] { "ColumnName" };
             _sqlQuery.AddConjunctionExpression(_subQuery.TableIdentifier, new EqualsExpression(new PropertyExpression("ColumnName", typeof(string)), new ValueExpression(null)));
 
             var sqlCommand = _generator.GenerateSelectQuery(_sqlQuery);

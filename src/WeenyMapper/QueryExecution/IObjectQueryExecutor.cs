@@ -7,8 +7,8 @@ namespace WeenyMapper.QueryExecution
     {
         string ConnectionString { get; set; }
 
-        IList<T> Find<T>(ObjectQuery query) where T : new();
-        TScalar FindScalar<T, TScalar>(ObjectQuery query);
-        IList<TScalar> FindScalarList<T, TScalar>(ObjectQuery query);
+        IList<T> Find<T>(ObjectQuery query, SqlQuery sqlQuery) where T : new();
+        TScalar FindScalar<T, TScalar>(ObjectQuery query, SqlQuery sqlQuery);
+        IList<TScalar> FindScalarList<T, TScalar>(ObjectQuery query, SqlQuery sqlQuery);
     }
 }
