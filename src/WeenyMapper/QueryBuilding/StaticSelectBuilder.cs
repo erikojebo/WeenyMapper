@@ -191,9 +191,6 @@ namespace WeenyMapper.QueryBuilding
 
         public StaticSelectBuilder<T> Page(int pageIndex, int pageSize)
         {
-            var subQuery = _query.GetSubQuery<T>();
-
-            subQuery.Page = new Page { PageIndex = pageIndex, PageSize = pageSize };
             _sqlQuery.Page = new Page { PageIndex = pageIndex, PageSize = pageSize };
 
             return this;

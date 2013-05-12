@@ -13,13 +13,7 @@ namespace WeenyMapper.Sql
         }
 
         public IList<OrderByStatement> OrderByStatements { get; set; }
-        public Page Page { get; set; }
         public Type ResultType { get; set; }
         public string Alias { get; set; }
-
-        public bool IsPagingQuery
-        {
-            get { return Page != null && Page.PageSize > 0; }
-        }
     }
 }

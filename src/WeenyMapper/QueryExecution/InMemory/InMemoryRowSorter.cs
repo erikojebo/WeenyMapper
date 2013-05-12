@@ -13,11 +13,13 @@ namespace WeenyMapper.QueryExecution.InMemory
     internal class InMemoryRowSorter : IComparer<Row>
     {
         private readonly ObjectQuery _query;
+        private readonly SqlQuery _sqlQuery;
         private readonly IConventionReader _conventionReader;
 
-        public InMemoryRowSorter(ObjectQuery query, IConventionReader conventionReader)
+        public InMemoryRowSorter(ObjectQuery query, SqlQuery sqlQuery, IConventionReader conventionReader)
         {
             _query = query;
+            _sqlQuery = sqlQuery;
             _conventionReader = conventionReader;
         }
 
@@ -70,7 +72,7 @@ namespace WeenyMapper.QueryExecution.InMemory
 
         private bool IsUnorderedPagingQuery()
         {
-            return _query.OrderByStatements.IsEmpty() && _query.SubQueries.First().IsPagingQuery;
+            return _query.OrderByStatements.IsEmpty() && _sqlQuery.IsPagingQuery;
         }
 
         private class OrderByWithTable

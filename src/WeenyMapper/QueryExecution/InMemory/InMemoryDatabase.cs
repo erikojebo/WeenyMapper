@@ -84,13 +84,13 @@ namespace WeenyMapper.QueryExecution.InMemory
             {
                 matchingRows = FindWithJoin(query, matchingRows);
                 matchingRows = Filter(query, matchingRows);
-                matchingRows = Order(query, matchingRows);
+                matchingRows = Order(query, sqlQuery, matchingRows);
                 matchingRows = StripUnselectedColumns(query, sqlQuery, matchingRows);
             }
             else
             {
                 matchingRows = Filter(query, matchingRows);
-                matchingRows = Order(query, matchingRows);
+                matchingRows = Order(query, sqlQuery, matchingRows);
                 matchingRows = Limit(sqlQuery, matchingRows);
                 matchingRows = Page(sqlQuery, matchingRows);
                 matchingRows = StripUnselectedColumns(query, sqlQuery, matchingRows);
@@ -227,11 +227,11 @@ namespace WeenyMapper.QueryExecution.InMemory
             return strippedRows;
         }
 
-        private List<Row> Order(ObjectQuery query, IEnumerable<Row> rows)
+        private List<Row> Order(ObjectQuery query, SqlQuery sqlQuery, IEnumerable<Row> rows)
         {
             var orderedResult = rows.ToList();
 
-            var comparer = new InMemoryRowSorter(query, ConventionReader);
+            var comparer = new InMemoryRowSorter(query, sqlQuery, ConventionReader);
 
             orderedResult.Sort(comparer);
 
