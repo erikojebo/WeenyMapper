@@ -165,27 +165,7 @@ namespace WeenyMapper.QueryBuilding
         {
             var propertyNames = getters.Select(GetPropertyName).ToList();
 
-            // TODO: remove
-            var subQuery = _query.GetOrCreateSubQuery<TEntity>(alias);
-
-            var nextOrderByOrderingIndex = GetNextOrderByOrderIndex();
-
-            var orderByStatements = propertyNames
-                .Select(x => OrderByStatement.Create<TEntity>(x, orderByDirection, nextOrderByOrderingIndex++));
-
-            subQuery.OrderByStatements.AddRange(orderByStatements);
-
-            // ----------------
-
             _sqlQuery.AddOrderByStatements<TEntity>(propertyNames, orderByDirection, alias);
-        }
-
-        private int GetNextOrderByOrderIndex()
-        {
-            if (_query.OrderByStatements.Any())
-                return _query.OrderByStatements.First().OrderIndex + 1;
-
-            return 0;
         }
 
         public StaticSelectBuilder<T> Top(int rowCount)

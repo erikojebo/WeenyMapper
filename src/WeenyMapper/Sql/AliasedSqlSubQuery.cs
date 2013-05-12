@@ -11,13 +11,11 @@ namespace WeenyMapper.Sql
         public AliasedSqlSubQuery()
         {
             ExplicitlySpecifiedColumnsToSelect = new List<string>();
-            OrderByStatements = new List<OrderByStatement>();
         }
 
         public string TableName { get; set; }
         public IList<string> AllSelectableColumnNames { get; set; }
         public IList<string> ExplicitlySpecifiedColumnsToSelect { get; set; }
-        public IList<OrderByStatement> OrderByStatements { get; set; }
         public string PrimaryKeyColumnName { get; set; }
         public string Alias { get; set; }
 
@@ -38,7 +36,7 @@ namespace WeenyMapper.Sql
 
         public static AliasedSqlSubQuery CreateFor<T>()
         {
-            return new AliasedSqlSubQuery
+            return new AliasedSqlSubQuery()
                 {
                     TableName = typeof(T).Name,
                 };
@@ -62,11 +60,12 @@ namespace WeenyMapper.Sql
 
         public static AliasedSqlSubQuery Create(string alias, Type type, IConventionReader conventionReader)
         {
-            var subQuery = new AliasedSqlSubQuery
+            var subQuery = new AliasedSqlSubQuery()
             {
                 Alias = alias,
                 TableName = conventionReader.GetTableName(type),
-                AllSelectableColumnNames = conventionReader.GetSelectableColumNames(type).ToList()
+                AllSelectableColumnNames = conventionReader.GetSelectableColumNames(type).ToList(),
+                PrimaryKeyColumnName = conventionReader.TryGetPrimaryKeyColumnName(type)
             };
 
             return subQuery;

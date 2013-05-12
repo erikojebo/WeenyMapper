@@ -2,11 +2,9 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using NUnit.Framework;
-using WeenyMapper.Conventions;
 using WeenyMapper.Exceptions;
 using WeenyMapper.Extensions;
 using WeenyMapper.QueryParsing;
-using WeenyMapper.Reflection;
 using WeenyMapper.Sql;
 
 namespace WeenyMapper.Specs.Sql
@@ -603,8 +601,8 @@ namespace WeenyMapper.Specs.Sql
         [Test]
         public void Generating_join_with_order_by_generates_select_with_corresponding_order_by_with_qualified_column_name()
         {
-            _sqlQuery.OrderByStatements.Add(OrderByStatement.Create("ColumnName3", OrderByDirection.Ascending, "TableName"));
-            _sqlQuery.OrderByStatements.Add(OrderByStatement.Create("ColumnName4", OrderByDirection.Descending, "TableName"));
+            _sqlQuery.AddOrderByStatement(OrderByStatement.Create("ColumnName3", OrderByDirection.Ascending, "TableName"));
+            _sqlQuery.AddOrderByStatement(OrderByStatement.Create("ColumnName4", OrderByDirection.Descending, "TableName"));
 
             var spec2 = new AliasedSqlSubQuery
                 {
@@ -647,9 +645,9 @@ namespace WeenyMapper.Specs.Sql
                     Alias = "Table2Alias"
                 };
 
-            _sqlQuery.OrderByStatements.Add(OrderByStatement.Create("ColumnName3", OrderByDirection.Ascending, "TableName"));
-            _sqlQuery.OrderByStatements.Add(OrderByStatement.Create("Table2Column1", OrderByDirection.Descending, "Table2Alias"));
-            _sqlQuery.OrderByStatements.Add(OrderByStatement.Create("ColumnName4", OrderByDirection.Descending, "TableName"));
+            _sqlQuery.AddOrderByStatement(OrderByStatement.Create("ColumnName3", OrderByDirection.Ascending, "TableName"));
+            _sqlQuery.AddOrderByStatement(OrderByStatement.Create("Table2Column1", OrderByDirection.Descending, "Table2Alias"));
+            _sqlQuery.AddOrderByStatement(OrderByStatement.Create("ColumnName4", OrderByDirection.Descending, "TableName"));
 
             var join = new SqlSubQueryJoin
                 {
@@ -679,7 +677,7 @@ namespace WeenyMapper.Specs.Sql
         [Test]
         public void Generating_ordered_table_join_with_constraint_adds_where_clause_before_order_by_clause()
         {
-            _sqlQuery.OrderByStatements.Add(OrderByStatement.Create("ColumnName3", OrderByDirection.Ascending, "TableName"));
+            _sqlQuery.AddOrderByStatement(OrderByStatement.Create("ColumnName3", OrderByDirection.Ascending, "TableName"));
             _sqlQuery.AddConjunctionExpression(_subQuery.TableIdentifier, QueryExpression.Create(new EqualsExpression("ColumnName1", 123)));
 
             var spec2 = new AliasedSqlSubQuery
@@ -1080,9 +1078,9 @@ namespace WeenyMapper.Specs.Sql
         public void Adding_order_by_statements_adds_corresponding_order_by_clause_to_the_sql_query()
         {
             _sqlQuery.AddConjunctionExpression(_subQuery.TableIdentifier, QueryExpression.Create(new EqualsExpression("ColumnName1", "value")));
-            _sqlQuery.OrderByStatements.Add(OrderByStatement.Create("ColumnName1", OrderByDirection.Descending, "TableName"));
-            _sqlQuery.OrderByStatements.Add(OrderByStatement.Create("ColumnName3", OrderByDirection.Ascending, "TableName"));
-            _sqlQuery.OrderByStatements.Add(OrderByStatement.Create("ColumnName2", OrderByDirection.Ascending, "TableName"));
+            _sqlQuery.AddOrderByStatement(OrderByStatement.Create("ColumnName1", OrderByDirection.Descending, "TableName"));
+            _sqlQuery.AddOrderByStatement(OrderByStatement.Create("ColumnName3", OrderByDirection.Ascending, "TableName"));
+            _sqlQuery.AddOrderByStatement(OrderByStatement.Create("ColumnName2", OrderByDirection.Ascending, "TableName"));
 
             var sqlCommand = _generator.GenerateSelectQuery(_sqlQuery);
 
@@ -1162,8 +1160,8 @@ namespace WeenyMapper.Specs.Sql
         {
             _sqlQuery.Page = new Page(1, 2);
             _sqlQuery.AddConjunctionExpression(_subQuery.TableIdentifier, QueryExpression.Create(new EqualsExpression("ColumnName3", "value")));
-            _sqlQuery.OrderByStatements.Add(OrderByStatement.Create("ColumnName3", OrderByDirection.Descending, "TableName"));
-            _sqlQuery.OrderByStatements.Add(OrderByStatement.Create("ColumnName4", OrderByDirection.Ascending, "TableName"));
+            _sqlQuery.AddOrderByStatement(OrderByStatement.Create("ColumnName3", OrderByDirection.Descending, "TableName"));
+            _sqlQuery.AddOrderByStatement(OrderByStatement.Create("ColumnName4", OrderByDirection.Ascending, "TableName"));
 
             var expectedSql = "WITH [CompleteResult] AS (SELECT [TableName].[ColumnName1], [TableName].[ColumnName2], ROW_NUMBER() " +
                               "OVER (ORDER BY [TableName].[ColumnName3] DESC, [TableName].[ColumnName4]) AS \"WeenyMapperGenerated_RowNumber\" " +

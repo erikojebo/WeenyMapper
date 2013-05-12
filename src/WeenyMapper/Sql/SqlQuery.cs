@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using WeenyMapper.Conventions;
+using WeenyMapper.Exceptions;
 using WeenyMapper.QueryParsing;
 using WeenyMapper.Reflection;
 using WeenyMapper.Extensions;
@@ -12,6 +12,7 @@ namespace WeenyMapper.Sql
     public class SqlQuery
     {
         private readonly IConventionReader _conventionReader;
+        private readonly IList<OrderByStatement> _orderByStatements;
 
         public SqlQuery() : this(new ConventionReader(new DefaultConvention()))
         {
@@ -24,7 +25,27 @@ namespace WeenyMapper.Sql
             SubQueries = new List<AliasedSqlSubQuery>();
             Joins = new List<SqlSubQueryJoin>();
             QueryExpressionTree = new EmptyQueryExpressionTree();
-            OrderByStatements = new List<OrderByStatement>();
+            _orderByStatements = new List<OrderByStatement>();
+        }
+
+        public IList<OrderByStatement> OrderByStatements
+        {
+            get
+            {
+                if (IsUnorderedPagingQuery())
+                {
+                    var subQuery = SubQueries.First();
+
+                    var primaryKeyColumnName = subQuery.PrimaryKeyColumnName;
+
+                    if (primaryKeyColumnName.IsNullOrWhiteSpace())
+                        throw new WeenyMapperException("You have to specify an order by clause for paging queries");
+
+                    return OrderByStatement.Create(primaryKeyColumnName, OrderByDirection.Ascending, subQuery.TableIdentifier).AsList();
+
+                }
+                return _orderByStatements.ToList();
+            }
         }
 
         public List<AliasedSqlSubQuery> SubQueries { get; set; }
@@ -32,6 +53,11 @@ namespace WeenyMapper.Sql
         public QueryExpressionTree QueryExpressionTree { get; set; }
         public int RowCountLimit { get; set; }
         public Page Page { get; set; }
+
+        public bool IsUnorderedPagingQuery()
+        {
+            return _orderByStatements.IsEmpty() && IsPagingQuery;
+        }
 
         public bool IsPagingQuery
         {
@@ -41,13 +67,6 @@ namespace WeenyMapper.Sql
         public bool IsJoinQuery
         {
             get { return Joins.Any(); }
-        }
-
-        public IList<OrderByStatement> OrderByStatements { get; set; }
-
-        public IEnumerable<OrderByStatement> OldOrderByStatements
-        {
-            get { return SubQueries.SelectMany(x => x.OrderByStatements).OrderBy(x => x.OrderIndex); }
         }
 
         public bool HasRowCountLimit
@@ -118,11 +137,6 @@ namespace WeenyMapper.Sql
             return GetSubQuery(_conventionReader.GetTableName(type), alias);
         }
 
-        private void CreateSubQuery<T>(string alias)
-        {
-            CreateSubQuery(alias, typeof(T));
-        }
-
         private void CreateSubQuery(string alias, Type type)
         {
             var subQuery = AliasedSqlSubQuery.Create(alias, type, _conventionReader);
@@ -163,7 +177,12 @@ namespace WeenyMapper.Sql
                 .Select(x => _conventionReader.GetColumnName<T>(x))
                 .Select(x => OrderByStatement.Create(x, orderByDirection, subQuery.TableIdentifier));
 
-            OrderByStatements.AddRange(orderByStatements);
+            _orderByStatements.AddRange(orderByStatements);
+        }
+
+        public void AddOrderByStatement(OrderByStatement orderByStatement)
+        {
+            _orderByStatements.Add(orderByStatement);
         }
     }
 }

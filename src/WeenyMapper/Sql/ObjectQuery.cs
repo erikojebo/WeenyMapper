@@ -19,11 +19,6 @@ namespace WeenyMapper.Sql
         public IList<ObjectSubQueryJoin> Joins { get; set; }
         public QueryExpressionTree QueryExpressionTree { get; set; }
 
-        public IList<OrderByStatement> OrderByStatements
-        {
-            get { return SubQueries.SelectMany(x => x.OrderByStatements).OrderBy(x => x.OrderIndex).ToList(); }
-        }
-
         public bool IsJoinQuery
         {
             get { return Joins.Any(); }

@@ -82,13 +82,11 @@ namespace WeenyMapper.QueryExecution
 
         private void AddSqlQuerySpecification(AliasedObjectSubQuery subQuery, SqlQuery sqlQuery)
         {
-            var translatedOrderByStatements = subQuery.OrderByStatements.Select(x => x.Translate(_conventionReader, subQuery.ResultType));
             var tableName = _conventionReader.GetTableName(subQuery.ResultType);
 
             var spec = sqlQuery.GetOrCreateSubQuery(subQuery.Alias, subQuery.ResultType);
 
             spec.TableName = tableName;
-            spec.OrderByStatements = translatedOrderByStatements.ToList();
             spec.PrimaryKeyColumnName = _conventionReader.TryGetPrimaryKeyColumnName(subQuery.ResultType);
             spec.Alias = subQuery.Alias;
         }

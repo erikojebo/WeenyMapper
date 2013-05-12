@@ -129,17 +129,6 @@ namespace WeenyMapper.Sql
             var subQuery = sqlQuery.SubQueries.First();
             var command = _commandFactory.CreateCommand();
 
-            var orderByStatements = sqlQuery.OrderByStatements.ToList();
-
-            if (orderByStatements.IsEmpty() && string.IsNullOrEmpty(subQuery.PrimaryKeyColumnName))
-                throw new WeenyMapperException("You have to specify an order by clause for paging queries");
-
-            if (orderByStatements.IsEmpty())
-            {
-                var orderByPrimaryKeyStatement = OrderByStatement.Create(subQuery.PrimaryKeyColumnName, OrderByDirection.Ascending, subQuery.TableIdentifier);
-                orderByStatements.Add(orderByPrimaryKeyStatement);
-            }
-
             var selectedColumnString = CreateColumnNameList(sqlQuery);
 
             command.CommandText = string.Format("SELECT {0}, ROW_NUMBER() OVER (:orderByClause) AS \"{1}RowNumber\" FROM {2}",
@@ -148,7 +137,7 @@ namespace WeenyMapper.Sql
                                                 Escape(subQuery.TableName));
 
             var whereClause = CreateWhereClause(sqlQuery);
-            var orderByClause = CreateOrderByClause(orderByStatements);
+            var orderByClause = CreateOrderByClause(sqlQuery.OrderByStatements.ToList());
 
             whereClause.AppendTo(command, _commandFactory);
             orderByClause.InsertAtMarker(command, ":orderByClause", _commandFactory);
@@ -274,11 +263,6 @@ namespace WeenyMapper.Sql
             }
 
             return combinedOrderByClause;
-        }
-
-        private OrderByClause CreateOrderByClause(AliasedSqlSubQuery subQuery)
-        {
-            return new OrderByClause(subQuery.OrderByStatements, Escape, subQuery.TableIdentifier);
         }
 
         private OrderByClause CreateOrderByClause(OrderByStatement orderByStatement)

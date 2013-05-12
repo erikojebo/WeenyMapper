@@ -25,14 +25,7 @@ namespace WeenyMapper.QueryExecution.InMemory
 
         public int Compare(Row left, Row right)
         {
-            var orderByStatements = _sqlQuery.OrderByStatements.ToList();
-
-            if (IsUnorderedPagingQuery())
-            {
-                AddOrderByStatementForPrimaryKeyColumn(orderByStatements);
-            }
-
-            foreach (var orderByStatement in orderByStatements)
+            foreach (var orderByStatement in _sqlQuery.OrderByStatements)
             {
                 var leftValue = left.GetColumnValue(orderByStatement.TableIdentifier, orderByStatement.PropertyName).Value;
                 var rightValue = right.GetColumnValue(orderByStatement.TableIdentifier, orderByStatement.PropertyName).Value;
@@ -53,23 +46,6 @@ namespace WeenyMapper.QueryExecution.InMemory
             }
 
             return 0;
-        }
-
-        private void AddOrderByStatementForPrimaryKeyColumn(List<OrderByStatement> orderByStatements)
-        {
-            var primaryKeyColumnName = _conventionReader.GetPrimaryKeyColumnName(_query.SubQueries.First().ResultType);
-            orderByStatements.Add(new OrderByStatement(primaryKeyColumnName));
-        }
-
-        private bool IsUnorderedPagingQuery()
-        {
-            return _query.OrderByStatements.IsEmpty() && _sqlQuery.IsPagingQuery;
-        }
-
-        private class OrderByWithTable
-        {
-            public string TableIdentifier { get; set; }
-            public OrderByStatement TranslatedOrderBy { get; set; }
         }
     }
 }
