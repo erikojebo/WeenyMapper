@@ -11,11 +11,9 @@ namespace WeenyMapper.Sql
         public ObjectQuery()
         {
             SubQueries = new List<AliasedObjectSubQuery>();
-            QueryExpressionTree = new EmptyQueryExpressionTree();
         }
 
         public IList<AliasedObjectSubQuery> SubQueries { get; set; }
-        public QueryExpressionTree QueryExpressionTree { get; set; }
 
         public AliasedObjectSubQuery GetOrCreateSubQuery<T>(string alias = null)
         {
@@ -58,18 +56,6 @@ namespace WeenyMapper.Sql
                 };
 
             SubQueries.Add(subQuery);
-        }
-
-        public void AddConjunctionExpression<T>(string alias, QueryExpression queryExpression)
-        {
-            var leaf = new QueryExpressionTreeLeaf(queryExpression, new TableIdentifier(typeof(T), alias));
-            QueryExpressionTree = QueryExpressionTree.And(leaf);
-        }
-
-        public void AddDisjunctionExpression<T>(string alias, QueryExpression queryExpression)
-        {
-            var leaf = new QueryExpressionTreeLeaf(queryExpression, new TableIdentifier(typeof(T), alias));
-            QueryExpressionTree = QueryExpressionTree.Or(leaf);
         }
     }
 }

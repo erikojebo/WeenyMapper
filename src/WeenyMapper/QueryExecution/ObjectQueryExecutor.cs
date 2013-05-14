@@ -65,8 +65,6 @@ namespace WeenyMapper.QueryExecution
         {
             var sqlQuery = _sqlQuery ?? new SqlQuery(_conventionReader);
 
-            sqlQuery.QueryExpressionTree = query.QueryExpressionTree.Translate(_conventionReader);
-
             foreach (var objectSubQuery in query.SubQueries)
             {
                 AddSqlQuerySpecification(objectSubQuery, sqlQuery);
