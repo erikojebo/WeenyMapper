@@ -179,8 +179,7 @@ namespace WeenyMapper.QueryBuilding
             return this;
         }
 
-        public StaticSelectBuilder<T> Join<TChild>(Expression<Func<T, IList<TChild>>> parentProperty, Expression<Func<TChild, object>> foreignKeyProperty, string childAlias = null,
-                                                   string parentAlias = null)
+        public StaticSelectBuilder<T> Join<TChild>(Expression<Func<T, IList<TChild>>> parentProperty, Expression<Func<TChild, object>> foreignKeyProperty, string childAlias = null, string parentAlias = null)
         {
             var parentPropertyInfo = Reflector<T>.GetProperty(parentProperty);
             var foreignKeyPropertyInfo = Reflector<TChild>.GetProperty(foreignKeyProperty);

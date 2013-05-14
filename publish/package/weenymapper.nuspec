@@ -2,13 +2,13 @@
 <package >
   <metadata>
     <id>WeenyMapper</id>
-    <version>0.3.3</version>
+    <version>0.9.0</version>
     <authors>Erik Öjebo</authors>
     <owners>Erik Öjebo</owners>
     <projectUrl>https://github.com/erikojebo/WeenyMapper</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Configuration-less object-relational mapper for SQL Server and SQL Server CE</description>
-    <releaseNotes>Fixed bug in joins with one way navigatino properties</releaseNotes>
+    <releaseNotes>Fixed a number of issues with the join api</releaseNotes>
     <copyright>Copyright 2012</copyright>
     <tags>.net orm object relational mapping sql sqlserver</tags>
   </metadata>
