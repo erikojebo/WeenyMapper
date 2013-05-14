@@ -12,13 +12,13 @@ namespace WeenyMapper.QueryBuilding
 {
     public class StaticSelectBuilder<T> : StaticCommandBuilderBase<T> where T : new()
     {
-        private readonly IObjectQueryExecutor _objectQueryExecutor;
+        private readonly ISqlQueryExecutor _sqlQueryExecutor;
         private readonly IExpressionParser _expressionParser;
         private readonly SqlQuery _sqlQuery;
 
-        public StaticSelectBuilder(IObjectQueryExecutor objectQueryExecutor, IExpressionParser expressionParser, IConventionReader conventionReader)
+        public StaticSelectBuilder(ISqlQueryExecutor sqlQueryExecutor, IExpressionParser expressionParser, IConventionReader conventionReader)
         {
-            _objectQueryExecutor = objectQueryExecutor;
+            _sqlQueryExecutor = sqlQueryExecutor;
             _expressionParser = expressionParser;
             _sqlQuery = SqlQuery.Create<T>(conventionReader);
         }
@@ -74,7 +74,7 @@ namespace WeenyMapper.QueryBuilding
 
         public IList<T> ExecuteList()
         {
-            return _objectQueryExecutor.Find<T>(_sqlQuery);
+            return _sqlQueryExecutor.Find<T>(_sqlQuery);
         }
 
         public StaticSelectBuilder<T> Select(params Expression<Func<T, object>>[] propertySelectors)
@@ -113,7 +113,7 @@ namespace WeenyMapper.QueryBuilding
 
         public TScalar ExecuteScalar<TScalar>()
         {
-            return _objectQueryExecutor.FindScalar<T, TScalar>(_sqlQuery);
+            return _sqlQueryExecutor.FindScalar<T, TScalar>(_sqlQuery);
         }
 
         public void ExecuteScalarListAsync<TScalar>(Action<IList<TScalar>> callback, Action<Exception> errorCallback = null)
@@ -123,7 +123,7 @@ namespace WeenyMapper.QueryBuilding
 
         public IList<TScalar> ExecuteScalarList<TScalar>()
         {
-            return _objectQueryExecutor.FindScalarList<T, TScalar>(_sqlQuery);
+            return _sqlQueryExecutor.FindScalarList<T, TScalar>(_sqlQuery);
         }
 
         public StaticSelectBuilder<T> OrderBy(params Expression<Func<T, object>>[] getters)

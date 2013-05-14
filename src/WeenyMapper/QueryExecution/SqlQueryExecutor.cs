@@ -6,13 +6,13 @@ using WeenyMapper.Sql;
 
 namespace WeenyMapper.QueryExecution
 {
-    public class ObjectQueryExecutor : IObjectQueryExecutor
+    public class SqlQueryExecutor : ISqlQueryExecutor
     {
         private readonly ISqlGenerator _sqlGenerator;
         private readonly IDbCommandExecutor _dbCommandExecutor;
         private readonly IEntityMapper _entityMapper;
 
-        public ObjectQueryExecutor(
+        public SqlQueryExecutor(
             ISqlGenerator sqlGenerator,
             IDbCommandExecutor dbCommandExecutor,
             IEntityMapper entityMapper)

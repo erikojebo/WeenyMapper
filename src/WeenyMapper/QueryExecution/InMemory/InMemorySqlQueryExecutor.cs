@@ -4,11 +4,11 @@ using WeenyMapper.Sql;
 
 namespace WeenyMapper.QueryExecution.InMemory
 {
-    public class InMemoryObjectQueryExecutor : IObjectQueryExecutor
+    public class InMemorySqlQueryExecutor : ISqlQueryExecutor
     {
         private readonly InMemoryDatabase _inMemoryDatabase;
 
-        public InMemoryObjectQueryExecutor(InMemoryDatabase inMemoryDatabase)
+        public InMemorySqlQueryExecutor(InMemoryDatabase inMemoryDatabase)
         {
             _inMemoryDatabase = inMemoryDatabase;
         }

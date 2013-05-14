@@ -3,7 +3,7 @@ using WeenyMapper.Sql;
 
 namespace WeenyMapper.QueryExecution
 {
-    public interface IObjectQueryExecutor
+    public interface ISqlQueryExecutor
     {
         string ConnectionString { get; set; }
 

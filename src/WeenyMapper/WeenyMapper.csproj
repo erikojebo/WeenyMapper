@@ -76,7 +76,7 @@
     <Compile Include="QueryExecution\InMemory\InMemoryObjectCountExecutor.cs" />
     <Compile Include="QueryExecution\InMemory\InMemoryObjectDeleteExecutor.cs" />
     <Compile Include="QueryExecution\InMemory\InMemoryObjectInsertExecutor.cs" />
-    <Compile Include="QueryExecution\InMemory\InMemoryObjectQueryExecutor.cs" />
+    <Compile Include="QueryExecution\InMemory\InMemorySqlQueryExecutor.cs" />
     <Compile Include="QueryExecution\InMemory\InMemoryObjectUpdateExecutor.cs" />
     <Compile Include="QueryExecution\IObjectInsertExecutor.cs" />
     <Compile Include="QueryParsing\NotExpression.cs" />
@@ -124,7 +124,7 @@
     <Compile Include="QueryParsing\SelectQuery.cs" />
     <Compile Include="QueryParsing\QueryParser.cs" />
     <Compile Include="Repository.cs" />
-    <Compile Include="QueryExecution\IObjectQueryExecutor.cs" />
+    <Compile Include="QueryExecution\ISqlQueryExecutor.cs" />
     <Compile Include="SqlServerDatabaseProvider.cs" />
     <Compile Include="Sql\ColumnReference.cs" />
     <Compile Include="Sql\CommandParameter.cs" />
@@ -135,7 +135,7 @@
     <Compile Include="Sql\IDbCommandFactory.cs" />
     <Compile Include="Sql\IQueryExpressionTreeVisitor.cs" />
     <Compile Include="Sql\ISqlGenerator.cs" />
-    <Compile Include="QueryExecution\ObjectQueryExecutor.cs" />
+    <Compile Include="QueryExecution\SqlQueryExecutor.cs" />
     <Compile Include="Sql\ObjectSubQueryJoin.cs" />
     <Compile Include="Sql\AliasedObjectSubQuery.cs" />
     <Compile Include="Sql\OrderByClause.cs" />
