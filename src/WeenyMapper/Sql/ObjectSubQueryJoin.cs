@@ -59,8 +59,5 @@ namespace WeenyMapper.Sql
         {
             get { return ParentProperty != null; }
         }
-
-        public AliasedObjectSubQuery ChildSubQuery { get; set; }
-        public AliasedObjectSubQuery ParentSubQuery { get; set; }
     }
 }
