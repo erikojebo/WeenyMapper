@@ -79,13 +79,13 @@ namespace WeenyMapper.QueryExecution.InMemory
             if (sqlQuery.IsJoinQuery)
             {
                 matchingRows = FindWithJoin(sqlQuery, matchingRows);
-                matchingRows = Filter(query, matchingRows);
+                matchingRows = Filter(query, sqlQuery, matchingRows);
                 matchingRows = Order(query, sqlQuery, matchingRows);
                 matchingRows = StripUnselectedColumns(query, sqlQuery, matchingRows);
             }
             else
             {
-                matchingRows = Filter(query, matchingRows);
+                matchingRows = Filter(query, sqlQuery, matchingRows);
                 matchingRows = Order(query, sqlQuery, matchingRows);
                 matchingRows = Limit(sqlQuery, matchingRows);
                 matchingRows = Page(sqlQuery, matchingRows);
@@ -173,9 +173,9 @@ namespace WeenyMapper.QueryExecution.InMemory
                 }).ToList();
         }
 
-        private IList<Row> Filter(ObjectQuery query, IEnumerable<Row> rows)
+        private IList<Row> Filter(ObjectQuery query, SqlQuery sqlQuery, IEnumerable<Row> rows)
         {
-            return rows.Where(row => MatchesQuery(row, query)).ToList();
+            return rows.Where(row => MatchesQuery(row, sqlQuery)).ToList();
         }
 
         private IList<Row> StripUnselectedColumns(ObjectQuery query, SqlQuery sqlQuery, IEnumerable<Row> matchingRows)
@@ -242,11 +242,11 @@ namespace WeenyMapper.QueryExecution.InMemory
             return matchingRows;
         }
 
-        private bool MatchesQuery(Row row, ObjectQuery query)
+        private bool MatchesQuery(Row row, SqlQuery query)
         {
-            var matcher = new QueryExpressionRowMatcher(row, ConventionReader);
+            var matcher = new QueryExpressionRowMatcher(row);
 
-            return matcher.Matches(query.QueryExpressionTree.Translate(ConventionReader));
+            return matcher.Matches(query.QueryExpressionTree);
         }
 
         private bool MatchesQuery(Row row, QueryExpression query)

@@ -45,8 +45,7 @@ namespace WeenyMapper.Specs.Sql
         public void Generating_select_with_single_constraints_generates_select_with_parameterized_where_clause()
         {
             _subQuery.ExplicitlySpecifiedColumnsToSelect = new[] { "ColumnName" };
-            _sqlQuery.AddConjunctionExpression(
-                _subQuery.TableIdentifier,
+            _sqlQuery.AddConjunctionExpression(_subQuery.TableIdentifier,
                 new EqualsExpression(new PropertyExpression("ColumnName"),
                                      new ValueExpression("value")));
 
@@ -84,8 +83,7 @@ namespace WeenyMapper.Specs.Sql
         public void Generating_select_with_multiple_constraints_generates_select_with_where_clause_containing_both_constraints()
         {
             _subQuery.ExplicitlySpecifiedColumnsToSelect = new[] { "ColumnName1" };
-            _sqlQuery.AddConjunctionExpression(
-                _subQuery.TableIdentifier,
+            _sqlQuery.AddConjunctionExpression(_subQuery.TableIdentifier,
                 new RootExpression(
                     new AndExpression(
                         new EqualsExpression(new PropertyExpression("ColumnName1"), new ValueExpression("value")),
@@ -206,12 +204,10 @@ namespace WeenyMapper.Specs.Sql
                     Alias = "Table2Alias"
                 };
 
-            _sqlQuery.AddConjunctionExpression(
-                _subQuery.TableIdentifier,
+            _sqlQuery.AddConjunctionExpression(_subQuery.TableIdentifier,
                 QueryExpression.Create(new EqualsExpression("Column1", 123)));
 
-            _sqlQuery.AddConjunctionExpression(
-                spec2.TableIdentifier,
+            _sqlQuery.AddConjunctionExpression(spec2.TableIdentifier,
                 QueryExpression.Create(new EqualsExpression("Table2Column1", 234)));
 
             var join = new SqlSubQueryJoin
@@ -255,14 +251,12 @@ namespace WeenyMapper.Specs.Sql
                     Alias = "Table2Alias"
                 };
 
-            _sqlQuery.AddConjunctionExpression(
-                _subQuery.TableIdentifier,
+            _sqlQuery.AddConjunctionExpression(_subQuery.TableIdentifier,
                 new OrExpression(
                     new EqualsExpression("Column1", 123),
                     new EqualsExpression("Column1", 345)));
 
-            _sqlQuery.AddConjunctionExpression(
-                spec2.TableIdentifier,
+            _sqlQuery.AddConjunctionExpression(spec2.TableIdentifier,
                 QueryExpression.Create(new EqualsExpression("Table2Column1", 234)));
 
             var join = new SqlSubQueryJoin
@@ -924,7 +918,7 @@ namespace WeenyMapper.Specs.Sql
         {
             _subQuery.ExplicitlySpecifiedColumnsToSelect = new[] { "ColumnName1", "ColumnName2" };
             _sqlQuery.AddConjunctionExpression(_subQuery.TableIdentifier, new EqualsExpression(new PropertyExpression("ColumnName"),
-                                                                                               new ValueExpression("Value")));
+                                                                                                     new ValueExpression("Value")));
             _subQuery.TableName = "TableName";
 
             var expectedSql =
@@ -943,8 +937,8 @@ namespace WeenyMapper.Specs.Sql
         public void Conjunction_of_equals_expressions_creates_parameterized_sql_query_with_corresponding_where_clause()
         {
             _sqlQuery.AddConjunctionExpression(_subQuery.TableIdentifier, new AndExpression(
-                                                                              new EqualsExpression(new PropertyExpression("ColumnName1"), new ValueExpression(1)),
-                                                                              new EqualsExpression(new PropertyExpression("ColumnName2"), new ValueExpression(2))));
+                                                                                    new EqualsExpression(new PropertyExpression("ColumnName1"), new ValueExpression(1)),
+                                                                                    new EqualsExpression(new PropertyExpression("ColumnName2"), new ValueExpression(2))));
 
             var expectedSql = "SELECT [TableName].[ColumnName1], [TableName].[ColumnName2] FROM [TableName] " +
                               "WHERE ([TableName].[ColumnName1] = @TableName_ColumnName1Constraint AND [TableName].[ColumnName2] = @TableName_ColumnName2Constraint)";
@@ -965,8 +959,8 @@ namespace WeenyMapper.Specs.Sql
         public void Disjunction_of_equals_expressions_creates_parameterized_sql_query_with_corresponding_where_clause()
         {
             _sqlQuery.AddConjunctionExpression(_subQuery.TableIdentifier, new OrExpression(
-                                                                              new EqualsExpression(new PropertyExpression("ColumnName1"), new ValueExpression(1)),
-                                                                              new EqualsExpression(new PropertyExpression("ColumnName2"), new ValueExpression(2))));
+                                                                                    new EqualsExpression(new PropertyExpression("ColumnName1"), new ValueExpression(1)),
+                                                                                    new EqualsExpression(new PropertyExpression("ColumnName2"), new ValueExpression(2))));
 
             var expectedSql = "SELECT [TableName].[ColumnName1], [TableName].[ColumnName2] FROM [TableName] " +
                               "WHERE ([TableName].[ColumnName1] = @TableName_ColumnName1Constraint OR [TableName].[ColumnName2] = @TableName_ColumnName2Constraint)";
@@ -987,13 +981,13 @@ namespace WeenyMapper.Specs.Sql
         public void Conjunction_of_disjunctions_is_parenthezised_to_ensure_correct_evaluation_order()
         {
             _sqlQuery.AddConjunctionExpression(_subQuery.TableIdentifier, new AndExpression(
-                                                                              new OrExpression(
-                                                                                  new LessExpression(new PropertyExpression("ColumnName1"), new ValueExpression(1)),
-                                                                                  new GreaterExpression(new PropertyExpression("ColumnName2"), new ValueExpression(2)),
-                                                                                  new EqualsExpression(new PropertyExpression("ColumnName2"), new ValueExpression(3))),
-                                                                              new OrExpression(
-                                                                                  new GreaterOrEqualExpression(new PropertyExpression("ColumnName1"), new ValueExpression(3)),
-                                                                                  new LessOrEqualExpression(new PropertyExpression("ColumnName2"), new ValueExpression(4)))));
+                                                                                    new OrExpression(
+                                                                                        new LessExpression(new PropertyExpression("ColumnName1"), new ValueExpression(1)),
+                                                                                        new GreaterExpression(new PropertyExpression("ColumnName2"), new ValueExpression(2)),
+                                                                                        new EqualsExpression(new PropertyExpression("ColumnName2"), new ValueExpression(3))),
+                                                                                    new OrExpression(
+                                                                                        new GreaterOrEqualExpression(new PropertyExpression("ColumnName1"), new ValueExpression(3)),
+                                                                                        new LessOrEqualExpression(new PropertyExpression("ColumnName2"), new ValueExpression(4)))));
 
             var expectedSql = "SELECT [TableName].[ColumnName1], [TableName].[ColumnName2] FROM [TableName] " +
                               "WHERE (([TableName].[ColumnName1] < @TableName_ColumnName1Constraint OR [TableName].[ColumnName2] > @TableName_ColumnName2Constraint OR [TableName].[ColumnName2] = @TableName_ColumnName2Constraint2) AND " +
@@ -1029,7 +1023,7 @@ namespace WeenyMapper.Specs.Sql
 
             _sqlQuery.AddConjunctionExpression(_subQuery.TableIdentifier, 
                 new InExpression(new PropertyExpression("PropertyName"),
-                                                          new ArrayValueExpression(values)));
+                                 new ArrayValueExpression(values)));
 
             var expectedSql = "SELECT [TableName].[ColumnName1], [TableName].[ColumnName2] FROM [TableName] " +
                               "WHERE ([TableName].[PropertyName] IN (@TableName_PropertyNameConstraint, @TableName_PropertyNameConstraint2, @TableName_PropertyNameConstraint3))";

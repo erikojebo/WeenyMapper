@@ -1,6 +1,5 @@
 ﻿using WeenyMapper.Exceptions;
 using WeenyMapper.Mapping;
-using WeenyMapper.Reflection;
 using WeenyMapper.Sql;
 
 namespace WeenyMapper.QueryExecution.InMemory
@@ -8,20 +7,18 @@ namespace WeenyMapper.QueryExecution.InMemory
     public class QueryExpressionRowMatcher : IQueryExpressionTreeVisitor
     {
         private readonly Row _row;
-        private readonly IConventionReader _conventionReader;
         private bool _isMatch;
 
-        public QueryExpressionRowMatcher(Row row, IConventionReader conventionReader)
+        public QueryExpressionRowMatcher(Row row)
         {
             _row = row;
-            _conventionReader = conventionReader;
         }
 
         public void Visit(QueryExpressionTreeAndBranch tree)
         {
             foreach (var node in tree.Nodes)
             {
-                var matcher = new QueryExpressionRowMatcher(_row, _conventionReader);
+                var matcher = new QueryExpressionRowMatcher(_row);
                 if (!matcher.Matches(node))
                 {
                     _isMatch = false;
@@ -34,7 +31,7 @@ namespace WeenyMapper.QueryExecution.InMemory
         {
             foreach (var node in tree.Nodes)
             {
-                var matcher = new QueryExpressionRowMatcher(_row, _conventionReader);
+                var matcher = new QueryExpressionRowMatcher(_row);
                 if (matcher.Matches(node))
                 {
                     return;
@@ -55,7 +52,7 @@ namespace WeenyMapper.QueryExecution.InMemory
 
         public void Visit(TranslatedQueryExpressionTreeLeaf tree)
         {
-            var matcher = new InMemoryRowMatcher(_row, tree.QueryExpression.Translate(_conventionReader), tree.TableIdentifier);
+            var matcher = new InMemoryRowMatcher(_row, tree.QueryExpression, tree.TableIdentifier);
 
             if (!matcher.IsMatch())
                 _isMatch = false;

@@ -50,7 +50,8 @@ namespace WeenyMapper.QueryBuilding
         public StaticSelectBuilder<T> AndWhere<TAliasedEntity>(string alias, Expression<Func<TAliasedEntity, bool>> queryExpression)
         {
             _query.AddConjunctionExpression<TAliasedEntity>(alias, _expressionParser.Parse(queryExpression));
-            
+            _sqlQuery.AddConjunctionExpression(typeof(TAliasedEntity), alias, _expressionParser.Parse(queryExpression));
+
             return this;
         }
 
@@ -67,6 +68,7 @@ namespace WeenyMapper.QueryBuilding
         public StaticSelectBuilder<T> OrWhere<TAliasedEntity>(string alias, Expression<Func<TAliasedEntity, bool>> queryExpression)
         {
             _query.AddDisjunctionExpression<TAliasedEntity>(alias, _expressionParser.Parse(queryExpression));
+            _sqlQuery.AddDisjunctionExpression(typeof(TAliasedEntity), alias, _expressionParser.Parse(queryExpression));
             return this;
         }
 

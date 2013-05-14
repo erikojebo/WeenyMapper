@@ -95,6 +95,18 @@ namespace WeenyMapper.Sql
             var leaf = new TranslatedQueryExpressionTreeLeaf(queryExpression, tableIdentifier);
             QueryExpressionTree = QueryExpressionTree.And(leaf);
         }
+        
+        public void AddConjunctionExpression(Type type, string alias, QueryExpression queryExpression)
+        {
+            var subQuery = GetOrCreateSubQuery(alias, type);
+            AddConjunctionExpression(subQuery.TableIdentifier, queryExpression.Translate(_conventionReader));
+        }
+
+        public void AddDisjunctionExpression(Type type, string alias, QueryExpression queryExpression)
+        {
+            var subQuery = GetOrCreateSubQuery(alias, type);
+            AddDisjunctionExpression(subQuery.TableIdentifier, queryExpression.Translate(_conventionReader));
+        }
 
         public void AddDisjunctionExpression(string tableIdentifier, QueryExpression queryExpression)
         {
