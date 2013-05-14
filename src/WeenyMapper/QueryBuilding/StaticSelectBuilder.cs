@@ -108,7 +108,7 @@ namespace WeenyMapper.QueryBuilding
 
         public void ExecuteScalarAsync<TScalar>(Action<TScalar> callback, Action<Exception> errorCallback = null)
         {
-            TaskRunner.Run<TScalar>(ExecuteScalar<TScalar>, callback, errorCallback);
+            TaskRunner.Run(ExecuteScalar<TScalar>, callback, errorCallback);
         }
 
         public TScalar ExecuteScalar<TScalar>()
@@ -118,7 +118,7 @@ namespace WeenyMapper.QueryBuilding
 
         public void ExecuteScalarListAsync<TScalar>(Action<IList<TScalar>> callback, Action<Exception> errorCallback = null)
         {
-            TaskRunner.Run<IList<TScalar>>(ExecuteScalarList<TScalar>, callback, errorCallback);
+            TaskRunner.Run(ExecuteScalarList<TScalar>, callback, errorCallback);
         }
 
         public IList<TScalar> ExecuteScalarList<TScalar>()
