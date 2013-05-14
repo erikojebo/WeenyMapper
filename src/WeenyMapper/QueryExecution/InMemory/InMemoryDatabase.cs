@@ -62,11 +62,9 @@ namespace WeenyMapper.QueryExecution.InMemory
         {
             var resultSet = FindResultSet<T>(query, sqlQuery);
 
-            var objectRelations = query.Joins.Select(ObjectRelation.Create).ToList();
-
-            if (objectRelations.Any())
+            if (sqlQuery.ObjectRelations.Any())
             {
-                return EntityMapper.CreateInstanceGraphs<T>(resultSet, objectRelations);
+                return EntityMapper.CreateInstanceGraphs<T>(resultSet, sqlQuery.ObjectRelations);
             }
 
             return EntityMapper.CreateInstanceGraphs<T>(resultSet);
@@ -78,7 +76,7 @@ namespace WeenyMapper.QueryExecution.InMemory
 
             var matchingRows = Table<T>().Rows;
 
-            if (query.IsJoinQuery)
+            if (sqlQuery.IsJoinQuery)
             {
                 matchingRows = FindWithJoin(sqlQuery, matchingRows);
                 matchingRows = Filter(query, matchingRows);

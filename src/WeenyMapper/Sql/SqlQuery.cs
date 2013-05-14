@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using WeenyMapper.Conventions;
 using WeenyMapper.Exceptions;
+using WeenyMapper.Mapping;
 using WeenyMapper.QueryParsing;
 using WeenyMapper.Reflection;
 using WeenyMapper.Extensions;
@@ -25,30 +26,12 @@ namespace WeenyMapper.Sql
             SubQueries = new List<AliasedSqlSubQuery>();
             Joins = new List<SqlSubQueryJoin>();
             QueryExpressionTree = new EmptyQueryExpressionTree();
+            ObjectRelations = new List<ObjectRelation>();
             _orderByStatements = new List<OrderByStatement>();
         }
 
-        public IList<OrderByStatement> OrderByStatements
-        {
-            get
-            {
-                if (IsUnorderedPagingQuery())
-                {
-                    var subQuery = SubQueries.First();
-
-                    var primaryKeyColumnName = subQuery.PrimaryKeyColumnName;
-
-                    if (primaryKeyColumnName.IsNullOrWhiteSpace())
-                        throw new WeenyMapperException("You have to specify an order by clause for paging queries");
-
-                    return OrderByStatement.Create(primaryKeyColumnName, OrderByDirection.Ascending, subQuery.TableIdentifier).AsList();
-
-                }
-                return _orderByStatements.ToList();
-            }
-        }
-
         public List<AliasedSqlSubQuery> SubQueries { get; set; }
+        public List<ObjectRelation> ObjectRelations { get; set; }
         public List<SqlSubQueryJoin> Joins { get; set; }
         public QueryExpressionTree QueryExpressionTree { get; set; }
         public int RowCountLimit { get; set; }
@@ -72,6 +55,26 @@ namespace WeenyMapper.Sql
         public bool HasRowCountLimit
         {
             get { return RowCountLimit > 0; }
+        }
+
+        public IList<OrderByStatement> OrderByStatements
+        {
+            get
+            {
+                if (IsUnorderedPagingQuery())
+                {
+                    var subQuery = SubQueries.First();
+
+                    var primaryKeyColumnName = subQuery.PrimaryKeyColumnName;
+
+                    if (primaryKeyColumnName.IsNullOrWhiteSpace())
+                        throw new WeenyMapperException("You have to specify an order by clause for paging queries");
+
+                    return OrderByStatement.Create(primaryKeyColumnName, OrderByDirection.Ascending, subQuery.TableIdentifier).AsList();
+
+                }
+                return _orderByStatements.ToList();
+            }
         }
 
         public void AddJoin(SqlSubQueryJoin joinSpec, string childAlias, string parentAlias)
@@ -206,6 +209,8 @@ namespace WeenyMapper.Sql
             };
 
             AddJoin(joinSpec, childAlias, parentAlias);
+
+            ObjectRelations.Add(ObjectRelation.Create(joinSpecification, childAlias, parentAlias));
         }
     }
 }

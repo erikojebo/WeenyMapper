@@ -35,7 +35,7 @@ namespace WeenyMapper.QueryExecution
 
             var command = CreateCommand(query);
 
-            return ReadEntities<T>(command, query);
+            return ReadEntities<T>(command);
         }
 
         public TScalar FindScalar<T, TScalar>(ObjectQuery query, SqlQuery sqlQuery)
@@ -86,15 +86,13 @@ namespace WeenyMapper.QueryExecution
             spec.Alias = subQuery.Alias;
         }
 
-        private IList<T> ReadEntities<T>(DbCommand command, ObjectQuery objectQuery) where T : new()
+        private IList<T> ReadEntities<T>(DbCommand command) where T : new()
         {
             var resultSet = _dbCommandExecutor.ExecuteQuery(command, ConnectionString);
 
-            var objectRelations = objectQuery.Joins.Select(ObjectRelation.Create).ToList();
-
-            if (objectRelations.Any())
+            if (_sqlQuery.ObjectRelations.Any())
             {
-                return _entityMapper.CreateInstanceGraphs<T>(resultSet, objectRelations);
+                return _entityMapper.CreateInstanceGraphs<T>(resultSet, _sqlQuery.ObjectRelations);
             }
 
             return _entityMapper.CreateInstanceGraphs<T>(resultSet);

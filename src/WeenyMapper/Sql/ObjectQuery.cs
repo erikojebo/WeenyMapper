@@ -11,18 +11,11 @@ namespace WeenyMapper.Sql
         public ObjectQuery()
         {
             SubQueries = new List<AliasedObjectSubQuery>();
-            Joins = new List<ObjectSubQueryJoin>();
             QueryExpressionTree = new EmptyQueryExpressionTree();
         }
 
         public IList<AliasedObjectSubQuery> SubQueries { get; set; }
-        public IList<ObjectSubQueryJoin> Joins { get; set; }
         public QueryExpressionTree QueryExpressionTree { get; set; }
-
-        public bool IsJoinQuery
-        {
-            get { return Joins.Any(); }
-        }
 
         public AliasedObjectSubQuery GetOrCreateSubQuery<T>(string alias = null)
         {
@@ -49,20 +42,6 @@ namespace WeenyMapper.Sql
             var subQueriesForType = SubQueries.Where(x => x.ResultType == type);
 
             return subQueriesForType.Any(x => x.Alias == alias);
-        }
-
-        public void AddJoin<TParent, TChild>(ObjectSubQueryJoin joinSpecification, string childAlias, string parentAlias)
-        {
-            EnsureSubQuery<TParent>(parentAlias);
-            EnsureSubQuery<TChild>(childAlias);
-
-            joinSpecification.ParentSubQuery = GetSubQuery<TParent>(parentAlias);
-            joinSpecification.ChildSubQuery = GetSubQuery<TChild>(childAlias);
-
-            joinSpecification.ChildSubQuery.Alias = childAlias;
-            joinSpecification.ParentSubQuery.Alias = parentAlias;
-
-            Joins.Add(joinSpecification);
         }
 
         public void EnsureSubQuery<T>(string alias = null)

@@ -189,7 +189,7 @@ namespace WeenyMapper.QueryBuilding
 
             var joinSpecification = ObjectSubQueryJoin.CreateParentToChild(parentPropertyInfo, foreignKeyPropertyInfo);
 
-            Join<T, TChild>(joinSpecification, childAlias, parentAlias);
+            Join(joinSpecification, childAlias, parentAlias);
 
             return this;
         }
@@ -200,7 +200,7 @@ namespace WeenyMapper.QueryBuilding
 
             var joinSpecification = ObjectSubQueryJoin.CreateChildToParent(childPropertyInfo, typeof(TParent));
 
-            Join<TParent, T>(joinSpecification, childAlias, parentAlias);
+            Join(joinSpecification, childAlias, parentAlias);
 
             return this;
         }
@@ -213,15 +213,13 @@ namespace WeenyMapper.QueryBuilding
             var childPropertyInfo = Reflector<TChild>.GetProperty(childProperty);
 
             var joinSpecification = ObjectSubQueryJoin.CreateTwoWay(parentPropertyInfo, childPropertyInfo);
-            Join<TParent, TChild>(joinSpecification, childAlias, parentAlias);
+            Join(joinSpecification, childAlias, parentAlias);
 
             return this;
         }
 
-        private void Join<TParent, TChild>(ObjectSubQueryJoin joinSpecification, string childAlias, string parentAlias)
+        private void Join(ObjectSubQueryJoin joinSpecification, string childAlias, string parentAlias)
         {
-            _query.AddJoin<TParent, TChild>(joinSpecification, childAlias, parentAlias);
-
             _sqlQuery.AddJoin(joinSpecification, childAlias, parentAlias);
         }
     }

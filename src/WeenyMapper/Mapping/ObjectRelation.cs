@@ -69,7 +69,7 @@ namespace WeenyMapper.Mapping
             get { return ChildProperty != null; }
         }
 
-        public static ObjectRelation Create(ObjectSubQueryJoin @join)
+        public static ObjectRelation Create(ObjectSubQueryJoin @join, string childAlias, string parentAlias)
         {
             return new ObjectRelation
                 {
@@ -77,8 +77,8 @@ namespace WeenyMapper.Mapping
                     ParentProperty = @join.ParentProperty,
                     ChildType = @join.ChildType,
                     ParentType = @join.ParentType,
-                    ChildAlias = @join.ChildSubQuery.Alias,
-                    ParentAlias = @join.ParentSubQuery.Alias
+                    ChildAlias = childAlias,
+                    ParentAlias = parentAlias
                 };
         }
     }
