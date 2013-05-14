@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using WeenyMapper.Async;
-using WeenyMapper.Extensions;
 using WeenyMapper.QueryExecution;
 using WeenyMapper.QueryParsing;
 using WeenyMapper.Reflection;
@@ -15,7 +14,6 @@ namespace WeenyMapper.QueryBuilding
     {
         private readonly IObjectQueryExecutor _objectQueryExecutor;
         private readonly IExpressionParser _expressionParser;
-        private readonly ObjectQuery _query = new ObjectQuery();
         private readonly SqlQuery _sqlQuery;
 
         public StaticSelectBuilder(IObjectQueryExecutor objectQueryExecutor, IExpressionParser expressionParser, IConventionReader conventionReader)
@@ -23,8 +21,6 @@ namespace WeenyMapper.QueryBuilding
             _objectQueryExecutor = objectQueryExecutor;
             _expressionParser = expressionParser;
             _sqlQuery = SqlQuery.Create<T>(conventionReader);
-
-            _query.EnsureSubQuery<T>();
         }
 
         public StaticSelectBuilder<T> Where(Expression<Func<T, bool>> queryExpression)
@@ -78,7 +74,7 @@ namespace WeenyMapper.QueryBuilding
 
         public IList<T> ExecuteList()
         {
-            return _objectQueryExecutor.Find<T>(_query, _sqlQuery);
+            return _objectQueryExecutor.Find<T>(_sqlQuery);
         }
 
         public StaticSelectBuilder<T> Select(params Expression<Func<T, object>>[] propertySelectors)
@@ -96,7 +92,7 @@ namespace WeenyMapper.QueryBuilding
             var propertyNames = propertySelectors.Select(GetPropertyName);
 
             _sqlQuery.AddPropertiesToSelect<TAliasedEntity>(alias, propertyNames);
-            
+
             return this;
         }
 
@@ -112,27 +108,27 @@ namespace WeenyMapper.QueryBuilding
 
         public void ExecuteScalarAsync<TScalar>(Action<TScalar> callback, Action<Exception> errorCallback = null)
         {
-            TaskRunner.Run(ExecuteScalar<TScalar>, callback, errorCallback);
+            TaskRunner.Run<TScalar>(ExecuteScalar<TScalar>, callback, errorCallback);
         }
 
         public TScalar ExecuteScalar<TScalar>()
         {
-            return _objectQueryExecutor.FindScalar<T, TScalar>(_query, _sqlQuery);
+            return _objectQueryExecutor.FindScalar<T, TScalar>(_sqlQuery);
         }
 
         public void ExecuteScalarListAsync<TScalar>(Action<IList<TScalar>> callback, Action<Exception> errorCallback = null)
         {
-            TaskRunner.Run(ExecuteScalarList<TScalar>, callback, errorCallback);
+            TaskRunner.Run<IList<TScalar>>(ExecuteScalarList<TScalar>, callback, errorCallback);
         }
 
         public IList<TScalar> ExecuteScalarList<TScalar>()
         {
-            return _objectQueryExecutor.FindScalarList<T, TScalar>(_query, _sqlQuery);
+            return _objectQueryExecutor.FindScalarList<T, TScalar>(_sqlQuery);
         }
 
         public StaticSelectBuilder<T> OrderBy(params Expression<Func<T, object>>[] getters)
         {
-            return OrderBy<T>(getters);            
+            return OrderBy<T>(getters);
         }
 
         public StaticSelectBuilder<T> OrderBy<TEntity>(params Expression<Func<TEntity, object>>[] getters)
@@ -183,7 +179,8 @@ namespace WeenyMapper.QueryBuilding
             return this;
         }
 
-        public StaticSelectBuilder<T> Join<TChild>(Expression<Func<T, IList<TChild>>> parentProperty, Expression<Func<TChild, object>> foreignKeyProperty, string childAlias = null, string parentAlias = null)
+        public StaticSelectBuilder<T> Join<TChild>(Expression<Func<T, IList<TChild>>> parentProperty, Expression<Func<TChild, object>> foreignKeyProperty, string childAlias = null,
+                                                   string parentAlias = null)
         {
             var parentPropertyInfo = Reflector<T>.GetProperty(parentProperty);
             var foreignKeyPropertyInfo = Reflector<TChild>.GetProperty(foreignKeyProperty);

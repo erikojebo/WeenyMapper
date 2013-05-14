@@ -136,7 +136,6 @@
     <Compile Include="Sql\IQueryExpressionTreeVisitor.cs" />
     <Compile Include="Sql\ISqlGenerator.cs" />
     <Compile Include="QueryExecution\ObjectQueryExecutor.cs" />
-    <Compile Include="Sql\ObjectQuery.cs" />
     <Compile Include="Sql\ObjectSubQueryJoin.cs" />
     <Compile Include="Sql\AliasedObjectSubQuery.cs" />
     <Compile Include="Sql\OrderByClause.cs" />

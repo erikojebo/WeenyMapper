@@ -2,7 +2,6 @@
 using System.Data.Common;
 using System.Linq;
 using WeenyMapper.Mapping;
-using WeenyMapper.Reflection;
 using WeenyMapper.Sql;
 
 namespace WeenyMapper.QueryExecution
@@ -12,85 +11,52 @@ namespace WeenyMapper.QueryExecution
         private readonly ISqlGenerator _sqlGenerator;
         private readonly IDbCommandExecutor _dbCommandExecutor;
         private readonly IEntityMapper _entityMapper;
-        private readonly IConventionReader _conventionReader;
-        private SqlQuery _sqlQuery;
 
         public ObjectQueryExecutor(
             ISqlGenerator sqlGenerator,
             IDbCommandExecutor dbCommandExecutor,
-            IEntityMapper entityMapper,
-            IConventionReader conventionReader)
+            IEntityMapper entityMapper)
         {
             _sqlGenerator = sqlGenerator;
             _dbCommandExecutor = dbCommandExecutor;
             _entityMapper = entityMapper;
-            _conventionReader = conventionReader;
         }
 
         public string ConnectionString { get; set; }
 
-        public IList<T> Find<T>(ObjectQuery query, SqlQuery sqlQuery) where T : new()
+        public IList<T> Find<T>(SqlQuery sqlQuery) where T : new()
         {
-            _sqlQuery = sqlQuery;
+            var command = CreateCommand(sqlQuery);
 
-            var command = CreateCommand(query);
-
-            return ReadEntities<T>(command);
+            return ReadEntities<T>(command, sqlQuery);
         }
 
-        public TScalar FindScalar<T, TScalar>(ObjectQuery query, SqlQuery sqlQuery)
+        public TScalar FindScalar<T, TScalar>(SqlQuery sqlQuery)
         {
-            _sqlQuery = sqlQuery;
-            var command = CreateCommand(query);
+            var command = CreateCommand(sqlQuery);
 
             return _dbCommandExecutor.ExecuteScalar<TScalar>(command, ConnectionString);
         }
 
-        public IList<TScalar> FindScalarList<T, TScalar>(ObjectQuery query, SqlQuery sqlQuery)
+        public IList<TScalar> FindScalarList<T, TScalar>(SqlQuery sqlQuery)
         {
-            _sqlQuery = sqlQuery;
-            var command = CreateCommand(query);
+            var command = CreateCommand(sqlQuery);
 
             return _dbCommandExecutor.ExecuteScalarList<TScalar>(command, ConnectionString);
         }
 
-        private DbCommand CreateCommand(ObjectQuery query)
+        private DbCommand CreateCommand(SqlQuery sqlQuery)
         {
-            var sqlQuery = CreateSqlQuery(query);
-
             return _sqlGenerator.GenerateSelectQuery(sqlQuery);
         }
 
-        private SqlQuery CreateSqlQuery(ObjectQuery query)
-        {
-            var sqlQuery = _sqlQuery ?? new SqlQuery(_conventionReader);
-
-            foreach (var objectSubQuery in query.SubQueries)
-            {
-                AddSqlQuerySpecification(objectSubQuery, sqlQuery);
-            }
-
-            return sqlQuery;
-        }
-
-        private void AddSqlQuerySpecification(AliasedObjectSubQuery subQuery, SqlQuery sqlQuery)
-        {
-            var tableName = _conventionReader.GetTableName(subQuery.ResultType);
-
-            var spec = sqlQuery.GetOrCreateSubQuery(subQuery.Alias, subQuery.ResultType);
-
-            spec.TableName = tableName;
-            spec.PrimaryKeyColumnName = _conventionReader.TryGetPrimaryKeyColumnName(subQuery.ResultType);
-            spec.Alias = subQuery.Alias;
-        }
-
-        private IList<T> ReadEntities<T>(DbCommand command) where T : new()
+        private IList<T> ReadEntities<T>(DbCommand command, SqlQuery sqlQuery) where T : new()
         {
             var resultSet = _dbCommandExecutor.ExecuteQuery(command, ConnectionString);
 
-            if (_sqlQuery.ObjectRelations.Any())
+            if (sqlQuery.ObjectRelations.Any())
             {
-                return _entityMapper.CreateInstanceGraphs<T>(resultSet, _sqlQuery.ObjectRelations);
+                return _entityMapper.CreateInstanceGraphs<T>(resultSet, sqlQuery.ObjectRelations);
             }
 
             return _entityMapper.CreateInstanceGraphs<T>(resultSet);

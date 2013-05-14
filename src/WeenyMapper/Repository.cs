@@ -196,7 +196,7 @@ namespace WeenyMapper
 
         protected virtual IObjectQueryExecutor CreateObjectQueryExecutor<T>() where T : new()
         {
-            return new ObjectQueryExecutor(CreateSqlGenerator(), CreateSqlCommandExecutor(), CreateEntityMapper(), CreateConventionReader())
+            return new ObjectQueryExecutor(CreateSqlGenerator(), CreateSqlCommandExecutor(), CreateEntityMapper())
                 {
                     ConnectionString = ConnectionString
                 };

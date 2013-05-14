@@ -15,19 +15,19 @@ namespace WeenyMapper.QueryExecution.InMemory
 
         public string ConnectionString { get; set; }
 
-        public IList<T> Find<T>(ObjectQuery query, SqlQuery sqlQuery) where T : new()
+        public IList<T> Find<T>(SqlQuery sqlQuery) where T : new()
         {
-            return _inMemoryDatabase.Find<T>(query, sqlQuery);
+            return _inMemoryDatabase.Find<T>(sqlQuery);
         }
 
-        public TScalar FindScalar<T, TScalar>(ObjectQuery query, SqlQuery sqlQuery)
+        public TScalar FindScalar<T, TScalar>(SqlQuery sqlQuery)
         {
-            return FindScalarList<T, TScalar>(query, sqlQuery).FirstOrDefault();
+            return FindScalarList<T, TScalar>(sqlQuery).FirstOrDefault();
         }
 
-        public IList<TScalar> FindScalarList<T, TScalar>(ObjectQuery query, SqlQuery sqlQuery)
+        public IList<TScalar> FindScalarList<T, TScalar>(SqlQuery sqlQuery)
         {
-            return _inMemoryDatabase.FindScalarList<T, TScalar>(query, sqlQuery);
+            return _inMemoryDatabase.FindScalarList<T, TScalar>(sqlQuery);
         }
     }
 }

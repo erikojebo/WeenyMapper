@@ -1,26 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using WeenyMapper.Conventions;
-using WeenyMapper.Extensions;
 using WeenyMapper.Mapping;
 using WeenyMapper.QueryParsing;
-using WeenyMapper.Reflection;
 using WeenyMapper.Sql;
 
 namespace WeenyMapper.QueryExecution.InMemory
 {
     internal class InMemoryRowSorter : IComparer<Row>
     {
-        private readonly ObjectQuery _query;
         private readonly SqlQuery _sqlQuery;
-        private readonly IConventionReader _conventionReader;
 
-        public InMemoryRowSorter(ObjectQuery query, SqlQuery sqlQuery, IConventionReader conventionReader)
+        public InMemoryRowSorter(SqlQuery sqlQuery)
         {
-            _query = query;
             _sqlQuery = sqlQuery;
-            _conventionReader = conventionReader;
         }
 
         public int Compare(Row left, Row right)
