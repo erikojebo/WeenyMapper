@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using WeenyMapper.QueryParsing;
 using WeenyMapper.Reflection;
 
 namespace WeenyMapper.Sql

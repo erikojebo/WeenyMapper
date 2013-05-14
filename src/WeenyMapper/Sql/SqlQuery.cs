@@ -184,5 +184,28 @@ namespace WeenyMapper.Sql
         {
             _orderByStatements.Add(orderByStatement);
         }
+
+        public void AddJoin(ObjectSubQueryJoin joinSpecification, string childAlias, string parentAlias)
+        {
+            EnsureSubQuery(childAlias, joinSpecification.ChildType);
+            EnsureSubQuery(parentAlias, joinSpecification.ParentType);
+
+            string manyToOneForeignKeyColumnName;
+
+            if (joinSpecification.HasChildProperty)
+                manyToOneForeignKeyColumnName = _conventionReader.GetManyToOneForeignKeyColumnName(joinSpecification.ChildProperty);
+            else
+                manyToOneForeignKeyColumnName = _conventionReader.GetColumnName(joinSpecification.ChildToParentForeignKeyProperty);
+
+            var joinSpec = new SqlSubQueryJoin
+            {
+                ChildTableName = _conventionReader.GetTableName(joinSpecification.ChildType),
+                ParentTableName = _conventionReader.GetTableName(joinSpecification.ParentType),
+                ChildForeignKeyColumnName = manyToOneForeignKeyColumnName,
+                ParentPrimaryKeyColumnName = _conventionReader.GetPrimaryKeyColumnName(joinSpecification.ParentType),
+            };
+
+            AddJoin(joinSpec, childAlias, parentAlias);
+        }
     }
 }

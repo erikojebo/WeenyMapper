@@ -76,13 +76,11 @@ namespace WeenyMapper.QueryExecution.InMemory
         {
             EnsureTable<T>();
 
-            var subQuery = query.GetSubQuery<T>();
-
             var matchingRows = Table<T>().Rows;
 
             if (query.IsJoinQuery)
             {
-                matchingRows = FindWithJoin(query, matchingRows);
+                matchingRows = FindWithJoin(sqlQuery, matchingRows);
                 matchingRows = Filter(query, matchingRows);
                 matchingRows = Order(query, sqlQuery, matchingRows);
                 matchingRows = StripUnselectedColumns(query, sqlQuery, matchingRows);
@@ -99,27 +97,24 @@ namespace WeenyMapper.QueryExecution.InMemory
             return new ResultSet(matchingRows);
         }
 
-        private string GetTableIdentifier(AliasedObjectSubQuery subQuery)
+        private IList<Row> FindWithJoin(SqlQuery sqlQuery, IList<Row> matchingRows)
         {
-            return subQuery.Alias ?? ConventionReader.GetTableName(subQuery.ResultType);
-        }
+            var firstTableIdentifier = sqlQuery.SubQueries.First().TableIdentifier;
 
-        private IList<Row> FindWithJoin(ObjectQuery query, IList<Row> matchingRows)
-        {
-            var availableTables = new List<string> { GetTableIdentifier(query.SubQueries.First()) };
-            var addedJoins = new HashSet<ObjectSubQueryJoin>();
+            var availableTables = new List<string> { firstTableIdentifier };
+            var addedJoins = new HashSet<SqlSubQueryJoin>();
 
             var matches = new ResultSet(matchingRows);
-            matches = PrefixRows(matches, GetTableIdentifier(query.SubQueries.First()));
+            matches = PrefixRows(matches, firstTableIdentifier);
 
-            while (addedJoins.Count < query.Joins.Count)
+            while (addedJoins.Count < sqlQuery.Joins.Count)
             {
-                foreach (var remainingJoin in query.Joins.Except(addedJoins).ToList())
+                foreach (var remainingJoin in sqlQuery.Joins.Except(addedJoins).ToList())
                 {
-                    AliasedObjectSubQuery newSubQuery = null;
+                    AliasedSqlSubQuery newSubQuery = null;
 
-                    var childIdentifier = GetTableIdentifier(remainingJoin.ChildSubQuery);
-                    var parentIdentifier = GetTableIdentifier(remainingJoin.ParentSubQuery);
+                    var childIdentifier = remainingJoin.ChildSubQuery.TableIdentifier;
+                    var parentIdentifier = remainingJoin.ParentSubQuery.TableIdentifier;
 
                     if (availableTables.Contains(childIdentifier))
                         newSubQuery = remainingJoin.ParentSubQuery;
@@ -129,19 +124,11 @@ namespace WeenyMapper.QueryExecution.InMemory
                     if (newSubQuery == null)
                         continue;
 
-                    var table = Table(newSubQuery.ResultType);
+                    var table = Table(newSubQuery.TableName);
 
-                    table = PrefixRows(table, GetTableIdentifier(newSubQuery));
+                    table = PrefixRows(table, newSubQuery.TableIdentifier);
 
-
-                    string manyToOneForeignKeyColumnName;
-
-                    if (remainingJoin.HasChildProperty)
-                        manyToOneForeignKeyColumnName = ConventionReader.GetManyToOneForeignKeyColumnName(remainingJoin.ChildProperty);
-                    else
-                        manyToOneForeignKeyColumnName = ConventionReader.GetColumnName(remainingJoin.ChildToParentForeignKeyProperty);
-
-                    matches = matches.Join(table, parentIdentifier, ConventionReader.GetPrimaryKeyColumnName(remainingJoin.ParentType), childIdentifier, manyToOneForeignKeyColumnName);
+                    matches = matches.Join(table, parentIdentifier, remainingJoin.ParentPrimaryKeyColumnName, childIdentifier, remainingJoin.ChildForeignKeyColumnName);
 
                     AddColumnsNotAddedByJoin(matches, remainingJoin.ParentSubQuery);
                     AddColumnsNotAddedByJoin(matches, remainingJoin.ChildSubQuery);
@@ -156,10 +143,10 @@ namespace WeenyMapper.QueryExecution.InMemory
             return matches.Rows;
         }
 
-        private void AddColumnsNotAddedByJoin(ResultSet matches, AliasedObjectSubQuery subQuery)
+        private void AddColumnsNotAddedByJoin(ResultSet matches, AliasedSqlSubQuery subQuery)
         {
-            var allColumns = ConventionReader.GetSelectableMappedPropertyNames(subQuery.ResultType)
-                                             .Select(x => new ColumnValue(GetTableIdentifier(subQuery), x, null))
+            var allColumns = subQuery.AllSelectableColumnNames
+                                             .Select(x => new ColumnValue(subQuery.TableIdentifier, x, null))
                                              .ToList();
 
             foreach (var row in matches.Rows)
@@ -336,6 +323,11 @@ namespace WeenyMapper.QueryExecution.InMemory
         {
             var tableName = ConventionReader.GetTableName(type);
 
+            return _tables[tableName];
+        }
+        
+        private ResultSet Table(string tableName)
+        {
             return _tables[tableName];
         }
 
