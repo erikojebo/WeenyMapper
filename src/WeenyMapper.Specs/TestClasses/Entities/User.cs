@@ -15,6 +15,7 @@ namespace WeenyMapper.Specs.TestClasses.Entities
         {
             Username = username;
             Password = password;
+            Id = Guid.NewGuid();
         }
 
         public Guid Id { get; set; }

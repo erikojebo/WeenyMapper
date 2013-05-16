@@ -3284,6 +3284,47 @@ namespace WeenyMapper.Specs
             Assert.AreEqual("track 2", actualArtist.Albums[0].Tracks[1].Title);
         }
 
+        [Test]
+        public void One_way_child_to_parent_relationship_of_a_joined_table_can_be_loaded_with_another_join()
+        {
+            Repository.Convention = new BlogConvention();
+
+            var user1 = new User("kalle", "password");
+            var user2 = new User("pelle", "password");
+            var blog = new Blog("blog 1");
+
+            Repository.Insert(blog);
+            Repository.Insert(user1, user2);
+
+            var post1 = new BlogPost("title 1", "content 1") { Blog = blog };
+            var post2 = new BlogPost("title 2", "content 2") { Blog = blog };
+
+            Repository.Insert(post1, post2);
+
+            var comment1 = new Comment("comment 1") { User = user1, BlogPost = post1 };
+            var comment2 = new Comment("comment 2") { User = user2, BlogPost = post1 };
+            var comment3 = new Comment("comment 3") { User = user1, BlogPost = post2 };
+
+            Repository.Insert(comment1, comment2, comment3);
+
+            var actualPost = Repository.Find<BlogPost>()
+                                  .Where(x => x.Id == post1.Id)
+                                  .OrderBy<Comment>(x => x.Content)
+                                  .Join(x => x.Comments, x => x.BlogPost)
+                                  .Join<User, Comment>(x => x.User)
+                                  .Execute();
+
+            Assert.AreEqual("title 1", actualPost.Title);
+            Assert.AreEqual("comment 1", actualPost.Comments[0].Content);
+            Assert.AreEqual("comment 2", actualPost.Comments[1].Content);
+
+            Assert.AreEqual(2, actualPost.Comments.Count);
+            Assert.IsNotNull(actualPost.Comments[0].User);
+            Assert.IsNotNull(actualPost.Comments[1].User);
+            Assert.AreEqual("kalle", actualPost.Comments[0].User.Username);
+            Assert.AreEqual("pelle", actualPost.Comments[1].User.Username);
+        }
+
         private void AssertEqualsManagerAndSubordinates(Employee employee, Employee actualEmployee)
         {
             Assert.AreEqual(employee.Id, actualEmployee.Id);

@@ -260,6 +260,11 @@ namespace WeenyMapper.QueryBuilding
 
         public StaticSelectBuilder<T> Join<TParent>(Expression<Func<T, TParent>> childProperty, string childAlias = null, string parentAlias = null)
         {
+            return Join<TParent, T>(childProperty, childAlias, parentAlias);
+        }
+        
+        public StaticSelectBuilder<T> Join<TParent, TChild>(Expression<Func<TChild, TParent>> childProperty, string childAlias = null, string parentAlias = null)
+        {
             var childPropertyInfo = Reflector<T>.GetProperty(childProperty);
 
             var joinSpecification = ObjectSubQueryJoin.CreateChildToParent(childPropertyInfo, typeof(TParent));
@@ -267,6 +272,20 @@ namespace WeenyMapper.QueryBuilding
             Join(joinSpecification, childAlias, parentAlias);
 
             return this;
+        }
+
+        public StaticSelectBuilder<T> Join<TParent>(
+            Expression<Func<TParent, IList<T>>> parentProperty,
+            Expression<Func<T, TParent>> childProperty, string childAlias = null, string parentAlias = null)
+        {
+            return Join<TParent, T>(parentProperty, childProperty, childAlias, parentAlias);
+        }
+        
+        public StaticSelectBuilder<T> Join<TChild>(
+            Expression<Func<T, IList<TChild>>> parentProperty,
+            Expression<Func<TChild, T>> childProperty, string childAlias = null, string parentAlias = null)
+        {
+            return Join<T, TChild>(parentProperty, childProperty, childAlias, parentAlias);
         }
 
         public StaticSelectBuilder<T> Join<TParent, TChild>(
