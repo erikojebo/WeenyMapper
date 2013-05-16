@@ -3325,6 +3325,49 @@ namespace WeenyMapper.Specs
             Assert.AreEqual("pelle", actualPost.Comments[1].User.Username);
         }
 
+        [Test]
+        public void Properties_which_already_have_values_are_not_set_to_null_if_another_query_is_run_with_caching_enabled_where_those_properties_are_not_loaded()
+        {
+            Repository.Convention = new BlogConvention();
+            Repository.IsEntityCachingEnabled = true;
+
+            var user1 = new User("kalle", "password");
+            var user2 = new User("pelle", "password");
+            var blog1 = new Blog("blog 1");
+            var blog2 = new Blog("blog 2");
+
+            Repository.Insert(blog1, blog2);
+            Repository.Insert(user1, user2);
+
+            var post1 = new BlogPost("title 1", "content 1") { Blog = blog1, Author = user1 };
+            var post2 = new BlogPost("title 2", "content 2") { Blog = blog2, Author = user2 };
+
+            Repository.Insert(post1, post2);
+
+            var actualPosts = Repository.Find<BlogPost>()
+                                        .OrderBy<BlogPost>(x => x.Title)
+                                        .Join(x => x.Blog)
+                                        .ExecuteList();
+
+            Repository.Find<BlogPost>()
+                      .Select(x => x.Id)
+                      .Select<User>(x => x.Id, x => x.Username)
+                      .Join(x => x.Author)
+                      .ExecuteList();
+
+            Assert.AreEqual(2, actualPosts.Count);
+            Assert.AreEqual("title 1", actualPosts[0].Title);
+            Assert.AreEqual("title 2", actualPosts[1].Title);
+            Assert.IsNotNull(actualPosts[0].Blog);
+            Assert.IsNotNull(actualPosts[1].Blog);
+            Assert.IsNotNull(actualPosts[0].Author);
+            Assert.IsNotNull(actualPosts[1].Author);
+            Assert.AreEqual("kalle", actualPosts[0].Author.Username);
+            Assert.AreEqual("pelle", actualPosts[1].Author.Username);
+            Assert.AreEqual("blog 1", actualPosts[0].Blog.Name);
+            Assert.AreEqual("blog 2", actualPosts[1].Blog.Name);
+        }
+
         private void AssertEqualsManagerAndSubordinates(Employee employee, Employee actualEmployee)
         {
             Assert.AreEqual(employee.Id, actualEmployee.Id);
