@@ -1879,21 +1879,17 @@ namespace WeenyMapper.Specs
             actualBlogPosts[1].Comments.ToList().ForEach(x => Assert.AreSame(actualBlogPosts[1], x.BlogPost));
         }
 
-        [Ignore("Not implemented yet")]
         [Test]
         public virtual void Object_can_join_two_child_collections_using_only_parent_to_child_relation()
         {
-            var company1 = new Company
-                {
-                    Name = "Company 1"
-                };
+            var company1 = new Company { Name = "Company 1" };
+            var company2 = new Company { Name = "Company 2" };
 
             var employee1 = new Employee
                 {
                     FirstName = "Steve",
                     LastName = "Smith",
                     BirthDate = new DateTime(1972, 1, 2),
-                    Company = company1
                 };
 
             var employee2 = new Employee
@@ -1901,7 +1897,6 @@ namespace WeenyMapper.Specs
                     FirstName = "Lisa",
                     LastName = "Johnsson",
                     BirthDate = new DateTime(1954, 11, 12),
-                    Company = company1
                 };
 
             var employee3 = new Employee
@@ -1909,51 +1904,31 @@ namespace WeenyMapper.Specs
                     FirstName = "Nisse",
                     LastName = "Karlsson",
                     BirthDate = new DateTime(1972, 1, 3),
-                    Company = company1
                 };
 
-            var employee4 = new Employee
-                {
-                    FirstName = "Kalle",
-                    LastName = "Svensson",
-                    BirthDate = new DateTime(1954, 11, 13),
-                    Company = company1
-                };
+            var department1 = new Department("department 1");
+            var department2 = new Department("department 2");
+            var department3 = new Department("department 3");
 
-            var employee5 = new Employee
-                {
-                    FirstName = "Pelle",
-                    LastName = "Persson",
-                    BirthDate = new DateTime(1954, 11, 14),
-                    Company = company1
-                };
+            Repository.Insert(company1, company2);
 
-            var employee6 = new Employee
-                {
-                    FirstName = "Sture",
-                    LastName = "Karlsson",
-                    BirthDate = new DateTime(1954, 11, 14),
-                    Company = company1
-                };
+            company1.AddEmployee(employee1);
+            company1.AddEmployee(employee2);
+            company1.AddEmployee(employee3);
+            company1.AddDepartment(department1);
+            company1.AddDepartment(department2);
+            company1.AddDepartment(department3);
 
-            employee1.AddMentee(employee2);
-            employee1.AddMentee(employee3);
+            Repository.Insert(employee1, employee2, employee3);
+            Repository.Insert(department1, department2, department3);
 
-            employee1.AddSubordinate(employee4);
-            employee1.AddSubordinate(employee5);
+            var actualCompany1 = Repository.Find<Company>()
+                                            .Where(x => x.Id == company1.Id)
+                                            .Join(x => x.Employees, x => x.CompanyId)
+                                            .Join(x => x.Departments, x => x.CompanyId)
+                                            .ExecuteList();
 
-            Repository.Insert(company1);
-            Repository.Insert(employee1); // Insert employee1 first since all the others reference that one
-            Repository.Insert(employee2, employee3, employee4, employee5, employee6);
-
-            var actualEmployee1 = Repository.Find<Employee>()
-                                            .Join(x => x.Subordinates, x => x.ManagerId)
-                                            .Join(x => x.Mentees, x => x.MentorId)
-                                            .Execute();
-
-            Assert.AreEqual(employee1, actualEmployee1);
-            CollectionAssert.AreEquivalent(employee1.Subordinates, actualEmployee1.Subordinates);
-            CollectionAssert.AreEquivalent(employee1.Mentees, actualEmployee1.Mentees);
+            Assert.AreEqual(actualCompany1, actualCompany1);
         }
 
         [Test]

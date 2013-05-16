@@ -118,6 +118,16 @@ GO
 ALTER TABLE [Employee] ADD CONSTRAINT FK_Employee_Mentor FOREIGN KEY (MentorId) REFERENCES [Employee] ([Id])
 GO
 
+CREATE TABLE [Department](
+	[Id] [int] NOT NULL PRIMARY KEY IDENTITY,
+	[Name] [nvarchar](255) NULL,
+	[CompanyId] [int] NOT NULL
+)
+GO
+
+ALTER TABLE [Employee] ADD CONSTRAINT FK_Department_Company FOREIGN KEY (CompanyId) REFERENCES [Company] ([Id])
+GO
+
 CREATE TABLE [Event](
 	[AggregateId] [uniqueidentifier] NOT NULL,
 	[Data] [nvarchar](1024) NOT NULL,

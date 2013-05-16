@@ -51,7 +51,7 @@ namespace WeenyMapper.Specs.TestClasses.Entities
                    CompanyId == other.CompanyId &&
                    Company.NullSafeIdEquals(other.Company, x => x.Id) &&
                    Manager.NullSafeIdEquals(other.Manager, x => x.Id) &&
-                   Mentor.NullSafeIdEquals(other.Manager, x => x.Id) &&
+                   Mentor.NullSafeIdEquals(other.Mentor, x => x.Id) &&
                    Subordinates.Select(x => x.Id).ElementEquals(other.Subordinates.Select(x => x.Id)) &&
                    Mentees.Select(x => x.Id).ElementEquals(other.Mentees.Select(x => x.Id));
         }
@@ -66,7 +66,7 @@ namespace WeenyMapper.Specs.TestClasses.Entities
         public void AddMentee(Employee mentee)
         {
             Mentees.Add(mentee);
-            mentee.Manager = this;
+            mentee.Mentor = this;
             mentee.RefreshReferencedIds();
         }
 

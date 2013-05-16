@@ -8,13 +8,15 @@ namespace WeenyMapper.Specs.TestClasses.Entities
         public Company()
         {
             Employees = new List<Employee>();
+            Departments = new List<Department>();
         }
 
         public int Id { get; set; }
         public string Name { get; set; }
 
         public IList<Employee> Employees { get; set; }
-
+        public IList<Department> Departments { get; set; }
+ 
         public override int GetHashCode()
         {
             return Id.GetHashCode();
@@ -31,7 +33,8 @@ namespace WeenyMapper.Specs.TestClasses.Entities
 
             return Id == other.Id &&
                    Name == other.Name &&
-                   Employees.ElementEquals(other.Employees);
+                   Employees.ElementEquals(other.Employees) &&
+                   Departments.ElementEquals(other.Departments);
         }
 
         public override string ToString()
@@ -45,6 +48,12 @@ namespace WeenyMapper.Specs.TestClasses.Entities
             employee.Company = this;
 
             employee.RefreshReferencedIds();
+        }
+
+        public void AddDepartment(Department department)
+        {
+            Departments.Add(department);
+            department.CompanyId = Id;
         }
 
         public void RemoveEmployee(Employee employee)
