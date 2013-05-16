@@ -11,8 +11,14 @@ namespace WeenyMapper.Specs.TestClasses.Entities
             Tracks = new List<Track>();
         }
 
+        public Album(string title) : this()
+        {
+            Title = title;
+        }
+
         public int Id { get; set; }
         public string Title { get; set; }
+        public int? ArtistId { get; set; }
 
         public IList<Track> Tracks { get; set; }
 

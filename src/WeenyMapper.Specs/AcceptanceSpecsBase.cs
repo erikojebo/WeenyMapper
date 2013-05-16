@@ -54,6 +54,7 @@ namespace WeenyMapper.Specs
             Repository.Delete<AlbumReview>().Execute();
             Repository.Delete<Track>().Execute();
             Repository.Delete<Album>().Execute();
+            Repository.Delete<Artist>().Execute();
         }
     }
 }

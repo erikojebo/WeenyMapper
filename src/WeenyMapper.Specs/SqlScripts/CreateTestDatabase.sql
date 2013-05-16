@@ -56,10 +56,21 @@ GO
 ALTER TABLE [Comment] ADD CONSTRAINT FK_Comment_User FOREIGN KEY (UserId) REFERENCES [User] ([Id])
 GO
 
+CREATE TABLE [Artist](
+	[Id] [int] NOT NULL PRIMARY KEY IDENTITY,
+	[Name] [nvarchar](255) NOT NULL,
+	[Age] [int] NOT NULL
+)
+GO
+
 CREATE TABLE [Album](
 	[Id] [int] NOT NULL PRIMARY KEY IDENTITY,
-	[Title] [nvarchar](255) NOT NULL
+	[Title] [nvarchar](255) NOT NULL,
+	[ArtistId] [int] NULL
 )
+GO
+
+ALTER TABLE [Album] ADD CONSTRAINT FK_Album_Artist FOREIGN KEY (ArtistId) REFERENCES [Artist] ([Id])
 GO
 
 CREATE TABLE [Track](

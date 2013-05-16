@@ -11,6 +11,13 @@ namespace WeenyMapper.Specs.TestClasses.Entities
             Comments = new List<Comment>();
         }
 
+        public BlogPost(string title, string content) : this()
+        {
+            Title = title;
+            Content = content;
+            PublishDate = DateTime.Now;
+        }
+
         public int Id { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }

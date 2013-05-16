@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using WeenyMapper.Async;
 using WeenyMapper.QueryExecution;
 using WeenyMapper.QueryParsing;
@@ -179,10 +180,76 @@ namespace WeenyMapper.QueryBuilding
             return this;
         }
 
-        public StaticSelectBuilder<T> Join<TChild>(Expression<Func<T, IList<TChild>>> parentProperty, Expression<Func<TChild, object>> foreignKeyProperty, string childAlias = null, string parentAlias = null)
+        public StaticSelectBuilder<T> Join<TChild>(Expression<Func<T, IList<TChild>>> parentProperty, Expression<Func<TChild, int>> foreignKeyProperty, string childAlias = null, string parentAlias = null)
+        {
+            return Join<T, TChild>(parentProperty, foreignKeyProperty, childAlias, parentAlias);
+        }
+
+        public StaticSelectBuilder<T> Join<TChild>(Expression<Func<T, IList<TChild>>> parentProperty, Expression<Func<TChild, Guid>> foreignKeyProperty, string childAlias = null, string parentAlias = null)
+        {
+            return Join<T, TChild>(parentProperty, foreignKeyProperty, childAlias, parentAlias);
+        }
+
+        public StaticSelectBuilder<T> Join<TChild>(Expression<Func<T, IList<TChild>>> parentProperty, Expression<Func<TChild, string>> foreignKeyProperty, string childAlias = null, string parentAlias = null)
+        {
+            return Join<T, TChild>(parentProperty, foreignKeyProperty, childAlias, parentAlias);
+        }
+
+        public StaticSelectBuilder<T> Join<TParent, TChild>(Expression<Func<TParent, IList<TChild>>> parentProperty, Expression<Func<TChild, int>> foreignKeyProperty, string childAlias = null, string parentAlias = null)
+        {
+            var foreignKeyPropertyInfo = Reflector<TChild>.GetProperty(foreignKeyProperty);            
+            return JoinWithForeignKeyProperty(parentProperty, foreignKeyPropertyInfo, childAlias, parentAlias);
+        }
+
+        public StaticSelectBuilder<T> Join<TParent, TChild>(Expression<Func<TParent, IList<TChild>>> parentProperty, Expression<Func<TChild, Guid>> foreignKeyProperty, string childAlias = null, string parentAlias = null)
+        {
+            var foreignKeyPropertyInfo = Reflector<TChild>.GetProperty(foreignKeyProperty);            
+            return JoinWithForeignKeyProperty(parentProperty, foreignKeyPropertyInfo, childAlias, parentAlias);
+        }
+
+        public StaticSelectBuilder<T> Join<TParent, TChild>(Expression<Func<TParent, IList<TChild>>> parentProperty, Expression<Func<TChild, string>> foreignKeyProperty, string childAlias = null, string parentAlias = null)
+        {
+            var foreignKeyPropertyInfo = Reflector<TChild>.GetProperty(foreignKeyProperty);            
+            return JoinWithForeignKeyProperty(parentProperty, foreignKeyPropertyInfo, childAlias, parentAlias);
+        }
+
+        public StaticSelectBuilder<T> Join<TChild>(Expression<Func<T, IList<TChild>>> parentProperty, Expression<Func<TChild, long>> foreignKeyProperty, string childAlias = null, string parentAlias = null)
+        {
+            var foreignKeyPropertyInfo = Reflector<TChild>.GetProperty(foreignKeyProperty);            
+            return JoinWithForeignKeyProperty(parentProperty, foreignKeyPropertyInfo, childAlias, parentAlias);
+        }
+        
+        public StaticSelectBuilder<T> Join<TChild>(Expression<Func<T, IList<TChild>>> parentProperty, Expression<Func<TChild, int?>> foreignKeyProperty, string childAlias = null, string parentAlias = null)
+        {
+            return Join<T, TChild>(parentProperty, foreignKeyProperty, childAlias, parentAlias);
+        }
+
+        public StaticSelectBuilder<T> Join<TChild>(Expression<Func<T, IList<TChild>>> parentProperty, Expression<Func<TChild, Guid?>> foreignKeyProperty, string childAlias = null, string parentAlias = null)
+        {
+            return Join<T, TChild>(parentProperty, foreignKeyProperty, childAlias, parentAlias);
+        }
+
+        public StaticSelectBuilder<T> Join<TParent, TChild>(Expression<Func<TParent, IList<TChild>>> parentProperty, Expression<Func<TChild, int?>> foreignKeyProperty, string childAlias = null, string parentAlias = null)
+        {
+            var foreignKeyPropertyInfo = Reflector<TChild>.GetProperty(foreignKeyProperty);            
+            return JoinWithForeignKeyProperty(parentProperty, foreignKeyPropertyInfo, childAlias, parentAlias);
+        }
+
+        public StaticSelectBuilder<T> Join<TParent, TChild>(Expression<Func<TParent, IList<TChild>>> parentProperty, Expression<Func<TChild, Guid?>> foreignKeyProperty, string childAlias = null, string parentAlias = null)
+        {
+            var foreignKeyPropertyInfo = Reflector<TChild>.GetProperty(foreignKeyProperty);            
+            return JoinWithForeignKeyProperty(parentProperty, foreignKeyPropertyInfo, childAlias, parentAlias);
+        }
+
+        public StaticSelectBuilder<T> Join<TChild>(Expression<Func<T, IList<TChild>>> parentProperty, Expression<Func<TChild, long?>> foreignKeyProperty, string childAlias = null, string parentAlias = null)
+        {
+            var foreignKeyPropertyInfo = Reflector<TChild>.GetProperty(foreignKeyProperty);            
+            return JoinWithForeignKeyProperty(parentProperty, foreignKeyPropertyInfo, childAlias, parentAlias);
+        }
+
+        private StaticSelectBuilder<T> JoinWithForeignKeyProperty<TParent, TChild>(Expression<Func<TParent, IList<TChild>>> parentProperty, PropertyInfo foreignKeyPropertyInfo, string childAlias = null, string parentAlias = null)
         {
             var parentPropertyInfo = Reflector<T>.GetProperty(parentProperty);
-            var foreignKeyPropertyInfo = Reflector<TChild>.GetProperty(foreignKeyProperty);
 
             var joinSpecification = ObjectSubQueryJoin.CreateParentToChild(parentPropertyInfo, foreignKeyPropertyInfo);
 

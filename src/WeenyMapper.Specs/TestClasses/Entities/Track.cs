@@ -2,6 +2,16 @@
 {
     public class Track
     {
+        public Track()
+        {
+            
+        }
+
+        public Track(string title) : this()
+        {
+            Title = title;
+        }
+
         public int Id { get; set; }
         public string Title { get; set; }
         public int AlbumId { get; set; }

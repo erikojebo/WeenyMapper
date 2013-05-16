@@ -10,6 +10,11 @@ namespace WeenyMapper.Specs.TestClasses.Entities
             Posts = new List<BlogPost>();
         }
 
+        public Blog(string name) : this()
+        {
+            Name = name;
+        }
+
         public int Id { get; set; }
         public string Name { get; set; }
         public IList<BlogPost> Posts { get; set; }

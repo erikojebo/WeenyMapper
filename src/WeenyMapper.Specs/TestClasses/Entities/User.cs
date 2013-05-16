@@ -11,6 +11,12 @@ namespace WeenyMapper.Specs.TestClasses.Entities
             BlogPosts = new List<BlogPost>();
         }
 
+        public User(string username, string password) : this()
+        {
+            Username = username;
+            Password = password;
+        }
+
         public Guid Id { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }

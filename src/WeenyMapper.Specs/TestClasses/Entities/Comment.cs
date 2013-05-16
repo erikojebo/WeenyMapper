@@ -5,6 +5,16 @@ namespace WeenyMapper.Specs.TestClasses.Entities
 {
     public class Comment
     {
+        public Comment()
+        {
+            PublishDate = DateTime.Now;
+        }
+
+        public Comment(string content) : this()
+        {
+            Content = content;
+        }
+
         public int Id { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }

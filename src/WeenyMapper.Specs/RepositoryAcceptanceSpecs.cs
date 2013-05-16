@@ -3242,6 +3242,48 @@ namespace WeenyMapper.Specs
             CollectionAssert.AreEquivalent(new[] { expectedBlog1, expectedBlog2 }, actualBlogs);
         }
 
+        [Test]
+        public void One_way_parent_to_child_relation_of_a_joined_table_can_be_loaded_with_another_join()
+        {
+            var artist1 = new Artist("artist 1");
+            var artist2 = new Artist("artist 2");
+
+            var album1 = new Album("album 1");
+            var album2 = new Album("album 2");
+
+            var track1 = new Track("track 1");
+            var track2 = new Track("track 2");
+            var track3 = new Track("track 3");
+
+            Repository.Insert(artist1, artist2);
+
+            album1.ArtistId = artist1.Id;
+            album2.ArtistId = artist2.Id;
+
+            Repository.Insert(album1, album2);
+
+            track1.AlbumId = album1.Id;
+            track2.AlbumId = album1.Id;
+            track3.AlbumId = album2.Id;
+
+            Repository.Insert(track1, track2, track3);
+
+            var actualArtist = Repository.Find<Artist>()
+                                   .Where(x => x.Id == artist1.Id)
+                                   .Join<Artist, Album>(x => x.Albums, x => x.ArtistId)
+                                   .Join<Album, Track>(x => x.Tracks, x => x.AlbumId)
+                                   .OrderBy<Album>(x => x.Title)
+                                   .OrderBy<Track>(x => x.Title)
+                                   .Execute();
+
+            Assert.AreEqual("artist 1", actualArtist.Name);
+            Assert.AreEqual(1, actualArtist.Albums.Count);
+            Assert.AreEqual("album 1", actualArtist.Albums[0].Title);
+            Assert.AreEqual(2, actualArtist.Albums[0].Tracks.Count);
+            Assert.AreEqual("track 1", actualArtist.Albums[0].Tracks[0].Title);
+            Assert.AreEqual("track 2", actualArtist.Albums[0].Tracks[1].Title);
+        }
+
         private void AssertEqualsManagerAndSubordinates(Employee employee, Employee actualEmployee)
         {
             Assert.AreEqual(employee.Id, actualEmployee.Id);
