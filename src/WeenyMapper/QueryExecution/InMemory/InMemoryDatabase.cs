@@ -105,37 +105,21 @@ namespace WeenyMapper.QueryExecution.InMemory
             var matches = new ResultSet(matchingRows);
             matches = PrefixRows(matches, firstTableIdentifier);
 
-            while (addedJoins.Count < sqlQuery.Joins.Count)
+            foreach (var joinPart in sqlQuery.OrderedJoins)
             {
-                foreach (var remainingJoin in sqlQuery.Joins.Except(addedJoins).ToList())
-                {
-                    AliasedSqlSubQuery newSubQuery = null;
+                var table = Table(joinPart.NewSubQuery.TableName);
 
-                    var childIdentifier = remainingJoin.ChildSubQuery.TableIdentifier;
-                    var parentIdentifier = remainingJoin.ParentSubQuery.TableIdentifier;
+                table = PrefixRows(table, joinPart.NewSubQuery.TableIdentifier);
 
-                    if (availableTables.Contains(childIdentifier))
-                        newSubQuery = remainingJoin.ParentSubQuery;
-                    else if (availableTables.Contains(parentIdentifier))
-                        newSubQuery = remainingJoin.ChildSubQuery;
+                matches = matches.Join(
+                    table, 
+                    joinPart.Join.ParentSubQuery.TableIdentifier, 
+                    joinPart.Join.ParentPrimaryKeyColumnName, 
+                    joinPart.Join.ChildSubQuery.TableIdentifier, 
+                    joinPart.Join.ChildForeignKeyColumnName);
 
-                    if (newSubQuery == null)
-                        continue;
-
-                    var table = Table(newSubQuery.TableName);
-
-                    table = PrefixRows(table, newSubQuery.TableIdentifier);
-
-                    matches = matches.Join(table, parentIdentifier, remainingJoin.ParentPrimaryKeyColumnName, childIdentifier, remainingJoin.ChildForeignKeyColumnName);
-
-                    AddColumnsNotAddedByJoin(matches, remainingJoin.ParentSubQuery);
-                    AddColumnsNotAddedByJoin(matches, remainingJoin.ChildSubQuery);
-
-                    addedJoins.Add(remainingJoin);
-
-                    availableTables.Add(childIdentifier);
-                    availableTables.Add(parentIdentifier);
-                }
+                AddColumnsNotAddedByJoin(matches, joinPart.Join.ParentSubQuery);
+                AddColumnsNotAddedByJoin(matches, joinPart.Join.ChildSubQuery);
             }
 
             return matches.Rows;

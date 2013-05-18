@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using WeenyMapper.Conventions;
+using WeenyMapper.Exceptions;
 using WeenyMapper.Specs.TestClasses.Conventions;
 using WeenyMapper.Specs.TestClasses.Entities;
 
@@ -3341,6 +3342,15 @@ namespace WeenyMapper.Specs
             Assert.AreEqual("pelle", actualPosts[1].Author.Username);
             Assert.AreEqual("blog 1", actualPosts[0].Blog.Name);
             Assert.AreEqual("blog 2", actualPosts[1].Blog.Name);
+        }
+
+        [Test]
+        [ExpectedException(typeof(WeenyMapperException))]
+        public void Exception_is_thrown_for_invalid_join()
+        {
+            Repository.Find<Blog>()
+                      .Join<User, Comment>(x => x.User)
+                      .ExecuteList();
         }
 
         private void AssertEqualsManagerAndSubordinates(Employee employee, Employee actualEmployee)

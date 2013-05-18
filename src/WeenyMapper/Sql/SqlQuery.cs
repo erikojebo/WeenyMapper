@@ -224,5 +224,51 @@ namespace WeenyMapper.Sql
 
             ObjectRelations.Add(ObjectRelation.Create(joinSpecification, childAlias, parentAlias));
         }
+
+        public IList<SqlSubQueryJoinPart> OrderedJoins
+        {
+            get
+            {
+                var joins = new List<SqlSubQueryJoinPart>();
+
+                var availableTables = new List<string> { SubQueries.First().TableName };
+                var addedJoins = new HashSet<SqlSubQueryJoin>();
+
+                int iterationCounter = 0;
+
+                while (addedJoins.Count < Joins.Count)
+                {
+                    foreach (var remainingJoin in Joins.Except(addedJoins).ToList())
+                    {
+                        AliasedSqlSubQuery newSubQuery = null;
+
+                        if (availableTables.Contains(remainingJoin.ChildTableName))
+                            newSubQuery = remainingJoin.ParentSubQuery;
+                        else if (availableTables.Contains(remainingJoin.ParentTableName))
+                            newSubQuery = remainingJoin.ChildSubQuery;
+
+                        if (newSubQuery == null)
+                            continue;
+
+                        addedJoins.Add(remainingJoin);
+                        joins.Add(new SqlSubQueryJoinPart
+                            {
+                                Join = remainingJoin,
+                                NewSubQuery = newSubQuery
+                            });
+
+                        availableTables.Add(remainingJoin.ChildTableName);
+                        availableTables.Add(remainingJoin.ParentTableName);
+                    }
+
+                    iterationCounter += 1;
+
+                    if (iterationCounter > SubQueries.Count + 1)
+                        throw new WeenyMapperException("The join query seems to be invalid. Make sure that you have added joins for each table that needs to be included.");
+                }
+
+                return joins;
+            }
+        }
     }
 }

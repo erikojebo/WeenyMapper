@@ -76,31 +76,13 @@ namespace WeenyMapper.Sql
         private string CreateJoinClauses(SqlQuery sqlQuery)
         {
             var joinClauses = new List<string>();
-            var availableTables = new List<string> { sqlQuery.SubQueries.First().TableName };
-            var addedJoins = new HashSet<SqlSubQueryJoin>();
 
-            while (addedJoins.Count < sqlQuery.Joins.Count)
+            foreach (var joinPart in sqlQuery.OrderedJoins)
             {
-                foreach (var remainingJoin in sqlQuery.Joins.Except(addedJoins).ToList())
-                {
-                    AliasedSqlSubQuery newSubQuery = null;
+                var joinClause = CreateJoinClause(joinPart.Join, joinPart.NewSubQuery);
 
-                    if (availableTables.Contains(remainingJoin.ChildTableName))
-                        newSubQuery = remainingJoin.ParentSubQuery;
-                    else if (availableTables.Contains(remainingJoin.ParentTableName))
-                        newSubQuery = remainingJoin.ChildSubQuery;
-
-                    if (newSubQuery == null)
-                        continue;
-
-                    var joinClause = CreateJoinClause(remainingJoin, newSubQuery);
-
-                    joinClauses.Add(joinClause);
-                    addedJoins.Add(remainingJoin);
-
-                    availableTables.Add(remainingJoin.ChildTableName);
-                    availableTables.Add(remainingJoin.ParentTableName);
-                }
+                joinClauses.Add(joinClause);
+                    
             }
 
             return string.Join(" ", joinClauses);
