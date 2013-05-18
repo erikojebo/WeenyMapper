@@ -14,6 +14,12 @@ namespace WeenyMapper.Specs.TestClasses.Entities
             BirthDate = new DateTime(1970, 1, 1);
         }
 
+        public Employee(string firstName, string lastName) : this()
+        {
+            FirstName = firstName;
+            LastName = lastName;
+        }
+
         public int Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }

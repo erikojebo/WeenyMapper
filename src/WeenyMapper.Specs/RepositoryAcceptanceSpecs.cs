@@ -3353,6 +3353,64 @@ namespace WeenyMapper.Specs
                       .ExecuteList();
         }
 
+        [Test]
+        public virtual void Collections_are_loaded_correctly_for_list_query_where_entity_is_joined_to_itself_with_multiple_collections_using_only_parent_to_child_relation()
+        {
+            var company1 = new Company
+            {
+                Name = "Company 1"
+            };
+
+            Repository.Insert(company1);
+
+            var employee1 = new Employee("firstname1", "lastname1");
+            var employee2 = new Employee("firstname2", "lastname2");
+            var employee3 = new Employee("firstname3", "lastname3");
+            var employee4 = new Employee("firstname4", "lastname4");
+            var employee5 = new Employee("firstname5", "lastname5");
+            var employee6 = new Employee("firstname6", "lastname6");
+
+            company1.AddEmployee(employee1);
+            company1.AddEmployee(employee2);
+            company1.AddEmployee(employee3);
+            company1.AddEmployee(employee4);
+            company1.AddEmployee(employee5);
+            company1.AddEmployee(employee6);
+
+            Repository.Insert(employee1); // Insert employee1 first since all the others reference that one
+
+            employee1.AddMentee(employee2);
+            employee1.AddMentee(employee3);
+
+            employee1.AddSubordinate(employee4);
+            employee1.AddSubordinate(employee5);
+
+            Repository.Insert(employee2, employee3, employee4, employee5, employee6);
+
+            var actualEmployees = Repository.Find<Employee>()
+                                            .Join(x => x.Subordinates, x => x.ManagerId, null, "manager")
+                                            .Join(x => x.Mentees, x => x.MentorId, null, "mentor")
+                                            .OrderBy(x => x.LastName)
+                                            .OrderBy<Employee>("manager", x => x.LastName)
+                                            .OrderBy<Employee>("mentor", x => x.LastName)
+                                            .ExecuteList();
+
+            Assert.AreEqual(6, actualEmployees.Count);
+
+            Assert.AreEqual("lastname1", actualEmployees[0].LastName);
+            
+            Assert.AreEqual(2, actualEmployees[0].Mentees.Count);
+            Assert.AreEqual("lastname2", actualEmployees[0].Mentees[0].LastName);
+            Assert.AreEqual("lastname3", actualEmployees[0].Mentees[1].LastName);
+
+            Assert.AreEqual(2, actualEmployees[0].Subordinates.Count);
+            Assert.AreEqual("lastname4", actualEmployees[0].Subordinates[0].LastName);
+            Assert.AreEqual("lastname5", actualEmployees[0].Subordinates[1].LastName);
+
+            Assert.AreEqual(0, actualEmployees[1].Mentees.Count);
+            Assert.AreEqual(0, actualEmployees[1].Subordinates.Count);
+        }
+
         private void AssertEqualsManagerAndSubordinates(Employee employee, Employee actualEmployee)
         {
             Assert.AreEqual(employee.Id, actualEmployee.Id);
