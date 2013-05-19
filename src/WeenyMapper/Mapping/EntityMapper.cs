@@ -52,7 +52,7 @@ namespace WeenyMapper.Mapping
 
         public T CreateInstanceGraph<T>(Row row, IEnumerable<ObjectRelation> objectRelations)
         {
-            return (T)CreateInstanceGraph(typeof(T), row, objectRelations, GetEntityCache());
+            return (T)CreateInstanceGraph(typeof(T), row, objectRelations, GetEntityCache(), null).Entity;
         }
 
         public IList<T> CreateInstanceGraphs<T>(ResultSet resultSet)
@@ -62,6 +62,16 @@ namespace WeenyMapper.Mapping
             var objects = resultSet.Rows.Select(row => CreateInstance(typeof(T), row, entityCache)).ToList();
 
             return GetDistinctResult<T>(resultSet, objects);
+        }
+
+        private IList<T> GetDistinctResult<T>(ResultSet resultSet, IEnumerable<CreatedEntity> createdEntities)
+        {
+            var primaryEntities = createdEntities.Where(x => x.IsPrimaryEntityInQuery).Select(x => x.Entity).ToList();
+
+            if (primaryEntities.Any())
+                return GetDistinctResult<T>(resultSet, primaryEntities);
+
+            return GetDistinctResult<T>(resultSet, createdEntities.Select(x => x.Entity));
         }
 
         private IList<T> GetDistinctResult<T>(ResultSet resultSet, IEnumerable<object> objects)
@@ -120,14 +130,16 @@ namespace WeenyMapper.Mapping
             return CreateInstanceGraphs<T>(resultSet, new[] { parentChildRelation });
         }
 
-        public IList<T> CreateInstanceGraphs<T>(ResultSet resultSet, IEnumerable<ObjectRelation> parentChildRelation)
+        public IList<T> CreateInstanceGraphs<T>(ResultSet resultSet, IEnumerable<ObjectRelation> parentChildRelations, string primaryAlias = null)
         {
             var entityCache = GetEntityCache();
-            var objects = new List<object>();
+            var objects = new List<CreatedEntity>();
+
+            var objectRelations = parentChildRelations.ToList();
 
             foreach (var row in resultSet.Rows)
             {
-                var instance = CreateInstanceGraph(typeof(T), row, parentChildRelation, entityCache);
+                var instance = CreateInstanceGraph(typeof(T), row, objectRelations, entityCache, primaryAlias);
 
                 objects.Add(instance);
             }
@@ -135,13 +147,17 @@ namespace WeenyMapper.Mapping
             return GetDistinctResult<T>(resultSet, objects);
         }
 
-        private object CreateInstanceGraph(Type resultType, Row row, IEnumerable<ObjectRelation> relations, EntityCache entityCache)
+        private CreatedEntity CreateInstanceGraph(Type resultType, Row row, IEnumerable<ObjectRelation> relations, EntityCache entityCache, string primaryAlias)
         {
-            object rootObject = null;
+            CreatedEntity rootObject = null;
 
-            foreach (var relation in relations)
+            var relationsList = relations.ToList();
+
+            MovePrimaryRelationToFront(primaryAlias, relationsList);
+
+            foreach (var relation in relationsList)
             {
-                var instance = CreateInstanceGraph(resultType, row, relation, entityCache);
+                var instance = CreateInstanceGraph(resultType, row, relation, entityCache, primaryAlias);
 
                 rootObject = rootObject ?? instance;
             }
@@ -149,7 +165,18 @@ namespace WeenyMapper.Mapping
             return rootObject;
         }
 
-        private object CreateInstanceGraph(Type resultType, Row row, ObjectRelation relation, EntityCache entityCache)
+        private static void MovePrimaryRelationToFront(string primaryAlias, List<ObjectRelation> relationsList)
+        {
+            var relationWithPrimaryAlias = relationsList.FirstOrDefault(x => Matches(x.ChildAlias, primaryAlias) || Matches(x.ParentAlias, primaryAlias));
+
+            if (relationWithPrimaryAlias != null)
+            {
+                relationsList.Remove(relationWithPrimaryAlias);
+                relationsList.Insert(0, relationWithPrimaryAlias);
+            }
+        }
+
+        private CreatedEntity CreateInstanceGraph(Type resultType, Row row, ObjectRelation relation, EntityCache entityCache, string primaryAlias)
         {
             var childType = relation.ChildType;
             var parentType = relation.ParentType;
@@ -159,7 +186,20 @@ namespace WeenyMapper.Mapping
 
             ConnectEntities(relation, child, parent);
 
-            return resultType == childType ? child : parent;
+            if (Matches(relation.ChildAlias, primaryAlias))
+                return CreatedEntity.Primary(child);
+            if (Matches(relation.ParentAlias, primaryAlias))
+                return CreatedEntity.Primary(parent);
+
+            return resultType == childType ? CreatedEntity.Ordinary(child) : CreatedEntity.Ordinary(parent);
+        }
+
+        private static bool Matches(string actualAlias, string primaryAlias)
+        {
+            if (primaryAlias.IsNullOrWhiteSpace() || actualAlias.IsNullOrWhiteSpace())
+                return false;
+
+            return actualAlias.ToLower() == primaryAlias.ToLower();
         }
 
         private void ConnectEntities(ObjectRelation relation, object child, object parent)
@@ -208,7 +248,7 @@ namespace WeenyMapper.Mapping
 
             IList<ColumnValue> columnValuesForType;
 
-            if (string.IsNullOrWhiteSpace(alias))
+            if (String.IsNullOrWhiteSpace(alias))
             {
                 columnValuesForType = row.GetColumnValuesForType(type, _conventionReader);                
             }
@@ -320,6 +360,22 @@ namespace WeenyMapper.Mapping
                     return _idPropertyComparer;
 
                 return new EqualsEqualityComparer<object>();
+            }
+        }
+
+        private class CreatedEntity
+        {
+            public bool IsPrimaryEntityInQuery { get; private set; }
+            public object Entity { get; private set; }
+
+            public static CreatedEntity Primary(object entity)
+            {
+                return new CreatedEntity { IsPrimaryEntityInQuery = true, Entity = entity };
+            }
+            
+            public static CreatedEntity Ordinary(object entity)
+            {
+                return new CreatedEntity { IsPrimaryEntityInQuery = false, Entity = entity };
             }
         }
     }

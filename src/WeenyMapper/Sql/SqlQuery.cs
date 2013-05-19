@@ -36,6 +36,7 @@ namespace WeenyMapper.Sql
         public QueryExpressionTree QueryExpressionTree { get; set; }
         public int RowCountLimit { get; set; }
         public Page Page { get; set; }
+        public string PrimaryAlias { get; set; }
 
         public bool IsUnorderedPagingQuery()
         {

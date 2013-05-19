@@ -22,7 +22,7 @@ namespace WeenyMapper
             throw new WeenyMapperException("The InMemoryRepository does not support custom SQL queries, since that would require writing a complete in-memory SQL database, which is kind of out of scope :)");
         }
 
-        protected override ISqlQueryExecutor CreateObjectQueryExecutor<T>()
+        protected override ISqlQueryExecutor CreateSqlQueryExecutor<T>()
         {
             UseNewConventionReaderForCurrentConvention();
             return new InMemorySqlQueryExecutor(_inMemoryDatabase);

@@ -3445,7 +3445,7 @@ namespace WeenyMapper.Specs
 
             Repository.Insert(employee2, employee3, employee4, employee5, employee6);
 
-            var actualEmployee1 = Repository.Find<Employee>()
+            var actualEmployee1 = Repository.Find<Employee>("manager")
                                             .Where<Employee>("manager", x => x.Id == employee1.Id)
                                             .OrWhere<Employee>("mentor", x => x.Id == employee1.Id)
                                             .Join(x => x.Subordinates, x => x.ManagerId, null, "manager")

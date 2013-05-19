@@ -56,7 +56,7 @@ namespace WeenyMapper.QueryExecution
 
             if (sqlQuery.ObjectRelations.Any())
             {
-                return _entityMapper.CreateInstanceGraphs<T>(resultSet, sqlQuery.ObjectRelations);
+                return _entityMapper.CreateInstanceGraphs<T>(resultSet, sqlQuery.ObjectRelations, sqlQuery.PrimaryAlias);
             }
 
             return _entityMapper.CreateInstanceGraphs<T>(resultSet);

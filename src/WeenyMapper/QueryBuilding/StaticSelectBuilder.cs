@@ -24,6 +24,11 @@ namespace WeenyMapper.QueryBuilding
             _sqlQuery = SqlQuery.Create<T>(conventionReader);
         }
 
+        internal string PrimaryAlias
+        {
+            set { _sqlQuery.PrimaryAlias = value; }
+        }
+
         public StaticSelectBuilder<T> Where(Expression<Func<T, bool>> queryExpression)
         {
             return AndWhere(queryExpression);

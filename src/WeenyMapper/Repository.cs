@@ -119,11 +119,15 @@ namespace WeenyMapper
             return new StaticUpdateBuilder<T>(objectUpdateExecutor, new ExpressionParser());
         }
 
-        public StaticSelectBuilder<T> Find<T>() where T : new()
+        public StaticSelectBuilder<T> Find<T>(string primaryAlias = null) where T : new()
         {
-            var objectQueryExecutor = CreateObjectQueryExecutor<T>();
+            var objectQueryExecutor = CreateSqlQueryExecutor<T>();
 
-            return new StaticSelectBuilder<T>(objectQueryExecutor, new ExpressionParser(), CreateConventionReader());
+            var staticSelectBuilder = new StaticSelectBuilder<T>(objectQueryExecutor, new ExpressionParser(), CreateConventionReader());
+
+            staticSelectBuilder.PrimaryAlias = primaryAlias;
+
+            return staticSelectBuilder;
         }
 
         public void Delete<T>(T entity)
@@ -194,7 +198,7 @@ namespace WeenyMapper
                 };
         }
 
-        protected virtual ISqlQueryExecutor CreateObjectQueryExecutor<T>() where T : new()
+        protected virtual ISqlQueryExecutor CreateSqlQueryExecutor<T>() where T : new()
         {
             return new SqlQueryExecutor(CreateSqlGenerator(), CreateSqlCommandExecutor(), CreateEntityMapper())
                 {
