@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using WeenyMapper.Conventions;
@@ -3464,6 +3465,19 @@ namespace WeenyMapper.Specs
             Assert.AreEqual("lastname5", actualEmployee1.Subordinates[1].LastName);
         }
 
+        [Test]
+        public void Accidentally_calling_Insert_with_a_collection_still_inserts_the_objects()
+        {
+            var blog1 = new Blog("1");
+            var blog2 = new Blog("2");
+            var blog3 = new Blog("3");
+
+            Repository.Insert(new List<Blog> { blog1, blog2, blog3 });
+
+            var actualBlogs = Repository.Find<Blog>().ExecuteList();
+
+            Assert.AreEqual(3, actualBlogs.Count);
+        }
 
         private void AssertEqualsManagerAndSubordinates(Employee employee, Employee actualEmployee)
         {

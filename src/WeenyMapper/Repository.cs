@@ -10,6 +10,7 @@ using WeenyMapper.QueryExecution;
 using WeenyMapper.QueryParsing;
 using WeenyMapper.Reflection;
 using WeenyMapper.Sql;
+using WeenyMapper.Extensions;
 
 namespace WeenyMapper
 {
@@ -71,7 +72,25 @@ namespace WeenyMapper
 
         public void Insert<T>(params T[] entities)
         {
-            InsertCollection(entities);
+            var isListItemTypeCollectionInsteadOfEntity = typeof(T).ImplementsGenericInterface(typeof(IEnumerable<>));
+
+            if (isListItemTypeCollectionInsteadOfEntity)
+            {
+                InsertAllCollections(entities);
+            }
+            else
+            {
+                InsertCollection(entities);    
+            }
+        }
+
+        private void InsertAllCollections<T>(IEnumerable<T> entities)
+        {
+            foreach (var collection in entities)
+            {
+                dynamic self = this;
+                self.InsertCollection(collection);
+            }
         }
 
         public void InsertCollection<T>(IEnumerable<T> entities)
