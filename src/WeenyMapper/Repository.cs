@@ -38,6 +38,7 @@ namespace WeenyMapper
         public static IDatabaseProvider DatabaseProvider { get; set; }
         public static string DefaultConnectionString { get; set; }
         public static bool IsEntityCachingEnabledByDefault { get; set; }
+        public bool IsEntityCachingEnabled { get; set; }
 
         public string ConnectionString
         {
@@ -59,15 +60,10 @@ namespace WeenyMapper
             set { _connectionString = value; }
         }
 
-        public bool IsEntityCachingEnabled { get; set; }
-
         public IConvention Convention
         {
             get { return _convention ?? DefaultConvention; }
-            set
-            {
-                _convention = value;
-            }
+            set { _convention = value; }
         }
 
         public void Insert<T>(params T[] entities)
