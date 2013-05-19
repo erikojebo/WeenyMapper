@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 
@@ -9,10 +8,22 @@ namespace WeenyMapper.Logging
     {
         public void Log(DbCommand command)
         {
-            var parameterValues = command.Parameters.OfType<DbParameter>().Select(Stringify);
-            var parameterValuesString = String.Join(", ", (IEnumerable<string>)parameterValues);
-            var logEntry = string.Format("{0} ({1})", command.CommandText, parameterValuesString);
+            var logEntry = command.CommandText;
+
+            logEntry = AppendParameterValues(command, logEntry);
+
             OutputLogEntry(logEntry);
+        }
+
+        private string AppendParameterValues(DbCommand command, string logEntry)
+        {
+            var parameterValues = command.Parameters.OfType<DbParameter>().Select(Stringify).ToList();
+            var parameterValuesString = String.Join(", ", parameterValues);
+
+            if (!parameterValues.Any())
+                return logEntry;
+
+            return string.Format("{0} ({1})", logEntry, parameterValuesString);
         }
 
         protected abstract void OutputLogEntry(string logEntry);
