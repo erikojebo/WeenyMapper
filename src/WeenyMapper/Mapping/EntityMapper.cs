@@ -66,12 +66,18 @@ namespace WeenyMapper.Mapping
 
         private IList<T> GetDistinctResult<T>(ResultSet resultSet, IEnumerable<CreatedEntity> createdEntities)
         {
-            var primaryEntities = createdEntities.Where(x => x.IsPrimaryEntityInQuery).Select(x => x.Entity).ToList();
+            // If there are any objects that matched a given primary alias in the query, then only those objects
+            // should be considered when for the return result. I.e. if a user does a join with Employee and Employee
+            // to get a manager with all its subordinates, and specifies the primary alias "manager", then only the
+            // actual instances that are managers should be returned, not those that are only subordinates and not managers.
+            var createdEntitiesList = createdEntities.ToList();
+
+            var primaryEntities = createdEntitiesList.Where(x => x.IsPrimaryEntityInQuery).Select(x => x.Entity).ToList();
 
             if (primaryEntities.Any())
                 return GetDistinctResult<T>(resultSet, primaryEntities);
 
-            return GetDistinctResult<T>(resultSet, createdEntities.Select(x => x.Entity));
+            return GetDistinctResult<T>(resultSet, createdEntitiesList.Select(x => x.Entity));
         }
 
         private IList<T> GetDistinctResult<T>(ResultSet resultSet, IEnumerable<object> objects)
