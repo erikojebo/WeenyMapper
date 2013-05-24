@@ -29,6 +29,11 @@ namespace WeenyMapper.QueryBuilding
             set { _sqlQuery.PrimaryAlias = value; }
         }
 
+        public string StartingTableAlias
+        {
+            set { _sqlQuery.StartingTableAlias = value; }
+        }
+
         public StaticSelectBuilder<T> Where(Expression<Func<T, bool>> queryExpression)
         {
             return AndWhere(queryExpression);

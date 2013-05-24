@@ -14,6 +14,7 @@ namespace WeenyMapper.Sql
     {
         private readonly IConventionReader _conventionReader;
         private readonly IList<OrderByStatement> _orderByStatements;
+        private string _primaryAlias;
 
         public SqlQuery() : this(new ConventionReader(new DefaultConvention()))
         {
@@ -36,7 +37,18 @@ namespace WeenyMapper.Sql
         public QueryExpressionTree QueryExpressionTree { get; set; }
         public int RowCountLimit { get; set; }
         public Page Page { get; set; }
-        public string PrimaryAlias { get; set; }
+
+        public string PrimaryAlias
+        {
+            get
+            {
+                if (_primaryAlias == null && !SubQueries[0].Alias.IsNullOrWhiteSpace())
+                    return SubQueries[0].Alias;
+
+                return _primaryAlias;
+            }
+            set { _primaryAlias = value; }
+        }
 
         public bool IsUnorderedPagingQuery()
         {
@@ -58,6 +70,11 @@ namespace WeenyMapper.Sql
             get { return RowCountLimit > 0; }
         }
 
+        public string StartingTableAlias
+        {
+            set { SubQueries[0].Alias = value; }
+        }
+        
         public IList<OrderByStatement> OrderByStatements
         {
             get
@@ -134,7 +151,9 @@ namespace WeenyMapper.Sql
             var tableName = _conventionReader.GetTableName(type);
 
             if (!HasSubQuery(tableName, alias))
+            {
                 CreateSubQuery(alias, type);
+            }
         }
 
         private bool HasSubQuery(string tableName, string alias = null)

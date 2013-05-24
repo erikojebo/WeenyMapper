@@ -134,13 +134,14 @@ namespace WeenyMapper
             return new StaticUpdateBuilder<T>(objectUpdateExecutor, new ExpressionParser());
         }
 
-        public StaticSelectBuilder<T> Find<T>(string primaryAlias = null) where T : new()
+        public StaticSelectBuilder<T> Find<T>(string startingTableAlias = null, string primaryAlias = null) where T : new()
         {
             var objectQueryExecutor = CreateSqlQueryExecutor<T>();
 
             var staticSelectBuilder = new StaticSelectBuilder<T>(objectQueryExecutor, new ExpressionParser(), CreateConventionReader());
 
             staticSelectBuilder.PrimaryAlias = primaryAlias;
+            staticSelectBuilder.StartingTableAlias = startingTableAlias;
 
             return staticSelectBuilder;
         }

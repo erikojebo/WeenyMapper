@@ -3346,6 +3346,31 @@ namespace WeenyMapper.Specs
         }
 
         [Test]
+        public void Alias_can_be_given_to_the_starting_table_of_a_query()
+        {
+            Repository.Convention = new BlogConvention();
+
+            var user1 = new User("kalle", "password");
+            var blog1 = new Blog("blog 1");
+
+            Repository.Insert(blog1);
+            Repository.Insert(user1);
+
+            var post1 = new BlogPost("title 1", "content 1") { Blog = blog1, Author = user1 };
+            var post2 = new BlogPost("title 2", "content 2") { Blog = blog1, Author = user1 };
+
+            Repository.Insert(post1, post2);
+
+            var actualBlogs = Repository.Find<Blog>("blog_alias")
+                                        .OrderBy<BlogPost>("blogpost_alias", x => x.Title)
+                                        .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog, "blogpost_alias", "blog_alias")
+                                        .ExecuteList();
+
+            Assert.AreEqual(1, actualBlogs.Count);
+            Assert.AreEqual(2, actualBlogs[0].Posts.Count);
+        }
+
+        [Test]
         [ExpectedException(typeof(WeenyMapperException))]
         public void Exception_is_thrown_for_invalid_join()
         {
@@ -3446,7 +3471,7 @@ namespace WeenyMapper.Specs
 
             Repository.Insert(employee2, employee3, employee4, employee5, employee6);
 
-            var actualEmployee1 = Repository.Find<Employee>("manager")
+            var actualEmployee1 = Repository.Find<Employee>(primaryAlias: "manager")
                                             .Where<Employee>("manager", x => x.Id == employee1.Id)
                                             .OrWhere<Employee>("mentor", x => x.Id == employee1.Id)
                                             .Join(x => x.Subordinates, x => x.ManagerId, null, "manager")

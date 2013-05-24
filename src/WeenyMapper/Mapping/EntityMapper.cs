@@ -64,7 +64,7 @@ namespace WeenyMapper.Mapping
             return GetDistinctResult<T>(resultSet, objects);
         }
 
-        private IList<T> GetDistinctResult<T>(ResultSet resultSet, IEnumerable<CreatedEntity> createdEntities)
+        private IList<T> GetDistinctResult<T>(ResultSet resultSet, IEnumerable<CreatedEntity> createdEntities, string primaryAlias = null)
         {
             // If there are any objects that matched a given primary alias in the query, then only those objects
             // should be considered when for the return result. I.e. if a user does a join with Employee and Employee
@@ -75,14 +75,14 @@ namespace WeenyMapper.Mapping
             var primaryEntities = createdEntitiesList.Where(x => x.IsPrimaryEntityInQuery).Select(x => x.Entity).ToList();
 
             if (primaryEntities.Any())
-                return GetDistinctResult<T>(resultSet, primaryEntities);
+                return GetDistinctResult<T>(resultSet, primaryEntities, primaryAlias);
 
-            return GetDistinctResult<T>(resultSet, createdEntitiesList.Select(x => x.Entity));
+            return GetDistinctResult<T>(resultSet, createdEntitiesList.Select(x => x.Entity), primaryAlias);
         }
 
-        private IList<T> GetDistinctResult<T>(ResultSet resultSet, IEnumerable<object> objects)
+        private IList<T> GetDistinctResult<T>(ResultSet resultSet, IEnumerable<object> objects, string primaryAlias = null)
         {
-            var queryIncludesPrimaryKeyColumn = QueryIncludesPrimaryKeyColumn(typeof(T), resultSet);
+            var queryIncludesPrimaryKeyColumn = QueryIncludesPrimaryKeyColumn(typeof(T), resultSet, primaryAlias);
 
             // If the query does not include the primary key column all entities will have the default
             // value as id value, so trying to make the result set distinct on the id value would
@@ -97,20 +97,28 @@ namespace WeenyMapper.Mapping
             return objects.OfType<T>().ToList();
         }
 
-        private bool QueryIncludesPrimaryKeyColumn(Type type, ResultSet resultSet)
+        private bool QueryIncludesPrimaryKeyColumn(Type type, ResultSet resultSet, string primaryAlias)
         {
             if (resultSet.Rows.IsEmpty())
                 return false;
 
-            return QueryIncludesPrimaryKeyColumn(type, resultSet.Rows.First());
+            return QueryIncludesPrimaryKeyColumn(type, resultSet.Rows.First(), primaryAlias);
         }
 
-        private bool QueryIncludesPrimaryKeyColumn(Type type, Row row)
+        private bool QueryIncludesPrimaryKeyColumn(Type type, Row row, string primaryAlias)
         {
             var primaryKeyColumnName = _conventionReader.TryGetPrimaryKeyColumnName(type);
 
             var typeHasIdProperty = primaryKeyColumnName != null;
-            var resultIncludesPrimaryKeyColumn = row.GetColumnValuesForType(type, _conventionReader).Any(x => x.ColumnName == primaryKeyColumnName);
+            
+            IList<ColumnValue> columnValuesForType;
+
+            if (primaryAlias.IsNullOrWhiteSpace())
+                columnValuesForType = row.GetColumnValuesForType(type, _conventionReader);
+            else
+                columnValuesForType = row.GetColumnValuesForAlias(primaryAlias);
+
+            var resultIncludesPrimaryKeyColumn = columnValuesForType.Any(x => x.ColumnName == primaryKeyColumnName);
 
             return typeHasIdProperty && resultIncludesPrimaryKeyColumn;
         }
@@ -150,7 +158,7 @@ namespace WeenyMapper.Mapping
                 objects.Add(instance);
             }
 
-            return GetDistinctResult<T>(resultSet, objects);
+            return GetDistinctResult<T>(resultSet, objects, primaryAlias);
         }
 
         private CreatedEntity CreateInstanceGraph(Type resultType, Row row, IEnumerable<ObjectRelation> relations, EntityCache entityCache, string primaryAlias)
@@ -278,7 +286,7 @@ namespace WeenyMapper.Mapping
                 property.SetValue(instance, columnValue.Value, null);
             }
 
-            var includesPrimaryKeyColumn = QueryIncludesPrimaryKeyColumn(type, row);
+            var includesPrimaryKeyColumn = QueryIncludesPrimaryKeyColumn(type, row, alias);
 
             // If the query does not include the primary key column we can't know if 
             // the cache already contains the entity or not, since we do not have anything

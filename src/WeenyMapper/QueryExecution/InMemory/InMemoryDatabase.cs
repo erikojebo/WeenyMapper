@@ -64,7 +64,7 @@ namespace WeenyMapper.QueryExecution.InMemory
 
             if (sqlQuery.ObjectRelations.Any())
             {
-                return EntityMapper.CreateInstanceGraphs<T>(resultSet, sqlQuery.ObjectRelations);
+                return EntityMapper.CreateInstanceGraphs<T>(resultSet, sqlQuery.ObjectRelations, sqlQuery.PrimaryAlias);
             }
 
             return EntityMapper.CreateInstanceGraphs<T>(resultSet);
@@ -98,9 +98,6 @@ namespace WeenyMapper.QueryExecution.InMemory
         private IList<Row> FindWithJoin(SqlQuery sqlQuery, IList<Row> matchingRows)
         {
             var firstTableIdentifier = sqlQuery.SubQueries.First().TableIdentifier;
-
-            var availableTables = new List<string> { firstTableIdentifier };
-            var addedJoins = new HashSet<SqlSubQueryJoin>();
 
             var matches = new ResultSet(matchingRows);
             matches = PrefixRows(matches, firstTableIdentifier);
