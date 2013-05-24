@@ -3362,7 +3362,7 @@ namespace WeenyMapper.Specs
             Repository.Insert(post1, post2);
 
             var actualBlogs = Repository.Find<Blog>("blog_alias")
-                                        .OrderBy<BlogPost>("blogpost_alias", x => x.Title)
+                                        .OrderBy<BlogPost>(x => x.Title)
                                         .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog, "blogpost_alias", "blog_alias")
                                         .ExecuteList();
 

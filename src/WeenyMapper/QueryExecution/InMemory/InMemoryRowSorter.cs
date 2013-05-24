@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using WeenyMapper.Exceptions;
 using WeenyMapper.Mapping;
 using WeenyMapper.QueryParsing;
 using WeenyMapper.Sql;
@@ -19,8 +20,14 @@ namespace WeenyMapper.QueryExecution.InMemory
         {
             foreach (var orderByStatement in _sqlQuery.OrderByStatements)
             {
-                var leftValue = left.GetColumnValue(orderByStatement.TableIdentifier, orderByStatement.PropertyName).Value;
-                var rightValue = right.GetColumnValue(orderByStatement.TableIdentifier, orderByStatement.PropertyName).Value;
+                var leftColumnValue = left.GetColumnValue(orderByStatement.TableIdentifier, orderByStatement.PropertyName);
+                var rightColumnValue = right.GetColumnValue(orderByStatement.TableIdentifier, orderByStatement.PropertyName);
+
+                if (leftColumnValue == null || rightColumnValue == null)
+                    throw new WeenyMapperException("Could not add Order By statement for the table with name or alias '{0}'. Did you forget to specify the alias for the order by statement? Or perhaps forgot to specify an alias when joining?", orderByStatement.TableIdentifier);
+
+                var leftValue = leftColumnValue.Value;
+                var rightValue = rightColumnValue.Value;
 
                 if (leftValue is IComparable)
                 {

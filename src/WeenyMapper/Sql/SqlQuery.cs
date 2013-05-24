@@ -160,6 +160,11 @@ namespace WeenyMapper.Sql
         {
             return SubQueries.Any(x => x.TableName == tableName && x.Alias == alias);
         }
+        
+        private bool HasSubQueryForIdentifier(string tableIdentifier)
+        {
+            return SubQueries.Any(x => x.TableIdentifier == tableIdentifier);
+        }
 
         private AliasedSqlSubQuery GetOrCreateSubQuery<T>(string alias)
         {
