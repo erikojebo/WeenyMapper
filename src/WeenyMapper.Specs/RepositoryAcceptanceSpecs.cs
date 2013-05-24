@@ -2431,7 +2431,7 @@ namespace WeenyMapper.Specs
             Repository.Insert(employee1, employee2, employee3);
 
             var actualEmployees = Repository.Find<Employee>()
-                                            .Join<Employee, Employee>(x => x.Subordinates, x => x.Manager, null, "Manager")
+                                            .Join<Employee, Employee>(x => x.Subordinates, x => x.Manager, parentAlias: "Manager", childAlias: null)
                                             .OrderBy(x => x.LastName)
                                             .ExecuteList();
 
@@ -2497,7 +2497,7 @@ namespace WeenyMapper.Specs
 
             var actualEmployees = Repository.Find<Employee>()
                                             .Where(x => x.ManagerId == manager1.Id)
-                                            .Join<Employee, Employee>(x => x.Subordinates, x => x.Manager, null, "Manager")
+                                            .Join<Employee, Employee>(x => x.Subordinates, x => x.Manager, parentAlias: "Manager", childAlias: null)
                                             .OrderBy(x => x.LastName)
                                             .ExecuteList();
 
@@ -2560,7 +2560,7 @@ namespace WeenyMapper.Specs
 
             var actualEmployees = Repository.Find<Employee>()
                                             .Where<Employee>("Manager", x => x.Id == manager1.Id)
-                                            .Join<Employee, Employee>(x => x.Subordinates, x => x.Manager, null, "Manager")
+                                            .Join<Employee, Employee>(x => x.Subordinates, x => x.Manager, parentAlias: "Manager", childAlias: null)
                                             .OrderBy(x => x.LastName)
                                             .ExecuteList();
 
@@ -3362,8 +3362,8 @@ namespace WeenyMapper.Specs
             Repository.Insert(post1, post2);
 
             var actualBlogs = Repository.Find<Blog>("blog_alias")
-                                        .OrderBy<BlogPost>(x => x.Title)
-                                        .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog, "blogpost_alias", "blog_alias")
+                                        .OrderBy<BlogPost>("blogpost_alias", x => x.Title)
+                                        .Join<Blog, BlogPost>(x => x.Posts, x => x.Blog, parentAlias: "blog_alias", childAlias: "blogpost_alias")
                                         .ExecuteList();
 
             Assert.AreEqual(1, actualBlogs.Count);
@@ -3414,8 +3414,8 @@ namespace WeenyMapper.Specs
             Repository.Insert(employee2, employee3, employee4, employee5, employee6);
 
             var actualEmployees = Repository.Find<Employee>()
-                                            .Join(x => x.Subordinates, x => x.ManagerId, null, "manager")
-                                            .Join(x => x.Mentees, x => x.MentorId, null, "mentor")
+                                            .Join(x => x.Subordinates, x => x.ManagerId, "manager", null)
+                                            .Join(x => x.Mentees, x => x.MentorId, "mentor", null)
                                             .OrderBy(x => x.LastName)
                                             .OrderBy<Employee>("manager", x => x.LastName)
                                             .OrderBy<Employee>("mentor", x => x.LastName)
@@ -3474,8 +3474,8 @@ namespace WeenyMapper.Specs
             var actualEmployee1 = Repository.Find<Employee>(primaryAlias: "manager")
                                             .Where<Employee>("manager", x => x.Id == employee1.Id)
                                             .OrWhere<Employee>("mentor", x => x.Id == employee1.Id)
-                                            .Join(x => x.Subordinates, x => x.ManagerId, null, "manager")
-                                            .Join(x => x.Mentees, x => x.MentorId, null, "mentor")
+                                            .Join(x => x.Subordinates, x => x.ManagerId, "manager", null)
+                                            .Join(x => x.Mentees, x => x.MentorId, "mentor", null)
                                             .OrderBy(x => x.LastName)
                                             .OrderBy<Employee>("manager", x => x.LastName)
                                             .OrderBy<Employee>("mentor", x => x.LastName)
