@@ -1,1 +1,1 @@
-cp ../src/WeenyMapper.SqlCe4/bin/Release/WeenyMapper.SqlCe4.dll package/lib/net40/
+cp ../src/WeenyMapper.SqlCe4/bin/Release/WeenyMapper.SqlCe4.dll package_sqlce4/lib/net40/
