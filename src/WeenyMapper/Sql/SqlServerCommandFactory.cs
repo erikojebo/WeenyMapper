@@ -4,36 +4,21 @@ using System.Data.SqlClient;
 
 namespace WeenyMapper.Sql
 {
-    public class SqlServerCommandFactory : IDbCommandFactory
+    public class SqlServerCommandFactory : DbCommandFactoryBase
     {
-        public DbCommand CreateCommand(string commandText)
+        public override DbCommand CreateCommand(string commandText)
         {
             return new SqlCommand(commandText);
         }
 
-        public DbCommand CreateCommand()
-        {
-            return new SqlCommand();
-        }
-
-        public DbParameter CreateParameter(string name, object value)
+        public override DbParameter CreateParameter(string name, object value)
         {
             return new SqlParameter(name, value ?? DBNull.Value);
         }
 
-        public DbParameter CreateParameter(CommandParameter commandParameter)
-        {
-            return CreateParameter(commandParameter.Name, commandParameter.Value);
-        }
-
-        public DbConnection CreateConnection(string connectionString)
+        protected override DbConnection CreateNewConnection(string connectionString)
         {
             return new SqlConnection(connectionString);
-        }
-
-        public DbConnection CreateConnection()
-        {
-            return new SqlConnection();
         }
     }
 }

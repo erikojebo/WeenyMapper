@@ -40,6 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Builders\ConnectionString.cs" />
+    <Compile Include="ConnectionScope.cs" />
     <Compile Include="Conventions\DefaultConvention.cs" />
     <Compile Include="Conventions\IConvention.cs" />
     <Compile Include="Async\TaskRunner.cs" />
@@ -129,6 +130,7 @@
     <Compile Include="Sql\ColumnReference.cs" />
     <Compile Include="Sql\CommandParameter.cs" />
     <Compile Include="Sql\CommandParameterFactory.cs" />
+    <Compile Include="Sql\DbCommandFactoryBase.cs" />
     <Compile Include="Sql\ICommandParameterFactory.cs" />
     <Compile Include="Sql\IDbCommandExecutor.cs" />
     <Compile Include="QueryParsing\IExpressionVisitor.cs" />

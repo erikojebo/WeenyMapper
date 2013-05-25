@@ -3504,6 +3504,66 @@ namespace WeenyMapper.Specs
             Assert.AreEqual(3, actualBlogs.Count);
         }
 
+        [Test]
+        public void Multiple_operations_can_use_the_same_connection_when_explicitly_using_a_connection_scope()
+        {
+            using (Repository.BeginConnection())
+            {
+                var blog1 = new Blog("1");
+                var blog2 = new Blog("2");
+                var blog3 = new Blog("3");
+
+                Repository.Insert(new List<Blog> { blog1, blog2, blog3 });
+
+                var actualBlogs = Repository.Find<Blog>().ExecuteList();
+
+                Assert.AreEqual(3, actualBlogs.Count);
+            }
+        }
+        
+        [Test]
+        public void Connection_scopes_can_be_nested()
+        {
+            using (Repository.BeginConnection())
+            {
+                using (Repository.BeginConnection())
+                {
+                    var blog1 = new Blog("1");
+                    var blog2 = new Blog("2");
+                    var blog3 = new Blog("3");
+
+                    Repository.Insert(new List<Blog> { blog1, blog2, blog3 });
+
+                    var actualBlogs = Repository.Find<Blog>().ExecuteList();
+
+                    Assert.AreEqual(3, actualBlogs.Count);
+                }
+            }
+        }
+
+        [Test]
+        public void Connection_scopes_can_be_disposed_manually()
+        {
+            var connectionScope = Repository.BeginConnection();
+
+            try
+            {
+                var blog1 = new Blog("1");
+                var blog2 = new Blog("2");
+                var blog3 = new Blog("3");
+
+                Repository.Insert(new List<Blog> { blog1, blog2, blog3 });
+
+                var actualBlogs = Repository.Find<Blog>().ExecuteList();
+
+                Assert.AreEqual(3, actualBlogs.Count);
+            }
+            finally
+            {
+                connectionScope.Dispose();
+            }
+        }
+
         private void AssertEqualsManagerAndSubordinates(Employee employee, Employee actualEmployee)
         {
             Assert.AreEqual(employee.Id, actualEmployee.Id);

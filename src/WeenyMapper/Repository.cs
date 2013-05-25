@@ -19,6 +19,7 @@ namespace WeenyMapper
         private string _connectionString;
         private EntityMapper _entityMapper;
         private IConvention _convention;
+        private IDbCommandFactory _dbCommandFactory;
 
         static Repository()
         {
@@ -245,12 +246,18 @@ namespace WeenyMapper
 
         private DbCommandExecutor CreateSqlCommandExecutor()
         {
-            return new DbCommandExecutor(SqlLogger, CreateDbCommandFactory());
+            return new DbCommandExecutor(SqlLogger, DbCommandFactory);
         }
 
-        private IDbCommandFactory CreateDbCommandFactory()
+        private IDbCommandFactory DbCommandFactory
         {
-            return DatabaseProvider.CreateDbCommandFactory();
+            get
+            {
+                if (_dbCommandFactory == null)
+                    _dbCommandFactory = DatabaseProvider.CreateDbCommandFactory();
+
+                return _dbCommandFactory;
+            }
         }
 
         protected EntityMapper CreateEntityMapper()
@@ -269,6 +276,11 @@ namespace WeenyMapper
         protected ConventionReader CreateConventionReader()
         {
             return new ConventionReader(Convention);
+        }
+
+        public ConnectionScope BeginConnection()
+        {
+            return DbCommandFactory.BeginConnection(ConnectionString);
         }
     }
 }

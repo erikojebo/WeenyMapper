@@ -70,6 +70,7 @@
     <Compile Include="Sql\PageSpecs.cs" />
     <Compile Include="Sql\QueryOptimizerSpecs.cs" />
     <Compile Include="Sql\SqlCeTSqlGeneratorSpecs.cs" />
+    <Compile Include="Sql\SqlServerCommandFactorySpecs.cs" />
     <Compile Include="TestClasses\Conventions\BlogConvention.cs" />
     <Compile Include="TestClasses\Conventions\BookConvention.cs" />
     <Compile Include="TestClasses\Conventions\UpperCaseConvention.cs" />
