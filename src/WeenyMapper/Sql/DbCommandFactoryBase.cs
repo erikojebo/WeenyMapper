@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
+using WeenyMapper.Extensions;
 
 namespace WeenyMapper.Sql
 {
@@ -20,6 +21,9 @@ namespace WeenyMapper.Sql
         public void EndConnection(ConnectionScope connectionScope)
         {
             _liveConnectionScopes.Remove(connectionScope);
+
+            if (ConnectionScopesMatching(connectionScope).IsEmpty())
+                connectionScope.Connection.Close();
         }
 
         public abstract DbCommand CreateCommand(string commandText);
@@ -28,12 +32,22 @@ namespace WeenyMapper.Sql
 
         public virtual DbConnection CreateConnection(string connectionString)
         {
-            var connectionScopesForConnectionString = _liveConnectionScopes.Where(x => x.Matches(connectionString)).ToList();
+            var connectionScopesForConnectionString = ConnectionScopesMatching(connectionString);
 
             if (connectionScopesForConnectionString.Any())
                 return connectionScopesForConnectionString.First().Connection;
 
             return CreateNewConnection(connectionString);
+        }
+
+        private List<ConnectionScope> ConnectionScopesMatching(ConnectionScope connectionScope)
+        {
+            return _liveConnectionScopes.Where(x => x.Matches(connectionScope.Connection.ConnectionString)).ToList();
+        }
+        
+        private List<ConnectionScope> ConnectionScopesMatching(string connectionString)
+        {
+            return _liveConnectionScopes.Where(x => x.Matches(connectionString)).ToList();
         }
 
         public virtual DbParameter CreateParameter(CommandParameter commandParameter)

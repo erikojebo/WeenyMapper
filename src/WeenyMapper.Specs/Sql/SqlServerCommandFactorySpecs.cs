@@ -1,16 +1,16 @@
-﻿using System.Data.Common;
+﻿using System.Data;
+using System.Data.Common;
 using NUnit.Framework;
 using WeenyMapper.Sql;
 
 namespace WeenyMapper.Specs.Sql
 {
     [TestFixture]
-    public class SqlServerCommandFactorySpecs
+    public class SqlServerCommandFactorySpecs : AcceptanceSpecsBase
     {
         private SqlServerCommandFactory _commandFactory;
 
-        [SetUp]
-        public void SetUp()
+        protected override void PerformSetUp()
         {
             _commandFactory = new SqlServerCommandFactory();
         }
@@ -70,6 +70,58 @@ namespace WeenyMapper.Specs.Sql
             connection2 = _commandFactory.CreateConnection("server=localhost");
 
             Assert.AreNotSame(connection1, connection2);
+        }
+
+        [Test]
+        public void The_connection_is_closed_after_the_scope_has_ended()
+        {
+            DbConnection connection1;
+
+            using (_commandFactory.BeginConnection(TestConnectionString))
+            {
+                connection1 = _commandFactory.CreateConnection(TestConnectionString);
+                connection1.Open();
+            }
+
+            Assert.AreEqual(ConnectionState.Closed, connection1.State);
+        }
+
+        [Test]
+        public void Connection_from_active_scope_is_still_open_after_ending_another_scope_for_different_connection_string()
+        {
+            DbConnection connection1, connection2;
+
+            using (_commandFactory.BeginConnection(TestConnectionString))
+            {
+                connection1 = _commandFactory.CreateConnection(TestConnectionString);
+                connection1.Open();
+
+                using (_commandFactory.BeginConnection("server=localhost"))
+                {
+                    connection2 = _commandFactory.CreateConnection(TestConnectionString);
+                }
+
+                Assert.AreEqual(ConnectionState.Open, connection1.State);
+            }
+        }
+
+        [Test]
+        public void Connection_from_active_scope_is_still_open_after_ending_nested_scope_for_same_connection_string()
+        {
+            DbConnection connection1, connection2;
+
+            using (_commandFactory.BeginConnection(TestConnectionString))
+            {
+                connection1 = _commandFactory.CreateConnection(TestConnectionString);
+                connection1.Open();
+
+                using (_commandFactory.BeginConnection(TestConnectionString))
+                {
+                    connection2 = _commandFactory.CreateConnection(TestConnectionString);
+                }
+
+                Assert.AreEqual(ConnectionState.Open, connection1.State);
+            }
         }
     }
 }
