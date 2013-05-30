@@ -21,6 +21,7 @@ namespace WeenyMapper.Specs.Sql
 
         public int StubNonQueryResult { get; set; }
         public int StubScalarResult { get; set; }
+        public TestDbDataReader StubDataReader { get; set; }
         public bool HasExecutedNonQuery { get; set; }
         public bool HasExecutedScalar { get; set; }
 
@@ -28,7 +29,7 @@ namespace WeenyMapper.Specs.Sql
         {
             get { return _parameters; }
         }
-        
+
         public override void Cancel()
         {
         }
@@ -40,7 +41,7 @@ namespace WeenyMapper.Specs.Sql
 
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
-            return new TestDbDataReader();
+            return StubDataReader ?? new TestDbDataReader();
         }
 
         public override int ExecuteNonQuery()

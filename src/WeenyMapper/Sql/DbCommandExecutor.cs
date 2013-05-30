@@ -27,14 +27,10 @@ namespace WeenyMapper.Sql
 
         public IList<int> ExecuteNonQuery(IEnumerable<DbCommand> commands, string connectionString)
         {
-            using (var connection = _commandFactory.CreateConnection(connectionString))
-            {
-                connection.Open();
-
-                return commands
-                    .Select(command => ExecuteNonQuery(command, connection))
-                    .ToList();
-            }
+            return WithConnection(connectionString,
+                                  connection => commands
+                                                    .Select(command => ExecuteNonQuery(command, connection))
+                                                    .ToList());
         }
 
         private int ExecuteNonQuery(DbCommand command, DbConnection connection)
@@ -77,22 +73,23 @@ namespace WeenyMapper.Sql
 
         private void ExecuteQuery(DbCommand command, string connectionString, Action<DbDataReader> readAction)
         {
-            using (var connection = _commandFactory.CreateConnection(connectionString))
-            {
-                connection.Open();
-                command.Connection = connection;
-
-                _sqlCommandLogger.Log(command);
-
-                var dataReader = command.ExecuteReader();
-
-                while (dataReader.Read())
+            WithConnection(connectionString, connection =>
                 {
-                    readAction(dataReader);
-                }
+                    command.Connection = connection;
 
-                command.Dispose();
-            }
+                    _sqlCommandLogger.Log(command);
+
+                    var dataReader = command.ExecuteReader();
+
+                    while (dataReader.Read())
+                    {
+                        readAction(dataReader);
+                    }
+
+                    command.Dispose();
+
+                    return 0;
+                });
         }
 
         public IList<T> ExecuteScalarList<T>(IEnumerable<ScalarCommand> commands, string connectionString)
@@ -115,24 +112,15 @@ namespace WeenyMapper.Sql
 
         public T ExecuteScalar<T>(DbCommand command, string connectionString)
         {
-            using (var connection = _commandFactory.CreateConnection(connectionString))
-            {
-                connection.Open();
-
-                return ExecuteScalar<T>(command, connection);
-            }
+            return WithConnection(connectionString, connection => ExecuteScalar<T>(command, connection));
         }
 
         public IList<T> ExecuteScalarList<T>(IEnumerable<DbCommand> commands, string connectionString)
         {
-            using (var connection = _commandFactory.CreateConnection(connectionString))
-            {
-                connection.Open();
-
-                return commands
-                    .Select(dbCommand => ExecuteScalar<T>(dbCommand, connection))
-                    .ToList();
-            }
+            return WithConnection(connectionString,
+                                  connection => commands
+                                                    .Select(dbCommand => ExecuteScalar<T>(dbCommand, connection))
+                                                    .ToList());
         }
 
         private T ExecuteScalar<T>(DbCommand command, DbConnection connection)
@@ -148,28 +136,26 @@ namespace WeenyMapper.Sql
 
         public IList<T> ExecuteScalarList<T>(DbCommand command, string connectionString)
         {
-            using (var connection = _commandFactory.CreateConnection(connectionString))
-            {
-                var result = new List<T>();
-
-                connection.Open();
-
-                command.Connection = connection;
-
-                _sqlCommandLogger.Log(command);
-
-                var reader = command.ExecuteReader();
-
-                while (reader.Read())
+            return WithConnection(connectionString, connection =>
                 {
-                    var value = reader.GetValue(0);
-                    result.Add((T)value);
-                }
+                    var result = new List<T>();
 
-                command.Dispose();
+                    command.Connection = connection;
 
-                return result;
-            }
+                    _sqlCommandLogger.Log(command);
+
+                    var reader = command.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        var value = reader.GetValue(0);
+                        result.Add((T)value);
+                    }
+
+                    command.Dispose();
+
+                    return result;
+                });
         }
 
         private Dictionary<string, object> GetValues(DbDataReader reader)
@@ -186,10 +172,15 @@ namespace WeenyMapper.Sql
             return values;
         }
 
-        private T WithConnection<T>(string connectionString, Func<DbConnection, T> func)
+        private List<T> WithConnection<T>(string connectionString, Func<DbConnection, List<T>> func)
+        {
+            return WithConnection(connectionString, func, new List<T>());
+        }
+
+        private T WithConnection<T>(string connectionString, Func<DbConnection, T> func, T defaultValue = default(T))
         {
             var connection = _commandFactory.CreateConnection(connectionString);
-            var result = default(T);
+            T result;
 
             var wasOpenedManually = false;
 
@@ -201,7 +192,7 @@ namespace WeenyMapper.Sql
                     wasOpenedManually = true;
                 }
 
-                func(connection);
+                result = func(connection);
             }
             finally
             {

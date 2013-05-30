@@ -2,6 +2,7 @@
 using NSubstitute;
 using NUnit.Framework;
 using WeenyMapper.Logging;
+using WeenyMapper.Mapping;
 using WeenyMapper.Sql;
 using WeenyMapper.Extensions;
 
@@ -27,7 +28,7 @@ namespace WeenyMapper.Specs.Sql
             _connection = new TestDbConnection();
 
             _command.StubScalarResult = 1;
-
+            _command.StubDataReader = new TestDbDataReader() { ResultSet = new ResultSet(new[] { new Row(new[] { new ColumnValue("Id", 1), }), }) };
             _commandFactory.CreateConnection("connection string").Returns(_connection);
         }
 

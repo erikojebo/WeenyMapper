@@ -2,15 +2,23 @@
 using System.Collections;
 using System.Data;
 using System.Data.Common;
+using WeenyMapper.Mapping;
+using System.Linq;
 
 namespace WeenyMapper.Specs.Sql
 {
     public class TestDbDataReader : DbDataReader
     {
+        public ResultSet ResultSet { get; set; }
+        public int CurrentRowIndex { get; set; }
+
+        public TestDbDataReader()
+        {
+            CurrentRowIndex = -1;
+        }
 
         public override void Close()
         {
-            throw new NotImplementedException();
         }
 
         public override DataTable GetSchemaTable()
@@ -20,12 +28,14 @@ namespace WeenyMapper.Specs.Sql
 
         public override bool NextResult()
         {
-            throw new NotImplementedException();
+            CurrentRowIndex += 1;
+
+            return CurrentRowIndex < ResultSet.Rows.Count;
         }
 
         public override bool Read()
         {
-            return false;
+            return NextResult();
         }
 
         public override int Depth
@@ -45,62 +55,62 @@ namespace WeenyMapper.Specs.Sql
 
         public override bool GetBoolean(int ordinal)
         {
-            throw new NotImplementedException();
+            return (bool)ResultSet.Rows[CurrentRowIndex].ColumnValues[ordinal].Value;
         }
 
         public override byte GetByte(int ordinal)
         {
-            throw new NotImplementedException();
+            return (byte)ResultSet.Rows[CurrentRowIndex].ColumnValues[ordinal].Value;
         }
 
         public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
         {
-            throw new NotImplementedException();
+            return (long)ResultSet.Rows[CurrentRowIndex].ColumnValues[ordinal].Value;
         }
 
         public override char GetChar(int ordinal)
         {
-            throw new NotImplementedException();
+            return (char)ResultSet.Rows[CurrentRowIndex].ColumnValues[ordinal].Value;
         }
 
         public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
         {
-            throw new NotImplementedException();
+            return (long)ResultSet.Rows[CurrentRowIndex].ColumnValues[ordinal].Value;
         }
 
         public override Guid GetGuid(int ordinal)
         {
-            throw new NotImplementedException();
+            return (Guid)ResultSet.Rows[CurrentRowIndex].ColumnValues[ordinal].Value;
         }
 
         public override short GetInt16(int ordinal)
         {
-            throw new NotImplementedException();
+            return (short)ResultSet.Rows[CurrentRowIndex].ColumnValues[ordinal].Value;
         }
 
         public override int GetInt32(int ordinal)
         {
-            throw new NotImplementedException();
+            return (int)ResultSet.Rows[CurrentRowIndex].ColumnValues[ordinal].Value;
         }
 
         public override long GetInt64(int ordinal)
         {
-            throw new NotImplementedException();
+            return (long)ResultSet.Rows[CurrentRowIndex].ColumnValues[ordinal].Value;
         }
 
         public override DateTime GetDateTime(int ordinal)
         {
-            throw new NotImplementedException();
+            return (DateTime)ResultSet.Rows[CurrentRowIndex].ColumnValues[ordinal].Value;
         }
 
         public override string GetString(int ordinal)
         {
-            throw new NotImplementedException();
+            return (string)ResultSet.Rows[CurrentRowIndex].ColumnValues[ordinal].Value;
         }
 
         public override object GetValue(int ordinal)
         {
-            throw new NotImplementedException();
+            return ResultSet.Rows[CurrentRowIndex].ColumnValues[ordinal].Value;
         }
 
         public override int GetValues(object[] values)
@@ -110,52 +120,58 @@ namespace WeenyMapper.Specs.Sql
 
         public override bool IsDBNull(int ordinal)
         {
-            throw new NotImplementedException();
+            return Equals(ResultSet.Rows[CurrentRowIndex].ColumnValues[ordinal].Value, null);
         }
 
         public override int FieldCount
         {
-            get { throw new NotImplementedException(); }
+            get { return ResultSet.Rows[CurrentRowIndex].ColumnValues.Count; }
         }
 
         public override object this[int ordinal]
         {
-            get { throw new NotImplementedException(); }
+            get { return ResultSet.Rows[CurrentRowIndex].ColumnValues[ordinal].Value; }
         }
 
         public override object this[string name]
         {
-            get { throw new NotImplementedException(); }
+            get { return CurrentRow.GetColumnValue(name).Value; }
+        }
+
+        private Row CurrentRow
+        {
+            get { return ResultSet.Rows[CurrentRowIndex]; }
         }
 
         public override bool HasRows
         {
-            get { throw new NotImplementedException(); }
+            get { return ResultSet.Rows.Any(); }
         }
 
         public override decimal GetDecimal(int ordinal)
         {
-            throw new NotImplementedException();
+            return (decimal)ResultSet.Rows[CurrentRowIndex].ColumnValues[ordinal].Value;
         }
 
         public override double GetDouble(int ordinal)
         {
-            throw new NotImplementedException();
+            return (double)ResultSet.Rows[CurrentRowIndex].ColumnValues[ordinal].Value;
         }
 
         public override float GetFloat(int ordinal)
         {
-            throw new NotImplementedException();
+            return (float)ResultSet.Rows[CurrentRowIndex].ColumnValues[ordinal].Value;
         }
 
         public override string GetName(int ordinal)
         {
-            throw new NotImplementedException();
+            return Cell(ordinal).ColumnName;
         }
 
         public override int GetOrdinal(string name)
         {
-            throw new NotImplementedException();
+            var existing = CurrentRow.ColumnValues.FirstOrDefault(x => x.ColumnName == name);
+            return CurrentRow.ColumnValues.IndexOf(existing);
         }
 
         public override string GetDataTypeName(int ordinal)
@@ -165,12 +181,17 @@ namespace WeenyMapper.Specs.Sql
 
         public override Type GetFieldType(int ordinal)
         {
-            throw new NotImplementedException();
+            return Cell(ordinal).Value.GetType();
+        }
+
+        private ColumnValue Cell(int ordinal)
+        {
+            return CurrentRow.ColumnValues[ordinal];
         }
 
         public override IEnumerator GetEnumerator()
         {
-            throw new NotImplementedException();
+            return ResultSet.Rows.GetEnumerator();
         }
     }
 }
