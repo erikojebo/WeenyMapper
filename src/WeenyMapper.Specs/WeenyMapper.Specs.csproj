@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NSubstitute">
+      <HintPath>..\packages\NSubstitute.1.6.0.0\lib\NET40\NSubstitute.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework, Version=2.6.2.12296, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
@@ -67,10 +70,21 @@
     <Compile Include="Sql\CommandParameterFactorySpecs.cs" />
     <Compile Include="Sql\CommandParameterSpecs.cs" />
     <Compile Include="RepositoryAcceptanceSpecs.cs" />
+    <Compile Include="Sql\DbCommandExecutorSpecs.cs" />
     <Compile Include="Sql\PageSpecs.cs" />
     <Compile Include="Sql\QueryOptimizerSpecs.cs" />
     <Compile Include="Sql\SqlCeTSqlGeneratorSpecs.cs" />
     <Compile Include="Sql\SqlServerCommandFactorySpecs.cs" />
+    <Compile Include="Sql\TestClasses\TestDbCommand.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Sql\TestClasses\TestDbConnection.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Sql\TestClasses\TestDbDataReader.cs" />
+    <Compile Include="Sql\TestClasses\TestDbParameter.cs" />
+    <Compile Include="Sql\TestClasses\TestDbParameterCollection.cs" />
+    <Compile Include="Sql\TestClasses\TestDbTransaction.cs" />
     <Compile Include="TestClasses\Conventions\BlogConvention.cs" />
     <Compile Include="TestClasses\Conventions\BookConvention.cs" />
     <Compile Include="TestClasses\Conventions\UpperCaseConvention.cs" />
@@ -114,6 +128,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy "$(SolutionDir)..\lib\SQL Server CE" "$(TargetDir)" /e /d</PostBuildEvent>
