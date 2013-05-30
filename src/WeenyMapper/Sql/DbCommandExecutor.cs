@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
 using WeenyMapper.Logging;
@@ -96,14 +97,10 @@ namespace WeenyMapper.Sql
 
         public IList<T> ExecuteScalarList<T>(IEnumerable<ScalarCommand> commands, string connectionString)
         {
-            using (var connection = _commandFactory.CreateConnection(connectionString))
-            {
-                connection.Open();
-
-                return commands
-                    .Select(command => ExecuteScalarCommand<T>(command, connection))
-                    .ToList();
-            }
+            return WithConnection(connectionString,
+                                  connection => commands
+                                                    .Select(command => ExecuteScalarCommand<T>(command, connection))
+                                                    .ToList());
         }
 
         private T ExecuteScalarCommand<T>(ScalarCommand scalarCommand, DbConnection connection)
@@ -187,6 +184,32 @@ namespace WeenyMapper.Sql
                 values[name] = value;
             }
             return values;
+        }
+
+        private T WithConnection<T>(string connectionString, Func<DbConnection, T> func)
+        {
+            var connection = _commandFactory.CreateConnection(connectionString);
+            var result = default(T);
+
+            var wasOpenedManually = false;
+
+            try
+            {
+                if (connection.State == ConnectionState.Closed)
+                {
+                    connection.Open();
+                    wasOpenedManually = true;
+                }
+
+                func(connection);
+            }
+            finally
+            {
+                if (wasOpenedManually)
+                    connection.Dispose();
+            }
+
+            return result;
         }
     }
 }

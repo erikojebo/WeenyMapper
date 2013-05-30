@@ -12,7 +12,9 @@ namespace WeenyMapper.Specs.Sql
 
         protected override void Dispose(bool disposing)
         {
-            Close();
+            if (State == ConnectionState.Open)
+                Close();
+
             IsDisposed = true;
         }
 

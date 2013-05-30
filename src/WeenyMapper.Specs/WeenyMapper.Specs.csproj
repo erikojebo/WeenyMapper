@@ -78,6 +78,7 @@
     <Compile Include="Sql\TestClasses\TestDbCommand.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Sql\TestClasses\TestDbCommandFactory.cs" />
     <Compile Include="Sql\TestClasses\TestDbConnection.cs">
       <SubType>Component</SubType>
     </Compile>

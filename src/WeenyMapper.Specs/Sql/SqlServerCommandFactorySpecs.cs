@@ -6,20 +6,22 @@ using WeenyMapper.Sql;
 namespace WeenyMapper.Specs.Sql
 {
     [TestFixture]
-    public class SqlServerCommandFactorySpecs : AcceptanceSpecsBase
+    public class SqlServerCommandFactorySpecs
     {
-        private SqlServerCommandFactory _commandFactory;
+        private TestDbCommandFactory _commandFactory;
+        private const string ConnectionString = "server=localhost";
 
-        protected override void PerformSetUp()
+        [SetUp]
+        public void SetUp()
         {
-            _commandFactory = new SqlServerCommandFactory();
+            _commandFactory = new TestDbCommandFactory();
         }
 
         [Test]
         public void New_connections_are_created_for_each_successive_call_for_the_same_connection_string_without_connection_scope()
         {
-            var connection1 = _commandFactory.CreateConnection("server=localhost");
-            var connection2 = _commandFactory.CreateConnection("server=localhost");
+            var connection1 = _commandFactory.CreateConnection(ConnectionString);
+            var connection2 = _commandFactory.CreateConnection(ConnectionString);
 
             Assert.AreNotSame(connection1, connection2);
         }
@@ -29,10 +31,10 @@ namespace WeenyMapper.Specs.Sql
         {
             DbConnection connection1, connection2;
 
-            using (_commandFactory.BeginConnection("server=localhost"))
+            using (_commandFactory.BeginConnection(ConnectionString))
             {
-                connection1 = _commandFactory.CreateConnection("server=localhost");
-                connection2 = _commandFactory.CreateConnection("server=localhost");
+                connection1 = _commandFactory.CreateConnection(ConnectionString);
+                connection2 = _commandFactory.CreateConnection(ConnectionString);
             }
 
             Assert.AreSame(connection1, connection2);
@@ -43,12 +45,12 @@ namespace WeenyMapper.Specs.Sql
         {
             DbConnection connection1, connection2, connection3, connection4;
 
-            using (_commandFactory.BeginConnection("server=localhost"))
+            using (_commandFactory.BeginConnection(ConnectionString))
             using (_commandFactory.BeginConnection("server=remote"))
             {
-                connection1 = _commandFactory.CreateConnection("server=localhost");
+                connection1 = _commandFactory.CreateConnection(ConnectionString);
                 connection2 = _commandFactory.CreateConnection("server=remote");
-                connection3 = _commandFactory.CreateConnection("server=localhost");
+                connection3 = _commandFactory.CreateConnection(ConnectionString);
                 connection4 = _commandFactory.CreateConnection("server=remote");
             }
 
@@ -62,12 +64,12 @@ namespace WeenyMapper.Specs.Sql
         {
             DbConnection connection1, connection2;
 
-            using (_commandFactory.BeginConnection("server=localhost"))
+            using (_commandFactory.BeginConnection(ConnectionString))
             {
-                connection1 = _commandFactory.CreateConnection("server=localhost");
+                connection1 = _commandFactory.CreateConnection(ConnectionString);
             }
 
-            connection2 = _commandFactory.CreateConnection("server=localhost");
+            connection2 = _commandFactory.CreateConnection(ConnectionString);
 
             Assert.AreNotSame(connection1, connection2);
         }
@@ -77,10 +79,9 @@ namespace WeenyMapper.Specs.Sql
         {
             DbConnection connection1;
 
-            using (_commandFactory.BeginConnection(TestConnectionString))
+            using (_commandFactory.BeginConnection(ConnectionString))
             {
-                connection1 = _commandFactory.CreateConnection(TestConnectionString);
-                connection1.Open();
+                connection1 = _commandFactory.CreateConnection(ConnectionString);
             }
 
             Assert.AreEqual(ConnectionState.Closed, connection1.State);
@@ -91,14 +92,13 @@ namespace WeenyMapper.Specs.Sql
         {
             DbConnection connection1, connection2;
 
-            using (_commandFactory.BeginConnection(TestConnectionString))
+            using (_commandFactory.BeginConnection(ConnectionString))
             {
-                connection1 = _commandFactory.CreateConnection(TestConnectionString);
-                connection1.Open();
+                connection1 = _commandFactory.CreateConnection(ConnectionString);
 
-                using (_commandFactory.BeginConnection("server=localhost"))
+                using (_commandFactory.BeginConnection(ConnectionString))
                 {
-                    connection2 = _commandFactory.CreateConnection(TestConnectionString);
+                    connection2 = _commandFactory.CreateConnection(ConnectionString);
                 }
 
                 Assert.AreEqual(ConnectionState.Open, connection1.State);
@@ -110,17 +110,26 @@ namespace WeenyMapper.Specs.Sql
         {
             DbConnection connection1, connection2;
 
-            using (_commandFactory.BeginConnection(TestConnectionString))
+            using (_commandFactory.BeginConnection(ConnectionString))
             {
-                connection1 = _commandFactory.CreateConnection(TestConnectionString);
-                connection1.Open();
+                connection1 = _commandFactory.CreateConnection(ConnectionString);
 
-                using (_commandFactory.BeginConnection(TestConnectionString))
+                using (_commandFactory.BeginConnection(ConnectionString))
                 {
-                    connection2 = _commandFactory.CreateConnection(TestConnectionString);
+                    connection2 = _commandFactory.CreateConnection(ConnectionString);
                 }
 
                 Assert.AreEqual(ConnectionState.Open, connection1.State);
+            }
+        }
+
+        [Test]
+        public void Connections_created_in_an_active_scope_are_open()
+        {
+            using (_commandFactory.BeginConnection(ConnectionString))
+            {
+                var connection = _commandFactory.CreateConnection(ConnectionString);
+                Assert.AreEqual(ConnectionState.Open, connection.State);
             }
         }
     }

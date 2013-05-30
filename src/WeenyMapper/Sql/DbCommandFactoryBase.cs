@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
 using WeenyMapper.Extensions;
@@ -11,7 +12,12 @@ namespace WeenyMapper.Sql
 
         public ConnectionScope BeginConnection(string connectionString)
         {
-            var connectionScope = new ConnectionScope(this, CreateConnection(connectionString));
+            var connection = CreateConnection(connectionString);
+
+            if (connection.State == ConnectionState.Closed)
+                connection.Open();
+
+            var connectionScope = new ConnectionScope(this, connection);
 
             _liveConnectionScopes.Add(connectionScope);
 
@@ -23,7 +29,12 @@ namespace WeenyMapper.Sql
             _liveConnectionScopes.Remove(connectionScope);
 
             if (ConnectionScopesMatching(connectionScope).IsEmpty())
-                connectionScope.Connection.Close();
+            {
+                if (connectionScope.Connection.State == ConnectionState.Open)
+                    connectionScope.Connection.Close();
+
+                connectionScope.Connection.Dispose();
+            }
         }
 
         public abstract DbCommand CreateCommand(string commandText);
