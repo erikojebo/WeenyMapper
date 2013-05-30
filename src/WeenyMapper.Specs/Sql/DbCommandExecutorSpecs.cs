@@ -13,7 +13,7 @@ namespace WeenyMapper.Specs.Sql
         private ISqlCommandLogger _logger;
         private DbCommandExecutor _executor;
         private TestDbCommand _command;
-        private TestDbConnection _returnThis;
+        private TestDbConnection _connection;
 
         [SetUp]
         public void SetUp()
@@ -23,9 +23,11 @@ namespace WeenyMapper.Specs.Sql
             _executor = new DbCommandExecutor(_logger, _commandFactory);
 
             _command = new TestDbCommand();
-            _returnThis = new TestDbConnection();
+            _connection = new TestDbConnection();
 
-            _commandFactory.CreateConnection("connection string").Returns(_returnThis);
+            _command.StubScalarResult = 1;
+
+            _commandFactory.CreateConnection("connection string").Returns(_connection);
         }
 
         [Test]
@@ -33,19 +35,15 @@ namespace WeenyMapper.Specs.Sql
         {
             _executor.ExecuteNonQuery(_command, "connection string");
 
-            Assert.AreEqual(ConnectionState.Closed, _returnThis.State);
-            Assert.IsTrue(_returnThis.IsDisposed);
+            AssertConnectionIsDisposed();
         }
-        
+
         [Test]
         public void A_new_connection_is_created_and_closed_if_no_connection_to_supplied_when_executing_a_scalar_command()
         {
-            _command.StubScalarResult = 1;
-
             _executor.ExecuteScalar<int>(_command, "connection string");
 
-            Assert.AreEqual(ConnectionState.Closed, _returnThis.State);
-            Assert.IsTrue(_returnThis.IsDisposed);
+            AssertConnectionIsDisposed();
         }
 
         [Test]
@@ -53,8 +51,13 @@ namespace WeenyMapper.Specs.Sql
         {
             _executor.ExecuteQuery(_command, "connection string");
 
-            Assert.AreEqual(ConnectionState.Closed, _returnThis.State);
-            Assert.IsTrue(_returnThis.IsDisposed);
+            AssertConnectionIsDisposed();
+        }
+
+        private void AssertConnectionIsDisposed()
+        {
+            Assert.AreEqual(ConnectionState.Closed, _connection.State);
+            Assert.IsTrue(_connection.IsDisposed);
         }
     }
 }
