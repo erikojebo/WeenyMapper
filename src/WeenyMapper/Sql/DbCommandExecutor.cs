@@ -49,36 +49,35 @@ namespace WeenyMapper.Sql
 
         public IList<T> ExecuteQuery<T>(DbCommand command, Func<IDictionary<string, object>, T> resultReader, string connectionString)
         {
-            using (var connection = _commandFactory.CreateConnection(connectionString))
-            {
-                var results = new List<T>();
+            var results = new List<T>();
 
-                connection.Open();
-                command.Connection = connection;
-
-                _sqlCommandLogger.Log(command);
-
-                var dataReader = command.ExecuteReader();
-
-                while (dataReader.Read())
+            ExecuteQuery(command, connectionString, reader =>
                 {
-                    var propertyValues = GetValues(dataReader);
+                    var propertyValues = GetValues(reader);
                     var result = resultReader(propertyValues);
                     results.Add(result);
-                }
+                });
 
-                command.Dispose();
-
-                return results;
-            }
+            return results;
         }
 
         public ResultSet ExecuteQuery(DbCommand command, string connectionString)
         {
+            var resultSet = new ResultSet();
+
+            ExecuteQuery(command, connectionString, reader =>
+                {
+                    var propertyValues = GetValues(reader).Select(x => new ColumnValue(x.Key, x.Value));
+                    resultSet.AddRow(propertyValues);
+                });
+
+            return resultSet;
+        }
+
+        private void ExecuteQuery(DbCommand command, string connectionString, Action<DbDataReader> readAction)
+        {
             using (var connection = _commandFactory.CreateConnection(connectionString))
             {
-                var resultSet = new ResultSet();
-
                 connection.Open();
                 command.Connection = connection;
 
@@ -88,13 +87,10 @@ namespace WeenyMapper.Sql
 
                 while (dataReader.Read())
                 {
-                    var propertyValues = GetValues(dataReader).Select(x => new ColumnValue(x.Key, x.Value));
-                    resultSet.AddRow(propertyValues);
+                    readAction(dataReader);
                 }
 
                 command.Dispose();
-
-                return resultSet;
             }
         }
 
