@@ -174,10 +174,10 @@ namespace WeenyMapper.Sql
 
         private List<T> WithConnection<T>(string connectionString, Func<DbConnection, List<T>> func)
         {
-            return WithConnection(connectionString, func, new List<T>());
+            return WithConnection<List<T>>(connectionString, func);
         }
 
-        private T WithConnection<T>(string connectionString, Func<DbConnection, T> func, T defaultValue = default(T))
+        private T WithConnection<T>(string connectionString, Func<DbConnection, T> func)
         {
             var connection = _commandFactory.CreateConnection(connectionString);
             T result;
