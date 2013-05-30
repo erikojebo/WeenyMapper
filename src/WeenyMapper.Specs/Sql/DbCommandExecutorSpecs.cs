@@ -3,6 +3,7 @@ using NSubstitute;
 using NUnit.Framework;
 using WeenyMapper.Logging;
 using WeenyMapper.Sql;
+using WeenyMapper.Extensions;
 
 namespace WeenyMapper.Specs.Sql
 {
@@ -50,6 +51,46 @@ namespace WeenyMapper.Specs.Sql
         public void A_new_connection_is_created_and_closed_if_no_connection_to_supplied_when_executing_a_query()
         {
             _executor.ExecuteQuery(_command, "connection string");
+
+            AssertConnectionIsDisposed();
+        }
+
+        [Test]
+        public void A_new_connection_is_created_and_closed_if_no_connection_to_supplied_when_executing_many_non_queries()
+        {
+            _executor.ExecuteNonQuery(_command.AsList(), "connection string");
+
+            AssertConnectionIsDisposed();
+        }
+
+        [Test]
+        public void A_new_connection_is_created_and_closed_if_no_connection_to_supplied_when_executing_scalar_list_query()
+        {
+            _executor.ExecuteScalarList<int>(_command, "connection string");
+
+            AssertConnectionIsDisposed();
+        }
+
+        [Test]
+        public void A_new_connection_is_created_and_closed_if_no_connection_to_supplied_when_executing_scalar_list_query_for_many_commands()
+        {
+            _executor.ExecuteScalarList<int>(_command.AsList(), "connection string");
+
+            AssertConnectionIsDisposed();
+        }
+        
+        [Test]
+        public void A_new_connection_is_created_and_closed_if_no_connection_to_supplied_when_executing_scalar_list_query_for_many_scalar_commands()
+        {
+            _executor.ExecuteScalarList<int>(new [] { new ScalarCommand { ResultCommand = _command } }, "connection string");
+
+            AssertConnectionIsDisposed();
+        }
+
+        [Test]
+        public void A_new_connection_is_created_and_closed_if_no_connection_to_supplied_when_executing_a_typed_query()
+        {
+            _executor.ExecuteQuery<object>(_command, values => null, "connection string");
 
             AssertConnectionIsDisposed();
         }
