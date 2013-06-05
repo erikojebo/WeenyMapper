@@ -9,10 +9,10 @@ namespace WeenyMapper.Sql
         DbCommand CreateCommand(string commandText);
         DbParameter CreateParameter(string name, object value);
         DbParameter CreateParameter(CommandParameter commandParameter);
-        DbConnection CreateConnection(string connectionString);
-        ConnectionScope BeginConnection(string connectionString);
+        DbConnection CreateConnection();
+        ConnectionScope BeginConnection();
         void EndConnection(ConnectionScope connectionScope);
-        TransactionScope BeginTransaction(string connectionString);
+        TransactionScope BeginTransaction();
         void EndTransaction(TransactionScope transactionScope);
         bool Matches(string connectionString);
     }

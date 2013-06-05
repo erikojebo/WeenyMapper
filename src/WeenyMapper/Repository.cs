@@ -287,12 +287,12 @@ namespace WeenyMapper
 
         public ConnectionScope BeginConnection()
         {
-            return DbCommandFactory.BeginConnection(ConnectionString);
+            return DbCommandFactory.BeginConnection();
         }
 
         public TransactionScope BeginTransaction()
         {
-            return DbCommandFactory.BeginTransaction(ConnectionString);
+            return DbCommandFactory.BeginTransaction();
         }
     }
 }

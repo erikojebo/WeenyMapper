@@ -29,7 +29,7 @@ namespace WeenyMapper.Specs.Sql
 
             _command.StubScalarResult = 1;
             _command.StubDataReader = new TestDbDataReader() { ResultSet = new ResultSet(new[] { new Row(new[] { new ColumnValue("Id", 1), }), }) };
-            _commandFactory.CreateConnection("connection string").Returns(_connection);
+            _commandFactory.CreateConnection().Returns(_connection);
         }
 
         [Test]

@@ -22,9 +22,9 @@ namespace WeenyMapper.Sql
             return _connectionString.ToLower() == connectionString.ToLower();
         }
 
-        public ConnectionScope BeginConnection(string connectionString)
+        public ConnectionScope BeginConnection()
         {
-            var connection = CreateConnection(connectionString);
+            var connection = CreateConnection();
 
             Open(connection);
 
@@ -45,7 +45,7 @@ namespace WeenyMapper.Sql
         {
             _liveConnectionScopes.Remove(connectionScope);
 
-            if (ConnectionScopesMatching(connectionScope).IsEmpty())
+            if (_liveConnectionScopes.IsEmpty())
                 DisposeConnection(connectionScope);
         }
 
@@ -57,9 +57,9 @@ namespace WeenyMapper.Sql
             connectionScope.Connection.Dispose();
         }
 
-        public TransactionScope BeginTransaction(string connectionString)
+        public TransactionScope BeginTransaction()
         {
-            var connectionScope = BeginConnection(connectionString);
+            var connectionScope = BeginConnection();
             var transaction = CreateTransaction(connectionScope);
 
             var transactionScope = new TransactionScope(this, transaction, connectionScope);
@@ -107,24 +107,12 @@ namespace WeenyMapper.Sql
         public abstract DbParameter CreateParameter(string name, object value);
         protected abstract DbConnection CreateNewConnection(string connectionString);
 
-        public virtual DbConnection CreateConnection(string connectionString)
+        public virtual DbConnection CreateConnection()
         {
-            var connectionScopesForConnectionString = ConnectionScopesMatching(connectionString);
+            if (_liveConnectionScopes.Any())
+                return _liveConnectionScopes.First().Connection;
 
-            if (connectionScopesForConnectionString.Any())
-                return connectionScopesForConnectionString.First().Connection;
-
-            return CreateNewConnection(connectionString);
-        }
-
-        private List<ConnectionScope> ConnectionScopesMatching(ConnectionScope connectionScope)
-        {
-            return _liveConnectionScopes.Where(x => x.Matches(connectionScope.Connection.ConnectionString)).ToList();
-        }
-        
-        private List<ConnectionScope> ConnectionScopesMatching(string connectionString)
-        {
-            return _liveConnectionScopes.Where(x => x.Matches(connectionString)).ToList();
+            return CreateNewConnection(_connectionString);
         }
 
         public virtual DbParameter CreateParameter(CommandParameter commandParameter)

@@ -27,8 +27,7 @@ namespace WeenyMapper.Sql
 
         public IList<int> ExecuteNonQuery(IEnumerable<DbCommand> commands, string connectionString)
         {
-            return WithConnection(connectionString,
-                                  connection => commands
+            return WithConnection(connection => commands
                                                     .Select(command => ExecuteNonQuery(command, connection))
                                                     .ToList());
         }
@@ -73,7 +72,7 @@ namespace WeenyMapper.Sql
 
         private void ExecuteQuery(DbCommand command, string connectionString, Action<DbDataReader> readAction)
         {
-            WithConnection(connectionString, connection =>
+            WithConnection(connection =>
                 {
                     command.Connection = connection;
 
@@ -94,8 +93,7 @@ namespace WeenyMapper.Sql
 
         public IList<T> ExecuteScalarList<T>(IEnumerable<ScalarCommand> commands, string connectionString)
         {
-            return WithConnection(connectionString,
-                                  connection => commands
+            return WithConnection(connection => commands
                                                     .Select(command => ExecuteScalarCommand<T>(command, connection))
                                                     .ToList());
         }
@@ -112,13 +110,12 @@ namespace WeenyMapper.Sql
 
         public T ExecuteScalar<T>(DbCommand command, string connectionString)
         {
-            return WithConnection(connectionString, connection => ExecuteScalar<T>(command, connection));
+            return WithConnection(connection => ExecuteScalar<T>(command, connection));
         }
 
         public IList<T> ExecuteScalarList<T>(IEnumerable<DbCommand> commands, string connectionString)
         {
-            return WithConnection(connectionString,
-                                  connection => commands
+            return WithConnection(connection => commands
                                                     .Select(dbCommand => ExecuteScalar<T>(dbCommand, connection))
                                                     .ToList());
         }
@@ -136,7 +133,7 @@ namespace WeenyMapper.Sql
 
         public IList<T> ExecuteScalarList<T>(DbCommand command, string connectionString)
         {
-            return WithConnection(connectionString, connection =>
+            return WithConnection(connection =>
                 {
                     var result = new List<T>();
 
@@ -172,14 +169,14 @@ namespace WeenyMapper.Sql
             return values;
         }
 
-        private List<T> WithConnection<T>(string connectionString, Func<DbConnection, List<T>> func)
+        private List<T> WithConnection<T>(Func<DbConnection, List<T>> func)
         {
-            return WithConnection<List<T>>(connectionString, func);
+            return WithConnection<List<T>>(func);
         }
 
-        private T WithConnection<T>(string connectionString, Func<DbConnection, T> func)
+        private T WithConnection<T>(Func<DbConnection, T> func)
         {
-            var connection = _commandFactory.CreateConnection(connectionString);
+            var connection = _commandFactory.CreateConnection();
             T result;
 
             var wasOpenedManually = false;
