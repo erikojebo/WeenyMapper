@@ -19,7 +19,7 @@ namespace WeenyMapper.Specs.Sql
         [SetUp]
         public void SetUp()
         {
-            var sqlServerCommandFactory = new SqlServerCommandFactory();
+            var sqlServerCommandFactory = new SqlServerCommandFactory(null);
 
             _generator = new TSqlGenerator(sqlServerCommandFactory);
 

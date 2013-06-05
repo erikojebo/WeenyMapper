@@ -3565,6 +3565,7 @@ namespace WeenyMapper.Specs
             }
         }
 
+        [Ignore("not implemented")]
         [Test]
         public void Operations_can_be_made_transactionally()
         {
@@ -3607,6 +3608,7 @@ namespace WeenyMapper.Specs
             Assert.AreEqual("2", actualBlogs[1].Name);
         }
 
+        [Ignore("not implemented")]
         [Test]
         public void Exceptions_in_a_nested_transaction_rolls_back_the_whole_transaction()
         {

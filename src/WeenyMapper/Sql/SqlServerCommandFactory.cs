@@ -6,6 +6,10 @@ namespace WeenyMapper.Sql
 {
     public class SqlServerCommandFactory : DbCommandFactoryBase
     {
+        public SqlServerCommandFactory(string connectionString) : base(connectionString)
+        {
+        }
+
         protected override DbCommand CreateNewCommand(string commandText)
         {
             return new SqlCommand(commandText);

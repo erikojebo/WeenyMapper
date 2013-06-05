@@ -241,7 +241,7 @@ namespace WeenyMapper
 
         private TSqlGenerator CreateSqlGenerator()
         {
-            return DatabaseProvider.CreateSqlGenerator();
+            return DatabaseProvider.CreateSqlGenerator(ConnectionString);
         }
 
         private DbCommandExecutor CreateSqlCommandExecutor()
@@ -254,7 +254,14 @@ namespace WeenyMapper
             get
             {
                 if (_dbCommandFactory == null)
-                    _dbCommandFactory = DatabaseProvider.CreateDbCommandFactory();
+                {
+                    _dbCommandFactory = DatabaseProvider.CreateDbCommandFactory(ConnectionString);
+                }
+                else if (!_dbCommandFactory.Matches(ConnectionString))
+                {
+                    _dbCommandFactory.Dispose();
+                    _dbCommandFactory = DatabaseProvider.CreateDbCommandFactory(ConnectionString);
+                }
 
                 return _dbCommandFactory;
             }

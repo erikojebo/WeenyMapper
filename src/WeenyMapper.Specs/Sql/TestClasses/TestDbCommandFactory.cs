@@ -5,6 +5,10 @@ namespace WeenyMapper.Specs.Sql
 {
     public class TestDbCommandFactory : DbCommandFactoryBase
     {
+        public TestDbCommandFactory(string connectionString) : base(connectionString)
+        {
+        }
+
         protected override DbCommand CreateNewCommand(string commandText)
         {
             return new TestDbCommand { CommandText = commandText };

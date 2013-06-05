@@ -1,8 +1,9 @@
-﻿using System.Data.Common;
+﻿using System;
+using System.Data.Common;
 
 namespace WeenyMapper.Sql
 {
-    public interface IDbCommandFactory
+    public interface IDbCommandFactory : IDisposable
     {
         DbCommand CreateCommand();
         DbCommand CreateCommand(string commandText);
@@ -13,5 +14,6 @@ namespace WeenyMapper.Sql
         void EndConnection(ConnectionScope connectionScope);
         TransactionScope BeginTransaction(string connectionString);
         void EndTransaction(TransactionScope transactionScope);
+        bool Matches(string connectionString);
     }
 }
