@@ -4,7 +4,7 @@ namespace WeenyMapper
 {
     public interface IDatabaseProvider
     {
-        TSqlGenerator CreateSqlGenerator(string connectionString);
+        TSqlGenerator CreateSqlGenerator(IDbCommandFactory dbCommandFactory);
         IDbCommandFactory CreateDbCommandFactory(string connectionString);
     }
 }

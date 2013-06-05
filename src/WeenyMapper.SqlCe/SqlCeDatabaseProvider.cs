@@ -4,9 +4,9 @@ namespace WeenyMapper.SqlCe
 {
     public class SqlCeDatabaseProvider : IDatabaseProvider
     {
-        public TSqlGenerator CreateSqlGenerator(string connectionString)
+        public TSqlGenerator CreateSqlGenerator(IDbCommandFactory dbCommandFactory)
         {
-            return new SqlCeTSqlGenerator(CreateDbCommandFactory(connectionString));
+            return new SqlCeTSqlGenerator(dbCommandFactory);
         }
 
         public IDbCommandFactory CreateDbCommandFactory(string connectionString)

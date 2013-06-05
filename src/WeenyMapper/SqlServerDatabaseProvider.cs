@@ -4,9 +4,9 @@ namespace WeenyMapper
 {
     public class SqlServerDatabaseProvider : IDatabaseProvider
     {
-        public TSqlGenerator CreateSqlGenerator(string connectionString)
+        public TSqlGenerator CreateSqlGenerator(IDbCommandFactory dbCommandFactory)
         {
-            return new TSqlGenerator(CreateDbCommandFactory(connectionString));
+            return new TSqlGenerator(dbCommandFactory);
         }
 
         public IDbCommandFactory CreateDbCommandFactory(string connectionString)

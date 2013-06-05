@@ -71,8 +71,8 @@ namespace WeenyMapper.Sql
 
         private DbTransaction CreateTransaction(ConnectionScope connectionScope)
         {
-            if (TransactionScopesMatching(connectionScope).Any())
-                return TransactionScopesMatching(connectionScope).First().Transaction;
+            if (_liveTransactionScopes.Any())
+                return _liveTransactionScopes.First().Transaction;
 
             return connectionScope.BeginTransaction();
         }
@@ -81,26 +81,21 @@ namespace WeenyMapper.Sql
         {
             _liveTransactionScopes.Remove(transactionScope);
 
-            if (TransactionScopesMatching(transactionScope).IsEmpty())
+            if (_liveTransactionScopes.IsEmpty())
             {
                 EndConnection(transactionScope.ConnectionScope);
                 DisposeTransaction(transactionScope);
             }
         }
 
-        private IEnumerable<TransactionScope> TransactionScopesMatching(TransactionScope transactionScope)
-        {
-            return _liveTransactionScopes.Where(x => x.Matches(transactionScope));
-        }
-
-        private IEnumerable<TransactionScope> TransactionScopesMatching(ConnectionScope connectionScope)
-        {
-            return _liveTransactionScopes.Where(x => x.Matches(connectionScope));
-        }
-
         public DbCommand CreateCommand(string commandText)
         {
-            return CreateNewCommand(commandText);
+            var command = CreateNewCommand(commandText);
+
+            if (_liveTransactionScopes.Any())
+                command.Transaction = _liveTransactionScopes.First().Transaction;
+
+            return command;
         }
 
         protected abstract DbCommand CreateNewCommand(string commandText);

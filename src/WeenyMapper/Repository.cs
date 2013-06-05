@@ -241,7 +241,7 @@ namespace WeenyMapper
 
         private TSqlGenerator CreateSqlGenerator()
         {
-            return DatabaseProvider.CreateSqlGenerator(ConnectionString);
+            return DatabaseProvider.CreateSqlGenerator(DbCommandFactory);
         }
 
         private DbCommandExecutor CreateSqlCommandExecutor()

@@ -97,7 +97,6 @@ namespace WeenyMapper.Specs.Sql
             }
         }
 
-        [Ignore("not implemented")]
         [Test]
         public void Commands_created_within_a_transaction_belong_to_that_transaction()
         {
@@ -109,7 +108,6 @@ namespace WeenyMapper.Specs.Sql
             }
         }
 
-        [Ignore("not implemented")]
         [Test]
         public void Commands_created_with_command_string_within_a_transaction_belong_to_that_transaction()
         {
@@ -121,18 +119,87 @@ namespace WeenyMapper.Specs.Sql
             }
         }
 
-        [Ignore("not implemented")]
+        [Test]
+        public void Commands_created_without_a_transaction_scope_do_not_belong_to_any_transaction()
+        {
+            var command = _commandFactory.CreateCommand("command text");
+            Assert.IsNull(command.Transaction);
+        }
+
         [Test]
         public void A_transaction_scope_creates_an_implicit_connection_scope_if_there_isnt_already_an_existing_one()
         {
-            throw new NotImplementedException();
+            using (var transactionScope = _commandFactory.BeginTransaction())
+            {
+                var connection1 = _commandFactory.CreateConnection();
+                var connection2 = _commandFactory.CreateConnection();
+
+                Assert.AreSame(connection1, connection2);
+            }
         }
 
-        [Ignore("not implemented")]
         [Test]
         public void An_implicitly_created_connection_scope_is_closed_after_the_transaction_scope_is_closed()
         {
-            throw new NotImplementedException();
+            DbConnection connection1, connection2;
+
+            using (var transactionScope = _commandFactory.BeginTransaction())
+            {
+                connection1 = _commandFactory.CreateConnection();
+            }
+
+            connection2 = _commandFactory.CreateConnection();
+
+            Assert.AreNotEqual(connection1, connection2);
+        }
+
+        [Test]
+        public void Disposing_a_transaction_scope_disposes_the_underlying_transaction()
+        {
+            TestDbTransaction transaction;
+
+            using (var transactionScope = _commandFactory.BeginTransaction())
+            {
+                transaction = (TestDbTransaction)transactionScope.Transaction;
+            }
+
+            Assert.IsTrue(transaction.IsDisposed);
+        }
+
+        [Test]
+        public void Nesting_transaction_scopes_use_the_same_transaction()
+        {
+            TestDbTransaction transaction1, transaction2;
+
+            using (var transactionScope1 = _commandFactory.BeginTransaction())
+            {
+                transaction1 = (TestDbTransaction)transactionScope1.Transaction;
+
+                using (var transactionScope2 = _commandFactory.BeginTransaction())
+                {
+                    transaction2 = (TestDbTransaction)transactionScope2.Transaction;
+
+                    Assert.AreSame(transaction1, transaction2);
+                }
+            }
+        }
+
+        [Test]
+        public void Consecutive_non_nested_transaction_scopes_use_different_transaction()
+        {
+            TestDbTransaction transaction1, transaction2;
+
+            using (var transactionScope1 = _commandFactory.BeginTransaction())
+            {
+                transaction1 = (TestDbTransaction)transactionScope1.Transaction;
+            }
+
+            using (var transactionScope2 = _commandFactory.BeginTransaction())
+            {
+                transaction2 = (TestDbTransaction)transactionScope2.Transaction;
+            }
+
+            Assert.AreNotSame(transaction1, transaction2);
         }
     }
 }

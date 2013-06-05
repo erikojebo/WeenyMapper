@@ -17,8 +17,9 @@ namespace WeenyMapper.Specs.Sql
             _connection = connection;
         }
 
-        protected bool IsCommitted { get; set; }
-        protected bool IsRolledBack { get; set; }
+        public bool IsCommitted { get; set; }
+        public bool IsRolledBack { get; set; }
+        public bool IsDisposed { get; set; }
 
         public override void Commit()
         {
@@ -30,6 +31,11 @@ namespace WeenyMapper.Specs.Sql
             IsRolledBack = true;
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            IsDisposed = true;
+        }
+
         protected override DbConnection DbConnection
         {
             get { return _connection; }
@@ -39,5 +45,6 @@ namespace WeenyMapper.Specs.Sql
         {
             get { return IsolationLevel.Unspecified; }
         }
+
     }
 }

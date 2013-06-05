@@ -3565,7 +3565,6 @@ namespace WeenyMapper.Specs
             }
         }
 
-        [Ignore("not implemented")]
         [Test]
         public void Operations_can_be_made_transactionally()
         {
