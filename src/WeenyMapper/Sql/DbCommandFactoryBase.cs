@@ -9,13 +9,13 @@ namespace WeenyMapper.Sql
     public abstract class DbCommandFactoryBase : IDbCommandFactory
     {
         private readonly IList<ConnectionScope> _liveConnectionScopes = new List<ConnectionScope>();
+        private readonly List<TransactionScope> _liveTransactionScopes = new List<TransactionScope>();
 
         public ConnectionScope BeginConnection(string connectionString)
         {
             var connection = CreateConnection(connectionString);
 
-            if (connection.State == ConnectionState.Closed)
-                connection.Open();
+            Open(connection);
 
             var connectionScope = new ConnectionScope(this, connection);
 
@@ -24,20 +24,77 @@ namespace WeenyMapper.Sql
             return connectionScope;
         }
 
+        private static void Open(DbConnection connection)
+        {
+            if (connection.State == ConnectionState.Closed)
+                connection.Open();
+        }
+
         public void EndConnection(ConnectionScope connectionScope)
         {
             _liveConnectionScopes.Remove(connectionScope);
 
             if (ConnectionScopesMatching(connectionScope).IsEmpty())
             {
-                if (connectionScope.Connection.State == ConnectionState.Open)
-                    connectionScope.Connection.Close();
+                Close(connectionScope);
 
                 connectionScope.Connection.Dispose();
             }
         }
 
-        public abstract DbCommand CreateCommand(string commandText);
+        private static void Close(ConnectionScope connectionScope)
+        {
+            if (connectionScope.Connection.State == ConnectionState.Open)
+                connectionScope.Connection.Close();
+        }
+
+        public TransactionScope BeginTransaction(string connectionString)
+        {
+            var connectionScope = BeginConnection(connectionString);
+            var transaction = CreateTransaction(connectionScope);
+
+            var transactionScope = new TransactionScope(this, transaction, connectionScope);
+
+            _liveTransactionScopes.Add(transactionScope);
+
+            return transactionScope;
+        }
+
+        private DbTransaction CreateTransaction(ConnectionScope connectionScope)
+        {
+            if (TransactionScopesMatching(connectionScope).Any())
+                return TransactionScopesMatching(connectionScope).First().Transaction;
+
+            return connectionScope.BeginTransaction();
+        }
+
+        public void EndTransaction(TransactionScope transactionScope)
+        {
+            _liveTransactionScopes.Remove(transactionScope);
+
+            if (TransactionScopesMatching(transactionScope).IsEmpty())
+            {
+                EndConnection(transactionScope.ConnectionScope);
+                transactionScope.Transaction.Dispose();
+            }
+        }
+
+        private IEnumerable<TransactionScope> TransactionScopesMatching(TransactionScope transactionScope)
+        {
+            return _liveTransactionScopes.Where(x => x.Matches(transactionScope));
+        }
+
+        private IEnumerable<TransactionScope> TransactionScopesMatching(ConnectionScope connectionScope)
+        {
+            return _liveTransactionScopes.Where(x => x.Matches(connectionScope));
+        }
+
+        public DbCommand CreateCommand(string commandText)
+        {
+            return CreateNewCommand(commandText);
+        }
+
+        protected abstract DbCommand CreateNewCommand(string commandText);
         public abstract DbParameter CreateParameter(string name, object value);
         protected abstract DbConnection CreateNewConnection(string connectionString);
 

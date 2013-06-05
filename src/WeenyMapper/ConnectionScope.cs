@@ -21,9 +21,19 @@ namespace WeenyMapper
             _dbCommandFactory.EndConnection(this);
         }
 
+        public bool Matches(ConnectionScope connectionScope)
+        {
+            return Matches(connectionScope.Connection.ConnectionString);
+        }
+
         public bool Matches(string connectionString)
         {
             return Connection.ConnectionString.ToLower() == connectionString.ToLower();
+        }
+
+        public DbTransaction BeginTransaction()
+        {
+            return Connection.BeginTransaction();
         }
     }
 }

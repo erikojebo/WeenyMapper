@@ -282,5 +282,10 @@ namespace WeenyMapper
         {
             return DbCommandFactory.BeginConnection(ConnectionString);
         }
+
+        public TransactionScope BeginTransaction()
+        {
+            return DbCommandFactory.BeginTransaction(ConnectionString);
+        }
     }
 }

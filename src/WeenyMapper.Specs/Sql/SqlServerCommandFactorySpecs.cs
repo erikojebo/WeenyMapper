@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using System.Data.Common;
 using NUnit.Framework;
 using WeenyMapper.Sql;
@@ -131,6 +132,40 @@ namespace WeenyMapper.Specs.Sql
                 var connection = _commandFactory.CreateConnection(ConnectionString);
                 Assert.AreEqual(ConnectionState.Open, connection.State);
             }
+        }
+
+        [Test]
+        public void Commands_created_within_a_transaction_belong_to_that_transaction()
+        {
+            using(var transactionScope = _commandFactory.BeginTransaction(ConnectionString))
+            {
+                var command = _commandFactory.CreateCommand();
+
+                Assert.AreSame(transactionScope.Transaction, command.Transaction);
+            }
+        }
+        
+        [Test]
+        public void Commands_created_with_command_string_within_a_transaction_belong_to_that_transaction()
+        {
+            using(var transactionScope = _commandFactory.BeginTransaction(ConnectionString))
+            {
+                var command = _commandFactory.CreateCommand("command string");
+
+                Assert.AreSame(transactionScope.Transaction, command.Transaction);
+            }
+        }
+
+        [Test]
+        public void A_transaction_scope_creates_an_implicit_connection_scope_if_there_isnt_already_an_existing_one()
+        {
+            throw new NotImplementedException();
+        }
+
+        [Test]
+        public void An_implicitly_created_connection_scope_is_closed_after_the_transaction_scope_is_closed()
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -11,5 +11,7 @@ namespace WeenyMapper.Sql
         DbConnection CreateConnection(string connectionString);
         ConnectionScope BeginConnection(string connectionString);
         void EndConnection(ConnectionScope connectionScope);
+        TransactionScope BeginTransaction(string connectionString);
+        void EndTransaction(TransactionScope transactionScope);
     }
 }

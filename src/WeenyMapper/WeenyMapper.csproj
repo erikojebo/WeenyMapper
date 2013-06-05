@@ -156,6 +156,7 @@
     <Compile Include="Sql\TopClause.cs" />
     <Compile Include="Sql\TSqlGenerator.cs" />
     <Compile Include="Sql\WhereClause.cs" />
+    <Compile Include="TransactionScope.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

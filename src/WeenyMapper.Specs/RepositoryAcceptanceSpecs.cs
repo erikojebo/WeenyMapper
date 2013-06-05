@@ -4,6 +4,7 @@ using System.Linq;
 using NUnit.Framework;
 using WeenyMapper.Conventions;
 using WeenyMapper.Exceptions;
+using WeenyMapper.Specs.Exceptions;
 using WeenyMapper.Specs.TestClasses.Conventions;
 using WeenyMapper.Specs.TestClasses.Entities;
 
@@ -3562,6 +3563,90 @@ namespace WeenyMapper.Specs
             {
                 connectionScope.Dispose();
             }
+        }
+
+        [Test]
+        public void Operations_can_be_made_transactionally()
+        {
+            using (var transaction = Repository.BeginTransaction())
+            {
+                var blog1 = new Blog("1");
+                var blog2 = new Blog("2");
+
+                Repository.Insert(new List<Blog> { blog1, blog2 });
+
+                transaction.Commit();
+            }
+
+            try
+            {
+                using (var transaction = Repository.BeginTransaction())
+                {
+                    var blog3 = new Blog("3");
+                    var blog4 = new Blog("4");
+
+                    Repository.Insert(new List<Blog> { blog3, blog4 });
+
+                    throw new Exception("This should roll back the transaction");
+
+                    transaction.Commit();                
+                }
+            }
+            catch
+            {
+                // Just swallow the exception. The transaction should be rolled back.
+            }
+
+            var actualBlogs = Repository.Find<Blog>()
+                .OrderBy(x => x.Name)
+                .ExecuteList();
+
+            Assert.AreEqual(2, actualBlogs.Count);
+
+            Assert.AreEqual("1", actualBlogs[0].Name);
+            Assert.AreEqual("2", actualBlogs[1].Name);
+        }
+
+        [Test]
+        public void Exceptions_in_a_nested_transaction_rolls_back_the_whole_transaction()
+        {
+            var blog1 = new Blog("1");
+
+            Repository.Insert(new List<Blog> { blog1 });
+            
+            try
+            {
+                using (var transaction = Repository.BeginTransaction())
+                {
+                    var blog2 = new Blog("2");
+
+                    Repository.Insert(new List<Blog> { blog2 });
+
+                    using (Repository.BeginTransaction())
+                    {
+                        var blog3 = new Blog("3");
+                        var blog4 = new Blog("4");
+
+                        Repository.Insert(new List<Blog> { blog3, blog4 });
+
+                        throw new SpecException("This should roll back the transaction");
+                    }
+
+                    transaction.Commit();
+                }
+            }
+            catch (SpecException)
+            {
+                // Just swallow the exception. The transaction should be rolled back.
+            }
+
+            var actualBlogs = Repository.Find<Blog>()
+                .OrderBy(x => x.Name)
+                .ExecuteList();
+
+            Assert.AreEqual(1, actualBlogs.Count);
+
+            Assert.AreEqual("1", actualBlogs[0].Name);
         }
 
         private void AssertEqualsManagerAndSubordinates(Employee employee, Employee actualEmployee)
