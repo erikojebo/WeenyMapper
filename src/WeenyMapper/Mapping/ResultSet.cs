@@ -112,5 +112,10 @@ namespace WeenyMapper.Mapping
 
             return matchingRows;
         }
+
+        public ResultSet Clone()
+        {
+            return new ResultSet(Rows.Select(x => x.Clone()));
+        }
     }
 }

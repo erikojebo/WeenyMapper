@@ -67,6 +67,11 @@ namespace WeenyMapper
             set { _convention = value; }
         }
 
+        protected virtual IDatabaseProvider InternalDatabaseProvider
+        {
+            get { return DatabaseProvider; }
+        }
+        
         public void Insert<T>(params T[] entities)
         {
             var isListItemTypeCollectionInsteadOfEntity = typeof(T).ImplementsGenericInterface(typeof(IEnumerable<>));
@@ -241,7 +246,7 @@ namespace WeenyMapper
 
         private TSqlGenerator CreateSqlGenerator()
         {
-            return DatabaseProvider.CreateSqlGenerator(DbCommandFactory);
+            return InternalDatabaseProvider.CreateSqlGenerator(DbCommandFactory);
         }
 
         private DbCommandExecutor CreateSqlCommandExecutor()
@@ -255,12 +260,12 @@ namespace WeenyMapper
             {
                 if (_dbCommandFactory == null)
                 {
-                    _dbCommandFactory = DatabaseProvider.CreateDbCommandFactory(ConnectionString);
+                    _dbCommandFactory = InternalDatabaseProvider.CreateDbCommandFactory(ConnectionString);
                 }
                 else if (!_dbCommandFactory.Matches(ConnectionString))
                 {
                     _dbCommandFactory.Dispose();
-                    _dbCommandFactory = DatabaseProvider.CreateDbCommandFactory(ConnectionString);
+                    _dbCommandFactory = InternalDatabaseProvider.CreateDbCommandFactory(ConnectionString);
                 }
 
                 return _dbCommandFactory;
@@ -290,7 +295,7 @@ namespace WeenyMapper
             return DbCommandFactory.BeginConnection();
         }
 
-        public TransactionScope BeginTransaction()
+        public virtual TransactionScope BeginTransaction()
         {
             return DbCommandFactory.BeginTransaction();
         }

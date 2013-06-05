@@ -18,28 +18,32 @@ namespace WeenyMapper
             ConnectionScope = connectionScope;
         }
 
-        public void Dispose()
+        protected TransactionScope()
         {
-            Transaction.Dispose();
+            
+        }
+
+        public virtual void Dispose()
+        {
             _commandFactory.EndTransaction(this);
         }
 
-        public void Commit()
+        public virtual void CommitTransaction()
         {
             Transaction.Commit();
         }
 
-        public void Rollback()
+        public virtual void Rollback()
         {
             Transaction.Rollback();
         }
 
-        public bool Matches(TransactionScope transactionScope)
+        public virtual bool Matches(TransactionScope transactionScope)
         {
             return transactionScope.Transaction == Transaction;
         }
 
-        public bool Matches(ConnectionScope connectionScope)
+        public virtual bool Matches(ConnectionScope connectionScope)
         {
             return ConnectionScope.Matches(connectionScope);
         }

@@ -70,8 +70,10 @@
     <Compile Include="Mapping\ResultSet.cs" />
     <Compile Include="Mapping\Row.cs" />
     <Compile Include="QueryExecution\InMemory\InMemoryDatabase.cs" />
+    <Compile Include="QueryExecution\InMemory\InMemoryDatabaseProvider.cs" />
     <Compile Include="QueryExecution\InMemory\InMemoryRowMatcher.cs" />
     <Compile Include="QueryExecution\InMemory\InMemoryRowSorter.cs" />
+    <Compile Include="QueryExecution\InMemory\InMemoryTransactionScope.cs" />
     <Compile Include="QueryExecution\InMemory\QueryExpressionRowMatcher.cs" />
     <Compile Include="QueryParsing\QueryCombinationOperation.cs" />
     <Compile Include="QueryExecution\InMemory\InMemoryObjectCountExecutor.cs" />

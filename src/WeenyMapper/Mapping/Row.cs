@@ -100,5 +100,10 @@ namespace WeenyMapper.Mapping
                 Add(columnValue);
             }
         }
+
+        public Row Clone()
+        {
+            return new Row(ColumnValues.Select(x => x.Clone()));
+        }
     }
 }

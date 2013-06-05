@@ -17,7 +17,10 @@ namespace WeenyMapper.QueryExecution.InMemory
 
         public IConventionReader ConventionReader;
         public IEntityMapper EntityMapper;
+        private readonly Dictionary<string, ResultSet> _transactionSnapshots = new Dictionary<string, ResultSet>();
         private readonly Dictionary<string, ResultSet> _tables = new Dictionary<string, ResultSet>();
+        private readonly List<InMemoryTransactionScope> _activeTransactions = new List<InMemoryTransactionScope>();
+        private bool _isRolledBack;
 
         public InMemoryDatabase(IConventionReader conventionReader, IEntityMapper entityMapper)
         {
@@ -369,6 +372,85 @@ namespace WeenyMapper.QueryExecution.InMemory
             var matches = FindMatchingRows<T>(queryExpression);
 
             return matches.Count;
+        }
+
+        public InMemoryTransactionScope BeginTransaction()
+        {
+            var inMemoryTransactionScope = new InMemoryTransactionScope(this);
+
+            if (!HasActiveTransaction)
+                TakeTransactionSnapshot();
+
+            _activeTransactions.Add(inMemoryTransactionScope);
+
+            return inMemoryTransactionScope;
+        }
+
+        public void Commit(InMemoryTransactionScope transactionScope)
+        {
+            Remove(transactionScope);
+            CommitTransaction();
+        }
+
+        public void Rollback(InMemoryTransactionScope transactionScope)
+        {
+            Remove(transactionScope);
+
+            _isRolledBack = true;
+
+            RollbackTransaction();
+        }
+
+        private void CommitTransaction()
+        {
+            if (_isRolledBack)
+            {
+                RollbackTransaction();
+                return;
+            }
+
+            if (_activeTransactions.Any())
+                return;
+
+            _transactionSnapshots.Clear();
+        }
+
+        private void RollbackTransaction()
+        {
+            _tables.Clear();
+
+            foreach (var transactionSnapshot in _transactionSnapshots)
+            {
+                _tables[transactionSnapshot.Key] = transactionSnapshot.Value.Clone();
+            }
+        }
+
+        private void TakeTransactionSnapshot()
+        {
+            _transactionSnapshots.Clear();
+
+            foreach (var table in _tables)
+            {
+                _transactionSnapshots[table.Key] = table.Value.Clone();
+            }
+        }
+
+        private void Remove(InMemoryTransactionScope transactionScope)
+        {
+            _activeTransactions.Remove(transactionScope);
+
+            if (_activeTransactions.IsEmpty())
+            {
+                if (_isRolledBack)
+                    RollbackTransaction();
+
+                _isRolledBack = false;                
+            }
+        }
+
+        private bool HasActiveTransaction
+        {
+            get { return _activeTransactions.Any(); }
         }
     }
 }

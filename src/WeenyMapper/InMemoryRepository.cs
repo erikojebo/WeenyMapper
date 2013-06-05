@@ -52,6 +52,11 @@ namespace WeenyMapper
             return new InMemoryObjectUpdateExecutor(_inMemoryDatabase);
         }
 
+        protected override IDatabaseProvider InternalDatabaseProvider
+        {
+            get { return new InMemoryDatabaseProvider(_inMemoryDatabase); }
+        }
+
         private void UseNewConventionReaderForCurrentConvention()
         {
             var conventionReader = CreateConventionReader();

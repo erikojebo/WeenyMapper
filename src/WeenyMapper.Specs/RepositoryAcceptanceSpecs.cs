@@ -3575,7 +3575,7 @@ namespace WeenyMapper.Specs
 
                 Repository.Insert(new List<Blog> { blog1, blog2 });
 
-                transaction.Commit();
+                transaction.CommitTransaction();
             }
 
             try
@@ -3589,7 +3589,7 @@ namespace WeenyMapper.Specs
 
                     throw new Exception("This should roll back the transaction");
 
-                    transaction.Commit();                
+                    transaction.CommitTransaction();                
                 }
             }
             catch
@@ -3633,7 +3633,7 @@ namespace WeenyMapper.Specs
                         throw new SpecException("This should roll back the transaction");
                     }
 
-                    transaction.Commit();
+                    transaction.CommitTransaction();
                 }
             }
             catch (SpecException)

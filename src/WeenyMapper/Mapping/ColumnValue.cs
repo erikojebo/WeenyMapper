@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using WeenyMapper.Conventions;
 
 namespace WeenyMapper.Mapping
@@ -81,6 +82,11 @@ namespace WeenyMapper.Mapping
 
             return other.Alias == Alias &&
                    other.Value == Value;
+        }
+
+        public ColumnValue Clone()
+        {
+            return new ColumnValue(Alias, Value);
         }
     }
 }
