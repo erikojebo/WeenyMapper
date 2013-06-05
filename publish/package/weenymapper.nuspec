@@ -2,13 +2,13 @@
 <package >
   <metadata>
     <id>WeenyMapper</id>
-    <version>0.9.2</version>
+    <version>0.9.3</version>
     <authors>Erik Öjebo</authors>
     <owners>Erik Öjebo</owners>
     <projectUrl>https://github.com/erikojebo/WeenyMapper</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Configuration-less object-relational mapper for SQL Server and SQL Server CE</description>
-    <releaseNotes>Fixed a number of issues with the join api</releaseNotes>
+    <releaseNotes>Added connection scopes and transaction scopes</releaseNotes>
     <copyright>Copyright 2012</copyright>
     <tags>.net orm object relational mapping sql sqlserver</tags>
   </metadata>

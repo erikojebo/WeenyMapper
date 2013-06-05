@@ -7,7 +7,11 @@ namespace WeenyMapper.SqlCe4.Sql
 {
     public class SqlCe4CommandFactory : DbCommandFactoryBase
     {
-        public override DbCommand CreateCommand(string commandText)
+        public SqlCe4CommandFactory(string connectionString) : base(connectionString)
+        {
+        }
+
+        protected override DbCommand CreateNewCommand(string commandText)
         {
             return new SqlCeCommand(commandText);
         }

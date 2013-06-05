@@ -36,7 +36,7 @@ namespace WeenyMapper.Specs
 
         private void WriteDatabaseSchema()
         {
-            TestDatabase.Create(TestConnectionString, new SqlCe4CommandFactory());
+            TestDatabase.Create(TestConnectionString, new SqlCe4CommandFactory(TestConnectionString));
         }
 
         private void CreateDatabaseFile()
