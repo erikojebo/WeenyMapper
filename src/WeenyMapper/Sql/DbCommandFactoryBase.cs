@@ -46,15 +46,7 @@ namespace WeenyMapper.Sql
             _liveConnectionScopes.Remove(connectionScope);
 
             if (_liveConnectionScopes.IsEmpty())
-                DisposeConnection(connectionScope);
-        }
-
-        private static void DisposeConnection(ConnectionScope connectionScope)
-        {
-            if (connectionScope.Connection.State == ConnectionState.Open)
-                connectionScope.Connection.Close();
-
-            connectionScope.Connection.Dispose();
+                connectionScope.DisposeConnection();
         }
 
         public TransactionScope BeginTransaction()
@@ -69,12 +61,12 @@ namespace WeenyMapper.Sql
             return transactionScope;
         }
 
-        private DbTransaction CreateTransaction(ConnectionScope connectionScope)
+        private TransactionReference CreateTransaction(ConnectionScope connectionScope)
         {
             if (_liveTransactionScopes.Any())
                 return _liveTransactionScopes.First().Transaction;
 
-            return connectionScope.BeginTransaction();
+            return new TransactionReference(connectionScope.BeginTransaction());
         }
 
         public void EndTransaction(TransactionScope transactionScope)
@@ -84,7 +76,7 @@ namespace WeenyMapper.Sql
             if (_liveTransactionScopes.IsEmpty())
             {
                 EndConnection(transactionScope.ConnectionScope);
-                DisposeTransaction(transactionScope);
+                transactionScope.DisposeTransaction();
             }
         }
 
@@ -93,7 +85,7 @@ namespace WeenyMapper.Sql
             var command = CreateNewCommand(commandText);
 
             if (_liveTransactionScopes.Any())
-                command.Transaction = _liveTransactionScopes.First().Transaction;
+                command.Transaction = _liveTransactionScopes.First().Transaction.Transaction;
 
             return command;
         }
@@ -124,18 +116,13 @@ namespace WeenyMapper.Sql
         {
             foreach (var liveTransactionScope in _liveTransactionScopes)
             {
-                DisposeTransaction(liveTransactionScope);
+                liveTransactionScope.DisposeTransaction();
             }
 
             foreach (var liveConnectionScope in _liveConnectionScopes)
             {
-                DisposeConnection(liveConnectionScope);
+                liveConnectionScope.DisposeConnection();
             }
-        }
-
-        private void DisposeTransaction(TransactionScope liveTransactionScope)
-        {
-            liveTransactionScope.Transaction.Dispose();
         }
     }
 }

@@ -10,7 +10,7 @@
             _inMemoryDatabase = inMemoryDatabase;
         }
 
-        public override void CommitTransaction()
+        public override void Commit()
         {
             _isCommitted = true;
             _inMemoryDatabase.Commit(this);

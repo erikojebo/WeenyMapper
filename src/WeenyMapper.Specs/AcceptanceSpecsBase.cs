@@ -30,6 +30,8 @@ namespace WeenyMapper.Specs
 
         protected void DeleteAllExistingTestData()
         {
+            Repository.DisableSqlLogging();
+
             Repository.DefaultConvention = new BlogConvention();
 
             Repository.Delete<Comment>().Execute();
@@ -55,6 +57,8 @@ namespace WeenyMapper.Specs
             Repository.Delete<Track>().Execute();
             Repository.Delete<Album>().Execute();
             Repository.Delete<Artist>().Execute();
+
+            Repository.EnableSqlTraceLogging();
         }
     }
 }

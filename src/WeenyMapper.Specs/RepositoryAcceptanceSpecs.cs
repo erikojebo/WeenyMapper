@@ -3575,7 +3575,7 @@ namespace WeenyMapper.Specs
 
                 Repository.Insert(new List<Blog> { blog1, blog2 });
 
-                transaction.CommitTransaction();
+                transaction.Commit();
             }
 
             try
@@ -3589,7 +3589,7 @@ namespace WeenyMapper.Specs
 
                     throw new Exception("This should roll back the transaction");
 
-                    transaction.CommitTransaction();                
+                    transaction.Commit();                
                 }
             }
             catch
@@ -3607,7 +3607,6 @@ namespace WeenyMapper.Specs
             Assert.AreEqual("2", actualBlogs[1].Name);
         }
 
-        [Ignore("not implemented")]
         [Test]
         public void Exceptions_in_a_nested_transaction_rolls_back_the_whole_transaction()
         {
@@ -3623,7 +3622,7 @@ namespace WeenyMapper.Specs
 
                     Repository.Insert(new List<Blog> { blog2 });
 
-                    using (Repository.BeginTransaction())
+                    using (var innerScope = Repository.BeginTransaction())
                     {
                         var blog3 = new Blog("3");
                         var blog4 = new Blog("4");
@@ -3633,7 +3632,7 @@ namespace WeenyMapper.Specs
                         throw new SpecException("This should roll back the transaction");
                     }
 
-                    transaction.CommitTransaction();
+                    transaction.Commit();
                 }
             }
             catch (SpecException)

@@ -158,6 +158,7 @@
     <Compile Include="Sql\TopClause.cs" />
     <Compile Include="Sql\TSqlGenerator.cs" />
     <Compile Include="Sql\WhereClause.cs" />
+    <Compile Include="TransactionReference.cs" />
     <Compile Include="TransactionScope.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

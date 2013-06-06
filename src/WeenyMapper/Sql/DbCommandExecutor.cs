@@ -47,7 +47,7 @@ namespace WeenyMapper.Sql
         {
             var results = new List<T>();
 
-            ExecuteQuery(command, connectionString, reader =>
+            ExecuteQuery(command, reader =>
                 {
                     var propertyValues = GetValues(reader);
                     var result = resultReader(propertyValues);
@@ -61,7 +61,7 @@ namespace WeenyMapper.Sql
         {
             var resultSet = new ResultSet();
 
-            ExecuteQuery(command, connectionString, reader =>
+            ExecuteQuery(command, reader =>
                 {
                     var propertyValues = GetValues(reader).Select(x => new ColumnValue(x.Key, x.Value));
                     resultSet.AddRow(propertyValues);
@@ -70,7 +70,7 @@ namespace WeenyMapper.Sql
             return resultSet;
         }
 
-        private void ExecuteQuery(DbCommand command, string connectionString, Action<DbDataReader> readAction)
+        private void ExecuteQuery(DbCommand command, Action<DbDataReader> readAction)
         {
             WithConnection(connection =>
                 {
@@ -78,11 +78,12 @@ namespace WeenyMapper.Sql
 
                     _sqlCommandLogger.Log(command);
 
-                    var dataReader = command.ExecuteReader();
-
-                    while (dataReader.Read())
+                    using (var dataReader = command.ExecuteReader())
                     {
-                        readAction(dataReader);
+                        while (dataReader.Read())
+                        {
+                            readAction(dataReader);
+                        }
                     }
 
                     command.Dispose();

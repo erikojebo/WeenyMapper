@@ -10,7 +10,6 @@ namespace WeenyMapper.Specs.Sql
     public class SqlServerCommandFactorySpecs
     {
         private TestDbCommandFactory _commandFactory;
-        private const string ConnectionString = "server=localhost";
 
         [SetUp]
         public void SetUp()
@@ -104,7 +103,7 @@ namespace WeenyMapper.Specs.Sql
             {
                 var command = _commandFactory.CreateCommand();
 
-                Assert.AreSame(transactionScope.Transaction, command.Transaction);
+                Assert.AreSame(transactionScope.Transaction.Transaction, command.Transaction);
             }
         }
 
@@ -115,7 +114,7 @@ namespace WeenyMapper.Specs.Sql
             {
                 var command = _commandFactory.CreateCommand("command string");
 
-                Assert.AreSame(transactionScope.Transaction, command.Transaction);
+                Assert.AreSame(transactionScope.Transaction.Transaction, command.Transaction);
             }
         }
 
@@ -152,6 +151,25 @@ namespace WeenyMapper.Specs.Sql
 
             Assert.AreNotEqual(connection1, connection2);
         }
+        
+        [Test]
+        public void An_implicitly_created_connection_scope_is_closed_after_nested_transaction_scopes_are_closed()
+        {
+            DbConnection connection1, connection2;
+
+            using (var transactionScope = _commandFactory.BeginTransaction())
+            {
+                connection1 = _commandFactory.CreateConnection();
+                
+                using (_commandFactory.BeginTransaction())
+                {
+                }
+            }
+
+            connection2 = _commandFactory.CreateConnection();
+
+            Assert.AreNotEqual(connection1, connection2);
+        }
 
         [Test]
         public void Disposing_a_transaction_scope_disposes_the_underlying_transaction()
@@ -160,7 +178,7 @@ namespace WeenyMapper.Specs.Sql
 
             using (var transactionScope = _commandFactory.BeginTransaction())
             {
-                transaction = (TestDbTransaction)transactionScope.Transaction;
+                transaction = (TestDbTransaction)transactionScope.Transaction.Transaction;
             }
 
             Assert.IsTrue(transaction.IsDisposed);
@@ -173,11 +191,11 @@ namespace WeenyMapper.Specs.Sql
 
             using (var transactionScope1 = _commandFactory.BeginTransaction())
             {
-                transaction1 = (TestDbTransaction)transactionScope1.Transaction;
+                transaction1 = (TestDbTransaction)transactionScope1.Transaction.Transaction;
 
                 using (var transactionScope2 = _commandFactory.BeginTransaction())
                 {
-                    transaction2 = (TestDbTransaction)transactionScope2.Transaction;
+                    transaction2 = (TestDbTransaction)transactionScope2.Transaction.Transaction;
 
                     Assert.AreSame(transaction1, transaction2);
                 }
@@ -191,15 +209,17 @@ namespace WeenyMapper.Specs.Sql
 
             using (var transactionScope1 = _commandFactory.BeginTransaction())
             {
-                transaction1 = (TestDbTransaction)transactionScope1.Transaction;
+                transaction1 = (TestDbTransaction)transactionScope1.Transaction.Transaction;
             }
 
             using (var transactionScope2 = _commandFactory.BeginTransaction())
             {
-                transaction2 = (TestDbTransaction)transactionScope2.Transaction;
+                transaction2 = (TestDbTransaction)transactionScope2.Transaction.Transaction;
             }
 
             Assert.AreNotSame(transaction1, transaction2);
         }
+
+
     }
 }

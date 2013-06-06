@@ -1,4 +1,5 @@
 using System;
+using System.Data;
 using System.Data.Common;
 using WeenyMapper.Sql;
 
@@ -34,6 +35,14 @@ namespace WeenyMapper
         public DbTransaction BeginTransaction()
         {
             return Connection.BeginTransaction();
+        }
+
+        public void DisposeConnection()
+        {
+            if (Connection.State == ConnectionState.Open)
+                Connection.Close();
+
+            Connection.Dispose();
         }
     }
 }
