@@ -72,10 +72,10 @@ namespace WeenyMapper.Sql
         public void EndTransaction(TransactionScope transactionScope)
         {
             _liveTransactionScopes.Remove(transactionScope);
+            EndConnection(transactionScope.ConnectionScope);
 
             if (_liveTransactionScopes.IsEmpty())
             {
-                EndConnection(transactionScope.ConnectionScope);
                 transactionScope.DisposeTransaction();
             }
         }
