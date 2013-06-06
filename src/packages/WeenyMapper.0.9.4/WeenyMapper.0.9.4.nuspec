@@ -1,19 +1,15 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
-    <id>WeenyMapper.SqlCE</id>
-    <version>0.9.3</version>
+    <id>WeenyMapper</id>
+    <version>0.9.4</version>
     <authors>Erik Öjebo</authors>
     <owners>Erik Öjebo</owners>
     <projectUrl>https://github.com/erikojebo/WeenyMapper</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Configuration-less object-relational mapper for SQL Server and SQL Server CE / SQL Server CE 4.0</description>
-    <releaseNotes>Added connection scope and transaction scope</releaseNotes>
+    <description>Configuration-less object-relational mapper for SQL Server and SQL Server CE</description>
+    <releaseNotes>Minor improvements and bug fixes for transactions</releaseNotes>
     <copyright>Copyright 2012</copyright>
     <tags>.net orm object relational mapping sql sqlserver</tags>
-    <dependencies>
-      <dependency id="Microsoft.SqlServer.Compact" version="4.0.0" />
-      <dependency id="WeenyMapper" version="0.9.3" />
-    </dependencies>
   </metadata>
 </package>

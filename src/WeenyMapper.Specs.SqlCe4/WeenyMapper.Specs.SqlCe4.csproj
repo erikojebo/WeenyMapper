@@ -46,11 +46,11 @@
     <Reference Include="System.Xml" />
     <Reference Include="WeenyMapper, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\WeenyMapper.0.9.3\lib\net40\WeenyMapper.dll</HintPath>
+      <HintPath>..\packages\WeenyMapper.0.9.4\lib\net40\WeenyMapper.dll</HintPath>
     </Reference>
     <Reference Include="WeenyMapper.SqlCe4, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\WeenyMapper.SqlCE.0.9.3\lib\net40\WeenyMapper.SqlCe4.dll</HintPath>
+      <HintPath>..\packages\WeenyMapper.SqlCE.0.9.4\lib\net40\WeenyMapper.SqlCe4.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
