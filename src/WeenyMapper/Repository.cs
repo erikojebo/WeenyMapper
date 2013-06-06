@@ -14,7 +14,7 @@ using WeenyMapper.Extensions;
 
 namespace WeenyMapper
 {
-    public class Repository
+    public class Repository : IDisposable
     {
         private string _connectionString;
         private EntityMapper _entityMapper;
@@ -298,6 +298,11 @@ namespace WeenyMapper
         public virtual TransactionScope BeginTransaction()
         {
             return DbCommandFactory.BeginTransaction();
+        }
+
+        public void Dispose()
+        {
+            DbCommandFactory.Dispose();
         }
     }
 }

@@ -21,6 +21,12 @@ namespace WeenyMapper.Specs
             PerformSetUp();
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            Repository.Dispose();
+        }
+
         public virtual string TestConnectionString
         {
             get { return @"Data source=.\SQLEXPRESS;Initial Catalog=WeenyMapper;Trusted_Connection=true"; }
