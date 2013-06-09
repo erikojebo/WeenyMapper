@@ -29,7 +29,7 @@ namespace WeenyMapper
         {
             _commandFactory.EndTransaction(this);
 
-            if (!_hasCompleted)
+            if (!_hasCompleted && Transaction.HasOpenConnection)
                 Transaction.WeakRollback();
         }
 

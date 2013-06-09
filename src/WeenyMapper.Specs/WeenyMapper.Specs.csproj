@@ -114,6 +114,7 @@
     <Compile Include="QueryParsing\QueryParserSpecs.cs" />
     <Compile Include="Sql\TSqlGeneratorSpecs.cs" />
     <Compile Include="TestClasses\Entities\UserWithExtraProperties.cs" />
+    <Compile Include="UsageExamples.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WeenyMapper.SqlCe\WeenyMapper.SqlCe.csproj">

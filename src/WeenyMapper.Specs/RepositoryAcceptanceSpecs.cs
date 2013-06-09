@@ -3649,6 +3649,39 @@ namespace WeenyMapper.Specs
             Assert.AreEqual("1", actualBlogs[0].Name);
         }
 
+        [Test]
+        public void Transactions_are_not_rolled_back_if_already_rolled_back_from_exception_during_execution_of_a_SQL_statement()
+        {
+            var myBlog = new Blog("My blog");
+
+            var post1 = new BlogPost("Title 1", "Content 1 goes here");
+
+            using (var repository = new Repository())
+            {
+
+                try
+                {
+                    using (var transaction = repository.BeginTransaction())
+                    {
+                        repository.Insert(myBlog);
+
+                        // Will throw exception due to foreign key constraints not being met
+                        repository.Insert(post1);
+
+                        transaction.Commit();
+                    }
+                }
+                catch
+                {
+                   // Swallow the exception
+                }
+
+                var actualBlog = repository.Find<Blog>().Where(x => x.Name == "My blog").Execute();
+
+                Assert.IsNull(actualBlog);
+            }
+        }
+
         private void AssertEqualsManagerAndSubordinates(Employee employee, Employee actualEmployee)
         {
             Assert.AreEqual(employee.Id, actualEmployee.Id);

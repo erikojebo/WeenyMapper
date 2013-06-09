@@ -1,4 +1,5 @@
 using System;
+using System.Data;
 using System.Data.Common;
 
 namespace WeenyMapper
@@ -11,6 +12,11 @@ namespace WeenyMapper
         public TransactionReference(DbTransaction transaction)
         {
             Transaction = transaction;
+        }
+
+        public bool HasOpenConnection
+        {
+            get { return Transaction.Connection != null && Transaction.Connection.State == ConnectionState.Open; }
         }
 
         public void Rollback()

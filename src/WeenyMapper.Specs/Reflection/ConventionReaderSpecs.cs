@@ -28,13 +28,6 @@ namespace WeenyMapper.Specs.Reflection
             Assert.AreEqual(expectedProperty, actualProperty);
         }
 
-        [Ignore("Don't remember what the deal is. Look this up later.")]
-        [Test]
-        public void Fact()
-        {
-            Assert.Fail("why does the insert try to insert the id column value into the product table when it is actually an identity id?");
-        }
-
         class Product
         {
             public int ProductId { get; set; }
