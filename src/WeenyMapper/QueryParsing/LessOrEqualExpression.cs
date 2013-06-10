@@ -11,7 +11,7 @@
 
         protected override QueryExpression Create(PropertyExpression propertyExpression, ValueExpression valueExpression)
         {
-            return new LessExpression(propertyExpression, valueExpression);
+            return new LessOrEqualExpression(propertyExpression, valueExpression);
         }
 
         public override void Accept(IExpressionVisitor expressionVisitor)

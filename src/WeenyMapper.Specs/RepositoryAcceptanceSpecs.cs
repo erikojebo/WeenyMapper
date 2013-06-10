@@ -3682,6 +3682,65 @@ namespace WeenyMapper.Specs
             }
         }
 
+        [Test]
+        public void Less_than_and_greater_than_can_be_used_for_filtering()
+        {
+            Repository.Convention = new BlogConvention();
+
+            var myBlog = new Blog("My blog");
+
+            var steve = new User("Steve", "password");
+
+            var post1 = new BlogPost("Title 1", "Content 1 goes here") { Blog = myBlog, Author = steve, PublishDate = new DateTime(2011, 1, 1) };
+            var post2 = new BlogPost("Title 2", "Content 2 goes here") { Blog = myBlog, Author = steve, PublishDate = new DateTime(2012, 1, 5) };
+            var post3 = new BlogPost("Title 3", "Content 3 goes here") { Blog = myBlog, Author = steve, PublishDate = new DateTime(2012, 4, 1) };
+            var post4 = new BlogPost("Title 4", "Content 4 goes here") { Blog = myBlog, Author = steve, PublishDate = new DateTime(2013, 1, 1) };
+            var post5 = new BlogPost("Title 5", "Content 5 goes here") { Blog = myBlog, Author = steve, PublishDate = new DateTime(2013, 1, 2) };
+
+            Repository.Insert(myBlog);
+            Repository.Insert(steve);
+            Repository.Insert(post1, post2, post3, post4, post5);
+
+            var actualPosts = Repository.Find<BlogPost>()
+                                        .Where(x => x.PublishDate > new DateTime(2011, 1, 1) && x.PublishDate < new DateTime(2013, 1, 1))
+                                        .OrderBy(x => x.Title)
+                                        .ExecuteList();
+
+            Assert.AreEqual(2, actualPosts.Count);
+            Assert.AreEqual("Title 2", actualPosts[0].Title);
+            Assert.AreEqual("Title 3", actualPosts[1].Title);
+        }
+        
+        [Test]
+        public void Less_than_or_equal_and_greater_than_or_equal_can_be_used_for_filtering()
+        {
+            Repository.Convention = new BlogConvention();
+
+            var myBlog = new Blog("My blog");
+
+            var steve = new User("Steve", "password");
+
+            var post1 = new BlogPost("Title 1", "Content 1 goes here") { Blog = myBlog, Author = steve, PublishDate = new DateTime(2011, 1, 1) };
+            var post2 = new BlogPost("Title 2", "Content 2 goes here") { Blog = myBlog, Author = steve, PublishDate = new DateTime(2012, 1, 5) };
+            var post3 = new BlogPost("Title 3", "Content 3 goes here") { Blog = myBlog, Author = steve, PublishDate = new DateTime(2012, 4, 1) };
+            var post4 = new BlogPost("Title 4", "Content 4 goes here") { Blog = myBlog, Author = steve, PublishDate = new DateTime(2013, 1, 1) };
+            var post5 = new BlogPost("Title 5", "Content 5 goes here") { Blog = myBlog, Author = steve, PublishDate = new DateTime(2013, 1, 2) };
+
+            Repository.Insert(myBlog);
+            Repository.Insert(steve);
+            Repository.Insert(post1, post2, post3, post4, post5);
+
+            var actualPosts = Repository.Find<BlogPost>()
+                                        .Where(x => x.PublishDate >= new DateTime(2012, 1, 5) && x.PublishDate <= new DateTime(2013, 1, 1))
+                                        .OrderBy(x => x.Title)
+                                        .ExecuteList();
+
+            Assert.AreEqual(3, actualPosts.Count);
+            Assert.AreEqual("Title 2", actualPosts[0].Title);
+            Assert.AreEqual("Title 3", actualPosts[1].Title);
+            Assert.AreEqual("Title 4", actualPosts[2].Title);
+        }
+
         private void AssertEqualsManagerAndSubordinates(Employee employee, Employee actualEmployee)
         {
             Assert.AreEqual(employee.Id, actualEmployee.Id);
